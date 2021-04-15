@@ -1,0 +1,132 @@
+# Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+# Use of this source code is governed by a 3-Clause BSD license that can be
+# found in the LICENSE file.
+#
+# Continuous integration.
+
+name: Build and Test
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '**/*.md'
+      - 'assets/**'
+
+  pull_request:
+    branches: [ master ]
+    paths-ignore:
+      - '**/*.md'
+      - 'assets/**'
+
+env:
+  GCC_VERSION: 11
+
+jobs:
+  build:
+    name: Build and Test
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [ debug, release ]
+        os: [ macos-latest, ubuntu-latest, windows-latest ]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          submodules: recursive
+
+      - name: Install dependencies (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wayland-protocols \
+          pkg-config \
+          ninja-build \
+          libasound2-dev \
+          libdbus-1-dev \
+          libegl1-mesa-dev \
+          libgl1-mesa-dev \
+          libgles2-mesa-dev \
+          libglu1-mesa-dev \
+          libibus-1.0-dev \
+          libpulse-dev \
+          libsdl2-2.0-0 \
+          libsndio-dev \
+          libudev-dev \
+          libwayland-dev \
+          libwayland-client++0 \
+          wayland-scanner++ \
+          libwayland-cursor++0 \
+          libx11-dev \
+          libxcursor-dev \
+          libxext-dev \
+          libxi-dev \
+          libxinerama-dev \
+          libxkbcommon-dev \
+          libxrandr-dev \
+          libxss-dev \
+          libxt-dev \
+          libxv-dev \
+          libxxf86vm-dev \
+          libdrm-dev \
+          libgbm-dev \
+          libpulse-dev \
+          libpango1.0-dev
+          sudo apt-get install -y gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
+          sudo update-alternatives \
+          --install /usr/bin/gcc   gcc   /usr/bin/gcc-${{ env.GCC_VERSION }}     100 \
+          --slave   /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcov gcov /usr/bin/gcov-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-${{ env.GCC_VERSION }}
+          sudo update-alternatives \
+          --install /usr/bin/cc   cc   /usr/bin/gcc     100 \
+          --slave   /usr/bin/ld ld /usr/bin/x86_64-linux-gnu-ld
+          sudo update-alternatives \
+          --install /usr/bin/c++ c++ /usr/bin/g++     100
+
+      - name: Add msbuild / cmake / nmake to PATH (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Build (MacOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          cmake --preset x86_64-apple-darwin-${{ matrix.build }}
+          cmake --build --preset x86_64-apple-darwin-${{ matrix.build }}
+
+      - name: Build (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          cmake --preset x86_64-unknown-linux-gcc-${{ matrix.build }}
+          cmake --build --preset x86_64-unknown-linux-gcc-${{ matrix.build }}
+
+      - name: Build (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          cmake --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}
+          cmake --build --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}
+
+      - name: Test (MacOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: |
+          ctest --preset x86_64-apple-darwin-${{ matrix.build }}-test
+
+      - name: Test (Ubuntu)
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          ctest --preset x86_64-unknown-linux-gcc-${{ matrix.build }}-test
+
+      - name: Test (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          ctest --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}-test

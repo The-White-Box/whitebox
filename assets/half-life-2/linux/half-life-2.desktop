@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=AudioVideo;Game;
+Comment=Half-Life 2
+Exec=/usr/whitebox/bin/half-life-2
+GenericName=Game
+Icon=/usr/whitebox/assets/half-life-2_icon.png
+Name=Half Life 2
+StartupNotify=true
+Terminal=false
+Type=Application
+Version=1.0

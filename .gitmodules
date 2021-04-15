@@ -1,0 +1,24 @@
+[submodule "deps/g3log"]
+	path = deps/g3log
+	url = git@github.com:The-White-Box/g3log.git
+[submodule "deps/mimalloc"]
+	path = deps/mimalloc
+	url = git@github.com:The-White-Box/mimalloc.git
+[submodule "deps/googletest"]
+	path = deps/googletest
+	url = git@github.com:The-White-Box/googletest.git
+[submodule "deps/sdl"]
+	path = deps/sdl
+	url = git@github.com:The-White-Box/SDL.git
+[submodule "deps/sdl_image"]
+	path = deps/sdl_image
+	url = git@github.com:The-White-Box/SDL_image.git
+[submodule "deps/fmt"]
+	path = deps/fmt
+	url = git@github.com:The-White-Box/fmt.git
+[submodule "deps/abseil"]
+	path = deps/abseil
+	url = git@github.com:The-White-Box/abseil-cpp.git
+[submodule "deps/marl"]
+	path = deps/marl
+	url = git@github.com:The-White-Box/marl.git

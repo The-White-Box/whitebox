@@ -1,0 +1,1 @@
+The `ui` directory contains UI.

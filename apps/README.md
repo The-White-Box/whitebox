@@ -1,0 +1,1 @@
+The apps directory contains sources for applications.

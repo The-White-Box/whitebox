@@ -1,0 +1,375 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 19,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "displayName": "Base config",
+      "description": "Default build using Ninja generator",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/${presetName}",
+      "cacheVariables": {
+        "ADD_FATAL_EXAMPLE": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CHANGE_G3LOG_DEBUG_TO_DBUG": "ON",
+        "gtest_hide_internal_symbols": "ON",
+        "INSTALL_GTEST": "OFF",
+        "MI_BUILD_OBJECT": "OFF",
+        "MI_BUILD_STATIC": "ON",
+        "MI_BUILD_TESTS": "OFF",
+        "MI_SECURE": "ON",
+        "WB_BUILD_TESTS": "ON"
+      },
+      "warnings": {
+        "dev": true,
+        "deprecated": true,
+        "uninitialized": true,
+        "unusedCli": true,
+        "systemVars": false
+      },
+      "errors": {
+        "deprecated": false
+      }
+    },
+    {
+      "name": "unknown-linux-base",
+      "displayName": "Base Linux distros config",
+      "description": "Sets Linux build type",
+      "hidden": true,
+      "generator": "CodeBlocks - Unix Makefiles",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "unknown-apple-darwin-base",
+      "displayName": "Base MacOS distros config",
+      "description": "Sets MacOS build type",
+      "hidden": true,
+      "generator": "CodeBlocks - Unix Makefiles",
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_CLANG_LINKER_TYPE": "ld",
+        "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
+      }
+    },
+    {
+      "name": "unknown-pc-windows-msvc-base",
+      "displayName": "Base Windows config",
+      "description": "Sets Windows build type",
+      "hidden": true,
+      "inherits": "base",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "cacheVariables": {
+        "WB_MSVC_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_MSVC_ENABLE_DEBUG_INLINING": "ON"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      }
+    },
+    {
+      "name": "x86_64-pc-windows-msvc-base",
+      "displayName": "Base Windows x64 config",
+      "description": "Sets Windows build type and x64 arch",
+      "hidden": true,
+      "inherits": "unknown-pc-windows-msvc-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "WB_MSVC_ENABLE_DEBUG_FAST_LINK": "ON",
+        "WB_MSVC_FLOATING_POINT_BEHAVIOR": "fast",
+        "WB_MSVC_MINIMUM_CPU_ARCHITECTURE": "AVX"
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-gcc-base",
+      "displayName": "Base Linux via GCC config",
+      "description": "Sets GCC",
+      "hidden": true,
+      "inherits": "unknown-linux-base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "WB_GCC_ENABLE_UNSAFE_MATH": "ON",
+        "WB_GCC_ENABLE_WARNING_WUNDEF": "OFF",
+        "WB_GCC_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_GCC_MINIMUM_CPU_ARCHITECTURE": "native"
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-base",
+      "displayName": "Base Linux via Clang config",
+      "description": "Sets Clang",
+      "hidden": true,
+      "inherits": "unknown-linux-base",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "WB_CLANG_ENABLE_UNSAFE_MATH": "ON",
+        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-gcc-debug",
+      "displayName": "Linux x86_64 GCC Debug",
+      "description": "Linux x86_64 GCC Debug",
+      "inherits": "x86_64-unknown-linux-gcc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-gcc-release",
+      "displayName": "Linux x86_64 GCC Release",
+      "description": "Linux x86_64 GCC Release",
+      "inherits": "x86_64-unknown-linux-gcc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-debug",
+      "displayName": "Linux x86_64 Clang Debug",
+      "description": "Linux x86_64 Clang Debug",
+      "inherits": "x86_64-unknown-linux-clang-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-release",
+      "displayName": "Linux x86_64 Clang Release",
+      "description": "Linux x86_64 Clang Release",
+      "inherits": "x86_64-unknown-linux-clang-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "x86_64-apple-darwin-debug",
+      "displayName": "MacOS x86_64 Clang Debug",
+      "description": "MacOS x86_64 Clang Debug",
+      "inherits": "unknown-apple-darwin-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86_64-apple-darwin-release",
+      "displayName": "MacOS x86_64 Clang Release",
+      "description": "MacOS x86_64 Clang Release",
+      "inherits": "unknown-apple-darwin-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-base",
+      "displayName": "Windows AMD PC x86_64 MSVC Base",
+      "description": "Windows AMD PC x86_64 MSVC Base",
+      "hidden": true,
+      "inherits": "x86_64-pc-windows-msvc-base",
+      "cacheVariables": {
+        "WB_MSVC_FAVORED_CPU_ARCHITECTURE": "AMD64"
+      }
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-base",
+      "displayName": "Windows Intel PC x86_64 MSVC Base",
+      "description": "Windows Intel PC x86_64 MSVC Base",
+      "hidden": true,
+      "inherits": "x86_64-pc-windows-msvc-base",
+      "cacheVariables": {
+        "WB_MSVC_FAVORED_CPU_ARCHITECTURE": "INTEL64"
+      }
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-debug",
+      "displayName": "Windows AMD PC x86_64 MSVC Debug",
+      "description": "Windows AMD PC x86_64 MSVC Debug",
+      "inherits": "x86_64-amd_pc-windows-msvc-base",
+      "cacheVariables": {
+        "DEBUG_BREAK_AT_FATAL_SIGNAL": "ON",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-release",
+      "displayName": "Windows AMD PC x86_64 MSVC Release",
+      "description": "Windows AMD PC x86_64 MSVC Release",
+      "inherits": "x86_64-amd_pc-windows-msvc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-debug",
+      "displayName": "Windows Intel PC x86_64 MSVC Debug",
+      "description": "Windows Intel PC x86_64 MSVC Debug",
+      "inherits": "x86_64-intel_pc-windows-msvc-base",
+      "cacheVariables": {
+        "DEBUG_BREAK_AT_FATAL_SIGNAL": "ON",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-release",
+      "displayName": "Windows Intel PC x86_64 MSVC Release",
+      "description": "Windows Intel PC x86_64 MSVC Release",
+      "inherits": "x86_64-intel_pc-windows-msvc-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "x86_64-unknown-linux-clang-debug",
+      "displayName": "Dev Linux x86_64 Clang build",
+      "description": "Dev Linux x86_64 Clang build",
+      "configurePreset": "x86_64-unknown-linux-clang-debug"
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-release",
+      "displayName": "Production Linux x86_64 Clang build",
+      "description": "Production Linux x86_64 Clang build",
+      "configurePreset": "x86_64-unknown-linux-clang-release"
+    },
+    {
+      "name": "x86_64-unknown-linux-gcc-debug",
+      "displayName": "Dev Linux x86_64 GCC build",
+      "description": "Dev Linux x86_64 GCC build",
+      "configurePreset": "x86_64-unknown-linux-gcc-debug"
+    },
+    {
+      "name": "x86_64-unknown-linux-gcc-release",
+      "displayName": "Production Linux x86_64 GCC build",
+      "description": "Production Linux x86_64 GCC build",
+      "configurePreset": "x86_64-unknown-linux-gcc-release"
+    },
+    {
+      "name": "x86_64-apple-darwin-debug",
+      "displayName": "Dev MacOS x86_64 build",
+      "description": "Dev MacOS x86_64 build",
+      "configurePreset": "x86_64-apple-darwin-debug"
+    },
+    {
+      "name": "x86_64-apple-darwin-release",
+      "displayName": "Production MacOS x86_64 build",
+      "description": "Production MacOS x86_64 build",
+      "configurePreset": "x86_64-apple-darwin-release"
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-debug",
+      "displayName": "Dev Windows AMD PC x86_64 MSVC build",
+      "description": "Dev Windows AMD PC x86_64 MSVC build",
+      "configurePreset": "x86_64-amd_pc-windows-msvc-debug"
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-release",
+      "displayName": "Production Windows AMD PC x86_64 MSVC build",
+      "description": "Production Windows AMD PC x86_64 MSVC build",
+      "configurePreset": "x86_64-amd_pc-windows-msvc-release"
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-debug",
+      "displayName": "Dev Windows Intel PC x86_64 MSVC build",
+      "description": "Dev Windows Intel PC x86_64 MSVC build",
+      "configurePreset": "x86_64-intel_pc-windows-msvc-debug"
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-release",
+      "displayName": "Production Windows Intel PC x86_64 MSVC build",
+      "description": "Production Windows Intel PC x86_64 MSVC build",
+      "configurePreset": "x86_64-intel_pc-windows-msvc-release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "base-test",
+      "description": "Base tests",
+      "hidden": true,
+      "output": {
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error",
+        "stopOnFailure": true
+      }
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-debug-test",
+      "description": "Dev Linux x86_64 Clang build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-unknown-linux-clang-debug"
+    },
+    {
+      "name": "x86_64-apple-darwin-debug-test",
+      "description": "Dev MacOS x86_64 build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-apple-darwin-debug"
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-debug-test",
+      "description": "Dev Windows AMD PC x86_64 MSVC tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-amd_pc-windows-msvc-debug"
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-debug-test",
+      "description": "Dev Windows Intel PC x86_64 MSVC tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-intel_pc-windows-msvc-debug"
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-release-test",
+      "description": "Production Linux x86_64 Clang build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-unknown-linux-clang-release"
+    },
+    {
+      "name": "x86_64-apple-darwin-release-test",
+      "description": "Production MacOS x86_64 build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-apple-darwin-release"
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-release-test",
+      "description": "Production Windows AMD PC x86_64 MSVC tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-amd_pc-windows-msvc-release"
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-release-test",
+      "description": "Production Windows Intel PC x86_64 MSVC tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-intel_pc-windows-msvc-release"
+    }
+  ]
+}

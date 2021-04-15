@@ -1,0 +1,56 @@
+// Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+// Use of this source code is governed by a 3-Clause BSD license that can be
+// found in the LICENSE file.
+//
+// Half-Life 2 exe resources.
+
+#include <winresrc.h>
+
+#include "resource_win.h"
+
+// clang-format off
+
+// Sets resource file code page.
+#pragma code_page(65001)  // Unicode (UTF-8)
+
+// Resources are in default english.
+LANGUAGE LANG_ENGLISH, SUBLANG_DEFAULT
+
+// Icon with lowest ID value placed first to ensure application icon remains
+// consistent on all systems.
+
+WB_HALF_LIFE_2_IDI_MAIN_ICON    ICON   "resources/half-life-2.ico"
+WB_HALF_LIFE_2_IDI_SMALL_ICON   ICON   "resources/half-life-2-small.ico"
+
+// Version info.
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     WB_APP_VER_FILE_VERSION_HEADER
+PRODUCTVERSION  WB_VER_PRODUCT_VERSION_HEADER
+FILEFLAGSMASK   WB_VER_FFI_FILEFLAGSMASK
+FILEFLAGS       WB_VER_FILEFLAGS
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "CompanyName",      WB_PRODUCT_COMPANY_NAME_STRING
+            VALUE "FileDescription",  WB_PRODUCT_FILE_DESCRIPTION_STRING
+            VALUE "FileVersion",      WB_PRODUCT_FILE_VERSION_INFO_STRING
+            VALUE "InternalName",     WB_PRODUCT_INTERNAL_NAME_STRING
+            VALUE "LegalCopyright",   WB_PRODUCT_LEGAL_COPYRIGHT_STRING
+            VALUE "OriginalFilename", WB_PRODUCT_ORIGINAL_NAME_STRING
+            VALUE "ProductName",      WB_PRODUCT_NAME_STRING
+            VALUE "ProductVersion",   WB_PRODUCT_VERSION_INFO_STRING
+        END
+    END
+
+    BLOCK "VarFileInfo"
+    BEGIN
+        // Language,codepage combination supported by the file.
+        VALUE "Translation", 0x409, 0x4B0
+    END
+END
