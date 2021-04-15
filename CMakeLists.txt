@@ -485,6 +485,10 @@ endif()
 
 # mimalloc.
 
+if (WB_MSVC_ENABLE_ADDRESS_SANITIZER)
+  # Enable AddressSanitizer support.
+  set(MI_TRACK_ASAN ON)
+endif()
 add_subdirectory("deps/mimalloc")
 if (WB_OS_WIN)
   # Adds VERSION resource.
@@ -591,16 +595,33 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
     endif()
 
     # Need to have pdbs on MSVC to simplify debugging.
-    if (WB_OS_WIN)
+    if (WB_COMPILER_MSVC)
+      target_compile_options(${wb_target_name}
+        PRIVATE
+          # Enable AddressSanitizer.
+          $<$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>:/fsanitize=address>
+      )
+
       target_link_options(${wb_target_name}
         PRIVATE
+          # Enable address space layout randomization.
+          /DYNAMICBASE
+          # ASLR can use the entire 64-bit address space. To have an effect, set the
+          # option on both the executable and all modules that it depends on.
+          # This option requires /LARGEADDRESSAWARE. To have an effect at load time,
+          # /DYNAMICBASE must also be enabled.
+          /HIGHENTROPYVA
+          # Application can handle addresses larger than 2 gigabytes.
+          /LARGEADDRESSAWARE
+          # Enable linking to the default AddressSanitizer libraries.
+          $<$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>:/INFERASANLIBS>
+
           $<$<CONFIG:DEBUG>:
             # Generate a partial PDB file that simply references the original object
             # and library files.
             $<IF:$<BOOL:${WB_MSVC_ENABLE_DEBUG_FAST_LINK}>,/DEBUG:FASTLINK,/DEBUG:FULL>
           >
 
-          ## Non-debug builds.
           $<$<NOT:$<CONFIG:DEBUG>>:
             # Generate full pdbs or not.
             $<IF:$<BOOL:${WB_MSVC_ENABLE_RELEASE_DEBUG_INFO}>,/DEBUG:FULL,/DEBUG:NONE>

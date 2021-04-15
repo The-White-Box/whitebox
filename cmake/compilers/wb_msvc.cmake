@@ -15,6 +15,7 @@ include(wb_clang_tidy_configuration)
 option(WB_MSVC_CREATE_HOTPATCHABLE_IMAGE                        "If enabled, compiler prepares an image for hot patching." OFF)
 option(WB_MSVC_ENABLE_ALL_WARNINGS                              "If enabled, pass /Wall to the compiler." ON)
 option(WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS                "If enabled, use recommended Security Development Lifecycle (SDL) checks.  These checks change security-relevant warnings into errors, and set additional secure code-generation features." ON)
+option(WB_MSVC_ENABLE_ADDRESS_SANITIZER                         "If enabled, use AddressSanitizer to catch address errors in runtime.  C++ AddressSanitizer workflow installed.  Ensure <Visual Studio>/ide/VC/Tools/MSVC/<Version>/bin/Hostx64/x64 is in PATH env." ON)
 option(WB_MSVC_ENABLE_COROUTINE_SUPPORT                         "If enabled, enable compiler support for coroutines." ON)
 option(WB_MSVC_ENABLE_DEBUG_INLINING                            "If enabled, enable inlining in the debug configuration.  This allows /Zc:inline to be far more effective." OFF)
 option(WB_MSVC_ENABLE_DEBUG_FAST_LINK                           "If enabled, pass /DEBUG:FASTLINK to the linker.  This makes linking faster, but .pdbs miss some info to be run on another computer." OFF)
@@ -163,6 +164,26 @@ foreach(flag_var
     string(REGEX REPLACE "/external:W0" "" ${flag_var} "${${flag_var}}")
   endif()
 endforeach()
+
+if (WB_MSVC_ENABLE_ADDRESS_SANITIZER)
+  # At least Ninja doesn't remove the /INCREMENTAL flag when we enable Address
+  # Sanitizer.  Remove /INCREMENTAL, as not compatible.
+  # See https://learn.microsoft.com/en-us/cpp/sanitizers/asan-known-issues#incompatible-options
+  foreach(flag_var
+      CMAKE_EXE_LINKER_FLAGS CMAKE_EXE_LINKER_FLAGS_DEBUG
+      CMAKE_EXE_LINKER_FLAGS_RELEASE CMAKE_EXE_LINKER_FLAGS_MINSIZEREL
+      CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO
+      CMAKE_STATIC_LINKER_FLAGS CMAKE_STATIC_LINKER_FLAGS_DEBUG
+      CMAKE_STATIC_LINKER_FLAGS_RELEASE CMAKE_STATIC_LINKER_FLAGS_MINSIZEREL
+      CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO
+      CMAKE_SHARED_LINKER_FLAGS CMAKE_SHARED_LINKER_FLAGS_DEBUG
+      CMAKE_SHARED_LINKER_FLAGS_RELEASE CMAKE_SHARED_LINKER_FLAGS_MINSIZEREL
+      CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO)
+    if (${flag_var} MATCHES "/INCREMENTAL")
+      string(REGEX REPLACE "/INCREMENTAL" "" ${flag_var} "${${flag_var}}")
+    endif()
+  endforeach()
+endif()
 
 # When building with Ninja, or with /MP enabled, there is the potential
 # for multiple processes to need to lock the same pdb file.
@@ -338,7 +359,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # /RTCc option.
         # /RTCs enables stack frame run-time error checking.
         # /RTCu reports when a variable is used without having been initialized.
-        /RTC${WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS}
+        # Disabled when use AddressSanitizer.
+        # See https://learn.microsoft.com/en-us/cpp/sanitizers/asan-known-issues#incompatible-options
+        $<$<NOT:$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>>:/RTC${WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS}>
 
         # Add /Ob2 if allowing inlining in debug mode.
         $<$<BOOL:${WB_MSVC_ENABLE_DEBUG_INLINING}>:/Ob2>
@@ -462,7 +485,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       >
 
       $<$<CONFIG:DEBUG>:
-        _ALLOW_RTCc_IN_STL  # Allow to build STL with /RTCc
+        # Allow to build STL with /RTCc.  Disabled when use AddressSanitizer.
+        # See https://learn.microsoft.com/en-us/cpp/sanitizers/asan-known-issues#incompatible-options
+        $<$<NOT:$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>>:_ALLOW_RTCc_IN_STL>
       >
   )
 
@@ -505,9 +530,14 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # Enable LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_APPLICATION_DIR
         # for statically linked DLL loading to prevent some DLL planting attack vectors.
         # See --insecure_allow_unsigned_module_target command line flag, too.
-        /DEPENDENTLOADFLAG:0xA00
-        /OPT:NOREF,NOICF  # No (unreferenced data delete + same COMDAT folding).
-        /INCREMENTAL      # Do incremental linking.
+        # Disabled when use AddressSanitizer as we load DLLs from MSVC path.
+        # See https://learn.microsoft.com/en-us/cpp/sanitizers/asan-known-issues#incompatible-options
+        $<$<NOT:$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>>:/DEPENDENTLOADFLAG:0xA00>
+        # No (unreferenced data delete + same COMDAT folding).
+        /OPT:NOREF,NOICF
+        # Do incremental linking.  Disabled when use AddressSanitizer.
+        # See https://learn.microsoft.com/en-us/cpp/sanitizers/asan-known-issues#incompatible-options
+        $<$<NOT:$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>>:/INCREMENTAL>
         # Generate a partial PDB file that simply references the original object
         # and library files or full one.
         $<IF:$<BOOL:${WB_MSVC_ENABLE_DEBUG_FAST_LINK}>,/DEBUG:FASTLINK,/DEBUG:FULL>
@@ -518,7 +548,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # Enable LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_APPLICATION_DIR | LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
         # for statically linked DLL loading to prevent some DLL planting attack vectors.
         # See --insecure_allow_unsigned_module_target command line flag, too.
-        /DEPENDENTLOADFLAG:0xA80
+        # Disabled when use AddressSanitizer as we load DLLs from MSVC path.
+        # See https://learn.microsoft.com/en-us/cpp/sanitizers/asan-known-issues#incompatible-options
+        $<$<NOT:$<BOOL:${WB_MSVC_ENABLE_ADDRESS_SANITIZER}>>:/DEPENDENTLOADFLAG:0xA80>
         # Add /GL to the compiler, and /LTCG to the linker if link time code
         # generation is enabled.
         $<$<BOOL:${WB_MSVC_ENABLE_LTCG}>:/LTCG>
