@@ -1,6 +1,8 @@
 // Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
+//
+// Configuration for Windows headers.
 
 #ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_WINDOWS_HEADERS_CONFIG_H_
 #define WHITEBOX_BASE_INCLUDE_WINDOWS_WINDOWS_HEADERS_CONFIG_H_
@@ -18,7 +20,7 @@
 #define STRICT
 #endif
 
-// Nobody needs it.
+// Nobody needs these.
 #define NOWINRES
 #define NOSERVICE
 #define NOMCX

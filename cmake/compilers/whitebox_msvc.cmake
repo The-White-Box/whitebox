@@ -2,6 +2,8 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 #
+# MSVC compiler configuration.
+#
 # Derived from https://github.com/facebook/folly/blob/master/CMake/FollyCompilerMSVC.cmake
 # which is licensed under the Apache License, Version 2.0 (the "License").  See
 # the License for the specific language governing permissions and limitations
@@ -10,68 +12,54 @@
 include(whitebox_clang_tidy_configuration)
 
 # Some additional configuration options.
-option(MSVC_CREATE_HOTPATCHABLE_IMAGE
-  "If enabled, compiler prepares an image for hot patching." OFF)
-option(MSVC_ENABLE_ALL_WARNINGS
-  "If enabled, pass /Wall to the compiler." ON)
-option(MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS
-  "If enabled, use recommended Security Development Lifecycle (SDL) checks. These checks change security-relevant warnings into errors, and set additional secure code-generation features.." ON)
-option(MSVC_ENABLE_COROUTINE_SUPPORT
-  "If enabled, enable compiler support for coroutines." ON)
-option(MSVC_ENABLE_DEBUG_INLINING
-  "If enabled, enable inlining in the debug configuration. This allows /Zc:inline to be far more effective." OFF)
-option(MSVC_ENABLE_FAST_LINK
-  "If enabled, pass /DEBUG:FASTLINK to the linker. This makes linking faster, but the gtest integration for Visual Studio can't currently handle the .pdbs generated." OFF)
-option(MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW
-  "If enabled, compiler/linker generate Control Flow Guard security checks." ON)
-option(MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION
-  "If enabled, compiler/linker generate a sorted list of the relative virtual addresses (RVA) of all the valid exception handling continuation targets for a binary. It's used during runtime for NtContinue and SetThreadContext instruction pointer validation." ON)
-option(MSVC_ENABLE_INTRINSICS
-  "If enabled, replaces some function calls with intrinsic or otherwise special forms. Using the true intrinsic forms implies loss of IEEE exception handling, and loss of _matherr and errno functionality; the latter implies loss of ANSI conformance." ON)
-option(MSVC_ENABLE_LEAN_AND_MEAN_WINDOWS
-  "If enabled, define WIN32_LEAN_AND_MEAN to include a smaller subset of Windows.h" ON)
-option(MSVC_ENABLE_LTCG
-  "If enabled, use Link Time Code Generation for Release builds." ON)
-option(MSVC_ENABLE_PARALLEL_BUILD
-  "If enabled, build multiple source files in parallel." ON)
-option(MSVC_ENABLE_RTTI
-  "If enabled, adds code to check object types at run time (dynamic_cast, typeid)." ON)
-option(MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS
-  "If enabled, threat complex static analysis warnings as errors." ON)
-option(MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS
-  "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
-option(MSVC_USE_STATIC_RUNTIME
-  "If enabled, build against the static, rather than the dynamic, runtime." OFF)
+option(WB_MSVC_CREATE_HOTPATCHABLE_IMAGE                        "If enabled, compiler prepares an image for hot patching." OFF)
+option(WB_MSVC_ENABLE_ALL_WARNINGS                              "If enabled, pass /Wall to the compiler." ON)
+option(WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS                "If enabled, use recommended Security Development Lifecycle (SDL) checks.  These checks change security-relevant warnings into errors, and set additional secure code-generation features.." ON)
+option(WB_MSVC_ENABLE_COROUTINE_SUPPORT                         "If enabled, enable compiler support for coroutines." ON)
+option(WB_MSVC_ENABLE_DEBUG_INLINING                            "If enabled, enable inlining in the debug configuration.  This allows /Zc:inline to be far more effective." OFF)
+option(WB_MSVC_ENABLE_FAST_LINK                                 "If enabled, pass /DEBUG:FASTLINK to the linker.  This makes linking faster, but the gtest integration for Visual Studio can't currently handle the .pdbs generated." OFF)
+option(WB_MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW                    "If enabled, compiler/linker generate Control Flow Guard security checks." ON)
+option(WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION                 "If enabled, compiler/linker generate a sorted list of the relative virtual addresses (RVA) of all the valid exception handling continuation targets for a binary.  It's used during runtime for NtContinue and SetThreadContext instruction pointer validation." ON)
+option(WB_MSVC_ENABLE_INTRINSICS                                "If enabled, replaces some function calls with intrinsic or otherwise special forms.  Using the true intrinsic forms implies loss of IEEE exception handling, and loss of _matherr and errno functionality; the latter implies loss of ANSI conformance." ON)
+option(WB_MSVC_ENABLE_LEAN_AND_MEAN_WINDOWS                     "If enabled, define WIN32_LEAN_AND_MEAN to include a smaller subset of Windows.h" ON)
+option(WB_MSVC_ENABLE_LTCG                                      "If enabled, use Link Time Code Generation for Release builds." ON)
+option(WB_MSVC_ENABLE_PARALLEL_BUILD                            "If enabled, build multiple source files in parallel." ON)
+option(WB_MSVC_ENABLE_RTTI                                      "If enabled, adds code to check object types at run time (dynamic_cast, typeid)." ON)
+option(WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS   "If enabled, threat complex static analysis warnings as errors." ON)
+option(WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS               "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
+option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, build against the static, rather than the dynamic, runtime." OFF)
+option(WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_UTF8                 "If enabled, uses *W (UTF-16) WinAPI against the new Windows Version 1903 (May 2019 Update) easier to port UTF-8 one." OFF)
+option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, uses secure tempalte overloads to ex. replace the strcpy call to strcpy_s, which prevents buffer overruns.  See https://docs.microsoft.com/en-us/cpp/c-runtime-library/secure-template-overloads" ON)
 
-define_strings_option(MSVC_STATIC_CODE_ANALYSIS_MODE
+wb_define_strings_option(WB_MSVC_STATIC_CODE_ANALYSIS_MODE
   "Specifies complex source code analysis mode.  Plugins require presetup.  See https://docs.microsoft.com/en-us/cpp/build/reference/analyze-code-analysis."
   "" "/analyze" "/analyze:only" "/analyze:plugin EspXEngine.dll")
 
-define_strings_option(MSVC_DEBUG_RUNTIME_ERROR_CHECKS
+wb_define_strings_option(WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS
   "Used to enable and disable the run-time error checks feature in DEBUG, in conjunction with the runtime_checks pragma."
   "csu" "c" "cs" "cu" "s" "su")
 
-define_strings_option(MSVC_EXCEPTION_HANDLING_MODEL
+wb_define_strings_option(WB_MSVC_EXCEPTION_HANDLING_MODEL
   "Specifies the exception handling model support generated by the compiler."
   "s" "sr" "sc" "scr" "a" "ar" "c" "r")
 
-define_strings_option(MSVC_FAVORED_CPU_ARCHITECTURE
+wb_define_strings_option(WB_MSVC_FAVORED_CPU_ARCHITECTURE
   "This tells the compiler to generate code optimized to run best on the specified architecture."
   "blend" "AMD64" "ATOM" "INTEL64")
 
-define_strings_option(MSVC_FLOATING_POINT_BEHAVIOR
+wb_define_strings_option(WB_MSVC_FLOATING_POINT_BEHAVIOR
   "Specifies how the compiler treats floating-point expressions, optimizations, and exceptions"
   "precise" "strict" "fast")
 
-define_strings_option(MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR
-  "Specifies how any unmasked floating-point exceptions are raised at the exact point at which they occur, and that no additional floating-point exceptions are raised. MSVC_FLOATING_POINT_BEHAVIOR:strict option enables except, and MSVC_FLOATING_POINT_BEHAVIOR:precise does not. The except option is not compatible with MSVC_FLOATING_POINT_BEHAVIOR:fast."
+wb_define_strings_option(WB_MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR
+  "Specifies how any unmasked floating-point exceptions are raised at the exact point at which they occur, and that no additional floating-point exceptions are raised. WB_MSVC_FLOATING_POINT_BEHAVIOR:strict option enables except, and WB_MSVC_FLOATING_POINT_BEHAVIOR:precise does not.  The except option is not compatible with WB_MSVC_FLOATING_POINT_BEHAVIOR:fast."
   "except-" "except")
 
-define_strings_option(MSVC_CXX_LANGUAGE_VERSION
+wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
-  "c++latest" "c++17")
+  "c++17" "c++latest")
 
-define_strings_option(MSVC_MINIMUM_CPU_ARCHITECTURE
+wb_define_strings_option(WB_MSVC_MINIMUM_CPU_ARCHITECTURE
   "This tells the compiler to choose minimum instruction set for the specified architecture."
   "" "AVX" "AVX2" "AVX512" "ARMv7VE" "VFPv4")
 
@@ -82,7 +70,7 @@ define_strings_option(MSVC_MINIMUM_CPU_ARCHITECTURE
 
 # If the static runtime is requested, we have to overwrite some of CMake's
 # defaults.
-if (MSVC_USE_STATIC_RUNTIME)
+if (WB_MSVC_USE_STATIC_RUNTIME)
   foreach(flag_var
       CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
       CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
@@ -166,27 +154,27 @@ foreach(flag_var CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG)
 endforeach()
 
 # Apply the option set for WhiteBox to the specified target.
-function(apply_compile_options_to_target THETARGET)
+function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THETARGET})
+  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_MSVC_CXX_LANGUAGE_VERSION})
 
   # The general options passed:
-  target_compile_options(${THETARGET}
+  target_compile_options(${THE_TARGET}
     PUBLIC
       # The /await compiler option enables compiler support for C++ coroutines
       # and the keywords co_await, co_yield, and co_return.
-      $<$<BOOL:${MSVC_ENABLE_COROUTINE_SUPPORT}>:/await>
+      $<$<BOOL:${WB_MSVC_ENABLE_COROUTINE_SUPPORT}>:/await>
       # Specifies the exception handling model support generated by the
       # compiler.  Arguments specify whether to apply catch(...) syntax to both
       # structured and standard C++ exceptions, whether extern "C" code is
       # assumed to throw exceptions, and whether to optimize away certain
       # noexcept checks.
-      /EH${MSVC_EXCEPTION_HANDLING_MODEL}
+      /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
       # Results in more efficient code for an .exe file for accessing thread-
       # local storage (TLS) variables.  Using /GA for a DLL can result in bad
       # code generation.
-      $<$<STREQUAL:$<TARGET_PROPERTY:${THETARGET},TYPE>,EXECUTABLE>:
+      $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>:
         /GA
       >
       # Enables the compiler to create a single copy of identical strings in the
@@ -199,7 +187,7 @@ function(apply_compile_options_to_target THETARGET)
       /GF
       # Enable Run-Time Type Information.  You usually need the /GR option when
       # your code uses dynamic_cast Operator or typeid.
-      $<$<BOOL:${MSVC_ENABLE_RTTI}>:/GR>
+      $<$<BOOL:${WB_MSVC_ENABLE_RTTI}>:/GR>
       # Detects some buffer overruns that overwrite a function's return address,
       # exception handler address, or certain types of parameters.
       /GS
@@ -216,7 +204,7 @@ function(apply_compile_options_to_target THETARGET)
       #
       # The /guard:cf option must be passed to both the compiler and linker to
       # build code that uses the CFG exploit mitigation technique.
-      $<$<BOOL:${MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW}>:/guard:cf>
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW}>:/guard:cf>
       # Causes the compiler to generate a sorted list of the relative virtual
       # addresses (RVA) of all the valid exception handling continuation targets
       # for a binary.  It's used during runtime for NtContinue and
@@ -224,7 +212,7 @@ function(apply_compile_options_to_target THETARGET)
       #
       # The /guard:ehcont option must be passed to both the compiler and linker
       # to generate EH continuation target RVAs for a binary.
-      $<$<BOOL:${MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
       # Causes the compiler to package global data in individual COMDAT sections
       # for optimization.
       /Gw
@@ -234,7 +222,7 @@ function(apply_compile_options_to_target THETARGET)
       #
       # To complete the preparation for making an image hotpatchable, after you
       # use /hotpatch to compile, you must use /FUNCTIONPADMIN to link.
-      $<$<BOOL:${MSVC_CREATE_HOTPATCHABLE_IMAGE}>:/hotpatch>
+      $<$<BOOL:${WB_MSVC_CREATE_HOTPATCHABLE_IMAGE}>:/hotpatch>
       # Replaces some function calls with intrinsic or otherwise special forms
       # of the function that help your application run faster.  /Oi is only a
       # request to the compiler to replace some function calls with intrinsics;
@@ -244,7 +232,7 @@ function(apply_compile_options_to_target THETARGET)
       # Using the true intrinsic forms implies loss of IEEE exception handling,
       # and loss of _matherr and errno functionality; the latter implies loss of
       # ANSI conformance.
-      $<$<BOOL:${MSVC_ENABLE_INTRINSICS}>:/Oi>
+      $<$<BOOL:${WB_MSVC_ENABLE_INTRINSICS}>:/Oi>
 
       ## C++ standard conformance.
       # Selects strict volatile semantics as defined by the ISO-standard C++
@@ -277,8 +265,8 @@ function(apply_compile_options_to_target THETARGET)
       /permissive-
 
       # Enables recommended Security Development Lifecycle (SDL) checks.
-      $<$<BOOL:${MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>:/sdl>
-      /std:${MSVC_CXX_LANGUAGE_VERSION} # Build in the requested version of C++
+      $<$<BOOL:${WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>:/sdl>
+      /std:${WB_MSVC_CXX_LANGUAGE_VERSION} # Build in the requested version of C++
 
       # Set source character set and the execution character set as UTF-8.
       /utf-8
@@ -286,26 +274,26 @@ function(apply_compile_options_to_target THETARGET)
     PRIVATE
       /bigobj # Support objects with > 65k sections. Needed due to templates.
       # Architecture to prefer when generating code.
-      /favor:${MSVC_FAVORED_CPU_ARCHITECTURE}
+      /favor:${WB_MSVC_FAVORED_CPU_ARCHITECTURE}
       # Minimum architecture (instruction sets) to use when generating code.
-      $<$<BOOL:${MSVC_MINIMUM_CPU_ARCHITECTURE}>:/arch:${MSVC_MINIMUM_CPU_ARCHITECTURE}>
+      $<$<BOOL:${WB_MSVC_MINIMUM_CPU_ARCHITECTURE}>:/arch:${WB_MSVC_MINIMUM_CPU_ARCHITECTURE}>
       # Specify floating-point behavior.
-      ######## /fp:${MSVC_FLOATING_POINT_BEHAVIOR}
+      ######## /fp:${WB_MSVC_FLOATING_POINT_BEHAVIOR}
       # Specify floating-point exceptions behavior.
-      /fp:${MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR}
+      /fp:${WB_MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR}
 
       # Enable all warnings if requested or set 4 (highest) level for warnings.
-      $<IF:$<BOOL:${MSVC_ENABLE_ALL_WARNINGS}>,/Wall,W4>
+      $<IF:$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>,/Wall,W4>
       # Enable all warnings if requested.
-      $<$<BOOL:${MSVC_ENABLE_ALL_WARNINGS}>:/Wall>
+      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/Wall>
       # Treats all warnings as errors if requested.
-      $<$<BOOL:${MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS}>:/WX>
+      $<$<BOOL:${WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS}>:/WX>
       # Enable multi-processor compilation if requested.
-      $<$<BOOL:${MSVC_ENABLE_PARALLEL_BUILD}>:/MP>
+      $<$<BOOL:${WB_MSVC_ENABLE_PARALLEL_BUILD}>:/MP>
       # Enable static analysis if requested.
-      $<$<BOOL:${MSVC_STATIC_CODE_ANALYSIS_MODE}>:${MSVC_STATIC_CODE_ANALYSIS_MODE}>
+      $<$<BOOL:${WB_MSVC_STATIC_CODE_ANALYSIS_MODE}>:${WB_MSVC_STATIC_CODE_ANALYSIS_MODE}>
       # Threat static analyser warnings as errors.
-      $<$<NOT:$<BOOL:${MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS}>>:/analyze:WX->
+      $<$<NOT:$<BOOL:${WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS}>>:/analyze:WX->
 
       ## Debug builds.
       $<$<CONFIG:DEBUG>:
@@ -317,10 +305,10 @@ function(apply_compile_options_to_target THETARGET)
         # /RTCc option.
         # /RTCs enables stack frame run-time error checking.
         # /RTCu reports when a variable is used without having been initialized.
-        /RTC${MSVC_DEBUG_RUNTIME_ERROR_CHECKS}
+        /RTC${WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS}
 
         # Add /Ob2 if allowing inlining in debug mode.
-        $<$<BOOL:${MSVC_ENABLE_DEBUG_INLINING}>:/Ob2>
+        $<$<BOOL:${WB_MSVC_ENABLE_DEBUG_INLINING}>:/Ob2>
       >
 
       ## Non-debug builds.
@@ -329,17 +317,18 @@ function(apply_compile_options_to_target THETARGET)
         /Qpar # Enable parallel code generation.
         /Ot   # Favor fast code.
 
-        $<$<BOOL:${MSVC_ENABLE_LTCG}>:/GL> # Enable link time code generation.
+        $<$<BOOL:${WB_MSVC_ENABLE_LTCG}>:/GL> # Enable link time code generation.
       >
   )
 
-  target_compile_options(${THETARGET}
+  target_compile_options(${THE_TARGET}
     PUBLIC
       ## Warnings to disable:
       # Please, check _STL_EXTRA_DISABLED_WARNINGS can be applied first for
       # system header warnings.
-      # Unreferenced inline function has been removed.
-      $<$<BOOL:${MSVC_ENABLE_ALL_WARNINGS}>:/wd4514>
+      # C4514: 'function' : unreferenced inline function has been removed.
+      # C4710: 'function': function not inlined.
+      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710>
 
       ## Warnings to treat as errors:
       # Mixed use of struct and class on same type names.
@@ -381,14 +370,14 @@ function(apply_compile_options_to_target THETARGET)
 
     PRIVATE
       ## Warnings disabled for /analyze
-      $<$<BOOL:${MSVC_STATIC_CODE_ANALYSIS_MODE}>:
+      $<$<BOOL:${WB_MSVC_STATIC_CODE_ANALYSIS_MODE}>:
       >
   )
 
   # And the extra defines:
-  target_compile_definitions(${THETARGET}
+  target_compile_definitions(${THE_TARGET}
     PUBLIC
-      $<$<NOT:$<BOOL:${MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>>:
+      $<$<NOT:$<BOOL:${WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>>:
         # Don't deprecate posix names of functions.
         _CRT_NONSTDC_NO_WARNINGS
         # Don't deprecate the non _s versions of various standard library
@@ -402,22 +391,31 @@ function(apply_compile_options_to_target THETARGET)
       # A type with an extended alignment in VS 15.8 or later.
       _ENABLE_EXTENDED_ALIGNED_STORAGE
 
-      $<$<BOOL:${MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>:
-        __STDC_WANT_SECURE_LIB__  # Need secure stdc.
+      $<$<BOOL:${WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>:
+        __STDC_WANT_SECURE_LIB__  # Need secure stdc lib.
+      >
+
+      # Enable automatic replacement of insecure CRT functions with secure
+      # templates.
+      $<$<BOOL:WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES>:
+        _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES=1
+        _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT=1
       >
 
       ## Disable warnings only inside STL.
       # 4514 Unreferenced inline function has been removed.
       # 4710 Function not inlined.
       # 4820 Padding added after data member.
-      _STL_EXTRA_DISABLED_WARNINGS=4514\ 4710\ 4820
+      _UCRT_EXTRA_DISABLED_WARNINGS=4514\ 4710\ 4820
 
-      # Unicode TCHARS and APIs are default.
-      _UNICODE
-      UNICODE
+      # UTF-8 TCHARS and APIs are default.
+      $<$<BOOL:${WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_UTF8}>:
+        _UNICODE
+        UNICODE
+      >
 
       # Don't include most of Windows.h
-      $<$<BOOL:${MSVC_ENABLE_LEAN_AND_MEAN_WINDOWS}>:WIN32_LEAN_AND_MEAN>
+      $<$<BOOL:${WB_MSVC_ENABLE_LEAN_AND_MEAN_WINDOWS}>:WIN32_LEAN_AND_MEAN>
 
       $<$<CONFIG:DEBUG>:
         _ALLOW_RTCc_IN_STL  # Allow to build STL with /RTCc
@@ -426,18 +424,18 @@ function(apply_compile_options_to_target THETARGET)
 
   # Ignore a warning about an object file not defining any symbols,
   # these are known, and we don't care.
-  set_property(TARGET ${THETARGET} APPEND_STRING PROPERTY STATIC_LIBRARY_FLAGS " /ignore:4221")
+  set_property(TARGET ${THE_TARGET} APPEND_STRING PROPERTY STATIC_LIBRARY_FLAGS " /ignore:4221")
 
-  target_link_options(${THETARGET}
+  target_link_options(${THE_TARGET}
     PRIVATE
       # Prepares an image for hotpatching.
-      $<$<BOOL:${MSVC_CREATE_HOTPATCHABLE_IMAGE}>:/FUNCTIONPADMIN>
+      $<$<BOOL:${WB_MSVC_CREATE_HOTPATCHABLE_IMAGE}>:/FUNCTIONPADMIN>
       # Causes the linker to analyze control flow for indirect call targets at
       # compile time, and then to insert code to verify the targets at runtime.
       #
       # The /guard:cf option must be passed to both the compiler and linker to
       # build code that uses the CFG exploit mitigation technique.
-      $<$<BOOL:${MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW}>:/guard:cf>
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW}>:/guard:cf>
       # Causes the compiler to generate a sorted list of the relative virtual
       # addresses (RVA) of all the valid exception handling continuation targets
       # for a binary.  It's used during runtime for NtContinue and
@@ -445,7 +443,7 @@ function(apply_compile_options_to_target THETARGET)
       #
       # The /guard:ehcont option must be passed to both the compiler and linker
       # to generate EH continuation target RVAs for a binary.
-      $<$<BOOL:${MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
       # Enable address space layout randomization.
       /DYNAMICBASE
       # Support high-entropy 64-bit address space layout randomization (ASLR).
@@ -461,32 +459,32 @@ function(apply_compile_options_to_target THETARGET)
         /INCREMENTAL      # Do incremental linking.
         # Generate a partial PDB file that simply references the original object
         # and library files.
-        $<$<BOOL:${MSVC_ENABLE_FAST_LINK}>:/DEBUG:FASTLINK>
+        $<$<BOOL:${WB_MSVC_ENABLE_FAST_LINK}>:/DEBUG:FASTLINK>
       >
 
       ## Non-debug builds.
       $<$<NOT:$<CONFIG:DEBUG>>:
         # Add /GL to the compiler, and /LTCG to the linker if link time code
         # generation is enabled.
-        $<$<BOOL:${MSVC_ENABLE_LTCG}>:/LTCG>
+        $<$<BOOL:${WB_MSVC_ENABLE_LTCG}>:/LTCG>
         # Incremental linking is not supported with LTCG.
-        $<$<BOOL:${MSVC_ENABLE_LTCG}>:/INCREMENTAL:NO>
+        $<$<BOOL:${WB_MSVC_ENABLE_LTCG}>:/INCREMENTAL:NO>
          # Remove unreferenced functions and data + identical COMDAT folding.
         /OPT:REF,ICF
       >
   )
 
-  message(STATUS "${THETARGET} MSVC         version: ${MSVC_VERSION}")
-  message(STATUS "${THETARGET} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
-  message(STATUS "${THETARGET} MSVC             IDE: ${MSVC_IDE}")
+  message(STATUS "${THE_TARGET} MSVC         version: ${MSVC_VERSION}")
+  message(STATUS "${THE_TARGET} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
+  message(STATUS "${THE_TARGET} MSVC             IDE: ${MSVC_IDE}")
 
-  dump_target_property(${THETARGET} COMPILE_OPTIONS     "cxx compiler   flags")
-  dump_target_property(${THETARGET} COMPILE_DEFINITIONS "cxx compiler defines")
-  dump_target_property(${THETARGET} LINK_OPTIONS        "cxx linker     flags")
+  wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")
+  wb_dump_target_property(${THE_TARGET} COMPILE_DEFINITIONS "cxx compiler defines")
+  wb_dump_target_property(${THE_TARGET} LINK_OPTIONS        "cxx linker     flags")
   
   if (APPLY_CLANG_TIDY)
-    dump_target_property(${THETARGET} CXX_CLANG_TIDY    "cxx clang-tidy flags")
+    wb_dump_target_property(${THE_TARGET} CXX_CLANG_TIDY    "cxx clang-tidy flags")
   else()
-    message(STATUS "${THETARGET} cxx clang-tidy flags: not applied on MSVC.")
+    message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on MSVC.")
   endif()
 endfunction()

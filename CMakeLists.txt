@@ -1,16 +1,42 @@
-﻿# Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+# Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
+# Compiler id for Apple Clang is now AppleClang.
+if (POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW)
+endif (POLICY CMP0025)
+
+# option() honor variables.
+if (POLICY CMP0077)
+  cmake_policy(SET CMP0077 NEW)
+endif (POLICY CMP0077)
+
+# target_link_libraries() allows use with targets in other directories.
+if (POLICY CMP0079)
+  cmake_policy(SET CMP0079 NEW)
+endif (POLICY CMP0079)
+
+# Binaries dir.
+set(WB_BINARY_DIR "${CMAKE_BINARY_DIR}")
+# Build system name.
+set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
+# Is build OS MacOs.
+set(WB_OS_MACOSX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Darwin\">)
+# Is build OS Linux.
+set(WB_OS_LINUX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Linux\">)
+# Is build OS windows.
+set(WB_OS_WINDOWS $<BOOL:WB_SYSTEM_NAME STREQUAL \"Windows\">)
+# Root dir.
+set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}")
+
 # Includes.
 if (CMAKE_MODULE_PATH)
-  set(CMAKE_MODULE_PATH
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
-    "${CMAKE_MODULE_PATH}")
+  set(CMAKE_MODULE_PATH "${WB_ROOT_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 else()
-  set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+  set(CMAKE_MODULE_PATH "${WB_ROOT_DIR}/cmake")
 endif()
 
 # Package information.
@@ -19,54 +45,106 @@ if (NOT DEFINED PACKAGE_VERSION)
   set(PACKAGE_VERSION_MAJOR 0)
   set(PACKAGE_VERSION_MINOR 1)
   set(PACKAGE_VERSION_PATCH 0)
-  set(PACKAGE_VERSION   "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-dev")
+  set(PACKAGE_VERSION_TWEAK 0)
+  set(PACKAGE_VERSION   "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}.${PACKAGE_VERSION_TWEAK}-dev")
 endif()
 set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "https://github.com/dimhotepus/whitebox/issues")
 
 project(${PACKAGE_NAME}
-  VERSION ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}
+  VERSION ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}.${PACKAGE_VERSION_TWEAK}
   LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(whitebox_functions)
-verify_target_architecture(${PACKAGE_NAME})
+wb_check_platform_requirements(${PACKAGE_NAME})
 
-# Need Pthread.
+# Build type.
+set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
+# Cxx compiler path.
+set(WB_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
+# Configuration types.
+set(WB_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}")
+# Cxx compiler id.
+set(WB_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
+# Cxx compiler frontend variant.
+set(WB_CXX_COMPILER_FRONTEND_VARIANT "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}")
+# Export compile commands or not?
+set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS})
+
+## Find common dependencies.
+# pthread
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads REQUIRED)
 set(WHITEBOX_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}")
 list(APPEND CMAKE_REQUIRED_LIBRARIES Threads::Threads)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+if (WB_CXX_COMPILER_ID MATCHES "Clang")
   # Clang or AppleClang.
-  if (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+  if (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+    message(STATUS "${PACKAGE_NAME} compiler Clang + MSVC frontend.")
     # Clang with clang-cl front end.
     include(compilers/whitebox_msvc)
-  elseif (CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+  elseif (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+    message(STATUS "${PACKAGE_NAME} compiler Clang + GNU frontend.")
     # Clang with regular front end.
     include(compilers/whitebox_clang)
   endif()
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+elseif (WB_CXX_COMPILER_ID STREQUAL "GNU")
+  message(STATUS "${PACKAGE_NAME} compiler GNU.")
   include(compilers/whitebox_gcc)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  # MSVC.
+elseif (WB_CXX_COMPILER_ID STREQUAL "MSVC")
+  message(STATUS "${PACKAGE_NAME} compiler MSVC.")
   include(compilers/whitebox_msvc)
 else()
   # Add compilers if needed.
-  message(FATAL_ERROR "'${CMAKE_CXX_COMPILER_ID}' compiler is not supported. "
+  message(FATAL_ERROR "'${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "
     "Please, define compiler/linker options for it.")
 endif()
 
-include(whitebox_config_checks)
+message(STATUS "${PACKAGE_NAME} cxx compiler: ${WB_CXX_COMPILER}.")
+message(STATUS "${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
+message(STATUS "${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
+
+# Generate common product version info.
 configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/whitebox-config.h.cmake
-  ${CMAKE_CURRENT_BINARY_DIR}/whitebox-config.h
+  ${WB_ROOT_DIR}/build/include/product_version_config.h.cmake.in
+  ${WB_BINARY_DIR}/product_version_config.h
 )
 
-set(WHITEBOX_ROOT_PATH ${CMAKE_SOURCE_DIR})
+## Include sub-projects.
+# Dependencies.
+add_subdirectory("deps/g3log")
+add_subdirectory("deps/mimalloc")
 
-# Include sub-projects.
+# Libraries.
+
+# Apps.
 add_subdirectory("apps/half-life-2")
+
+# Get all targets to add mimalloc allocators overrides.
+wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
+
+# Ensure all dependencies reuse same allocators.
+foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
+  # Do not add mimalloc allocators to itself.
+  if (NOT ${WB_TARGET_NAME} MATCHES "mimalloc")
+    # Include the directories with the new files.
+    target_include_directories(${WB_TARGET_NAME}
+      PRIVATE ${WB_ROOT_DIR} "${WB_ROOT_DIR}/deps/mimalloc/include")
+
+    # Add new / delete allocator overrides.
+    target_sources(${WB_TARGET_NAME}
+      PRIVATE
+        ${WB_ROOT_DIR}/base/include/memory/memory_allocators_overrides.cc
+    )
+
+    # Add mimalloc to handle allocators.
+    target_link_libraries(${WB_TARGET_NAME} mimalloc)
+
+    # mimalloc should be copied by each target individually as haven't found way
+    # to it here.
+  endif()
+endforeach()

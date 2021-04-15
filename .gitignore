@@ -348,3 +348,6 @@ healthchecksdb
 
 # CLion default cmake dirs.
 /cmake-build-*
+
+# Resource compiler generated files.
+RCa*

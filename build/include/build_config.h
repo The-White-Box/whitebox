@@ -5,32 +5,18 @@
 // This file adds defines about the platform we're currently building on.
 //  Operating System:
 //    WHITEBOX_OS_WIN / WHITEBOX_OS_MACOSX / WHITEBOX_OS_LINUX /
-//    WHITEBOX_OS_POSIX (MACOSX or LINUX) / WHITEBOX_OS_NACL (NACL_SFI or
-//    NACL_NONSFI) / WHITEBOX_OS_NACL_SFI / WHITEBOX_OS_NACL_NONSFI OS_CHROMEOS
+//    WHITEBOX_OS_POSIX (MACOSX or LINUX)
 //    is set by the build system
 //  Compiler:
-//    WHITEBOX_COMPILER_MSVC / WHITEBOX_COMPILER_GCC
+//    WHITEBOX_COMPILER_MSVC / WHITEBOX_COMPILER_GCC / WHITEBOX_COMPILER_CLANG
 //  Processor:
-//    WHITEBOX_ARCH_CPU_X86 / WHITEBOX_ARCH_CPU_X86_64 /
-//    WHITEBOX_ARCH_CPU_X86_FAMILY (X86 or X86_64) WHITEBOX_ARCH_CPU_32_BITS /
-//    WHITEBOX_ARCH_CPU_64_BITS
+//    WHITEBOX_ARCH_CPU_X86_64 / WHITEBOX_ARCH_CPU_64_BITS
 
 #ifndef WHITEBOX_BUILD_INCLUDE_BUILD_CONFIG_H_
 #define WHITEBOX_BUILD_INCLUDE_BUILD_CONFIG_H_
 
 // A set of macros to use for platform detection.
-#if defined(__native_client__)
-// __native_client__ must be first, so that other OS_ defines are not set.
-#define WHITEBOX_OS_NACL 1
-// WHITEBOX_OS_NACL comes in two sandboxing technology flavors, SFI or Non-SFI.
-// PNaCl toolchain defines __native_client_nonsfi__ macro in Non-SFI build
-// mode, while it does not in SFI build mode.
-#if defined(__native_client_nonsfi__)
-#define WHITEBOX_OS_NACL_NONSFI
-#else
-#define WHITEBOX_OS_NACL_SFI
-#endif
-#elif defined(ANDROID)
+#if defined(ANDROID)
 #define WHITEBOX_OS_ANDROID 1
 #elif defined(__APPLE__)
 // only include TargetConditions after testing ANDROID as some android builds
@@ -64,7 +50,7 @@
 #elif defined(_AIX)
 #define WHITEBOX_OS_AIX 1
 #else
-#error Please add support for your platform in build/build_config.h
+#error Please add support for your platform in build/include/build_config.h
 #endif
 // NOTE: Adding a new port? Please follow
 // https://chromium.googlesource.com/chromium/src/+/master/docs/new_port_policy.md
@@ -80,35 +66,33 @@
 #define WHITEBOX_OS_BSD 1
 #endif
 
+#if defined(WHITEBOX_OS_AIX) || defined(WHITEBOX_OS_ANDROID) ||   \
+    defined(WHITEBOX_OS_FREEBSD) || defined(WHITEBOX_OS_LINUX) || \
+    defined(WHITEBOX_OS_MACOSX) || defined(WHITEBOX_OS_NETBSD) || \
+    defined(WHITEBOX_OS_OPENBSD) || defined(WHITEBOX_OS_QNX) ||   \
+    defined(WHITEBOX_OS_SOLARIS)
 // For access to standard POSIXish features, use WHITEBOX_OS_POSIX instead of a
 // more specific macro.
-#if defined(WHITEBOX_OS_AIX) || defined(WHITEBOX_OS_ANDROID) ||    \
-    defined(WHITEBOX_OS_FREEBSD) || defined(WHITEBOX_OS_LINUX) ||  \
-    defined(WHITEBOX_OS_MACOSX) || defined(WHITEBOX_OS_NACL) ||    \
-    defined(WHITEBOX_OS_NETBSD) || defined(WHITEBOX_OS_OPENBSD) || \
-    defined(WHITEBOX_OS_QNX) || defined(WHITEBOX_OS_SOLARIS)
 #define WHITEBOX_OS_POSIX 1
 #endif
 
-// Use tcmalloc
-#if (defined(WHITEBOX_OS_WIN) || defined(WHITEBOX_OS_LINUX) || \
-     defined(WHITEBOX_OS_ANDROID)) &&                          \
-    !defined(NO_TCMALLOC)
-#define WHITEBOX_USE_TCMALLOC 1
+#if defined(WHITEBOX_OS_WIN) || defined(WHITEBOX_OS_POSIX)
+// Use mi-malloc.
+#define WHITEBOX_USE_MI_MALLOC 1
 #endif
 
 // Compiler detection.
-#if defined(__GNUC__)
+#if defined(__clang__)
+#define WHITEBOX_COMPILER_CLANG 1
+#elif defined(__GNUC__)
 #define WHITEBOX_COMPILER_GCC 1
 #elif defined(_MSC_VER)
 #define WHITEBOX_COMPILER_MSVC 1
-#elif defined(__clang__)
-#define WHITEBOX_COMPILER_CLANG 1
 #else
-#error Please add support for your compiler in build/build_config.h
+#error Please add support for your compiler in build/include/build_config.h
 #endif
 
-// Processor architecture detection. For more info on what's defined, see:
+// Processor architecture detection.  For more info on what's defined, see:
 //   https://docs.microsoft.com/en-us/cpp/preprocessor/predefined-macros
 //   https://www.agner.org/optimize/calling_conventions.pdf
 //   or with gcc, run: "echo | gcc -E -dM -"
@@ -143,7 +127,7 @@
 #define WHITEBOX_ARCH_CPU_64_BITS 1
 #define WHITEBOX_ARCH_CPU_BIG_ENDIAN 1
 #else
-#error Please add support for your architecture in build/build_config.h
+#error Please add support for your CPU architecture in build/include/build_config.h
 #endif
 
 // Type detection for wchar_t.
@@ -162,7 +146,7 @@
 // short wchar works for them.
 #define WHITEBOX_WCHAR_T_IS_UTF16
 #else
-#error Please add support for your wchar_t in build/build_config.h
+#error Please add support for your wchar_t in build/include/build_config.h
 #endif
 
 #endif  // !WHITEBOX_BUILD_INCLUDE_BUILD_CONFIG_H_

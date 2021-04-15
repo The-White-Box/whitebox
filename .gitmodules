@@ -1,0 +1,6 @@
+[submodule "deps/g3log"]
+	path = deps/g3log
+	url = git@github.com:dimhotepus/g3log.git
+[submodule "deps/mimalloc"]
+	path = deps/mimalloc
+	url = git@github.com:dimhotepus/mimalloc.git

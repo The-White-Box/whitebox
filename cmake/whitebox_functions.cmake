@@ -2,13 +2,15 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 #
+# Useful generic functions.
+#
 # Derived from https://github.com/facebook/folly/blob/master/CMake/FollyFunctions.cmake
 # which is licensed under the Apache License, Version 2.0 (the "License").
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Use like this: auto_sources(files "*.cc" "RECURSE" "${SRC_DIR}")
-function(auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
+# Use like this: wb_auto_sources(files "*.cc" "RECURSE" "${SRC_DIR}")
+function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
   if ("${SOURCE_SUBDIRS}" STREQUAL "RECURSE")
     SET(PATH ".")
     if (${ARGC} EQUAL 4)
@@ -41,39 +43,48 @@ function(auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
   endif ()
 
   set(${RETURN_VALUE} ${${RETURN_VALUE}} PARENT_SCOPE)
-endfunction(auto_sources)
+endfunction(wb_auto_sources)
 
-# Use like this: verify_target_architecture("My target name")
-function(verify_target_architecture TARGET_NAME)
+# Use like this: wb_check_platform_requirements("My target name")
+function(wb_check_platform_requirements TARGET_NAME)
   # Check target architecture is 64bit, as we support only 64bit+.
   if (NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
-    message(FATAL_ERROR "'${TARGET_NAME}' requires a 64bit target arch.")
+    message(FATAL_ERROR "[common]: ${TARGET_NAME} requires 64 bit os to build.")
   endif()
+
+  message(STATUS "[common]: ${TARGET_NAME} building on 64 bit os.")
 
   # At least Visual Studio 2019 version 16.8 as we use latest C++17 features.
   if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND MSVC_VERSION LESS 1928)
     message(
       FATAL_ERROR
-      "This build script only supports building '${TARGET_NAME}' on 64-bit "
+      "[common]: This build script only supports building '${TARGET_NAME}' on 64-bit "
       "Windows with at least Visual Studio 2019 version 16.8. "
       "MSVC version '${MSVC_VERSION}' is not supported."
     )
   endif()
-endfunction(verify_target_architecture)
+endfunction(wb_check_platform_requirements)
 
 # Alas, option() doesn't support string values.
 # Use like this:
-# define_strings_option(MSVC_LANGUAGE_VERSION
+# wb_define_strings_option(MSVC_LANGUAGE_VERSION
 #   "This determines which version of C++ to compile as."
 #   "c++17" "c++latest")
-function(define_strings_option OPTIONS_VAR_NAME OPTIONS_VAR_DESCRIPTION DEFAULT_OPTION)
+function(wb_define_strings_option OPTIONS_VAR_NAME OPTIONS_VAR_DESCRIPTION DEFAULT_OPTION)
   set(ALLOWED_OPTIONS_SET "'${DEFAULT_OPTION}'")
 
   foreach(ALLOWED_OPTION IN LISTS ARGN)
     string(APPEND ALLOWED_OPTIONS_SET ", '${ALLOWED_OPTION}'")
   endforeach()
 
-  set(${OPTIONS_VAR_NAME} "${DEFAULT_OPTION}" PARENT_SCOPE)
+  if (NOT DEFINED ${OPTIONS_VAR_NAME})
+    set(${OPTIONS_VAR_NAME} "${DEFAULT_OPTION}" PARENT_SCOPE)
+  else ()
+    set(${OPTIONS_VAR_NAME} ${${OPTIONS_VAR_NAME}} PARENT_SCOPE)
+  endif ()
+
+  message(STATUS "[options]: ${OPTIONS_VAR_NAME} is ${${OPTIONS_VAR_NAME}}")
+
   set(${OPTIONS_VAR_NAME} "${DEFAULT_OPTION}" CACHE STRING "One of ${ALLOWED_OPTIONS_SET}. ${OPTIONS_VAR_DESCRIPTION}")
   # Add a pretty drop-down selector for these values when using the GUI.
   set_property(
@@ -81,7 +92,7 @@ function(define_strings_option OPTIONS_VAR_NAME OPTIONS_VAR_DESCRIPTION DEFAULT_
     PROPERTY STRINGS
       ${DEFAULT_OPTION}
       ${ARGN}
-    # PARENT_SCOPE
+      PARENT_SCOPE
   )
 
   set(OPTION_VALUE ${${OPTIONS_VAR_NAME}})
@@ -105,15 +116,46 @@ function(define_strings_option OPTIONS_VAR_NAME OPTIONS_VAR_DESCRIPTION DEFAULT_
       "${OPTIONS_VAR_NAME} must be set to one of ${ALLOWED_OPTIONS_SET}! "
       "Got '${${OPTIONS_VAR_NAME}}' instead!")
   endif()
-endfunction(define_strings_option)
+endfunction(wb_define_strings_option)
 
-function(dump_target_property THETARGET TARGET_PROPERTY TARGET_PROPERTY_NAME)
-  get_target_property(TARGET_PROPERTY_VALUE ${THETARGET} ${TARGET_PROPERTY})
+function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_NAME)
+  get_target_property(TARGET_PROPERTY_VALUE ${THE_TARGET} ${TARGET_PROPERTY})
 
-  message("-- ${THETARGET} ${TARGET_PROPERTY_NAME}: ${TARGET_PROPERTY_VALUE}")
+  message("-- ${THE_TARGET} ${TARGET_PROPERTY_NAME}: ${TARGET_PROPERTY_VALUE}")
 
-  # TODO: Encode echo argument.
-  # add_custom_command(TARGET ${THETARGET}
+  # TODO(dimhotepus): Encode echo argument.
+  # add_custom_command(TARGET ${THE_TARGET}
   #  POST_BUILD
-  #  COMMAND echo "${THETARGET} built with the ${TARGET_PROPERTY_NAME}: ${TARGET_PROPERTY_VALUE}")
-endfunction(dump_target_property)
+  #  COMMAND echo "${THE_TARGET} built with the ${TARGET_PROPERTY_NAME}: ${TARGET_PROPERTY_VALUE}")
+endfunction(wb_dump_target_property)
+
+# Copies target dependency to target binary dir.
+# Use like this:
+# wb_copy_target_dependency_to_target_bin_dir("My target" "My dependency")
+function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
+  add_custom_command(
+    TARGET ${THE_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_FILE:${THE_DEPENDENCY}> $<TARGET_FILE_DIR:${THE_TARGET}>
+    DEPENDS ${THE_DEPENDENCY}
+    WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
+    COMMENT "Copy $<TARGET_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+  )
+endfunction()
+
+# Collect all currently added targets in all subdirectories
+#
+# Parameters:
+# - RESULT the list containing all found targets
+# - ROOT_DIR root directory to start looking from
+#
+# See https://stackoverflow.com/questions/60211516/programmatically-get-all-targets-in-a-cmake-project
+function(wb_get_all_targets RESULT ROOT_DIR)
+  get_property(SUB_DIRS DIRECTORY "${ROOT_DIR}" PROPERTY SUBDIRECTORIES)
+
+  foreach(SUB_DIR IN LISTS SUB_DIRS)
+      wb_get_all_targets(${RESULT} "${SUB_DIR}")
+  endforeach()
+
+  get_directory_property(SUB_TARGETS DIRECTORY "${ROOT_DIR}" BUILDSYSTEM_TARGETS)
+  set(${RESULT} ${${RESULT}} ${SUB_TARGETS} PARENT_SCOPE)
+endfunction()

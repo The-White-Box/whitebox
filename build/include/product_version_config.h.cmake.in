@@ -1,0 +1,59 @@
+// Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+// Use of this source code is governed by a 3-Clause BSD license that can be
+// found in the LICENSE file.
+//
+// Product version info configuration.
+
+#ifndef WHITEBOX_BUILD_INCLUDE_PRODUCT_VERSION_CONFIG_H_
+#define WHITEBOX_BUILD_INCLUDE_PRODUCT_VERSION_CONFIG_H_
+
+// Company long name.
+#define WHITEBOX_VER_COMPANY_NAME_STR "The WhiteBox Authors"
+// Compane short name.
+#define WHITEBOX_VER_COMPANY_SHORT_NAME_INFO_STR "WhiteBox"
+// Copyright.
+#define WHITEBOX_VER_LEGALCOPYRIGHT_STR \
+  "Copyright " WHITEBOX_VER_COMPANY_NAME_STR ". All rights reserved."
+
+#ifndef WHITEBOX_STRINGIFY_WORKER
+// Stringify worker.
+#define WHITEBOX_STRINGIFY_WORKER(text) #text
+#endif
+
+#ifndef WHITEBOX_STRINGIFY
+// Stringify.
+#define WHITEBOX_STRINGIFY(text) WHITEBOX_STRINGIFY_WORKER(text)
+#endif
+
+// clang-format off
+// Product version header.
+#define WHITEBOX_VER_PRODUCT_VERSION_HEADER @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,@PROJECT_VERSION_TWEAK@  // NOLINT Version
+// Product version info.
+#define WHITEBOX_VER_PRODUCT_VERSION_INFO   @PROJECT_VERSION_MAJOR@.@PROJECT_VERSION_MINOR@.@PROJECT_VERSION_PATCH@.@PROJECT_VERSION_TWEAK@  // NOLINT Version
+// clang-format on
+// Product version info as string.
+#define WHITEBOX_VER_PRODUCT_VERSION_INFO_STR \
+  WHITEBOX_STRINGIFY(WHITEBOX_VER_PRODUCT_VERSION_INFO)
+
+// File version header.
+#define WHITEBOX_VER_FILEVERSION_HEADER WHITEBOX_VER_PRODUCT_VERSION_HEADER
+// File version info.
+#define WHITEBOX_VER_FILEVERSION_INFO WHITEBOX_VER_PRODUCT_VERSION_INFO
+// File version info string.
+#define WHITEBOX_VER_FILEVERSION_INFO_STR \
+  WHITEBOX_STRINGIFY(WHITEBOX_VER_FILEVERSION_INFO)
+
+// All file flags mask.
+#define WHITEBOX_VER_FFI_FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+// Debug flag.
+#define WHITEBOX_VER_FF_DEBUG VS_FF_DEBUG
+
+#ifndef _DEBUG
+// Release file flags.
+#define WHITEBOX_VER_FILEFLAGS 0
+#else
+// Debug file flags.
+#define WHITEBOX_VER_FILEFLAGS WHITEBOX_VER_FF_DEBUG
+#endif
+
+#endif  // !WHITEBOX_BUILD_INCLUDE_PRODUCT_VERSION_CONFIG_H_

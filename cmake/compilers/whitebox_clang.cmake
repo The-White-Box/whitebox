@@ -2,6 +2,8 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 #
+# CLANG compiler configuration.
+#
 # Derived from https://github.com/facebook/folly/blob/master/CMake/FollyCompilerUnix.cmake
 # which is licensed under the Apache License, Version 2.0 (the "License").  See
 # the License for the specific language governing permissions andlimitations
@@ -9,69 +11,62 @@
 
 include(whitebox_clang_tidy_configuration)
 
-option(CLANG_DEFINE__GLIBCXX_ASSERTIONS
-  "Define _GLIBCXX_ASSERTIONS macro to enable extra error checking in the form of precondition assertions, such as bounds checking in strings and null pointer checks when dereferencing smart pointers." ON)
-option(CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR
-  "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
-option(CLANG_ENABLE_ALL_WARNINGS
-  "If enabled, pass -Wall to the Clang compiler. See https://clang.llvm.org/docs/UsersManual.html#enabling-all-diagnostics" ON)
-option(CLANG_ENABLE_FAST_MATH
-  "Enable fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
-option(CLANG_ENABLE_GOLD_LINKER
-    "If enabled, use gold linker which is faster than default." ON)
-option(CLANG_ENABLE_LOOPS_UNROLLING
-  "If enabled, use -funroll-loops for Release builds." OFF)
-option(CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS
-  "If enabled, pass -Werror to the Clang compiler." ON)
+option(WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS           "Define _GLIBCXX_ASSERTIONS macro to enable extra error checking in the form of precondition assertions, such as bounds checking in strings and null pointer checks when dereferencing smart pointers." ON)
+option(WB_CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
+option(WB_CLANG_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the Clang compiler.  See https://clang.llvm.org/docs/UsersManual.html#enabling-all-diagnostics" ON)
+option(WB_CLANG_ENABLE_FAST_MATH                     "Enable fast-math mode.  This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
+option(WB_CLANG_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
+option(WB_CLANG_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
+option(WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the Clang compiler." ON)
 
-define_strings_option(CLANG_DEFINE__FORTIFY_SOURCE
+wb_define_strings_option(WB_CLANG_DEFINE__FORTIFY_SOURCE
   "Define _FORTIFY_SOURCE macro to a positive integer to control which source fortification is enabled."
   "2" "1" "")
 
-define_strings_option(CLANG_DEFINE__POSIX_C_SOURCE
+wb_define_strings_option(WB_CLANG_DEFINE__POSIX_C_SOURCE
   "Define _POSIX_C_SOURCE macro to a positive integer to control which POSIX functionality is made available. The greater the value of this macro, the more functionality is made available."
   "200809L" "200112L" "199506L" "")
 
-define_strings_option(CLANG_ENABLE_CET_PROTECTION
+wb_define_strings_option(WB_CLANG_ENABLE_CET_PROTECTION
   "Enables Control-flow Enforcement Technology (CET) protection, which defends your program from certain attacks that exploit vulnerabilities. This option offers preliminary support for CET."
-  "full" "shadow_stack" "branch_tracking" "none")
+  "none" "full" "branch" "return")
 
-define_strings_option(CLANG_ENABLE_LTO
+wb_define_strings_option(WB_CLANG_ENABLE_LTO
   "If enabled, use Link Time Optimization for Release builds."
-  "" "full" "thin")
+  "-flto=thin" "-flto" "-flto=full" "")
 
-define_strings_option(CLANG_LANGUAGE_VERSION
+wb_define_strings_option(WB_CLANG_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via Clang."
   "c++17" "c++20")
 
-define_strings_option(CLANG_MINIMUM_CPU_ARCHITECTURE
+wb_define_strings_option(WB_CLANG_MINIMUM_CPU_ARCHITECTURE
   "This tells the compiler to choose minimum instruction set for the specified architecture."
   "" "native" "x86-64")
 
-define_strings_option(CLANG_DEBUG_OPTIMIZATION_LEVEL
+wb_define_strings_option(WB_CLANG_DEBUG_OPTIMIZATION_LEVEL
   "This tells the compiler to choose optimization level in Debug build."
   "-Og" "-O0" "")
 
-define_strings_option(CLANG_RELEASE_OPTIMIZATION_LEVEL
+wb_define_strings_option(WB_CLANG_RELEASE_OPTIMIZATION_LEVEL
   "This tells the compiler to choose optimization level in Release build."
   "-O2" "-O1" "-O0" "-O3" "-Os" "-Ofast")
 
-define_strings_option(CLANG_STACK_PROTECTOR_LEVEL
+wb_define_strings_option(WB_CLANG_STACK_PROTECTOR_LEVEL
   "This tells the compiler to force the addition of a stack canary that checks for stack smashing."
   "-strong" "-all" "")
 
 # Apply the option set for WhiteBox to the specified target.
-function(apply_compile_options_to_target THETARGET)
+function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THETARGET})
+  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_CLANG_LANGUAGE_VERSION})
 
-  target_compile_options(${THETARGET}
+  target_compile_options(${THE_TARGET}
     PRIVATE
       # Increased reliability of backtraces.
       -fasynchronous-unwind-tables
       # Enable fast math.
-      $<$<BOOL:${CLANG_ENABLE_FAST_MATH}>:-ffast-math>
+      $<$<BOOL:${WB_CLANG_ENABLE_FAST_MATH}>:-ffast-math>
       # Enable table-based thread cancellation.
       -fexceptions
       # String and character constants in UTF-8 during execution.
@@ -79,11 +74,11 @@ function(apply_compile_options_to_target THETARGET)
       # Sources should be in UTF-8.
       -finput-charset=utf-8
       # Full ASLR for executables.
-      $<$<STREQUAL:$<TARGET_PROPERTY:${THETARGET},TYPE>,EXECUTABLE>:
+      $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>:
         -fPIE
       >
       # No text relocations for shared libraries.
-      $<$<STREQUAL:$<TARGET_PROPERTY:${THETARGET},TYPE>,SHARED_LIBRARY>:
+      $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,SHARED_LIBRARY>:
         -fPIC
       >
       # Let the type char be signed, like signed char.
@@ -97,20 +92,20 @@ function(apply_compile_options_to_target THETARGET)
       # Avoid temporary files, speeding up builds.
       -pipe
       # Enables support for the Control-Flow Enforcement Technology (CET).
-      -fcf-protection=${CLANG_ENABLE_CET_PROTECTION}
+      -fcf-protection=${WB_CLANG_ENABLE_CET_PROTECTION}
       # Force the addition of a stack canary that checks for stack smashing.
-      -fstack-protector${CLANG_STACK_PROTECTOR_LEVEL}
+      -fstack-protector${WB_CLANG_STACK_PROTECTOR_LEVEL}
       # Minimum architecture (instruction sets) to use when generating code.
-      $<$<BOOL:${CLANG_MINIMUM_CPU_ARCHITECTURE}>:-march=${CLANG_MINIMUM_CPU_ARCHITECTURE}>
+      $<$<BOOL:${WB_CLANG_MINIMUM_CPU_ARCHITECTURE}>:-march=${WB_CLANG_MINIMUM_CPU_ARCHITECTURE}>
 
       ## Warnings
 
       # Enable almost all warnings.
-      $<$<BOOL:${CLANG_ENABLE_ALL_WARNINGS}>:-Wall>
+      $<$<BOOL:${WB_CLANG_ENABLE_ALL_WARNINGS}>:-Wall>
       # Enable extra warnings.
       -Wextra
       # Threat warnings as errors.
-      $<$<BOOL:${CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS}>:-Werror>
+      $<$<BOOL:${WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS}>:-Werror>
       # Warn about code affected by ABI changes.  This includes code that may
       # not be compatible with the vendor-neutral C++ ABI as well as the psABI
       # for the particular target.
@@ -316,32 +311,32 @@ function(apply_compile_options_to_target THETARGET)
       ### -Wvector-operation-performance
 
       # Build in the requested version of C++.
-      -std=${CLANG_LANGUAGE_VERSION}
+      -std=${WB_CLANG_LANGUAGE_VERSION}
 
       ## Debug configuration
       $<$<CONFIG:DEBUG>:
-        $<$<BOOL:${CLANG_DEBUG_OPTIMIZATION_LEVEL}>:${CLANG_DEBUG_OPTIMIZATION_LEVEL}>
+        $<$<BOOL:${WB_CLANG_DEBUG_OPTIMIZATION_LEVEL}>:${WB_CLANG_DEBUG_OPTIMIZATION_LEVEL}>
       >
 
       ## Non-debug configuration.
       $<$<NOT:$<CONFIG:DEBUG>>:
         # Try max optimization.  Be careful, this can lead to pessimization!
-        $<$<BOOL:${CLANG_RELEASE_OPTIMIZATION_LEVEL}>:${CLANG_RELEASE_OPTIMIZATION_LEVEL}>
+        $<$<BOOL:${WB_CLANG_RELEASE_OPTIMIZATION_LEVEL}>:${WB_CLANG_RELEASE_OPTIMIZATION_LEVEL}>
         # Enable link time optimization.
-        $<$<BOOL:${CLANG_ENABLE_LTO}>:-flto=${CLANG_ENABLE_LTO}>
+        $<$<BOOL:${WB_CLANG_ENABLE_LTO}>:-flto=${WB_CLANG_ENABLE_LTO}>
         # Enable loop unrolling.
-        $<$<BOOL:${CLANG_ENABLE_LOOPS_UNROLLING}>:-funroll-loops>
+        $<$<BOOL:${WB_CLANG_ENABLE_LOOPS_UNROLLING}>:-funroll-loops>
       >
   )
 
-  target_compile_definitions(${THETARGET}
+  target_compile_definitions(${THE_TARGET}
     PUBLIC
       ## Debug configuration.
       $<$<CONFIG:DEBUG>:
         # The annotations must be present on all vector operations or none, so
         # this macro must be defined to the same value for all translation units
         # that create, destroy or modify vectors.
-        $<$<BOOL:${CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR}>:
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR}>:
           _GLIBCXX_SANITIZE_VECTOR
         >
       >
@@ -350,31 +345,31 @@ function(apply_compile_options_to_target THETARGET)
       # Mostly obsolete enabler of thread-safe function versions in stdlib.
       _REENTRANT
       # Made available functions from the POSIX standard.
-      $<$<BOOL:${CLANG_DEFINE__POSIX_C_SOURCE}>:
-        _POSIX_C_SOURCE=${CLANG_DEFINE__POSIX_C_SOURCE}
+      $<$<BOOL:${WB_CLANG_DEFINE__POSIX_C_SOURCE}>:
+        _POSIX_C_SOURCE=${WB_CLANG_DEFINE__POSIX_C_SOURCE}
       >
 
       ## Security.
       # Compile + run-time buffer overflow detection.
-      $<$<BOOL:${CLANG_DEFINE__FORTIFY_SOURCE}>:
+      $<$<BOOL:${WB_CLANG_DEFINE__FORTIFY_SOURCE}>:
         # TODO: ASAN doesn't like this! Disable if ASAN is present.
-        _FORTIFY_SOURCE=${CLANG_DEFINE__FORTIFY_SOURCE}
+        _FORTIFY_SOURCE=${WB_CLANG_DEFINE__FORTIFY_SOURCE}
       >
 
       ## Debug configuration.
       $<$<CONFIG:DEBUG>:
         # Run-time bounds checking for C++ strings/containers.
-        $<$<BOOL:${CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_ASSERTIONS>
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_ASSERTIONS>
         # Catch libstdc++ usage errors by enabling debug mode.  When defined,
         # _GLIBCXX_ASSERTIONS is defined automatically
-        $<$<BOOL:${CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG>
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG>
         # When defined makes the debug mode extremely picky by making the use of
         # libstdc++ extensions and libstdc++-specific behavior into errors.
-        $<$<BOOL:${CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG_PEDANTIC>
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG_PEDANTIC>
       >
   )
 
-  target_link_options(${THETARGET}
+  target_link_options(${THE_TARGET}
     PRIVATE
       # Detect and reject underlinking.
       -Wl,-z,defs
@@ -385,25 +380,25 @@ function(apply_compile_options_to_target THETARGET)
       -Wl,-z,now
 
       # Full ASLR for executables.
-      $<$<STREQUAL:$<TARGET_PROPERTY:${THETARGET},TYPE>,EXECUTABLE>:
+      $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>:
         -pie
       >
       # No text relocations for shared libraries.
-      $<$<STREQUAL:$<TARGET_PROPERTY:${THETARGET},TYPE>,SHARED_LIBRARY>:
+      $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,SHARED_LIBRARY>:
         -shared
       >
       # -Wl,-z,cet-report=error
       # Use faster than default linker.
-      $<$<BOOL:${CLANG_ENABLE_GOLD_LINKER}>:-fuse-ld=gold>
+      $<$<BOOL:${WB_CLANG_ENABLE_GOLD_LINKER}>:-fuse-ld=gold>
   )
 
-  dump_target_property(${THETARGET} COMPILE_OPTIONS     "cxx compiler   flags")
-  dump_target_property(${THETARGET} COMPILE_DEFINITIONS "cxx compiler defines")
-  dump_target_property(${THETARGET} LINK_OPTIONS        "cxx linker     flags")
+  wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")
+  wb_dump_target_property(${THE_TARGET} COMPILE_DEFINITIONS "cxx compiler defines")
+  wb_dump_target_property(${THE_TARGET} LINK_OPTIONS        "cxx linker     flags")
 
   if (APPLY_CLANG_TIDY)
-    dump_target_property(${THETARGET} CXX_CLANG_TIDY    "cxx clang-tidy flags")
+    wb_dump_target_property(${THE_TARGET} CXX_CLANG_TIDY    "cxx clang-tidy flags")
   else()
-    message(STATUS "${THETARGET} cxx clang-tidy flags: not applied on Clang.")
+    message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on Clang.")
   endif()
 endfunction()
