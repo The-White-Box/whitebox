@@ -4,17 +4,17 @@
 //
 // Collection of g3log logging utilities.
 
-#ifndef WHITEBOX_BASE_INCLUDE_DEPS_G3LOG_G3LOG_H_
-#define WHITEBOX_BASE_INCLUDE_DEPS_G3LOG_G3LOG_H_
+#ifndef WB_BASE_INCLUDE_DEPS_G3LOG_G3LOG_H_
+#define WB_BASE_INCLUDE_DEPS_G3LOG_G3LOG_H_
 #ifdef _WIN32
 #pragma once
 #endif
 
 #include "g3log_config.h"
 
-WHITEBOX_COMPILER_MSVC_BEGIN_GLOG_WARNING_OVERRIDE_SCOPE()
+WB_COMPILER_MSVC_BEGIN_GLOG_WARNING_OVERRIDE_SCOPE()
 #include "deps/g3log/src/g3log/g3log.hpp"
-WHITEBOX_COMPILER_MSVC_END_GLOG_WARNING_OVERRIDE_SCOPE()
+WB_COMPILER_MSVC_END_GLOG_WARNING_OVERRIDE_SCOPE()
 
 // Define DEBUG level logging.
 #ifdef NDEBUG
@@ -124,4 +124,4 @@ And here is possible output
         .capturef(printf_like_message, ##__VA_ARGS__)
 #endif
 
-#endif  // !WHITEBOX_BASE_INCLUDE_DEPS_G3LOG_G3LOG_H_
+#endif  // !WB_BASE_INCLUDE_DEPS_G3LOG_G3LOG_H_

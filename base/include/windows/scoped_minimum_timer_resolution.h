@@ -4,8 +4,8 @@
 //
 // Scoped minimum resolution for periodic timers setter.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_MINIMUM_TIMER_RESOLUTION_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_MINIMUM_TIMER_RESOLUTION_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_SCOPED_MINIMUM_TIMER_RESOLUTION_H_
+#define WB_BASE_INCLUDE_WINDOWS_SCOPED_MINIMUM_TIMER_RESOLUTION_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -21,7 +21,7 @@ extern "C" _Return_type_success_(
 extern "C" _Return_type_success_(return == 0) unsigned __stdcall timeEndPeriod(
     _In_ unsigned uPeriod);
 
-namespace whitebox::base::windows {
+namespace wb::base::windows {
 /**
  * @brief Changes minimum resolution for periodic timers and reverts back when
  * out of scope.
@@ -42,7 +42,7 @@ class ScopedMinimumTimerResolution {
     DCHECK(IsSucceeded());
   }
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedMinimumTimerResolution);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedMinimumTimerResolution);
 
   ~ScopedMinimumTimerResolution() noexcept {
     if (IsSucceeded()) {
@@ -64,6 +64,6 @@ class ScopedMinimumTimerResolution {
   const unsigned minimum_timer_resolution_ms_;
   const unsigned minimum_timer_resolution_error_code_;
 };
-}  // namespace whitebox::base::windows
+}  // namespace wb::base::windows
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_MINIMUM_TIMER_RESOLUTION_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_SCOPED_MINIMUM_TIMER_RESOLUTION_H_

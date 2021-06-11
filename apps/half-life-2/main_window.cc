@@ -12,11 +12,12 @@
 
 #include <chrono>
 
+#include "base/include/deps/g3log/g3log.h"
 #include "base/include/windows/ui/scoped_change_cursor.h"
 #include "base/include/windows/ui/scoped_window_paint.h"
 #include "base/include/windows/ui/window_utilities.h"
 
-namespace whitebox::apps {
+namespace wb::apps {
 LRESULT MainWindow::HandleMessage(_In_ UINT message,
                                   _In_ [[maybe_unused]] WPARAM wParam,
                                   _In_ LPARAM lParam) noexcept {
@@ -35,7 +36,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
                                               _In_ CREATESTRUCT *) noexcept {
   DCHECK(!!window);
 
-  using namespace whitebox::base::windows;
+  using namespace wb::base::windows;
 
   ui::ScopedChangeCursor scoped_app_starting_cursor{
       ::LoadCursor(nullptr, IDC_APPSTARTING)};
@@ -55,7 +56,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
   render_sampling_profiler_.Sample();
 
   {
-    whitebox::base::windows::ui::ScopedWindowPaint scoped_window_paint{window};
+    wb::base::windows::ui::ScopedWindowPaint scoped_window_paint{window};
 
     using namespace std::chrono_literals;
 
@@ -63,7 +64,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
       // TODO(dimhotepus): Repaint.
 
       // Simulate render.
-      std::this_thread::sleep_for(8ms);
+      std::this_thread::sleep_for(6ms);
     } else {
       // Inactive or iconic, do not draw too much system power.
       std::this_thread::sleep_for(30ms);
@@ -106,4 +107,4 @@ void MainWindow::OnGetWindowSizeBounds(_In_ HWND,
 }
 
 void MainWindow::OnWindowDestroy(_In_ HWND) noexcept { PostQuitMessage(0); }
-}  // namespace whitebox::apps
+}  // namespace wb::apps

@@ -4,8 +4,8 @@
 //
 // Scoped window class.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
+#define WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -15,7 +15,7 @@
 #include "base/include/windows/system_error_ext.h"
 #include "base/include/windows/windows_light.h"
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Registers window class in scope.
  */
@@ -31,7 +31,7 @@ class ScopedWindowClass {
         class_atom_{::RegisterClassEx(&class_definition)},
         error_code_{GetErrorCode(class_atom_)} {}
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedWindowClass);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedWindowClass);
 
   ~ScopedWindowClass() noexcept {
     if (!error_code_) {
@@ -57,6 +57,6 @@ class ScopedWindowClass {
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(class_atom_)];
   const std::error_code error_code_;
 };
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_

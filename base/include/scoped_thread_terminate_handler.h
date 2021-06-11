@@ -4,8 +4,8 @@
 //
 // Scoped handler - thread termination routine to be called by terminate.
 
-#ifndef WHITEBOX_BASE_INCLUDE_SCOPED_THREAD_TERMINATE_HANDLER_H_
-#define WHITEBOX_BASE_INCLUDE_SCOPED_THREAD_TERMINATE_HANDLER_H_
+#ifndef WB_BASE_INCLUDE_SCOPED_THREAD_TERMINATE_HANDLER_H_
+#define WB_BASE_INCLUDE_SCOPED_THREAD_TERMINATE_HANDLER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -15,7 +15,7 @@
 #include "base_macroses.h"
 #include "deps/g3log/g3log.h"
 
-namespace whitebox::base {
+namespace wb::base {
 /**
  * @brief Changes thread termination routine to be called by terminate.
  */
@@ -31,7 +31,7 @@ class ScopedThreadTerminateHandler {
       : previous_terminate_function_{
             std::set_terminate(new_terminate_function)} {}
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadTerminateHandler);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadTerminateHandler);
 
   ~ScopedThreadTerminateHandler() noexcept {
     std::set_terminate(previous_terminate_function_);
@@ -48,6 +48,6 @@ class ScopedThreadTerminateHandler {
 inline void DefaultThreadTerminateHandler() noexcept {
   LOG(FATAL) << "Terminate called.  Stopping the app.";
 }
-}  // namespace whitebox::base
+}  // namespace wb::base
 
-#endif  // !WHITEBOX_BASE_INCLUDE_SCOPED_THREAD_TERMINATE_HANDLER_H_
+#endif  // !WB_BASE_INCLUDE_SCOPED_THREAD_TERMINATE_HANDLER_H_

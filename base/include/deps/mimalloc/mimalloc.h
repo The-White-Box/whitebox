@@ -4,12 +4,12 @@
 //
 // Mimalloc entry point.
 
-#ifndef WHITEBOX_BASE_INCLUDE_DEPS_MIMALLOC_MIMALLOC_H_
-#define WHITEBOX_BASE_INCLUDE_DEPS_MIMALLOC_MIMALLOC_H_
+#ifndef WB_BASE_INCLUDE_DEPS_MIMALLOC_MIMALLOC_H_
+#define WB_BASE_INCLUDE_DEPS_MIMALLOC_MIMALLOC_H_
 #ifdef _WIN32
 #pragma once
 #endif
 
 #include "deps/mimalloc/include/mimalloc.h"
 
-#endif  // !WHITEBOX_BASE_INCLUDE_DEPS_MIMALLOC_MIMALLOC_H_
+#endif  // !WB_BASE_INCLUDE_DEPS_MIMALLOC_MIMALLOC_H_

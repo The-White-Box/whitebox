@@ -4,33 +4,33 @@
 //
 // Common macroses & utilities.  Common means really common!
 
-#ifndef WHITEBOX_BASE_INCLUDE_BASE_MACROSES_H_
-#define WHITEBOX_BASE_INCLUDE_BASE_MACROSES_H_
+#ifndef WB_BASE_INCLUDE_BASE_MACROSES_H_
+#define WB_BASE_INCLUDE_BASE_MACROSES_H_
 
 #include <memory>
 
 /**
  * Deletes copy ctor and assignment operator for type.
  */
-#define WHITEBOX_NO_COPY_CTOR_AND_ASSIGNMENT(typeName) \
+#define WB_NO_COPY_CTOR_AND_ASSIGNMENT(typeName) \
   typeName(typeName&) = delete;                        \
   typeName& operator=(typeName&) = delete
 
 /**
  * Deletes move ctor and assignment operator for type.
  */
-#define WHITEBOX_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
+#define WB_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
   typeName(typeName&&) = delete;                       \
   typeName& operator=(typeName&&) = delete
 
 /**
  * Deletes copy / move ctors and assignment operators for type.
  */
-#define WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
-  WHITEBOX_NO_COPY_CTOR_AND_ASSIGNMENT(typeName);           \
-  WHITEBOX_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName)
+#define WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(typeName);           \
+  WB_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName)
 
-namespace whitebox::base {
+namespace wb::base {
 /**
  * @brief Implicit, means checked at compile time cast.
  * @tparam To Type to which cast to.
@@ -49,6 +49,6 @@ constexpr To implicit_cast(From&& from) noexcept {
  */
 template <typename T>
 using U = std::unique_ptr<T, std::default_delete<T>>;
-}  // namespace whitebox::base
+}  // namespace wb::base
 
-#endif  // !WHITEBOX_BASE_INCLUDE_BASE_MACROSES_H_
+#endif  // !WB_BASE_INCLUDE_BASE_MACROSES_H_

@@ -58,7 +58,7 @@ project(${PACKAGE_NAME}
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(whitebox_functions)
+include(wb_functions)
 wb_check_platform_requirements(${PACKAGE_NAME})
 
 # Build type.
@@ -78,7 +78,7 @@ set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS})
 # pthread
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads REQUIRED)
-set(WHITEBOX_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}")
+set(WB_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}")
 list(APPEND CMAKE_REQUIRED_LIBRARIES Threads::Threads)
 
 if (WB_CXX_COMPILER_ID MATCHES "Clang")
@@ -86,18 +86,18 @@ if (WB_CXX_COMPILER_ID MATCHES "Clang")
   if (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
     message(STATUS "${PACKAGE_NAME} compiler Clang + MSVC frontend.")
     # Clang with clang-cl front end.
-    include(compilers/whitebox_msvc)
+    include(compilers/wb_msvc)
   elseif (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     message(STATUS "${PACKAGE_NAME} compiler Clang + GNU frontend.")
     # Clang with regular front end.
-    include(compilers/whitebox_clang)
+    include(compilers/wb_clang)
   endif()
 elseif (WB_CXX_COMPILER_ID STREQUAL "GNU")
   message(STATUS "${PACKAGE_NAME} compiler GNU.")
-  include(compilers/whitebox_gcc)
+  include(compilers/wb_gcc)
 elseif (WB_CXX_COMPILER_ID STREQUAL "MSVC")
   message(STATUS "${PACKAGE_NAME} compiler MSVC.")
-  include(compilers/whitebox_msvc)
+  include(compilers/wb_msvc)
 else()
   # Add compilers if needed.
   message(FATAL_ERROR "'${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "

@@ -4,8 +4,8 @@
 //
 // App main window.
 
-#ifndef WHITEBOX_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
-#define WHITEBOX_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
+#ifndef WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
+#define WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
 
 #include <tchar.h>
 
@@ -15,11 +15,11 @@
 #include "base/include/sampling_profiler.h"
 #include "base/include/windows/ui/base_window.h"
 
-namespace whitebox::apps {
+namespace wb::apps {
 /**
  * @brief Main app window.
  */
-class MainWindow : public whitebox::base::windows::ui::BaseWindow<MainWindow> {
+class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
   friend class BaseWindow<MainWindow>;
 
  public:
@@ -31,10 +31,10 @@ class MainWindow : public whitebox::base::windows::ui::BaseWindow<MainWindow> {
   MainWindow(_In_ HINSTANCE instance) noexcept
       : BaseWindow{instance},
         render_sampling_profiler_{
-            whitebox::base::HighResolutionSamplingProfiler::clock::now()},
+            wb::base::HighResolutionSamplingProfiler::clock::now()},
         is_window_active_{false} {}
 
-  WHITEBOX_NO_COPY_CTOR_AND_ASSIGNMENT(MainWindow);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(MainWindow);
 
   /**
    * @brief Move ctor.
@@ -61,7 +61,7 @@ class MainWindow : public whitebox::base::windows::ui::BaseWindow<MainWindow> {
   /**
    * @brief Sampling profiler for rendering.
    */
-  whitebox::base::HighResolutionSamplingProfiler render_sampling_profiler_;
+  wb::base::HighResolutionSamplingProfiler render_sampling_profiler_;
   /**
    * @brief Is window active or not.
    */
@@ -125,6 +125,6 @@ class MainWindow : public whitebox::base::windows::ui::BaseWindow<MainWindow> {
    */
   void OnWindowDestroy(_In_ HWND) noexcept;
 };
-}  // namespace whitebox::apps
+}  // namespace wb::apps
 
-#endif  // !WHITEBOX_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
+#endif  // !WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_

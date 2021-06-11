@@ -4,8 +4,8 @@
 //
 // Scoped handler - thread unexpected routine to be called by unexpected.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_UNEXPECTED_HANDLER_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_UNEXPECTED_HANDLER_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_UNEXPECTED_HANDLER_H_
+#define WB_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_UNEXPECTED_HANDLER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -15,7 +15,7 @@
 #include "base/include/base_macroses.h"
 #include "base/include/deps/g3log/g3log.h"
 
-namespace whitebox::base::windows {
+namespace wb::base::windows {
 /**
  * @brief Changes thread unexpected routine to be called by unexpected.
  */
@@ -31,7 +31,7 @@ class ScopedThreadUnexpectedHandler {
       : previous_unexpected_function_{::set_unexpected(new_unexpected_function)} {
   }
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadUnexpectedHandler);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadUnexpectedHandler);
 
   ~ScopedThreadUnexpectedHandler() noexcept {
     (void)::set_unexpected(previous_unexpected_function_);
@@ -48,6 +48,6 @@ class ScopedThreadUnexpectedHandler {
 [[noreturn]] inline void DefaultThreadUnexpectedHandler() noexcept {
   LOG(FATAL) << "Unexpected called.  Stopping the app.";
 }
-}  // namespace whitebox::base::windows
+}  // namespace wb::base::windows
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_UNEXPECTED_HANDLER_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_UNEXPECTED_HANDLER_H_

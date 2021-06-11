@@ -4,8 +4,8 @@
 //
 // <system_error> extensions for Windows.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_SYSTEM_ERROR_EXT_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_SYSTEM_ERROR_EXT_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_SYSTEM_ERROR_EXT_H_
+#define WB_BASE_INCLUDE_WINDOWS_SYSTEM_ERROR_EXT_H_
 
 #include "base/include/system_error_ext.h"
 
@@ -19,7 +19,7 @@ using HWND = struct HWND__*;
  */
 using BOOL = int;
 
-namespace whitebox::base::windows {
+namespace wb::base::windows {
 /**
  * @brief Get error code.
  */
@@ -52,6 +52,6 @@ template <>
 [[nodiscard]] inline std::error_code GetErrorCode(_In_ BOOL result) noexcept {
   return result ? std::error_code{} : GetSystemErrorCode();
 }
-}  // namespace whitebox::base::windows
+}  // namespace wb::base::windows
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_SYSTEM_ERROR_EXT_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_SYSTEM_ERROR_EXT_H_

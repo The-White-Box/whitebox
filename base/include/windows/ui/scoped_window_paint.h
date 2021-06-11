@@ -4,8 +4,8 @@
 //
 // Scoped window paint.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
+#define WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -14,7 +14,7 @@
 #include "base/include/deps/g3log/g3log.h"
 #include "base/include/windows/windows_light.h"
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Paints to window in scope.
  */
@@ -31,7 +31,7 @@ class ScopedWindowPaint {
     DCHECK(!!device_context_);
   }
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);
 
   ~ScopedWindowPaint() noexcept {
     if (device_context_) {
@@ -48,6 +48,6 @@ class ScopedWindowPaint {
   const HDC device_context_;
   PAINTSTRUCT paint_struct_;
 };
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_

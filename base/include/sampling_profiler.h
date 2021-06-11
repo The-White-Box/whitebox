@@ -4,8 +4,8 @@
 //
 // Sampling profiler.
 
-#ifndef WHITEBOX_BASE_INCLUDE_SAMPLING_PROFILER_H_
-#define WHITEBOX_BASE_INCLUDE_SAMPLING_PROFILER_H_
+#ifndef WB_BASE_INCLUDE_SAMPLING_PROFILER_H_
+#define WB_BASE_INCLUDE_SAMPLING_PROFILER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -15,7 +15,7 @@
 
 #include "base_macroses.h"
 
-namespace whitebox::base {
+namespace wb::base {
 /**
  * @brief Sampling profiler.
  * @tparam TClock Clock to use as time source.
@@ -44,7 +44,7 @@ class SamplingProfiler {
   SamplingProfiler(SamplingProfiler &&p) noexcept = default;
   SamplingProfiler &operator=(SamplingProfiler &&p) noexcept = default;
 
-  WHITEBOX_NO_COPY_CTOR_AND_ASSIGNMENT(SamplingProfiler);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SamplingProfiler);
 
   /**
    * @brief Grabs time sample.
@@ -96,6 +96,6 @@ class SamplingProfiler {
  */
 using HighResolutionSamplingProfiler =
     SamplingProfiler<std::chrono::steady_clock>;
-}  // namespace whitebox::base
+}  // namespace wb::base
 
-#endif  // !WHITEBOX_BASE_INCLUDE_SAMPLING_PROFILER_H_
+#endif  // !WB_BASE_INCLUDE_SAMPLING_PROFILER_H_

@@ -4,46 +4,46 @@
 //
 // Compilers configuration and specific things.
 
-#ifndef WHITEBOX_BASE_INCLUDE_COMPILER_CONFIG_H_
-#define WHITEBOX_BASE_INCLUDE_COMPILER_CONFIG_H_
+#ifndef WB_BASE_INCLUDE_COMPILER_CONFIG_H_
+#define WB_BASE_INCLUDE_COMPILER_CONFIG_H_
 
 #include "build/include/build_config.h"
 
-#ifdef WHITEBOX_COMPILER_MSVC
+#ifdef WB_COMPILER_MSVC
 
 /*
  * @brief Begins MSVC warning override scope.
  */
-#define WHITEBOX_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE() \
+#define WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE() \
   __pragma(warning(push))
 
 /*
  * @brief Disables MSVC warning |warning_level|.
  */
-#define WHITEBOX_COMPILER_MSVC_DISABLE_WARNING(warning_level) \
+#define WB_COMPILER_MSVC_DISABLE_WARNING(warning_level) \
   __pragma(warning(disable : warning_level))
 
 /*
  * @brief Ends MSVC warning override scope.
  */
-#define WHITEBOX_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE() \
+#define WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE() \
   __pragma(warning(pop))
 
 /*
  * @brief Disable MSVC warning |warning_level| for code |code|.
  */
-#define WHITEBOX_COMPILER_MSVC_SCOPED_DISABLE_WARNING(warning_level, code) \
-  WHITEBOX_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()                    \
-  WHITEBOX_COMPILER_MSVC_DISABLE_WARNING(warning_level)                    \
-  code WHITEBOX_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+#define WB_COMPILER_MSVC_SCOPED_DISABLE_WARNING(warning_level, code) \
+  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()                    \
+  WB_COMPILER_MSVC_DISABLE_WARNING(warning_level)                    \
+  code WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
-#else  // !WHITEBOX_COMPILER_MSVC
+#else  // !WB_COMPILER_MSVC
 
-#define WHITEBOX_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-#define WHITEBOX_COMPILER_MSVC_DISABLE_WARNING(warning_level)
-#define WHITEBOX_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
-#define WHITEBOX_COMPILER_MSVC_SCOPED_DISABLE_WARNING(warning_level, code) code
+#define WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+#define WB_COMPILER_MSVC_DISABLE_WARNING(warning_level)
+#define WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+#define WB_COMPILER_MSVC_SCOPED_DISABLE_WARNING(warning_level, code) code
 
-#endif  // WHITEBOX_COMPILER_MSVC
+#endif  // WB_COMPILER_MSVC
 
-#endif  // !WHITEBOX_BASE_INCLUDE_COMPILER_CONFIG_H_
+#endif  // !WB_BASE_INCLUDE_COMPILER_CONFIG_H_

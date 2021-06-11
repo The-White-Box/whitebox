@@ -4,8 +4,8 @@
 //
 // Scoped handler when malloc fails to allocate memory.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_NEW_MODE_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_NEW_MODE_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_SCOPED_NEW_MODE_H_
+#define WB_BASE_INCLUDE_WINDOWS_SCOPED_NEW_MODE_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -16,7 +16,7 @@
 
 #include "base/include/base_macroses.h"
 
-namespace whitebox::base::windows {
+namespace wb::base::windows {
 /**
  * @brief Flag determines malloc behaviour on allocation failure.
  */
@@ -48,13 +48,13 @@ class ScopedNewMode {
             static_cast<std::underlying_type_t<decltype(new_mode_flag)>>(
                 new_mode_flag))} {}
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedNewMode);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedNewMode);
 
   ~ScopedNewMode() noexcept { (void)::_set_new_mode(previous_new_mode_); }
 
  private:
   const int previous_new_mode_;
 };
-}  // namespace whitebox::base::windows
+}  // namespace wb::base::windows
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_NEW_HANDLER_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_SCOPED_NEW_HANDLER_H_

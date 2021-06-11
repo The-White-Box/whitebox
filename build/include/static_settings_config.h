@@ -12,13 +12,13 @@
 
 #include "build_config.h"
 
-namespace whitebox::build::settings {
-#if defined(WHITEBOX_OS_WIN)
+namespace wb::build::settings {
+#if defined(WB_OS_WIN)
 /**
  * @brief Path to main log file.
  */
 constexpr char kPathToMainLogFile[]{"./logs/"};
-#elif defined(WHITEBOX_OS_POSIX)
+#elif defined(WB_OS_POSIX)
 /**
  * @brief Path to main log file.
  */
@@ -31,6 +31,6 @@ constexpr char kPathToMainLogFile[]{"/tmp/"};
  * @brief Minimum timers resolution.  Good enough, but not too power hungry.
  */
 constexpr unsigned kMinimumTimerResolutionMs{8U};
-}  // namespace whitebox::build::settings
+}  // namespace wb::build::settings
 
 #endif  // !BUILD_INCLUDE_STATIC_SETTINGS_CONFIG_H_

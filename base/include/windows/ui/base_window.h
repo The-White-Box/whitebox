@@ -4,8 +4,8 @@
 //
 // Base UI window.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_UI_BASE_WINDOW_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_UI_BASE_WINDOW_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_UI_BASE_WINDOW_H_
+#define WB_BASE_INCLUDE_WINDOWS_UI_BASE_WINDOW_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -21,7 +21,7 @@
 #include "base/include/windows/ui/scoped_window_class.h"
 #include "base/include/windows/windows_light.h"
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Window definition.
  * @param instance_
@@ -89,7 +89,7 @@ class BaseWindow {
   // TDerivedWindow>);
 
  public:
-  WHITEBOX_NO_COPY_CTOR_AND_ASSIGNMENT(BaseWindow);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(BaseWindow);
 
   /**
    * @brief Move ctor.
@@ -253,6 +253,6 @@ class BaseWindow {
 
 template <typename TDerivedWindow>
 BaseWindow<TDerivedWindow>::~BaseWindow() noexcept {}
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_UI_BASE_WINDOW_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_UI_BASE_WINDOW_H_

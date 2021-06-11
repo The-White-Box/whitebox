@@ -2,56 +2,56 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 #
-# GCC compiler configuration.
+# CLANG compiler configuration.
 #
 # Derived from https://github.com/facebook/folly/blob/master/CMake/FollyCompilerUnix.cmake
 # which is licensed under the Apache License, Version 2.0 (the "License").  See
 # the License for the specific language governing permissions andlimitations
 # under the License.
 
-include(whitebox_clang_tidy_configuration)
+include(wb_clang_tidy_configuration)
 
-option(WB_GCC_DEFINE__GLIBCXX_ASSERTIONS           "Define _GLIBCXX_ASSERTIONS macro to enable extra error checking in the form of precondition assertions, such as bounds checking in strings and null pointer checks when dereferencing smart pointers." ON)
-option(WB_GCC_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
-option(WB_GCC_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the GCC compiler." ON)
-option(WB_GCC_ENABLE_FAST_MATH                     "Enable fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
-option(WB_GCC_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
-option(WB_GCC_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
-option(WB_GCC_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the GCC compiler." ON)
+option(WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS           "Define _GLIBCXX_ASSERTIONS macro to enable extra error checking in the form of precondition assertions, such as bounds checking in strings and null pointer checks when dereferencing smart pointers." ON)
+option(WB_CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
+option(WB_CLANG_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the Clang compiler.  See https://clang.llvm.org/docs/UsersManual.html#enabling-all-diagnostics" ON)
+option(WB_CLANG_ENABLE_FAST_MATH                     "Enable fast-math mode.  This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
+option(WB_CLANG_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
+option(WB_CLANG_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
+option(WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the Clang compiler." ON)
 
-wb_define_strings_option(WB_GCC_DEFINE__FORTIFY_SOURCE
+wb_define_strings_option(WB_CLANG_DEFINE__FORTIFY_SOURCE
   "Define _FORTIFY_SOURCE macro to a positive integer to control which source fortification is enabled."
   "2" "1" "")
 
-wb_define_strings_option(WB_GCC_DEFINE__POSIX_C_SOURCE
+wb_define_strings_option(WB_CLANG_DEFINE__POSIX_C_SOURCE
   "Define _POSIX_C_SOURCE macro to a positive integer to control which POSIX functionality is made available. The greater the value of this macro, the more functionality is made available."
   "200809L" "200112L" "199506L" "")
 
-wb_define_strings_option(WB_GCC_ENABLE_CET_PROTECTION
+wb_define_strings_option(WB_CLANG_ENABLE_CET_PROTECTION
   "Enables Control-flow Enforcement Technology (CET) protection, which defends your program from certain attacks that exploit vulnerabilities. This option offers preliminary support for CET."
   "none" "full" "branch" "return")
 
-wb_define_strings_option(WB_GCC_ENABLE_LTO
+wb_define_strings_option(WB_CLANG_ENABLE_LTO
   "If enabled, use Link Time Optimization for Release builds."
-  "" "-flto" "-fwhopr")
+  "-flto=thin" "-flto" "-flto=full" "")
 
-wb_define_strings_option(WB_GCC_LANGUAGE_VERSION
-  "This determines which version of C++ to compile as via GCC."
+wb_define_strings_option(WB_CLANG_LANGUAGE_VERSION
+  "This determines which version of C++ to compile as via Clang."
   "c++17" "c++20")
 
-wb_define_strings_option(WB_GCC_MINIMUM_CPU_ARCHITECTURE
+wb_define_strings_option(WB_CLANG_MINIMUM_CPU_ARCHITECTURE
   "This tells the compiler to choose minimum instruction set for the specified architecture."
   "" "native" "x86-64")
 
-wb_define_strings_option(WB_GCC_DEBUG_OPTIMIZATION_LEVEL
+wb_define_strings_option(WB_CLANG_DEBUG_OPTIMIZATION_LEVEL
   "This tells the compiler to choose optimization level in Debug build."
   "-Og" "-O0" "")
 
-wb_define_strings_option(WB_GCC_RELEASE_OPTIMIZATION_LEVEL
+wb_define_strings_option(WB_CLANG_RELEASE_OPTIMIZATION_LEVEL
   "This tells the compiler to choose optimization level in Release build."
   "-O2" "-O1" "-O0" "-O3" "-Os" "-Ofast")
 
-wb_define_strings_option(WB_GCC_STACK_PROTECTOR_LEVEL
+wb_define_strings_option(WB_CLANG_STACK_PROTECTOR_LEVEL
   "This tells the compiler to force the addition of a stack canary that checks for stack smashing."
   "-strong" "-all" "")
 
@@ -59,18 +59,14 @@ wb_define_strings_option(WB_GCC_STACK_PROTECTOR_LEVEL
 function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  if (WB_GCC_ENABLE_CLANG_TIDY)
-    wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_GCC_LANGUAGE_VERSION})
-  else()
-    set(APPLY_CLANG_TIDY OFF)
-  endif()
+  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_CLANG_LANGUAGE_VERSION})
 
   target_compile_options(${THE_TARGET}
     PRIVATE
       # Increased reliability of backtraces.
       -fasynchronous-unwind-tables
       # Enable fast math.
-      $<$<BOOL:${WB_GCC_ENABLE_FAST_MATH}>:-ffast-math>
+      $<$<BOOL:${WB_CLANG_ENABLE_FAST_MATH}>:-ffast-math>
       # Enable table-based thread cancellation.
       -fexceptions
       # String and character constants in UTF-8 during execution.
@@ -96,35 +92,34 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # Avoid temporary files, speeding up builds.
       -pipe
       # Enables support for the Control-Flow Enforcement Technology (CET).
-      -fcf-protection=${WB_GCC_ENABLE_CET_PROTECTION}
+      -fcf-protection=${WB_CLANG_ENABLE_CET_PROTECTION}
       # Force the addition of a stack canary that checks for stack smashing.
-      -fstack-protector${WB_GCC_STACK_PROTECTOR_LEVEL}
+      -fstack-protector${WB_CLANG_STACK_PROTECTOR_LEVEL}
       # Minimum architecture (instruction sets) to use when generating code.
-      $<$<BOOL:${WB_GCC_MINIMUM_CPU_ARCHITECTURE}>:-march=${WB_GCC_MINIMUM_CPU_ARCHITECTURE}>
+      $<$<BOOL:${WB_CLANG_MINIMUM_CPU_ARCHITECTURE}>:-march=${WB_CLANG_MINIMUM_CPU_ARCHITECTURE}>
 
       ## Warnings
 
       # Enable almost all warnings.
-      $<$<BOOL:${WB_GCC_ENABLE_ALL_WARNINGS}>:-Wall>
+      $<$<BOOL:${WB_CLANG_ENABLE_ALL_WARNINGS}>:-Wall>
       # Enable extra warnings.
       -Wextra
       # Threat warnings as errors.
-      $<$<BOOL:${WB_GCC_THREAT_COMPILER_WARNINGS_AS_ERRORS}>:-Werror>
+      $<$<BOOL:${WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS}>:-Werror>
       # Warn about code affected by ABI changes.  This includes code that may
       # not be compatible with the vendor-neutral C++ ABI as well as the psABI
       # for the particular target.
-      # cc1plus: warning: -Wabi won't warn about anything [-Wabi]
-      # -Wabi
+      -Wabi
       # Warn about calls to allocation functions decorated with attribute
       # alloc_size that specify zero bytes.  This is implementation defined
       # behavior.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Walloc-zero>
+      ### -Walloc-zero
       # Warn about declarations using the alias and similar attributes whose
       # target is incompatible with the type of the alias.
       # At 2 level -Wattribute-alias also diagnoses cases where the attributes
       # of the alias declaration are more restrictive than the attributes
       # applied to its target.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wattribute-alias>
+      ### -Wattribute-alias=2
       # Warn whenever a pointer is cast such that the required alignment of the
       # target is increased.  For example, warn if a char * is cast to an int *
       # on machines where integers can only be accessed at two- or four-byte
@@ -149,16 +144,16 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # double.
       -Wdouble-promotion
       # Warn when an if-else has identical branches.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wduplicated-branches>
+      ### -Wduplicated-branches
       # Warn about duplicated conditions in an if-else-if chain.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wduplicated-cond>
+      ### -Wduplicated-cond
       # Warn when a value of enumerated type is implicitly converted to a
       # different enumerated type.
-      ### -Wenum-conversion
+      -Wenum-conversion
       # Warn when a switch case falls through.  -Wimplicit-fallthrough=5 doesnt
       # recognize any comments as fallthrough comments, only attributes disable
       # the warning.
-      $<IF:$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>,-Wimplicit-fallthrough=5,-Wimplicit-fallthrough>
+      -Wimplicit-fallthrough
       # Warn if floating-point values are used in equality comparisons.
       #
       # The idea behind this is that sometimes it is convenient (for the
@@ -187,7 +182,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # buffer.
       # Level 2 warns also about calls that might overflow the destination
       # buffer given an argument of sufficient length or magnitude.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wformat-overflow=2>
+      ### -Wformat-overflow=2
       # If -Wformat is specified, also warn if the format string is not a string
       # literal and so cannot be checked, unless the format function takes its
       # format arguments as a va_list.
@@ -197,7 +192,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       -Wformat-security
       # If -Wformat is specified, also warn if the format string requires an
       # unsigned argument and the argument is signed and vice versa.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wformat-signedness>
+      ### -Wformat-signedness
       # Warn about calls to formatted input/output functions such as snprintf
       # and vsnprintf that might result in output truncation.
       #
@@ -208,7 +203,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # Level 2 warns also about calls to bounded functions whose return value
       # is used and that might result in truncation given an argument of
       # sufficient length or magnitude.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wformat-truncation>
+      ### -Wformat-truncation=2
       # If -Wformat is specified, also warn about strftime formats that may
       # yield only a two-digit year.
       -Wformat-y2k
@@ -219,7 +214,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # includes using logical operators in contexts where a bit-wise operator
       # is likely to be expected.  Also warns when the operands of a logical
       # operator are the same.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wlogical-op>
+      ### -Wlogical-op
       # Warn if a structure is given the packed attribute, but the packed
       # attribute has no effect on the layout or size of the structure.  Such
       # structures may be mis-aligned for little benefit.
@@ -248,7 +243,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       -Woverlength-strings
       # Warn when the compiler detects that an argument passed to a restrict or
       # __restrict qualified parameter alias with another parameter.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wrestrict>
+      ### -Wrestrict
       # Warn for implicit conversions that may change the sign of an integer
       # value, like assigning a signed integer expression to an unsigned integer
       # variable.
@@ -256,7 +251,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # Warn if declared name shadows the same name in some outer level.
       -Wshadow
       # Control warnings about left shift overflows.
-      $<IF:$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>,-Wshift-overflow=2,-Wshift-overflow>
+      -Wshift-overflow
       # Warn whenever a switch statement has an index of enumerated type and
       # lacks a case for one or more of the named codes of that enumeration.
       # case labels outside the enumeration range also provoke warnings when
@@ -286,15 +281,15 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # only.
       -Wstrict-aliasing=1
       # Warn for cases where adding an attribute may be beneficial.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wsuggest-attribute=pure>
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wsuggest-attribute=cold>
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wsuggest-attribute=const>
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wsuggest-attribute=malloc>
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wsuggest-attribute=noreturn>
+      ### -Wsuggest-attribute=pure
+      ### -Wsuggest-attribute=cold
+      ### -Wsuggest-attribute=const
+      ### -Wsuggest-attribute=malloc
+      ### -Wsuggest-attribute=noreturn
       # Warn about trampolines generated for pointers to nested functions.  For
       # most targets, it is made up of code and thus requires the stack to be
       # made executable in order for the program to work properly.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wtrampolines>
+      ### -Wtrampolines
       # Warn if an undefined identifier is evaluated in an #if directive.  Such
       # identifiers are replaced with zero.
       -Wundef
@@ -307,30 +302,30 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       -Wunused-macros
       # Warn if the loop cannot be optimized because the compiler cannot assume
       # anything on the bounds of the loop indices.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wunsafe-loop-optimizations>
+      ### -Wunsafe-loop-optimizations
       # Warn when an expression is cast to its own type within a C++ program.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wuseless-cast>
+      ### -Wuseless-cast
 
       # Warn if vector operation is not implemented via SIMD capabilities of the
       # architecture.  Mainly useful for the performance tuning.
-      $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wvector-operation-performance>
+      ### -Wvector-operation-performance
 
       # Build in the requested version of C++.
-      -std=${WB_GCC_LANGUAGE_VERSION}
+      -std=${WB_CLANG_LANGUAGE_VERSION}
 
       ## Debug configuration
       $<$<CONFIG:DEBUG>:
-        $<$<BOOL:${WB_GCC_DEBUG_OPTIMIZATION_LEVEL}>:${WB_GCC_DEBUG_OPTIMIZATION_LEVEL}>
+        $<$<BOOL:${WB_CLANG_DEBUG_OPTIMIZATION_LEVEL}>:${WB_CLANG_DEBUG_OPTIMIZATION_LEVEL}>
       >
 
       ## Non-debug configuration.
       $<$<NOT:$<CONFIG:DEBUG>>:
         # Try max optimization.  Be careful, this can lead to pessimization!
-        $<$<BOOL:${WB_GCC_RELEASE_OPTIMIZATION_LEVEL}>:${WB_GCC_RELEASE_OPTIMIZATION_LEVEL}>
+        $<$<BOOL:${WB_CLANG_RELEASE_OPTIMIZATION_LEVEL}>:${WB_CLANG_RELEASE_OPTIMIZATION_LEVEL}>
         # Enable link time optimization.
-        $<$<BOOL:${WB_GCC_ENABLE_LTO}>:${WB_GCC_ENABLE_LTO}>
+        $<$<BOOL:${WB_CLANG_ENABLE_LTO}>:-flto=${WB_CLANG_ENABLE_LTO}>
         # Enable loop unrolling.
-        $<$<BOOL:${WB_GCC_ENABLE_LOOPS_UNROLLING}>:-funroll-loops>
+        $<$<BOOL:${WB_CLANG_ENABLE_LOOPS_UNROLLING}>:-funroll-loops>
       >
   )
 
@@ -341,7 +336,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # The annotations must be present on all vector operations or none, so
         # this macro must be defined to the same value for all translation units
         # that create, destroy or modify vectors.
-        $<$<BOOL:${WB_GCC_DEFINE__GLIBCXX_SANITIZE_VECTOR}>:
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR}>:
           _GLIBCXX_SANITIZE_VECTOR
         >
       >
@@ -350,26 +345,27 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # Mostly obsolete enabler of thread-safe function versions in stdlib.
       _REENTRANT
       # Made available functions from the POSIX standard.
-      $<$<BOOL:${WB_GCC_DEFINE__POSIX_C_SOURCE}>:
-        _POSIX_C_SOURCE=${WB_GCC_DEFINE__POSIX_C_SOURCE}
+      $<$<BOOL:${WB_CLANG_DEFINE__POSIX_C_SOURCE}>:
+        _POSIX_C_SOURCE=${WB_CLANG_DEFINE__POSIX_C_SOURCE}
       >
 
       ## Security.
       # Compile + run-time buffer overflow detection.
-      $<$<BOOL:${WB_GCC_DEFINE__FORTIFY_SOURCE}>:
-        _FORTIFY_SOURCE=${WB_GCC_DEFINE__FORTIFY_SOURCE}
+      $<$<BOOL:${WB_CLANG_DEFINE__FORTIFY_SOURCE}>:
+        # TODO: ASAN doesn't like this! Disable if ASAN is present.
+        _FORTIFY_SOURCE=${WB_CLANG_DEFINE__FORTIFY_SOURCE}
       >
 
       ## Debug configuration.
       $<$<CONFIG:DEBUG>:
         # Run-time bounds checking for C++ strings/containers.
-        $<$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_ASSERTIONS>
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_ASSERTIONS>
         # Catch libstdc++ usage errors by enabling debug mode.  When defined,
         # _GLIBCXX_ASSERTIONS is defined automatically
-        $<$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG>
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG>
         # When defined makes the debug mode extremely picky by making the use of
         # libstdc++ extensions and libstdc++-specific behavior into errors.
-        $<$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG_PEDANTIC>
+        $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG_PEDANTIC>
       >
   )
 
@@ -393,7 +389,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       >
       # -Wl,-z,cet-report=error
       # Use faster than default linker.
-      $<$<BOOL:${WB_GCC_ENABLE_GOLD_LINKER}>:-fuse-ld=gold>
+      $<$<BOOL:${WB_CLANG_ENABLE_GOLD_LINKER}>:-fuse-ld=gold>
   )
 
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")
@@ -403,10 +399,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   if (APPLY_CLANG_TIDY)
     wb_dump_target_property(${THE_TARGET} CXX_CLANG_TIDY    "cxx clang-tidy flags")
   else()
-    if (NOT WB_GCC_ENABLE_CLANG_TIDY)
-      message(STATUS "${THE_TARGET} cxx clang-tidy flags: disabled on GCC.")
-    else()
-      message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on GCC.")
-    endif()
+    message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on Clang.")
   endif()
 endfunction()

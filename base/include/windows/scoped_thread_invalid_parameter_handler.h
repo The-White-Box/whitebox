@@ -4,8 +4,8 @@
 //
 // Scoped handler when CRT detects an invalid argument.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_
+#define WB_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -14,7 +14,7 @@
 
 #include "base/include/deps/g3log/g3log.h"
 
-namespace whitebox::base::windows {
+namespace wb::base::windows {
 /**
  * @brief Sets a function to be called when the CRT detects an invalid argument
  * and reverts back when out of scope.
@@ -36,7 +36,7 @@ class ScopedThreadInvalidParameterHandler {
     DCHECK(!!invalid_parameter_handler);
   }
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(
       ScopedThreadInvalidParameterHandler);
 
   ~ScopedThreadInvalidParameterHandler() noexcept {
@@ -67,6 +67,6 @@ class ScopedThreadInvalidParameterHandler {
   LOG(FATAL) << "Invalid parameter detected in function " << buffer
              << " Stopping the app.";
 }
-}  // namespace whitebox::base::windows
+}  // namespace wb::base::windows
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_

@@ -26,7 +26,7 @@
 #include "main_window.h"
 #include "windows_resource.h"
 
-#ifdef WHITEBOX_OS_WIN
+#ifdef WB_OS_WIN
 extern "C" {
 // Starting with the Release 302 drivers, application developers can direct the
 // Optimus driver at runtime to use the High Performance Graphics to render any
@@ -53,16 +53,16 @@ namespace {
  * @param instance App instance.
  * @return Window definition.
  */
-whitebox::base::windows::ui::WindowDefinition CreateMainWindowDefinition(
+wb::base::windows::ui::WindowDefinition CreateMainWindowDefinition(
     _In_ HINSTANCE instance, _In_z_ PCTSTR window_title) noexcept {
   DCHECK(!!instance);
 
   const auto icon =
-      LoadIcon(instance, MAKEINTRESOURCE(WHITEBOX_HALF_LIFE_2_IDI_MAIN_ICON));
+      LoadIcon(instance, MAKEINTRESOURCE(WB_HALF_LIFE_2_IDI_MAIN_ICON));
   const auto icon_small =
-      LoadIcon(instance, MAKEINTRESOURCE(WHITEBOX_HALF_LIFE_2_IDI_SMALL_ICON));
+      LoadIcon(instance, MAKEINTRESOURCE(WB_HALF_LIFE_2_IDI_SMALL_ICON));
   const auto cursor = LoadCursor(nullptr, IDC_ARROW);
-  return whitebox::base::windows::ui::WindowDefinition{
+  return wb::base::windows::ui::WindowDefinition{
       instance,
       window_title,
       icon,
@@ -91,7 +91,7 @@ int DispatchMessages() noexcept {
     }
   };
 
-  using namespace whitebox::base::windows;
+  using namespace wb::base::windows;
   ui::PeekMessageDispatcher message_dispatcher;
 
   // Main message app loop.
@@ -110,8 +110,8 @@ int DispatchMessages() noexcept {
  * @return App exit code.
  */
 int RunApp(_In_ HINSTANCE instance, _In_ int show_window_flags) noexcept {
-  using namespace whitebox::base;
-  using namespace whitebox::apps;
+  using namespace wb::base;
+  using namespace wb::apps;
 
   const windows::ui::WindowDefinition window_definition{
       CreateMainWindowDefinition(instance, _T("Half-Life 2 [64 bit]"))};
@@ -157,11 +157,11 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // utf-8.  See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
 
-  using namespace whitebox::base;
+  using namespace wb::base;
 
   // Initialize g3log logging library first as logs used extensively.
   deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
-      ::GetCommandLineA(), whitebox::build::settings::kPathToMainLogFile};
+      ::GetCommandLineA(), wb::build::settings::kPathToMainLogFile};
 
   DLOG(INFO) << "Using mi-malloc v." << mi_version();
 
@@ -186,10 +186,10 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
 
   // Set minimum timers resolution to good enough, but not too power hungry.
   windows::ScopedMinimumTimerResolution scoped_minimum_timer_resolution{
-      whitebox::build::settings::kMinimumTimerResolutionMs};
+      wb::build::settings::kMinimumTimerResolutionMs};
   LOG_IF(WARNING, !scoped_minimum_timer_resolution.IsSucceeded())
       << "Failed to set minimum periodic timers resolution to "
-      << whitebox::build::settings::kMinimumTimerResolutionMs
+      << wb::build::settings::kMinimumTimerResolutionMs
       << "ms, will run with default system one.";
 
   return RunApp(instance, show_window_flags);

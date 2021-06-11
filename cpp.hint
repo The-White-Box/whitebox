@@ -6,6 +6,6 @@
 // such as names of functions and macros.
 // For more information see https://go.microsoft.com/fwlink/?linkid=865984
 
-#define WHITEBOX_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-#define WHITEBOX_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
-#define WHITEBOX_COMPILER_MSVC_DISABLE_WARNING(warning_level)
+#define WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+#define WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+#define WB_COMPILER_MSVC_DISABLE_WARNING(warning_level)

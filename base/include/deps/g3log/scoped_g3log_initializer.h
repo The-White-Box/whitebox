@@ -4,8 +4,8 @@
 //
 // Scoped g3log initializer.
 
-#ifndef WHITEBOX_BASE_INCLUDE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
-#define WHITEBOX_BASE_INCLUDE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
+#ifndef WB_BASE_INCLUDE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
+#define WB_BASE_INCLUDE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -18,18 +18,18 @@
 #include "build/include/build_config.h"
 #include "g3log_config.h"
 
-#if defined(WHITEBOX_OS_POSIX)
+#if defined(WB_OS_POSIX)
 #include <signal.h>
-#elif defined(WHITEBOX_OS_WIN)
+#elif defined(WB_OS_WIN)
 #include <intrin.h>  // __debugbreak
 #endif
 
-WHITEBOX_COMPILER_MSVC_BEGIN_GLOG_WARNING_OVERRIDE_SCOPE()
+WB_COMPILER_MSVC_BEGIN_GLOG_WARNING_OVERRIDE_SCOPE()
 #include "g3log.h"
 #include "logworker.h"
-WHITEBOX_COMPILER_MSVC_END_GLOG_WARNING_OVERRIDE_SCOPE()
+WB_COMPILER_MSVC_END_GLOG_WARNING_OVERRIDE_SCOPE()
 
-namespace whitebox::base::deps::g3log {
+namespace wb::base::deps::g3log {
 /**
  * @brief Scoped g3log library initializer.
  */
@@ -77,15 +77,15 @@ class ScopedG3LogInitializer {
      * Linux:   g3::setFatalPreLoggingHook([]{ raise(SIGTRAP); });
      */
 #if defined(_DEBUG)
-#if defined(WHITEBOX_OS_POSIX)
+#if defined(WB_OS_POSIX)
     g3::setFatalPreLoggingHook([] { raise(SIGTRAP); });
-#elif defined(WHITEBOX_OS_WIN)
+#elif defined(WB_OS_WIN)
     g3::setFatalPreLoggingHook([] { __debugbreak(); });
 #endif
 #endif
   }
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedG3LogInitializer);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedG3LogInitializer);
 
   ~ScopedG3LogInitializer() {
     // If the LogWorker is initialized then at scope exit the
@@ -144,7 +144,7 @@ class ScopedG3LogInitializer {
    */
   static std::string GetExecutableNameFromLogPrefix(
       std::string_view log_prefix) noexcept {
-#ifdef WHITEBOX_OS_POSIX
+#ifdef WB_OS_POSIX
     const size_t lasts_slash_idx{log_prefix.rfind('/')};
     return std::string{lasts_slash_idx != std::string_view::npos
                            ? log_prefix.substr(lasts_slash_idx + 1)
@@ -157,6 +157,6 @@ class ScopedG3LogInitializer {
 #endif
   }
 };
-}  // namespace whitebox::base::deps::g3log
+}  // namespace wb::base::deps::g3log
 
-#endif  // WHITEBOX_BASE_INCLUDE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
+#endif  // WB_BASE_INCLUDE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_

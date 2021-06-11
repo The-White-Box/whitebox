@@ -4,15 +4,15 @@
 //
 // <system_error> extensions.
 
-#ifndef WHITEBOX_BASE_INCLUDE_SYSTEM_ERROR_EXT_H_
-#define WHITEBOX_BASE_INCLUDE_SYSTEM_ERROR_EXT_H_
+#ifndef WB_BASE_INCLUDE_SYSTEM_ERROR_EXT_H_
+#define WB_BASE_INCLUDE_SYSTEM_ERROR_EXT_H_
 
 #include <system_error>
 #include <variant>
 
 #include "build/include/build_config.h"
 
-#ifdef WHITEBOX_OS_WIN
+#ifdef WB_OS_WIN
 #include <sal.h>          // _Check_return_
 #include <specstrings.h>  // _Post_equals_last_error_
 
@@ -22,13 +22,13 @@ extern "C" __declspec(dllimport) _Check_return_ _Post_equals_last_error_
 #include <cerrno>
 #endif
 
-namespace whitebox::base {
+namespace wb::base {
 /**
  * @brief Get last native system errno.
  * @return Last native system errno.
  */
 [[nodiscard]] inline int GetLastNativeErrno() noexcept {
-#ifdef WHITEBOX_OS_WIN
+#ifdef WB_OS_WIN
   return static_cast<int>(::GetLastError());
 #else
   return errno;
@@ -51,6 +51,6 @@ namespace whitebox::base {
 */
 template <typename TResult>
 using R = std::variant<TResult, std::error_code>;
-}  // namespace whitebox::base
+}  // namespace wb::base
 
-#endif  // !WHITEBOX_BASE_INCLUDE_SYSTEM_ERROR_EXT_H_
+#endif  // !WB_BASE_INCLUDE_SYSTEM_ERROR_EXT_H_

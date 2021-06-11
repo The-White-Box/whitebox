@@ -4,8 +4,8 @@
 //
 // Scoped handler when pure virtual function call is detected.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
+#define WB_BASE_INCLUDE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -14,7 +14,7 @@
 
 #include "base/include/deps/g3log/g3log.h"
 
-namespace whitebox::base::windows {
+namespace wb::base::windows {
 /**
  * @brief Sets a function to be called when pure virtual function call is
  * detected and reverts back when out of scope.
@@ -27,7 +27,7 @@ class ScopedPureCallHandler {
     DCHECK(!!pure_call_handler);
   }
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedPureCallHandler);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedPureCallHandler);
 
   ~ScopedPureCallHandler() noexcept {
     (void)::_set_purecall_handler(old_pure_call_handler_);
@@ -40,6 +40,6 @@ class ScopedPureCallHandler {
 [[noreturn]] void DefaultPureCallHandler() {
   LOG(FATAL) << "Pure virtual function call occured.  Stopping the app.";
 }
-}  // namespace whitebox::base::windows
+}  // namespace wb::base::windows
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_

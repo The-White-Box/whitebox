@@ -4,8 +4,8 @@
 //
 // Scoped cursor changer.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_CHANGE_CURSOR_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_CHANGE_CURSOR_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_CHANGE_CURSOR_H_
+#define WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_CHANGE_CURSOR_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -21,7 +21,7 @@ using HCURSOR = struct HCURSOR__*; /* HICONs & HCURSORs are not polymorphic */
 
 __declspec(dllimport) HCURSOR __stdcall SetCursor(_In_opt_ HCURSOR hCursor);
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Changes cursor in scope and reverts back when out of scope.
  */
@@ -35,13 +35,13 @@ class ScopedChangeCursor {
   explicit ScopedChangeCursor(_In_opt_ HCURSOR new_cursor) noexcept
       : old_cursor_{::SetCursor(new_cursor)} {}
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedChangeCursor);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedChangeCursor);
 
   ~ScopedChangeCursor() noexcept { (void)::SetCursor(old_cursor_); }
 
  private:
   _In_opt_ const HCURSOR old_cursor_;
 };
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_CHANGE_CURSOR_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_CHANGE_CURSOR_H_

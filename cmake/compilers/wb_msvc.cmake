@@ -9,7 +9,7 @@
 # the License for the specific language governing permissions and limitations
 # under the License.
 
-include(whitebox_clang_tidy_configuration)
+include(wb_clang_tidy_configuration)
 
 # Some additional configuration options.
 option(WB_MSVC_CREATE_HOTPATCHABLE_IMAGE                        "If enabled, compiler prepares an image for hot patching." OFF)
@@ -157,7 +157,7 @@ endforeach()
 function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_MSVC_CXX_LANGUAGE_VERSION})
+  # wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_MSVC_CXX_LANGUAGE_VERSION})
 
   # The general options passed:
   target_compile_options(${THE_TARGET}

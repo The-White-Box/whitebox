@@ -4,8 +4,8 @@
 //
 // Light version of Windows header.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_WINDOWS_LIGHT_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_WINDOWS_LIGHT_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_WINDOWS_LIGHT_H_
+#define WB_BASE_INCLUDE_WINDOWS_WINDOWS_LIGHT_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -19,4 +19,4 @@
 // Fixup clashing windows macroses.
 #include "windows_macroses_fixup.h"
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_WINDOWS_LIGHT_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_WINDOWS_LIGHT_H_

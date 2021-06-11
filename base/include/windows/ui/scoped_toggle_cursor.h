@@ -4,8 +4,8 @@
 //
 // Scoped cursor toggler.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_TOGGLE_CURSOR_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_TOGGLE_CURSOR_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_TOGGLE_CURSOR_H_
+#define WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_TOGGLE_CURSOR_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -14,7 +14,7 @@
 
 __declspec(dllimport) int __stdcall ShowCursor(_In_ int bShow);
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Hides cursor in scope and reverts back when out of scope.
  */
@@ -29,7 +29,7 @@ class ScopedToggleCursor {
       : display_cursor_counter_{::ShowCursor(toggle ? 1 : 0)},
         is_show_cursor_{toggle} {}
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedToggleCursor);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedToggleCursor);
 
   ~ScopedToggleCursor() noexcept {
     ::ShowCursor(is_show_cursor_ ? 0 : 1);
@@ -45,6 +45,6 @@ class ScopedToggleCursor {
   const int display_cursor_counter_;
   const bool is_show_cursor_;
 };
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_UI_SCOPED_TOGGLE_CURSOR_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_UI_SCOPED_TOGGLE_CURSOR_H_

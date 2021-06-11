@@ -4,8 +4,8 @@
 //
 // Peek message dispatcher.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOWS_UI_PEEK_MESSAGE_DISPATCHER_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOWS_UI_PEEK_MESSAGE_DISPATCHER_H_
+#ifndef WB_BASE_INCLUDE_WINDOWS_UI_PEEK_MESSAGE_DISPATCHER_H_
+#define WB_BASE_INCLUDE_WINDOWS_UI_PEEK_MESSAGE_DISPATCHER_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -16,7 +16,7 @@
 #include "base/include/deps/g3log/g3log.h"
 #include "base/include/windows/windows_light.h"
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Default message predispatcher function.  Predispatch nothing.
  * @param Message.
@@ -43,7 +43,7 @@ class PeekMessageDispatcher {
   explicit PeekMessageDispatcher(_In_opt_ HWND hwnd = nullptr) noexcept
       : hwnd_{hwnd} {}
 
-  WHITEBOX_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(PeekMessageDispatcher);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(PeekMessageDispatcher);
 
   // Dispatch messages to the window.  Not a blocking call, dispatch only
   // arrived in queue messages.
@@ -82,6 +82,6 @@ class PeekMessageDispatcher {
   // Handle to window which messages are dispatched.
   const HWND hwnd_;
 };
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOWS_UI_PEEK_MESSAGE_DISPATCHER_H_
+#endif  // !WB_BASE_INCLUDE_WINDOWS_UI_PEEK_MESSAGE_DISPATCHER_H_

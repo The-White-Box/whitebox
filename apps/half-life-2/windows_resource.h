@@ -4,14 +4,14 @@
 //
 // Half-Life 2 exe resources.
 
-#ifndef WHITEBOX_APPS_HALF_LIFE_2_RESOURCE_H_
-#define WHITEBOX_APPS_HALF_LIFE_2_RESOURCE_H_
+#ifndef WB_APPS_HALF_LIFE_2_RESOURCE_H_
+#define WB_APPS_HALF_LIFE_2_RESOURCE_H_
 
 #include "app_version_config.h"
 
 // Main icon id.
-#define WHITEBOX_HALF_LIFE_2_IDI_MAIN_ICON 101
+#define WB_HALF_LIFE_2_IDI_MAIN_ICON 101
 // Small icon id.
-#define WHITEBOX_HALF_LIFE_2_IDI_SMALL_ICON 102
+#define WB_HALF_LIFE_2_IDI_SMALL_ICON 102
 
-#endif  // !WHITEBOX_APPS_HALF_LIFE_2_RESOURCE_H_
+#endif  // !WB_APPS_HALF_LIFE_2_RESOURCE_H_

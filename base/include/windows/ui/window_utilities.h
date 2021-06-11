@@ -4,8 +4,8 @@
 //
 // Common window utilities.
 
-#ifndef WHITEBOX_BASE_INCLUDE_WINDOW_UTILITIES_H_
-#define WHITEBOX_BASE_INCLUDE_WINDOW_UTILITIES_H_
+#ifndef WB_BASE_INCLUDE_WINDOW_UTILITIES_H_
+#define WB_BASE_INCLUDE_WINDOW_UTILITIES_H_
 #ifdef _WIN32
 #pragma once
 #endif
@@ -16,7 +16,7 @@
 #include "base/include/deps/g3log/g3log.h"
 #include "base/include/windows/windows_light.h"
 
-namespace whitebox::base::windows::ui {
+namespace wb::base::windows::ui {
 /**
  * @brief Moves window to the center of the primary monitor.
  * @param hwnd Window.
@@ -34,8 +34,8 @@ inline bool MoveWindowToPrimaryDisplayCenter(_In_ HWND window,
   const int screen_width{::GetSystemMetrics(SM_CXSCREEN)},
       screen_height{::GetSystemMetrics(SM_CYSCREEN)};
   const int window_width{std::min(
-      whitebox::base::implicit_cast<long>(screen_width), window_rect.right)},
-      window_height{std::min(whitebox::base::implicit_cast<long>(screen_height),
+      wb::base::implicit_cast<long>(screen_width), window_rect.right)},
+      window_height{std::min(wb::base::implicit_cast<long>(screen_height),
                              window_rect.bottom)};
   const int x_pos{(screen_width - window_width) / 2},
       y_pos{(screen_height - window_height) / 2};
@@ -46,6 +46,6 @@ inline bool MoveWindowToPrimaryDisplayCenter(_In_ HWND window,
 
   return is_ok;
 }
-}  // namespace whitebox::base::windows::ui
+}  // namespace wb::base::windows::ui
 
-#endif  // !WHITEBOX_BASE_INCLUDE_WINDOW_UTILITIES_H_
+#endif  // !WB_BASE_INCLUDE_WINDOW_UTILITIES_H_
