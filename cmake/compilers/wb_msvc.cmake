@@ -28,7 +28,7 @@ option(WB_MSVC_ENABLE_RTTI                                      "If enabled, add
 option(WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS   "If enabled, threat complex static analysis warnings as errors." ON)
 option(WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS               "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
 option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, build against the static, rather than the dynamic, runtime." OFF)
-option(WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_UTF8                 "If enabled, uses *W (UTF-16) WinAPI against the new Windows Version 1903 (May 2019 Update) easier to port UTF-8 one." OFF)
+option(WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_ANSI                 "If enabled, uses *W (UTF-16) WinAPI instead of *A ANSI." OFF)
 option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, uses secure tempalte overloads to ex. replace the strcpy call to strcpy_s, which prevents buffer overruns.  See https://docs.microsoft.com/en-us/cpp/c-runtime-library/secure-template-overloads" ON)
 
 wb_define_strings_option(WB_MSVC_STATIC_CODE_ANALYSIS_MODE
@@ -328,7 +328,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # system header warnings.
       # C4514: 'function' : unreferenced inline function has been removed.
       # C4710: 'function': function not inlined.
-      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710>
+      # C5045: Compiler will insert Spectre mitigation for memory load if
+      #        /Qspectre switch specified.
+      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710;/wd5045>
 
       ## Warnings to treat as errors:
       # Mixed use of struct and class on same type names.
@@ -409,7 +411,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       _UCRT_EXTRA_DISABLED_WARNINGS=4514\ 4710\ 4820
 
       # UTF-8 TCHARS and APIs are default.
-      $<$<BOOL:${WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_UTF8}>:
+      $<$<BOOL:${WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_ANSI}>:
         _UNICODE
         UNICODE
       >
@@ -476,7 +478,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
   message(STATUS "${THE_TARGET} MSVC         version: ${MSVC_VERSION}")
   message(STATUS "${THE_TARGET} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
-  message(STATUS "${THE_TARGET} MSVC             IDE: ${MSVC_IDE}")
 
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")
   wb_dump_target_property(${THE_TARGET} COMPILE_DEFINITIONS "cxx compiler defines")

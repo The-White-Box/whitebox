@@ -2,7 +2,7 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 
-cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
 # Compiler id for Apple Clang is now AppleClang.
 if (POLICY CMP0025)
@@ -31,6 +31,8 @@ set(WB_OS_LINUX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Linux\">)
 set(WB_OS_WINDOWS $<BOOL:WB_SYSTEM_NAME STREQUAL \"Windows\">)
 # Root dir.
 set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}")
+# Product name.
+set(WB_PRODUCT_NAME "WhiteBox Games Collection")
 
 # Includes.
 if (CMAKE_MODULE_PATH)
@@ -110,24 +112,37 @@ message(STATUS "${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}."
 
 # Generate common product version info.
 configure_file(
-  ${WB_ROOT_DIR}/build/include/product_version_config.h.cmake.in
+  ${WB_ROOT_DIR}/build/product_version_config.h.cmake.in
   ${WB_BINARY_DIR}/product_version_config.h
 )
 
 ## Include sub-projects.
 # Dependencies.
 add_subdirectory("deps/g3log")
+
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# No need to install gtest.
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
+
+# add_subdirectory("deps/googletest")
 add_subdirectory("deps/mimalloc")
 
 # Libraries.
+add_subdirectory("base")
+add_subdirectory("bootmgr")
+add_subdirectory("whitebox-kernel")
 
 # Apps.
 add_subdirectory("apps/half-life-2")
 
+# Tests.
+enable_testing()
+
 # Get all targets to add mimalloc allocators overrides.
 wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
-# Ensure all dependencies reuse same allocators.
+# Ensure all dependencies reuse same memory allocators.
 foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
   # Do not add mimalloc allocators to itself.
   if (NOT ${WB_TARGET_NAME} MATCHES "mimalloc")
@@ -138,7 +153,7 @@ foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
     # Add new / delete allocator overrides.
     target_sources(${WB_TARGET_NAME}
       PRIVATE
-        ${WB_ROOT_DIR}/base/include/memory/memory_allocators_overrides.cc
+        ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
     )
 
     # Add mimalloc to handle allocators.

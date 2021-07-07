@@ -4,7 +4,7 @@
 #
 # Half-Life 2 launcher project definition.
 
-cmake_minimum_required (VERSION 3.8 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
 
 project("Half-Life 2"
   VERSION ${CMAKE_PROJECT_VERSION}
@@ -14,11 +14,19 @@ project("Half-Life 2"
 set(WB_HALF_LIFE2_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(WB_HALF_LIFE2_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(WB_HALF_LIFE2_TARGET_NAME "half-life-2")
+set(WB_CURRENT_TARGET_NAME ${WB_HALF_LIFE2_TARGET_NAME})
+set(WB_CURRENT_TARGET_SUFFIX ".exe")
 
 # We currently build app by finding all sources and header files.
 # We then exclude specific files below.
 wb_auto_sources(files "*.cc" "RECURSE" "${WB_HALF_LIFE2_SOURCE_DIR}")
 wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_HALF_LIFE2_SOURCE_DIR}")
+
+# Generate project info.
+configure_file(
+  ${WB_ROOT_DIR}/build/app_version_config.h.cmake.in
+  ${WB_HALF_LIFE2_BINARY_DIR}/gen/app_version_config.h
+)
 
 if (WB_OS_WINDOWS)
   add_executable(${WB_HALF_LIFE2_TARGET_NAME} WIN32 ${files} ${hfiles})
@@ -30,18 +38,15 @@ endif()
 
 # Include the directory with the new files.
 target_include_directories(${WB_HALF_LIFE2_TARGET_NAME}
-  PRIVATE ${WB_ROOT_DIR} ${WB_BINARY_DIR}
-)
-
-# Generate project info.
-configure_file(
-  app_version_config.h.cmake.in
-  ${WB_BINARY_DIR}/app_version_config.h
+  PRIVATE
+    ${WB_ROOT_DIR}
+    ${WB_HALF_LIFE2_BINARY_DIR}/gen
+    ${WB_BINARY_DIR}
 )
 
 # Append Windows specific.
 if (WB_OS_WINDOWS)
-  set(WB_OS_WINDOWS_MANIFESTS_DIR "${WB_ROOT_DIR}/build/include/windows/manifests")
+  set(WB_OS_WINDOWS_MANIFESTS_DIR "${WB_ROOT_DIR}/build/windows/manifests")
   target_sources(${WB_HALF_LIFE2_TARGET_NAME}
     PRIVATE
       windows_half_life_2.rc
@@ -62,12 +67,8 @@ endif()
 # Specify project compile / link options.
 wb_apply_compile_options_to_target(${WB_HALF_LIFE2_TARGET_NAME})
 
-set(WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES g3log mimalloc)
-set(WB_HALF_LIFE2_OS_SPECIFIC_LINK_LIBRARIES "")
-
-if (WB_OS_WINDOWS)
-  set(WB_HALF_LIFE2_OS_SPECIFIC_LINK_LIBRARIES Winmm)
-endif()
+set(WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES base bootmgr g3log mimalloc)
+set(WB_HALF_LIFE2_OS_SPECIFIC_LINK_LIBRARIES "comsuppw")
 
 target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME}
   ${WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES}
@@ -75,15 +76,5 @@ target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME}
 )
 
 # Add runtime dependencies.
-foreach(dependency_library ${WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES})
-  wb_copy_target_dependency_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME} ${dependency_library})
-endforeach()
-
-if (WB_OS_WINDOWS AND MI_BUILD_SHARED)
-  # On windows copy the mimalloc redirection dll too.
-  add_custom_command(
-    TARGET ${WB_HALF_LIFE2_TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll" $<TARGET_FILE_DIR:${WB_HALF_LIFE2_TARGET_NAME}>
-    DEPENDS ${THE_DEPENDENCY}
-    COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${WB_HALF_LIFE2_TARGET_NAME} output directory")
-endif()
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}
+  "${WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES}")

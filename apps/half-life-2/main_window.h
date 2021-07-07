@@ -7,13 +7,24 @@
 #ifndef WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
 #define WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
 
+#include <sal.h>
 #include <tchar.h>
 
 #include <cstddef>  // std::byte
+#include <memory>
 
-#include "base/include/base_macroses.h"
-#include "base/include/sampling_profiler.h"
-#include "base/include/windows/ui/base_window.h"
+#include "base/base_macroses.h"
+#include "base/sampling_profiler.h"
+#include "base/windows/ui/accessibility_shortcut_keys_toggler.h"
+#include "base/windows/ui/base_window.h"
+#include "base/windows/ui/full_screen_window_toggler.h"
+#include "base/windows/ui/keyboard.h"
+#include "base/windows/ui/mouse.h"
+
+/**
+ * @brief Raw input handle.
+ */
+using HRAWINPUT = struct HRAWINPUT__ *;
 
 namespace wb::apps {
 /**
@@ -23,16 +34,27 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
   friend class BaseWindow<MainWindow>;
 
  public:
-  /**
-   * @brief Main window ctor.
-   * @param instance App instance.
-   * @return nothing.
-   */
-  MainWindow(_In_ HINSTANCE instance) noexcept
-      : BaseWindow{instance},
-        render_sampling_profiler_{
-            wb::base::HighResolutionSamplingProfiler::clock::now()},
-        is_window_active_{false} {}
+  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // C4355: We do not call this members here, just bind to it, so safe.
+    WB_COMPILER_MSVC_DISABLE_WARNING(4355)
+    // C4868: compiler may not enforce left-to-right evaluation order in braced
+    // initializer list
+    WB_COMPILER_MSVC_DISABLE_WARNING(4868)
+    /**
+     * @brief Main window ctor.
+     * @param instance App instance.
+     * @return nothing.
+     */
+    explicit MainWindow(_In_ HINSTANCE instance) noexcept
+        : BaseWindow{instance},
+          mouse_{},
+          keyboard_{},
+          render_sampling_profiler_{
+              wb::base::HighResolutionSamplingProfiler::clock::now()},
+          full_screen_window_toggler_{},
+          accessibility_shortcut_keys_toggler_{},
+          is_window_active_{false} {}
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(MainWindow);
 
@@ -43,7 +65,12 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
    */
   MainWindow(MainWindow &&w) noexcept
       : BaseWindow{std::forward<MainWindow>(w)},
+        mouse_{std::move(w.mouse_)},
+        keyboard_{std::move(w.keyboard_)},
         render_sampling_profiler_{std::move(w.render_sampling_profiler_)},
+        full_screen_window_toggler_{std::move(w.full_screen_window_toggler_)},
+        accessibility_shortcut_keys_toggler_{
+            std::move(w.accessibility_shortcut_keys_toggler_)},
         is_window_active_{std::move(w.is_window_active_)} {}
   /**
    * @brief Move window assigment.
@@ -52,21 +79,44 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
    */
   MainWindow &operator=(MainWindow &&w) noexcept {
     BaseWindow::operator=(std::forward<MainWindow>(w));
-    std::swap(is_window_active_, w.is_window_active_);
+    std::swap(mouse_, w.mouse_);
+    std::swap(keyboard_, w.keyboard_);
     std::swap(render_sampling_profiler_, w.render_sampling_profiler_);
+    std::swap(full_screen_window_toggler_, w.full_screen_window_toggler_);
+    std::swap(accessibility_shortcut_keys_toggler_,
+              w.accessibility_shortcut_keys_toggler_);
+    std::swap(is_window_active_, w.is_window_active_);
     return *this;
   }
 
  private:
   /**
+   * @brief Mouse device.
+   */
+  wb::base::un<wb::base::windows::ui::Mouse> mouse_;
+  /**
+   * @brief Keyboard device.
+   */
+  wb::base::un<wb::base::windows::ui::Keyboard> keyboard_;
+  /**
    * @brief Sampling profiler for rendering.
    */
   wb::base::HighResolutionSamplingProfiler render_sampling_profiler_;
   /**
-   * @brief Is window active or not.
+   * @brief Scoped Full Screen toggler.
+   */
+  wb::base::un<wb::base::windows::ui::FullScreenWindowToggler>
+      full_screen_window_toggler_;
+  /**
+   * @brief Windows Accessibility Shortcut Keys toggler.
+   */
+  wb::base::windows::ui::AccessibilityShortcutKeysToggler
+      accessibility_shortcut_keys_toggler_;
+  /**
+   * @brief Is window active or not?
    */
   bool is_window_active_;
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(is_window_active_)];
+  [[maybe_unused]] std::byte pad_[sizeof(char *) - 1];
 
   /**
    * @brief Gets window class name.
@@ -94,6 +144,15 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
    */
   [[nodiscard]] bool OnWindowCreate(_In_ HWND window,
                                     _In_ CREATESTRUCT *create_struct) noexcept;
+
+  /**
+   * @brief Window input handler.
+   * @param window Window.
+   * @return The return value is the result of the message processing and
+   * depends on the message.
+   */
+  LRESULT OnInput(_In_ HWND window, _In_ unsigned char input_code,
+                  _In_ HRAWINPUT raw_input) noexcept;
 
   /**
    * @brief Window paint handler.

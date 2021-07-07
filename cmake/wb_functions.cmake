@@ -9,6 +9,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Fill first arg with list of values by pattern.
+#
 # Use like this: wb_auto_sources(files "*.cc" "RECURSE" "${SRC_DIR}")
 function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
   if ("${SOURCE_SUBDIRS}" STREQUAL "RECURSE")
@@ -45,6 +47,7 @@ function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
   set(${RETURN_VALUE} ${${RETURN_VALUE}} PARENT_SCOPE)
 endfunction(wb_auto_sources)
 
+# Checks platform requirements.
 # Use like this: wb_check_platform_requirements("My target name")
 function(wb_check_platform_requirements TARGET_NAME)
   # Check target architecture is 64bit, as we support only 64bit+.
@@ -118,19 +121,20 @@ function(wb_define_strings_option OPTIONS_VAR_NAME OPTIONS_VAR_DESCRIPTION DEFAU
   endif()
 endfunction(wb_define_strings_option)
 
-function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_NAME)
+# Dumps target property as message.  Use like this:
+# wb_dump_target_property("My target" "My property" "My property description")
+function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_DESCRIPTION)
   get_target_property(TARGET_PROPERTY_VALUE ${THE_TARGET} ${TARGET_PROPERTY})
 
-  message("-- ${THE_TARGET} ${TARGET_PROPERTY_NAME}: ${TARGET_PROPERTY_VALUE}")
+  message("-- ${THE_TARGET} ${TARGET_PROPERTY_DESCRIPTION}: ${TARGET_PROPERTY_VALUE}")
 
   # TODO(dimhotepus): Encode echo argument.
   # add_custom_command(TARGET ${THE_TARGET}
   #  POST_BUILD
-  #  COMMAND echo "${THE_TARGET} built with the ${TARGET_PROPERTY_NAME}: ${TARGET_PROPERTY_VALUE}")
+  #  COMMAND echo "${THE_TARGET} built with the ${TARGET_PROPERTY_DESCRIPTION}: ${TARGET_PROPERTY_VALUE}")
 endfunction(wb_dump_target_property)
 
-# Copies target dependency to target binary dir.
-# Use like this:
+# Copies target dependency to target binary dir.  Use like this:
 # wb_copy_target_dependency_to_target_bin_dir("My target" "My dependency")
 function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
   add_custom_command(
@@ -140,6 +144,30 @@ function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
     WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
     COMMENT "Copy $<TARGET_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
   )
+endfunction()
+
+# Copy all target dependencies + optionally mimalloc redirect.  Use like this:
+# wb_copy_all_target_dependencies_to_target_bin_dir("My target" My_dependencies_list)
+function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPENDENCIES)
+  set(WB_SHOULD_COPY_MIMALLOC OFF)
+
+  # Add runtime dependencies.
+  foreach(THE_DEPENDENCY ${THE_DEPENDENCIES})
+    wb_copy_target_dependency_to_target_bin_dir(${THE_TARGET} ${THE_DEPENDENCY})
+
+    if ("${THE_DEPENDENCY}" STREQUAL "mimalloc")
+      set(WB_SHOULD_COPY_MIMALLOC ON)
+    endif()
+  endforeach()
+
+  if (WB_SHOULD_COPY_MIMALLOC AND WB_OS_WINDOWS AND MI_BUILD_SHARED)
+    # On windows copy the mimalloc redirection dll too.
+    add_custom_command(
+      TARGET ${THE_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll" $<TARGET_FILE_DIR:${THE_TARGET}>
+      DEPENDS ${THE_DEPENDENCY}
+      COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${THE_TARGET} output directory")
+  endif()
 endfunction()
 
 # Collect all currently added targets in all subdirectories

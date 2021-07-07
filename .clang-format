@@ -5,3 +5,13 @@
 # Defines the Chromium style for automatic reformatting.
 # https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: Google
+
+# Make sure code like:
+# IPC_BEGIN_MESSAGE_MAP()
+#   IPC_MESSAGE_HANDLER(WidgetHostViewHost_Update, OnUpdate)
+# IPC_END_MESSAGE_MAP()
+# gets correctly indented.
+MacroBlockBegin: "^\
+WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE$"
+MacroBlockEnd: "^\
+WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE$"

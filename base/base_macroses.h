@@ -1,0 +1,74 @@
+// Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+// Use of this source code is governed by a 3-Clause BSD license that can be
+// found in the LICENSE file.
+//
+// Provides common macroses & inline functions to use in relying apps.
+
+#ifndef WB_BASE_BASE_MACROSES_H_
+#define WB_BASE_BASE_MACROSES_H_
+
+#include <memory>
+#include <type_traits>
+
+/**
+ * Deletes copy ctor and assignment operator for type.
+ */
+#define WB_NO_COPY_CTOR_AND_ASSIGNMENT(typeName) \
+  typeName(typeName&) = delete;                  \
+  typeName& operator=(typeName&) = delete
+
+/**
+ * Deletes move ctor and assignment operator for type.
+ */
+#define WB_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
+  typeName(typeName&&) = delete;                 \
+  typeName& operator=(typeName&&) = delete
+
+/**
+ * Deletes copy / move ctors and assignment operators for type.
+ */
+#define WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(typeName);           \
+  WB_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName)
+
+namespace wb::base {
+/**
+ * @brief Implicit, checked at compile time cast.
+ * @tparam To Type to which cast to.
+ * @tparam From Type from which cast.
+ * @param from Value to cast.
+ * @return Value as To.
+ */
+template <typename To, typename From>
+[[nodiscard]] constexpr To implicit_cast(From&& from) noexcept {
+  return To{from};
+}
+
+/**
+ * @brief Enun concept.
+ * @tparam TEnum Enum.
+ */
+template <typename TEnum>
+concept Enum = std::is_enum_v<TEnum>;
+
+/**
+ * @brief Safely casts enum value to its underlying type.
+ * @tparam TEnum Enum.
+ * @param value Enum value.
+ * @return Enum value with underlying enum type.
+ */
+template <Enum TEnum>
+constexpr auto underlying_cast(TEnum value) noexcept {
+  return static_cast<std::underlying_type_t<TEnum>>(value);
+}
+
+/**
+ * @brief Unique smart pointer alias.
+ * @tparam T Object type for unique_ptr.
+ * @tparam Deleter Deleter for T.
+*/
+template <typename T, typename Deleter = std::default_delete<T>>
+using un = std::unique_ptr<T, Deleter>;
+}  // namespace wb::base
+
+#endif  // !WB_BASE_BASE_MACROSES_H_
