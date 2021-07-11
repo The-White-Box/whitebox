@@ -1,4 +1,4 @@
-# ![Logo](apps/half-life-2/resources/half-life-2.ico) The WhiteBox
+# ![Logo](apps/half-life-2/resources/half-life-2_product-64.png) The WhiteBox
 
 WhiteBox is an open-source Source 1 rework project that aims to build a safer,
 faster, and more feature-rich Source 1 apps.
