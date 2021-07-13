@@ -14,11 +14,4 @@
 // Small icon id.
 #define WB_HALF_LIFE_2_IDI_SMALL_ICON 102
 
-// TODO(dimhotepus): Localize.
-#define HALF_LIFE_2_ERROR_DIALOG_TITLE_STR \
-  WB_APP_VER_FILE_DESCRIPTION_STR " Launcher - Error"
-
-#define HALF_LIFE_2_ERROR_DIALOG_SEE_TECH_DETAILS_STR "See techical details"
-#define HALF_LIFE_2_ERROR_DIALOG_HIDE_TECH_DETAILS_STR "Hide techical details"
-
 #endif  // !WB_APPS_HALF_LIFE_2_RESOURCE_H_

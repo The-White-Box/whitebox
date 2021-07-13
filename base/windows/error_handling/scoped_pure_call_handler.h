@@ -4,14 +4,14 @@
 //
 // Scoped handler when pure virtual function call is detected.
 
-#ifndef WB_BASE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
-#define WB_BASE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
+#ifndef WB_BASE_WINDOWS_ERROR_HANDLING_SCOPED_PURE_CALL_HANDLER_H_
+#define WB_BASE_WINDOWS_ERROR_HANDLING_SCOPED_PURE_CALL_HANDLER_H_
 
 #include <cstdlib>
 
 #include "base/deps/g3log/g3log.h"
 
-namespace wb::base::windows {
+namespace wb::base::windows::error_handling {
 /**
  * @brief Set a function to be called when pure virtual function call is
  * detected and reverts back when out of scope.
@@ -51,6 +51,6 @@ class ScopedPureCallHandler {
 [[noreturn]] inline void DefaultPureCallHandler() {
   G3LOG(FATAL) << "Pure virtual function call occured.  Stopping the app.";
 }
-}  // namespace wb::base::windows
+}  // namespace wb::base::windows::error_handling
 
-#endif  // !WB_BASE_WINDOWS_SCOPED_PURE_CALL_HANDLER_H_
+#endif  // !WB_BASE_WINDOWS_ERROR_HANDLING_SCOPED_PURE_CALL_HANDLER_H_

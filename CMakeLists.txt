@@ -27,7 +27,7 @@ set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
 set(WB_OS_MACOSX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Darwin\">)
 # Is build OS Linux.
 set(WB_OS_LINUX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Linux\">)
-# Is build OS windows.
+# Is build OS Windows.
 set(WB_OS_WINDOWS $<BOOL:WB_SYSTEM_NAME STREQUAL \"Windows\">)
 # Root dir.
 set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}")

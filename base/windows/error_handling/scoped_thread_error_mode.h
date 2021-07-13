@@ -64,6 +64,50 @@ enum class ScopedThreadErrorModeFlags : unsigned long {
 class ScopedThreadErrorMode {
  public:
   /**
+   * @brief Create new thread error mode.
+   * @param error_mode_flags Error mode flags.
+   * @return ScopedThreadErrorMode
+   */
+  static std_ext::ec_res<ScopedThreadErrorMode> New(
+      const ScopedThreadErrorModeFlags error_mode_flags) noexcept {
+    auto mode = ScopedThreadErrorMode{error_mode_flags};
+
+    return !mode.error_code()
+               ? std_ext::ec_res<ScopedThreadErrorMode>{std::move(mode)}
+               : std_ext::ec_res<ScopedThreadErrorMode>{mode.error_code()};
+  }
+
+  ScopedThreadErrorMode(ScopedThreadErrorMode&& m) noexcept
+      : old_error_mode_{m.old_error_mode_}, error_code_{m.error_code_} {
+    // Ensure no deinitialization occurs.
+    m.error_code_ = std::error_code{EINVAL, std::generic_category()};
+  }
+
+  ScopedThreadErrorMode& operator=(ScopedThreadErrorMode&&) = delete;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedThreadErrorMode);
+
+  /**
+   * @brief Restore previous thread error mode.
+   */
+  ~ScopedThreadErrorMode() noexcept {
+    if (!error_code()) {
+      G3CHECK(!!::SetThreadErrorMode(old_error_mode_, nullptr));
+    }
+  }
+
+ private:
+  /**
+   * @brief Old thread error mode.
+   */
+  unsigned long old_error_mode_;
+  [[maybe_unused]] std::byte pad_[4];
+  /**
+   * @brief Set thread error mode error code.
+   */
+  std::error_code error_code_;
+
+  /**
    * @brief Set thread error mode per scope.
    * @param error_mode_flags Thread error mode flags.
    * @return nothing.
@@ -76,15 +120,6 @@ class ScopedThreadErrorMode {
     G3DCHECK(!error_code());
   }
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadErrorMode);
-
-  /**
-   * @brief Restore previous thread error mode.
-   */
-  ~ScopedThreadErrorMode() noexcept {
-    G3CHECK(!!::SetThreadErrorMode(old_error_mode_, nullptr));
-  }
-
   /**
    * @brief Get error code.
    * @return Error code.
@@ -92,17 +127,6 @@ class ScopedThreadErrorMode {
   [[nodiscard]] std::error_code error_code() const noexcept {
     return error_code_;
   }
-
- private:
-  /**
-   * @brief Old thread error mode.
-   */
-  const unsigned long old_error_mode_;
-  [[maybe_unused]] std::byte pad_[4];
-  /**
-   * @brief Set thread error mode error code.
-   */
-  const std::error_code error_code_;
 };
 }  // namespace wb::base::windows::error_handling
 

@@ -4,8 +4,8 @@
 //
 // App main window.
 
-#ifndef WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
-#define WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
+#ifndef WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_
+#define WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_
 
 #include <sal.h>
 #include <tchar.h>
@@ -26,7 +26,7 @@
  */
 using HRAWINPUT = struct HRAWINPUT__ *;
 
-namespace wb::apps {
+namespace wb::kernel {
 /**
  * @brief Main app window.
  */
@@ -184,6 +184,6 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
    */
   void OnWindowDestroy(_In_ HWND) noexcept;
 };
-}  // namespace wb::apps
+}  // namespace wb::kernel
 
-#endif  // !WB_APPS_HALF_LIFE_2_MAIN_WINDOW_H_
+#endif  // !WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_

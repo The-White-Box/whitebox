@@ -67,18 +67,31 @@ class ScopedComInitializer {
   /**
    * @brief Initializes COM with |coinit| flags for scope.
    * @param flags Flags.
-   * @return nothing.
+   * @return ScopedComInitializer
    */
-  explicit ScopedComInitializer(const ScopedComInitializerFlags flags) noexcept
-      : error_code_ {
-    GetErrorCode(::CoInitializeEx(nullptr, underlying_cast(flags)))
+  static std_ext::ec_res<ScopedComInitializer> New(
+      const ScopedComInitializerFlags flags) noexcept {
+    auto init = ScopedComInitializer{flags};
+
+    return !init.error_code()
+               ? std_ext::ec_res<ScopedComInitializer>{std::move(init)}
+               : std_ext::ec_res<ScopedComInitializer>{init.error_code()};
+  }
+
+  ScopedComInitializer(ScopedComInitializer&& i) noexcept : error_code_ {
+    std::move(i.error_code_)
   }
 #ifndef NDEBUG
-  , thread_id_ { std::this_thread::get_id() }
+  , thread_id_ { i.thread_id_ }
 #endif
-  { G3DCHECK(!error_code()); }
+  {
+    // Ensure no deinitialization occurs.
+    i.error_code_ = std::error_code{EINVAL, std::generic_category()};
+  }
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedComInitializer);
+  ScopedComInitializer& operator=(ScopedComInitializer&&) = delete;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedComInitializer);
 
   /*
    * @brief Shut down COM.
@@ -90,8 +103,37 @@ class ScopedComInitializer {
     G3CHECK(this_thread_id == thread_id_);
 #endif
 
-    if (!error_code()) ::CoUninitialize();
+    if (!error_code()) {
+      ::CoUninitialize();
+    }
   }
+
+ private:
+  /**
+   * @brief Error code.
+   */
+  std::error_code error_code_;
+#ifndef NDEBUG
+  /**
+   * @brief COM initializing thread id.
+   */
+  std::thread::id thread_id_;
+  [[maybe_unused]] std::byte pad_[4];
+#endif
+
+  /**
+   * @brief Initializes COM with |coinit| flags for scope.
+   * @param flags Flags.
+   * @return nothing.
+   */
+  explicit ScopedComInitializer(const ScopedComInitializerFlags flags) noexcept
+      : error_code_ {
+    GetErrorCode(::CoInitializeEx(nullptr, underlying_cast(flags)))
+  }
+#ifndef NDEBUG
+  , thread_id_ { std::this_thread::get_id() }
+#endif
+  { G3DCHECK(!error_code()); }
 
   /**
    * @brief Get COM initialization result.
@@ -100,19 +142,6 @@ class ScopedComInitializer {
   [[nodiscard]] std::error_code error_code() const noexcept {
     return error_code_;
   }
-
- private:
-  /**
-   * @brief Error code.
-   */
-  const std::error_code error_code_;
-#ifndef NDEBUG
-  /**
-   * @brief COM initializing thread id.
-   */
-  const std::thread::id thread_id_;
-  [[maybe_unused]] std::byte pad_[4];
-#endif
 };
 }  // namespace wb::base::windows::com
 

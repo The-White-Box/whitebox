@@ -1,0 +1,1 @@
+The bootmgr directory contains boot manager.

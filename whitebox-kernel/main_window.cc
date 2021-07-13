@@ -20,9 +20,8 @@
 #include "base/windows/ui/window_utilities.h"
 #include "base/windows/ui/windows_raw_input.h"
 #include "build/static_settings_config.h"
-#include "windows_resource.h"
 
-namespace wb::apps {
+namespace wb::kernel {
 LRESULT MainWindow::HandleMessage(_In_ UINT message,
                                   _In_ [[maybe_unused]] WPARAM wParam,
                                   _In_ LPARAM lParam) noexcept {
@@ -53,19 +52,21 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
 
   // TODO(dimhotepus): What if only joystick?
 
+  // TODO(dimhotepus): Localize.
+  constexpr char kKernelDialogTitle[]{"Whitebox Kernel - Error"};
+  constexpr char kSeeTechDetails[]{"See techical details"};
+  constexpr char kHideTechDetails[]{"Hide techical details"};
+
   // Mouse is ready.
   mouse_.reset(new ui::Mouse{window});
   if (mouse_->error_code()) {
     ui::DialogBoxSettings dialog_settings(
-        nullptr, HALF_LIFE_2_ERROR_DIALOG_TITLE_STR,
-        "Unable to initialize mouse device",
+        nullptr, kKernelDialogTitle, "Unable to initialize mouse device",
         "Unfortunately we unable to register mouse device for <A "
         "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
         "about-raw-input\">Raw Input</A> data supply.  "
         "Please, contact authors.",
-        HALF_LIFE_2_ERROR_DIALOG_HIDE_TECH_DETAILS_STR,
-        HALF_LIFE_2_ERROR_DIALOG_SEE_TECH_DETAILS_STR,
-        mouse_->error_code().message(),
+        kHideTechDetails, kSeeTechDetails, mouse_->error_code().message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
         ui::DialogBoxButton::kOk, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
@@ -78,15 +79,12 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   keyboard_.reset(new ui::Keyboard{window});
   if (keyboard_->error_code()) {
     ui::DialogBoxSettings dialog_settings(
-        nullptr, HALF_LIFE_2_ERROR_DIALOG_TITLE_STR,
-        "Unable to initialize keyboard device",
+        nullptr, kKernelDialogTitle, "Unable to initialize keyboard device",
         "Unfortunately we unable to register keyboard device for <A "
         "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
         "about-raw-input\">Raw Input</A> data supply.  "
         "Please, contact authors.",
-        HALF_LIFE_2_ERROR_DIALOG_HIDE_TECH_DETAILS_STR,
-        HALF_LIFE_2_ERROR_DIALOG_SEE_TECH_DETAILS_STR,
-        mouse_->error_code().message(),
+        kHideTechDetails, kSeeTechDetails, mouse_->error_code().message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
         ui::DialogBoxButton::kOk, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
@@ -205,9 +203,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
         render_sampling_profiler_.GetTimeBetweenLastSamples())};
 
     TCHAR window_title[128];
-    _stprintf_s(window_title,
-                _T(WB_APP_VER_FILE_DESCRIPTION_STR) _T(" [64 bit] - %.2f FPS"),
-                fps);
+    _stprintf_s(window_title, _T("%.2f FPS"), fps);
 
     ::SetWindowText(window, window_title);
   }
@@ -236,4 +232,4 @@ void MainWindow::OnGetWindowSizeBounds(_In_ HWND,
 }
 
 void MainWindow::OnWindowDestroy(_In_ HWND) noexcept { ::PostQuitMessage(0); }
-}  // namespace wb::apps
+}  // namespace wb::kernel

@@ -14,8 +14,8 @@
 #include <xmmintrin.h>
 #endif
 
-#include "base_macroses.h"
-#include "deps/g3log/g3log.h"
+#include "base/base_macroses.h"
+#include "base/deps/g3log/g3log.h"
 
 namespace wb::base {
 #if defined(WB_ARCH_CPU_X86_64)

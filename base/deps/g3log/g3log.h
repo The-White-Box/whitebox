@@ -76,19 +76,31 @@ class ScopedEndError {
   } else                      \
     INTERNAL_LOG_MESSAGE(level).stream()
 
-// G3PLOG(level) is the API for the stream log + last system error code.
-#define G3PLOG(level)                                                        \
-  if (!g3::logLevel(level)) {                                                \
-  } else                                                                     \
-    wb::base::deps::g3log::ScopedEndError{                                   \
-        std_ext::GetThreadErrorCode(), INTERNAL_LOG_MESSAGE(level).stream()} \
+// G3PLOG_E(level, error_code) is the API for the stream log + system error
+// code.
+#define G3PLOG_E(level, error_code)                       \
+  if (!g3::logLevel(level)) {                             \
+  } else                                                  \
+    wb::base::deps::g3log::ScopedEndError{                \
+        error_code, INTERNAL_LOG_MESSAGE(level).stream()} \
         .stream()
+
+// G3PLOG(level) is the API for the stream log + last system error code.
+#define G3PLOG(level) G3PLOG_E(level, std_ext::GetThreadErrorCode())
 
 // 'Conditional' stream log
 #define G3LOG_IF(level, boolean_expression)                    \
   if (!g3::logLevel(level) || false == (boolean_expression)) { \
   } else                                                       \
     INTERNAL_LOG_MESSAGE(level).stream()
+
+// 'Conditional' stream log + system error code.
+#define G3PLOGE_IF(level, boolean_expression, error_code)      \
+  if (!g3::logLevel(level) || false == (boolean_expression)) { \
+  } else                                                       \
+    wb::base::deps::g3log::ScopedEndError{                     \
+        error_code, INTERNAL_LOG_MESSAGE(level).stream()}      \
+        .stream()
 
 // 'Design By Contract' stream API. Broken Contracts will exit the application
 // by using fatal signal SIGABRT
@@ -199,6 +211,11 @@ And here is possible output
   } else                \
     G3LOG(level)
 // Does nothing.
+#define G3DPLOG_E(level, error_code) \
+  if constexpr (true) {              \
+  } else                             \
+    G3PLOG(level, error_code)
+// Does nothing.
 #define G3DPLOG(level)  \
   if constexpr (true) { \
   } else                \
@@ -208,6 +225,10 @@ And here is possible output
   if constexpr (true) {                      \
   } else                                     \
     G3LOG_IF(level, boolean_expression)
+// Does nothing.
+#define G3DPLOGE_IF                                              \
+  (level, boolean_expression, error_code) if constexpr (true) {} \
+  else G3PLOGE_IF(level, boolean_expression, error_code)
 // Does nothing.
 #define G3DLOGF(level, printf_like_message, ...) \
   if constexpr (true) {                          \
@@ -242,8 +263,17 @@ And here is possible output
 // DEBUG mode.
 #define G3DPLOG(level) G3PLOG(level)
 
+// G3DPLOG_E(level) is the API for the stream log + system error code in
+// DEBUG mode.
+#define G3DPLOG_E(level, error_code) G3PLOG_E(level, error_code)
+
 // 'Conditional' stream log
 #define G3DLOG_IF(level, boolean_expression) G3LOG_IF(level, boolean_expression)
+
+// 'Conditional' stream log + system error code.
+#define G3DPLOGE_IF(level, boolean_expression, error_code) \
+  G3PLOGE_IF(level, boolean_expression, error_code)
+
 /** For details please see this
  * REFERENCE: http://www.cppreference.com/wiki/io/c/printf_format
  * \verbatim

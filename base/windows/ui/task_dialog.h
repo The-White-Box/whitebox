@@ -150,7 +150,7 @@ struct DialogBoxSettings {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std_ext::sc_res<DialogBoxButton> ShowDialogBox(
+WB_BASE_API std_ext::ec_res<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings &settings) noexcept;
 }  // namespace wb::base::windows::ui
 

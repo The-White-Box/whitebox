@@ -67,7 +67,7 @@ endif()
 # Specify project compile / link options.
 wb_apply_compile_options_to_target(${WB_HALF_LIFE2_TARGET_NAME})
 
-set(WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES base bootmgr g3log mimalloc)
+set(WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES base bootmgr g3log mimalloc whitebox-kernel)
 set(WB_HALF_LIFE2_OS_SPECIFIC_LINK_LIBRARIES "comsuppw")
 
 target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME}

@@ -117,7 +117,7 @@ enum class KeyboardKeyFlags : unsigned short {
  */
 struct KeyboardInput {
   /*
-   * The "make" scan code (key depression).  May be kKeyboardOverrunMakeCode.
+   * The "make" scan code (key depression).  May be kOverrunMakeCode.
    */
   unsigned short make_code;
 

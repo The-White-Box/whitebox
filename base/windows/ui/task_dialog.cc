@@ -154,7 +154,7 @@ namespace wb::base::windows::ui {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std_ext::sc_res<DialogBoxButton> ShowDialogBox(
+WB_BASE_API std_ext::ec_res<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings& settings) noexcept {
   const std::wstring title{std_ext::AnsiToWide(settings.title)};
   const std::wstring main_instruction{
@@ -199,8 +199,8 @@ WB_BASE_API std_ext::sc_res<DialogBoxButton> ShowDialogBox(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
   G3DCHECK(!rc) << "TaskDialog can't be shown: " << rc.message();
-  return !rc ? std_ext::sc_res<DialogBoxButton>{GetButtonById(
+  return !rc ? std_ext::ec_res<DialogBoxButton>{GetButtonById(
                    pressed_button_id)}
-             : std_ext::sc_res<DialogBoxButton>{rc};
+             : std_ext::ec_res<DialogBoxButton>{rc};
 }
 }  // namespace wb::base::windows::ui

@@ -73,14 +73,6 @@ using wch = wchar_t;
 using str = std::string;
 // Basic wide char string type.
 using wstr = std::wstring;
-
-#ifdef _UNICODE
-// Wide char string.
-#define wb_tstr wstr
-#else
-// Char string.
-#define wb_tstr str
-#endif
 }  // namespace wb
 
 #endif  // !WB_BASE_BASE_TYPES_H_

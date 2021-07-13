@@ -6,11 +6,26 @@
 
 #include "bootmgr_main.h"
 
+#include <filesystem>
+
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/scoped_floating_point_mode.h"
+#include "base/scoped_thread_terminate_handler.h"
+#include "base/threads/thread_utils.h"
+#include "base/unique_module_ptr.h"
+#include "base/windows/error_handling/scoped_pure_call_handler.h"
+#include "base/windows/error_handling/scoped_thread_invalid_parameter_handler.h"
+#include "base/windows/error_handling/scoped_thread_unexpected_handler.h"
+#include "base/windows/memory/memory_utils.h"
+#include "base/windows/memory/scoped_new_handler.h"
+#include "base/windows/memory/scoped_new_mode.h"
 #include "base/windows/scoped_minimum_timer_resolution.h"
+#include "base/windows/security/process_mitigations.h"
+#include "base/windows/ui/task_dialog.h"
+#include "base/windows/windows_version.h"
 #include "build/static_settings_config.h"
+#include "whitebox-kernel/whitebox_kernel_main.h"
 
 namespace {
 /**
@@ -22,23 +37,168 @@ void BootHeapMemoryAllocator() {
 
   G3DLOG(INFO) << "Using mi-malloc v." << mi_version();
 }
+
+/**
+ * @brief Load and run kernel.
+ * @param bootmgr_args Boot manager args.
+ * @return App exit code.
+ */
+int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+  std::error_code rc;
+  std::filesystem::path kernel_path{std::filesystem::current_path(rc)};
+  G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
+                                 "the app.  Please, contact authors";
+
+  kernel_path /= "whitebox-kernel.dll";
+
+  constexpr char kKernelMainFunctionName[]{"KernelMain"};
+
+  // TODO(dimhotepus): Correct flags + LOAD_LIBRARY_REQUIRE_SIGNED_TARGET.
+  const auto kernel_load_result =
+      wb::base::unique_module_ptr::from_load_library(
+          kernel_path.string(), LOAD_WITH_ALTERED_SEARCH_PATH);
+  if (const auto* kernel_module =
+          std::get_if<wb::base::unique_module_ptr>(&kernel_load_result)) {
+    using KernelMainFunction = decltype(&KernelMain);
+
+    // Good, try to find and launch whitebox-kernel.
+    const auto kernel_main_result =
+        kernel_module->get_address_as<KernelMainFunction>(
+            kKernelMainFunctionName);
+    if (const auto* kernel_main =
+            std::get_if<KernelMainFunction>(&kernel_main_result)) {
+      return (*kernel_main)(
+          {bootmgr_args.instance, bootmgr_args.app_description,
+           bootmgr_args.show_window_flags, bootmgr_args.main_icon_id,
+           bootmgr_args.small_icon_id});
+    }
+
+    // TODO(dimhotepus): Show fancy Ui message box.
+    rc = std::get<std::error_code>(kernel_main_result);
+    G3PLOG_E(WARNING, rc)
+        << "Can't get '" << kKernelMainFunctionName << "' entry point from '"
+        << kernel_path.string()
+        << "'.  Looks like app is broken, please, reinstall the one.";
+  } else {
+    // TODO(dimhotepus): Show fancy Ui message box.
+    rc = std::get<std::error_code>(kernel_load_result);
+    G3PLOG_E(WARNING, rc) << "Can't load whitebox kernel '"
+                          << kernel_path.string()
+                          << "'.  Please, reinstall the app.";
+  }
+
+  return rc.value();
+}
 }  // namespace
 
-namespace wb::bootmgr {
 /**
  * @brief Bootmgr entry point on Windows.
- * @param instance App instance.
- * @param command_line Command line.
- * @param show_window_flags Show window flags.
+ * @param bootmgr_args Bootmgr args.
  * @return 0 on success.
  */
-WB_BOOTMGR_API int BootmgrMain([[maybe_unused]] _In_ HINSTANCE instance,
-                               [[maybe_unused]] _In_ LPSTR command_line,
-                               [[maybe_unused]] _In_ int show_window_flags) {
+extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
+    const wb::bootmgr::BootmgrArgs& bootmgr_args) {
+  using namespace wb::base;
+  using namespace wb::base::windows;
+
+  // TODO(dimhotepus): Localize.
+  constexpr char kBootmgrDialogTitle[]{"Boot Manager - Error"};
+  constexpr char kSeeTechDetails[]{"See techical details"};
+  constexpr char kHideTechDetails[]{"Hide techical details"};
+
+  // Requires Windows Version 1903+ for UTF-8 process code page.
+  //
+  // "With a minimum target version of Windows Version 1903, the process code
+  // page will always be UTF-8 so legacy code page detection and conversion can
+  // be avoided.".
+  //
+  // See
+  // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
+  if (windows::GetVersion() < windows::Version::WIN10_19H1) [[unlikely]] {
+    constexpr char kOldWindowsVersionError[]{
+        "Windows version is too old.  Version 1903 (May 2019 Update) or "
+        "greater is required."};
+    ui::DialogBoxSettings dialog_settings(
+        nullptr, kBootmgrDialogTitle,
+        "Update Windows to \"Version 1903 (May 2019 Update)\" or greater",
+        kOldWindowsVersionError, kHideTechDetails, kSeeTechDetails,
+        std_ext::GetThreadErrorCode(ERROR_OLD_WIN_VERSION).message(),
+        wb::build::settings::ui::error_dialog::kFooterLink,
+        ui::DialogBoxButton::kOk, false);
+    ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
+
+    G3LOG(FATAL) << kOldWindowsVersionError;
+
+    return ERROR_OLD_WIN_VERSION;
+  }
+
+  {
+    // Terminate the app if system detected heap corruption.
+    const auto error_code = memory::EnableTerminationOnHeapCorruption();
+    G3PLOGE_IF(FATAL, !!error_code, error_code)
+        << "Can't enable 'Terminate on Heap corruption' os feature, continue "
+           "without it.";
+  }
+
+  {
+    // Enable heap resources optimization.
+    const auto error_code = memory::EnableHeapResourcesOptimization();
+    G3PLOGE_IF(WARNING, !!error_code, error_code)
+        << "Can't enable 'heap resources optimization' os feature, some caches "
+           "will not be optimized.";
+  }
+
+  // Enable process attacks mitigation policies in scope.
+  const security::ScopedProcessMitigationPolicies
+      scoped_process_mitigation_policies;
+  G3PLOGE_IF(FATAL, !!scoped_process_mitigation_policies.error_code(),
+             scoped_process_mitigation_policies.error_code())
+      << "Can't enable process attacks mitigation policies, attacker can use "
+         "system features to break in app.";
+
+  {
+    // Search for DLLs in the secure order to prevent DLL plant attacks.
+    const auto error_code = security::EnableDefaultSecureDllSearch();
+    G3PLOGE_IF(FATAL, !!error_code, error_code)
+        << "Can't enable secure DLL search order, attacker can plant DLLs with "
+           "malicious code.";
+  }
+
+  // Handle call of CRT function with bad arguments on the thread.
+  const error_handling::ScopedThreadInvalidParameterHandler
+      scoped_thread_invalid_parameter_handler{
+          error_handling::DefaultThreadInvalidParameterHandler};
+  // Handle pure virtual function call.
+  const error_handling::ScopedPureCallHandler scoped_pure_call_handler{
+      error_handling::DefaultPureCallHandler};
+  // Handle new allocation failure.
+  const memory::ScopedNewHandler scoped_new_handler{
+      memory::DefaultNewFailureHandler};
+  // Call new when malloc failed.
+  const memory::ScopedNewMode scoped_new_mode{
+      memory::ScopedNewModeFlag::CallNew};
+
+  // Handle terminate function call on the thread.
+  const ScopedThreadTerminateHandler scoped_thread_terminate_handler{
+      DefaultThreadTerminateHandler};
+  // Handle unexpected function call on the thread.
+  const error_handling::ScopedThreadUnexpectedHandler
+      scoped_thread_unexpected_handler{
+          error_handling::DefaultThreadUnexpectedHandler};
+
+  // Mark main thread with name to simplify debugging.
+  // Evaluation order doesn't matter in our case as string_view and HANDLE are
+  // evaluation independent.
+  // C4868: compiler may not enforce left-to-right evaluation order in braced
+  // initializer list
+  const threads::ScopedThreadName scoped_thread_name(::GetCurrentThread(),
+                                                     "WhiteBoxMain");
+  G3PLOGE_IF(WARNING, !!scoped_thread_name.error_code(),
+             scoped_thread_name.error_code())
+      << "Can't rename main thread, continue with default name.";
+
   // Setup heap memory allocator.
   BootHeapMemoryAllocator();
-
-  using namespace wb::base;
 
   // Ensure CPU floating point units convert denormals to zero and flush to zero
   // on underflow.
@@ -54,6 +214,5 @@ WB_BOOTMGR_API int BootmgrMain([[maybe_unused]] _In_ HINSTANCE instance,
       << wb::build::settings::kMinimumTimerResolutionMs
       << "ms, will run with default system one.";
 
-  return 0;
+  return KernelStartup(bootmgr_args);
 }
-}  // namespace wb::bootmgr

@@ -1,0 +1,1 @@
+The deps directory contains sources from other projects.
