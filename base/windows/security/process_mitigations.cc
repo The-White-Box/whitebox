@@ -8,6 +8,7 @@
 #include "base/std_ext/cstring_ext.h"
 #include "base/windows/system_error_ext.h"
 #include "base/windows/windows_light.h"
+#include "base/windows/windows_version.h"
 
 namespace wb::base::windows::security {
 /**
@@ -41,6 +42,14 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
         ? ProcessSystemCallDisablePolicy
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY>
         ? ProcessExtensionPointDisablePolicy
+    : std::is_same_v<TPolicy, PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY>
+        ? ProcessControlFlowGuardPolicy
+    : std::is_same_v<TPolicy, PROCESS_MITIGATION_FONT_DISABLE_POLICY>
+        ? ProcessFontDisablePolicy
+    : std::is_same_v<TPolicy, PROCESS_MITIGATION_IMAGE_LOAD_POLICY>
+        ? ProcessImageLoadPolicy
+    : std::is_same_v<TPolicy, PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>
+        ? ProcessUserShadowStackPolicy
         : MaxProcessMitigationPolicy;
 
 template <typename TPolicy, typename R>
@@ -67,11 +76,16 @@ SetProcessMitigationPolicy(TPolicy& policy) noexcept {
 }
 
 ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
-    : old_dep_policy_to_new_errc_{},
+    : error_code_{},
+      old_dep_policy_to_new_errc_{},
       old_aslr_policy_to_new_errc_{},
       old_dcp_policy_to_new_errc_{},
       old_shc_policy_to_new_errc_{},
-      old_epd_policy_to_new_errc_{} {
+      old_epd_policy_to_new_errc_{},
+      old_cfg_policy_to_new_errc_{},
+      old_sfd_policy_to_new_errc_{},
+      old_sil_policy_to_new_errc_{},
+      old_uss_policy_to_new_errc_{} {
   const HANDLE current_process{::GetCurrentProcess()};
 
   if (!GetProcessMitigationPolicy(current_process,
@@ -87,6 +101,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
 
       if (std::get<std::error_code>(old_dep_policy_to_new_errc_) =
               SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_dep_policy_to_new_errc_);
+
         G3LOG(WARNING)
             << "Can't enable DEP process mitigation policy, app "
                "will run with no/partial data execution prevention: "
@@ -112,6 +128,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
 
       if (std::get<std::error_code>(old_aslr_policy_to_new_errc_) =
               SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_aslr_policy_to_new_errc_);
+
         G3LOG(WARNING)
             << "Can't enable ASLR process mitigation policy, app "
                "will run with no/partial address space layout randomization: "
@@ -136,6 +154,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
 
       if (std::get<std::error_code>(old_dcp_policy_to_new_errc_) =
               SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_dcp_policy_to_new_errc_);
+
         G3LOG(WARNING)
             << "Can't enable 'Dynamic Code' process mitigation policy, app "
                "will run with no/partial dynamic code prohibition: "
@@ -160,6 +180,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
 
       if (std::get<std::error_code>(old_shc_policy_to_new_errc_) =
               SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_shc_policy_to_new_errc_);
+
         G3LOG(WARNING)
             << "Can't enable 'Strict Handle Check' process mitigation policy, "
                "app will run with no/partial strict handle checking: "
@@ -182,6 +204,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
 
       if (std::get<std::error_code>(old_epd_policy_to_new_errc_) =
               SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_epd_policy_to_new_errc_);
+
         G3LOG(WARNING)
             << "Can't enable 'Extension Point Disablement' process mitigation "
                "policy, app will run with not disabled extension points: "
@@ -189,9 +213,141 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
       }
     }
   }
+
+  if (!GetProcessMitigationPolicy(
+          current_process,
+          std::get<PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY>(
+              old_cfg_policy_to_new_errc_))) {
+    const auto& old_policy =
+        std::get<PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY>(
+            old_cfg_policy_to_new_errc_);
+    // Only known option to be altered via API for now.
+    if (!old_policy.StrictMode) {
+      PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY new_policy{.StrictMode =
+                                                                  TRUE};
+
+      if (std::get<std::error_code>(old_cfg_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_cfg_policy_to_new_errc_);
+
+        G3LOG(WARNING)
+            << "Can't enable 'DLLs must enable CFG' process mitigation "
+               "policy, app will run with DLLs which not enable CFG: "
+            << std::get<std::error_code>(old_cfg_policy_to_new_errc_).message();
+      }
+    }
+  }
+
+  if (!GetProcessMitigationPolicy(
+          current_process, std::get<PROCESS_MITIGATION_FONT_DISABLE_POLICY>(
+                               old_sfd_policy_to_new_errc_))) {
+    const auto& old_policy = std::get<PROCESS_MITIGATION_FONT_DISABLE_POLICY>(
+        old_sfd_policy_to_new_errc_);
+    if (!old_policy.DisableNonSystemFonts) {
+      PROCESS_MITIGATION_FONT_DISABLE_POLICY new_policy{.DisableNonSystemFonts =
+                                                            TRUE};
+
+      if (std::get<std::error_code>(old_sfd_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_sfd_policy_to_new_errc_);
+
+        G3LOG(WARNING)
+            << "Can't enable 'Only system fonts' process mitigation "
+               "policy, app will run with custom fonts: "
+            << std::get<std::error_code>(old_sfd_policy_to_new_errc_).message();
+      }
+    }
+  }
+
+  if (!GetProcessMitigationPolicy(
+          current_process, std::get<PROCESS_MITIGATION_IMAGE_LOAD_POLICY>(
+                               old_sil_policy_to_new_errc_))) {
+    const auto& old_policy = std::get<PROCESS_MITIGATION_IMAGE_LOAD_POLICY>(
+        old_sil_policy_to_new_errc_);
+    if (!old_policy.NoRemoteImages || !old_policy.NoLowMandatoryLabelImages ||
+        !old_policy.PreferSystem32Images) {
+      PROCESS_MITIGATION_IMAGE_LOAD_POLICY new_policy{
+          .NoRemoteImages = TRUE,
+          .NoLowMandatoryLabelImages = TRUE,
+          .PreferSystem32Images = TRUE};
+
+      if (std::get<std::error_code>(old_sil_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_sil_policy_to_new_errc_);
+
+        G3LOG(WARNING)
+            << "Can't enable 'Strict Image Load' process mitigation "
+               "policy, app will load images from unsafe locations: "
+            << std::get<std::error_code>(old_sil_policy_to_new_errc_).message();
+      }
+    }
+  }
+
+  if (windows::GetVersion() < windows::Version::WIN10_20H1) {
+    // Policies below require Windows 10, version 2004+ (Build 19041)
+    std::get<std::error_code>(old_uss_policy_to_new_errc_) =
+        std::error_code(ERROR_NOT_SUPPORTED, std::system_category());
+    return;
+  }
+
+  if (!GetProcessMitigationPolicy(
+          current_process,
+          std::get<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>(
+              old_uss_policy_to_new_errc_))) {
+    const auto& old_policy =
+        std::get<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>(
+            old_uss_policy_to_new_errc_);
+    if (!old_policy.EnableUserShadowStack || !old_policy.BlockNonCetBinaries) {
+      PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY new_policy{
+          .EnableUserShadowStack = TRUE, .BlockNonCetBinaries = TRUE};
+
+      if (std::get<std::error_code>(old_uss_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy)) {
+        error_code_ = std::get<std::error_code>(old_uss_policy_to_new_errc_);
+
+        G3LOG(WARNING)
+            << "Can't enable 'User-mode Hardware-enforced Stack Protection' "
+               "process mitigation policy, app will not apply shadow stacks "
+               "protection mechanism: "
+            << std::get<std::error_code>(old_uss_policy_to_new_errc_).message();
+      }
+    }
+  }
 }
 
 ScopedProcessMitigationPolicies::~ScopedProcessMitigationPolicies() noexcept {
+  {
+    auto [old_policy, new_policy_result] = old_uss_policy_to_new_errc_;
+
+    if (!new_policy_result) {
+      G3CHECK(!SetProcessMitigationPolicy(old_policy));
+    }
+  }
+
+  {
+    auto [old_policy, new_policy_result] = old_sil_policy_to_new_errc_;
+
+    if (!new_policy_result) {
+      G3CHECK(!SetProcessMitigationPolicy(old_policy));
+    }
+  }
+
+  {
+    auto [old_policy, new_policy_result] = old_sfd_policy_to_new_errc_;
+
+    if (!new_policy_result) {
+      G3CHECK(!SetProcessMitigationPolicy(old_policy));
+    }
+  }
+
+  {
+    auto [old_policy, new_policy_result] = old_cfg_policy_to_new_errc_;
+
+    if (!new_policy_result) {
+      G3CHECK(!SetProcessMitigationPolicy(old_policy));
+    }
+  }
+
   {
     auto [old_policy, new_policy_result] = old_epd_policy_to_new_errc_;
 

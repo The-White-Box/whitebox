@@ -22,25 +22,52 @@ namespace wb::bootmgr {
  * @brief Boot manager args.
  */
 struct BootmgrArgs {
+  /**
+   * @brief App instance.
+   */
   HINSTANCE instance;
+  /**
+   * @brief Command line.
+   */
   const char *command_line;
+  /**
+   * @brief App description.
+   */
   const char *app_description;
+  /**
+   * @brief Show app window flags.
+   */
   int show_window_flags;
 
+  /**
+   * @brief Main app icon id.
+   */
   int main_icon_id;
+  /**
+   * @brief Small app icon id.
+   */
   int small_icon_id;
 
+  /**
+   * @brief Align to machine word boundary.
+   */
   std::byte pad[4];
 };
 }  // namespace wb::bootmgr
 
 /**
- * @brief Bootmgr entry point on Windows.
- * @param bootmgr_args Bootmgr args.
+ * @brief Boot manager entry point on Windows.
+ * @param bootmgr_args Boot manager args.
  * @return 0 on success.
  */
 extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     const wb::bootmgr::BootmgrArgs &bootmgr_args);
 #else
-extern "C" WB_BOOTMGR_API int BootmgrMain(int argc, char *argv[]);
+/**
+ * @brief Boot manager entry point on *nix and mac.
+ * @param argc Arguments count.
+ * @param argv Arguments.
+ * @return 0 on success.
+ */
+extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(int argc, char *argv[]);
 #endif

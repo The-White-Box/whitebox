@@ -32,6 +32,24 @@ namespace {
  * @brief Setup heap allocator.
  */
 void BootHeapMemoryAllocator() {
+  {
+    // Terminate the app if system detected heap corruption.
+    const auto error_code =
+        wb::base::windows::memory::EnableTerminationOnHeapCorruption();
+    G3PLOGE_IF(FATAL, !!error_code, error_code)
+        << "Can't enable 'Terminate on Heap corruption' os feature, continue "
+           "without it.";
+  }
+
+  {
+    // Enable heap resources optimization.
+    const auto error_code =
+        wb::base::windows::memory::EnableHeapResourcesOptimization();
+    G3PLOGE_IF(WARNING, !!error_code, error_code)
+        << "Can't enable 'heap resources optimization' os feature, some caches "
+           "will not be optimized.";
+  }
+
   // Ignore earlier allocations.
   mi_stats_reset();
 
@@ -132,22 +150,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     return ERROR_OLD_WIN_VERSION;
   }
 
-  {
-    // Terminate the app if system detected heap corruption.
-    const auto error_code = memory::EnableTerminationOnHeapCorruption();
-    G3PLOGE_IF(FATAL, !!error_code, error_code)
-        << "Can't enable 'Terminate on Heap corruption' os feature, continue "
-           "without it.";
-  }
-
-  {
-    // Enable heap resources optimization.
-    const auto error_code = memory::EnableHeapResourcesOptimization();
-    G3PLOGE_IF(WARNING, !!error_code, error_code)
-        << "Can't enable 'heap resources optimization' os feature, some caches "
-           "will not be optimized.";
-  }
-
   // Enable process attacks mitigation policies in scope.
   const security::ScopedProcessMitigationPolicies
       scoped_process_mitigation_policies;
@@ -155,14 +157,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
              scoped_process_mitigation_policies.error_code())
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
-
-  {
-    // Search for DLLs in the secure order to prevent DLL plant attacks.
-    const auto error_code = security::EnableDefaultSecureDllSearch();
-    G3PLOGE_IF(FATAL, !!error_code, error_code)
-        << "Can't enable secure DLL search order, attacker can plant DLLs with "
-           "malicious code.";
-  }
 
   // Handle call of CRT function with bad arguments on the thread.
   const error_handling::ScopedThreadInvalidParameterHandler

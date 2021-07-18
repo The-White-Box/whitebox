@@ -430,6 +430,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
   target_link_options(${THE_TARGET}
     PRIVATE
+      # Mark an executable image as compatible with Control-flow Enforcement
+      # Technology (CET) Shadow Stack.
+      /CETCOMPAT
       # Prepares an image for hotpatching.
       $<$<BOOL:${WB_MSVC_CREATE_HOTPATCHABLE_IMAGE}>:/FUNCTIONPADMIN>
       # Causes the linker to analyze control flow for indirect call targets at

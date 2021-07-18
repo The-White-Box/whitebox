@@ -85,6 +85,30 @@ class ScopedProcessMitigationPolicies {
    */
   old_policy_2_new_errc<PROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY>
       old_epd_policy_to_new_errc_;
+  /**
+   * @brief The Control Flow Guard (CFG) policy of the process.  All DLLs that
+   * are loaded must enable CFG.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY>
+      old_cfg_policy_to_new_errc_;
+  /**
+   * @brief Disable nonsystem fonts policy.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_FONT_DISABLE_POLICY>
+      old_sfd_policy_to_new_errc_;
+  /**
+   * @brief The policy that turns off the ability of the process to load images
+   * from some locations, such a remote devices or files that have the low
+   * mandatory label.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_IMAGE_LOAD_POLICY>
+      old_sil_policy_to_new_errc_;
+  /**
+   * @brief Process mitigation policy settings for user-mode Hardware-enforced
+   * Stack Protection (HSP).
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>
+      old_uss_policy_to_new_errc_;
 };
 }  // namespace wb::base::windows::security
 
