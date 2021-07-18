@@ -127,6 +127,8 @@ struct KeyboardInput {
    */
   KeyboardKeyFlags key_flags;
 
+  // TODO(dimhotepus): Map values below and remove entirely?
+
   /**
    * @brief To align to machine word.
    */

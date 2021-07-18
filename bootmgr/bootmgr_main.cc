@@ -181,14 +181,10 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
           error_handling::DefaultThreadUnexpectedHandler};
 
   // Mark main thread with name to simplify debugging.
-  // Evaluation order doesn't matter in our case as string_view and HANDLE are
-  // evaluation independent.
-  // C4868: compiler may not enforce left-to-right evaluation order in braced
-  // initializer list
-  const threads::ScopedThreadName scoped_thread_name(::GetCurrentThread(),
-                                                     "WhiteBoxMain");
-  G3PLOGE_IF(WARNING, !!scoped_thread_name.error_code(),
-             scoped_thread_name.error_code())
+  const auto scoped_thread_name =
+      threads::ScopedThreadName::New(::GetCurrentThread(), "WhiteBoxMain");
+  G3PLOGE_IF(WARNING, !!std::get_if<std::error_code>(&scoped_thread_name),
+             std::get<std::error_code>(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 
   // Setup heap memory allocator.

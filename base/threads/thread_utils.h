@@ -8,12 +8,12 @@
 #define WB_BASE_THREADS_THREAD_UTILS_H_
 
 #include <string>
-#include <string_view>
 #include <thread>
 
 #include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/std_ext/system_error_ext.h"
 #include "build/compiler_config.h"
 
 #ifdef WB_OS_WIN
@@ -33,7 +33,7 @@ using ThreadHandle = std::thread::native_handle_type;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    _In_ ThreadHandle handle, _Out_ std::string& thread_name);
+    _In_ ThreadHandle handle, _Out_ std::string &thread_name);
 
 /**
  * @brief Set thread name.
@@ -53,16 +53,26 @@ class ScopedThreadName {
    * @brief Set name for thread in scope and restore out of scope.
    * @param thread Thread.
    * @param new_thread_name Scoped thread name.
+   * @return ScopedThreadName.
    */
-  explicit ScopedThreadName(_In_ ThreadHandle thread,
-                            _In_ const std::string &new_thread_name)
-      : thread_{thread}, error_code_{GetThreadName(thread, old_thread_name_)} {
-    G3CHECK(!error_code());
+  [[nodiscard]] static std_ext::os_res<ScopedThreadName> New(
+      _In_ ThreadHandle thread, _In_ const std::string &new_thread_name) {
+    ScopedThreadName name{thread, new_thread_name};
 
-    if (!error_code()) error_code_ = SetThreadName(thread_, new_thread_name);
+    return !name.error_code()
+               ? std_ext::os_res<ScopedThreadName>{std::move(name)}
+               : std_ext::os_res<ScopedThreadName>{name.error_code()};
   }
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadName);
+  ScopedThreadName(ScopedThreadName &&n) noexcept
+      : thread_{std::move(n.thread_)},
+        error_code_{std::move(n.error_code_)},
+        old_thread_name_{std::move(n.old_thread_name_)} {
+    n.error_code_ = std::error_code{EINVAL, std::system_category()};
+  }
+  ScopedThreadName &operator=(ScopedThreadName &&) noexcept = delete;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedThreadName);
 
   /**
    * @brief Restore previous thread name.
@@ -83,7 +93,7 @@ class ScopedThreadName {
   /**
    * @brief Thread handle.
    */
-  const ThreadHandle thread_;
+  ThreadHandle thread_;
   /**
    * @brief Error code.
    */
@@ -92,6 +102,19 @@ class ScopedThreadName {
    * @brief Previous thread name.
    */
   std::string old_thread_name_;
+
+  /**
+   * @brief Set name for thread in scope and restore out of scope.
+   * @param thread Thread.
+   * @param new_thread_name Scoped thread name.
+   */
+  explicit ScopedThreadName(_In_ ThreadHandle thread,
+                            _In_ const std::string &new_thread_name)
+      : thread_{thread}, error_code_{GetThreadName(thread, old_thread_name_)} {
+    G3CHECK(!error_code());
+
+    if (!error_code()) error_code_ = SetThreadName(thread_, new_thread_name);
+  }
 };
 }  // namespace wb::base::threads
 

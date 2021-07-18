@@ -76,7 +76,7 @@ namespace wb::base::std_ext {
  * @tparam TResult Result.
  */
 template <typename TResult>
-using ec_res = std::variant<TResult, std::error_code>;
+using os_res = std::variant<TResult, std::error_code>;
 }  // namespace wb::base::std_ext
 
 #endif  // !WB_BASE_STD_EXT_SYSTEM_ERROR_EXT_H_

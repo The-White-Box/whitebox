@@ -23,17 +23,52 @@ namespace wb::base::windows::ui {
 /**
  * @brief Kind of dialog box.
  */
-enum class DialogBoxKind { kInformation, kWarning, kError, kShield };
+enum class DialogBoxKind {
+  /**
+   * @brief Information.
+   */
+  kInformation,
+  /**
+   * @brief Warning.
+   */
+  kWarning,
+  /**
+   * @brief Error.
+   */
+  kError,
+  /**
+   * @brief Shield.
+   */
+  kShield
+};
 
 /**
  * @brief Dialog box buttons.  Should be same as TASKDIALOG_COMMON_BUTTON_FLAGS.
  */
 enum class DialogBoxButton {
+  /**
+   * @brief Ok.
+   */
   kOk = 0x01,
+  /**
+   * @brief Yes
+   */
   kYes = 0x02,
+  /**
+   * @brief No
+   */
   kNo = 0x04,
+  /**
+   * @brief Cancel.
+   */
   kCancel = 0x08,
+  /**
+   * @brief Retry.
+   */
   kRetry = 0x10,
+  /**
+   * @brief Close.
+   */
   kClose = 0x20
 };
 
@@ -150,7 +185,7 @@ struct DialogBoxSettings {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std_ext::ec_res<DialogBoxButton> ShowDialogBox(
+WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings &settings) noexcept;
 }  // namespace wb::base::windows::ui
 

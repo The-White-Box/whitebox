@@ -123,7 +123,7 @@ class BaseWindow {
    * @brief Creates window.
    * @tparam TDerivedWindow
    */
-  [[nodiscard]] static std_ext::ec_res<un<TDerivedWindow>> Create(
+  [[nodiscard]] static std_ext::os_res<un<TDerivedWindow>> Create(
       _In_ const WindowDefinition &definition,
       _In_ DWORD class_style) noexcept {
     auto window = std::make_unique<TDerivedWindow>(definition.instance);
@@ -136,8 +136,8 @@ class BaseWindow {
           definition.width, definition.height, definition.parent_window,
           definition.menu, definition.instance, window.get()));
     }
-    return !rc ? std_ext::ec_res<un<TDerivedWindow>>{std::move(window)}
-               : std_ext::ec_res<un<TDerivedWindow>>{rc};
+    return !rc ? std_ext::os_res<un<TDerivedWindow>>{std::move(window)}
+               : std_ext::os_res<un<TDerivedWindow>>{rc};
   }
 
   /**

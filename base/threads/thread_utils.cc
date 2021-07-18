@@ -49,9 +49,11 @@ namespace wb::base::threads {
   const windows::memory::ScopedLocalMemory scoped_local_memory{
       wide_thread_name};
 
-  if (!rc) {
+  if (!rc) [[likely]] {
     thread_name =
         std_ext::WideToAnsi({wide_thread_name, ::wcslen(wide_thread_name)});
+  } else {
+    thread_name = "";
   }
 
   return rc;

@@ -34,7 +34,7 @@ class ScopedThreadTerminateHandler {
    * @brief Restore previous terminate handler.
    */
   ~ScopedThreadTerminateHandler() noexcept {
-    (void)std::set_terminate(previous_terminate_function_);
+    std::set_terminate(previous_terminate_function_);
   }
 
  private:

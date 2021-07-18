@@ -245,10 +245,10 @@ And here is possible output
   } else                             \
     G3CHECK(boolean_expression)
 // Does nothing.
-#define G3DPCHECK_E(boolean_expression) \
-  if constexpr (true) {                 \
-  } else                                \
-    G3PCHECK_E(boolean_expression)
+#define G3DPCHECK_E(boolean_expression, error_code) \
+  if constexpr (true) {                             \
+  } else                                            \
+    G3PCHECK_E(boolean_expression, error_code)
 // Does nothing.
 #define G3DCHECKF(boolean_expression, printf_like_message, ...) \
   if constexpr (true) {                                         \
@@ -342,7 +342,8 @@ And here is possible output
 // application by using fatal signal SIGABRT
 //  For unit testing, you can override the fatal handling using
 //  setFatalExitHandler(...). See tes_io.cpp for examples
-#define G3DPCHECK_E(error_code) G3PCHECK_E(error_code)
+#define G3DPCHECK_E(boolean_expression, error_code) \
+  G3PCHECK_E(boolean_expression, error_code)
 
 // Design By Contract, printf-like API syntax with variadic input parameters.
 // Throws std::runtime_eror if contract breaks

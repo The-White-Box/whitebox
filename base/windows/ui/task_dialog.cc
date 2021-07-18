@@ -107,6 +107,7 @@ void OnTaskDialogConstructed(HWND window, LONG_PTR) noexcept {
  */
 void OnTaskDialogHyperlinkClicked(HWND window, LONG_PTR,
                                   const wchar_t* url) noexcept {
+  G3DCHECK(!!window);
   G3DCHECK(!!url);
 
   // "If the function succeeds, it returns a value greater than 32.  If the
@@ -154,7 +155,7 @@ namespace wb::base::windows::ui {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std_ext::ec_res<DialogBoxButton> ShowDialogBox(
+WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings& settings) noexcept {
   const std::wstring title{std_ext::AnsiToWide(settings.title)};
   const std::wstring main_instruction{
@@ -198,9 +199,9 @@ WB_BASE_API std_ext::ec_res<DialogBoxButton> ShowDialogBox(
   const std::error_code rc{GetErrorCode(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
-  G3DCHECK(!rc) << "TaskDialog can't be shown: " << rc.message();
-  return !rc ? std_ext::ec_res<DialogBoxButton>{GetButtonById(
+  G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";
+  return !rc ? std_ext::os_res<DialogBoxButton>{GetButtonById(
                    pressed_button_id)}
-             : std_ext::ec_res<DialogBoxButton>{rc};
+             : std_ext::os_res<DialogBoxButton>{rc};
 }
 }  // namespace wb::base::windows::ui

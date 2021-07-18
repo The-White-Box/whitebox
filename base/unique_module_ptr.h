@@ -123,13 +123,13 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @param load_flags Library load flags.
    * @return (unique_module_ptr, error_code).
    */
-  [[nodiscard]] static std_ext::ec_res<unique_module_ptr> from_load_library(
+  [[nodiscard]] static std_ext::os_res<unique_module_ptr> from_load_library(
       _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
-    return library != nullptr ? std_ext::ec_res<unique_module_ptr>(
+    return library != nullptr ? std_ext::os_res<unique_module_ptr>(
                                     std::move(unique_module_ptr{library}))
-                              : std_ext::ec_res<unique_module_ptr>(
+                              : std_ext::os_res<unique_module_ptr>(
                                     wb::base::windows::GetErrorCode(library));
   }
 
@@ -140,7 +140,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @return (address, error_code).
    */
   template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std_ext::ec_res<T>> get_address_as(
+  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> get_address_as(
       _In_z_ const char *function_name) const noexcept {
     WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
       // C4191 'reinterpret_cast': unsafe conversion from 'FARPROC' to 'T'
@@ -150,8 +150,8 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
           reinterpret_cast<T>(::GetProcAddress(get(), function_name));
     WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
     return address != nullptr
-               ? std_ext::ec_res<T>(address)
-               : std_ext::ec_res<T>(std_ext::GetThreadErrorCode());
+               ? std_ext::os_res<T>(address)
+               : std_ext::os_res<T>(std_ext::GetThreadErrorCode());
   }
 #elif defined(WB_OS_POSIX)
   /**
@@ -160,25 +160,25 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @param load_flags Library load flags.
    * @return (unique_module_ptr, error_code).
    */
-  [[nodiscard]] static std_ext::ec_res<unique_module_ptr> from_load_library(
+  [[nodiscard]] static std_ext::os_res<unique_module_ptr> from_load_library(
       const std::string &library_path, int load_flags) noexcept {
     const void *library{::dlopen(library_name.c_str(), load_flags)};
     return library != nullptr
-               ? std_ext::ec_res<unique_module_ptr>(std::move(
+               ? std_ext::os_res<unique_module_ptr>(std::move(
                      unique_module_ptr{reintrerpret_cast<MODULE__ *>(library)}))
                // TODO(dimhotepus): What error code should be set here?
-               : std_ext::ec_res<unique_module_ptr>(
+               : std_ext::os_res<unique_module_ptr>(
                      std_ext::GetThreadErrorCode(EINVAL));
   }
 
   // Gets (address, error_code) of function |function_name| in loaded shared
   // library.
   template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std_ext::ec_res<T>> get_address_as(
+  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> get_address_as(
       const ch *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
-    return address != nullptr ? std_ext::ec_res<T>(address)
-                              : std_ext::ec_res<unique_module_ptr>(
+    return address != nullptr ? std_ext::os_res<T>(address)
+                              : std_ext::os_res<unique_module_ptr>(
                                     std_ext::GetThreadErrorCode());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)

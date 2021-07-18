@@ -48,7 +48,7 @@ namespace {
  * @param instance App instance.
  * @return App directory with trailing path separator.
  */
-wb::base::std_ext::ec_res<std::string> GetApplicationDirectory(
+wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
     _In_ HINSTANCE instance) {
   std::wstring file_path;
   file_path.resize(MAX_PATH);

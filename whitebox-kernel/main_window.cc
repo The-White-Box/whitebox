@@ -131,8 +131,9 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
             // TODO(dimhotepus): Do smth with keyboard.
             is_raw_input_handled = true;
 
-            if (keyboard_input.virtual_key == VK_F11 &&
-                keyboard_input.message == WM_KEYDOWN) {
+            if (keyboard_input.make_code == 0x57 &&
+                (keyboard_input.key_flags & ui::KeyboardKeyFlags::kDown) ==
+                    ui::KeyboardKeyFlags::kDown) {
               full_screen_window_toggler_->Toggle(
                   !full_screen_window_toggler_->IsFullScreen());
             }
