@@ -113,7 +113,6 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
     using namespace wb::base::windows;
 
     RAWINPUT read_input;
-
     if (ui::ReadRawInput(source_input, read_input)) [[likely]] {
       bool is_raw_input_handled{false};
 

@@ -6,12 +6,8 @@
 
 #include "thread_utils.h"
 
-#include <string>
-#include <string_view>
-
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/cstring_ext.h"
 #include "build/build_config.h"
 
 #ifdef WB_OS_WIN
@@ -39,7 +35,7 @@ namespace wb::base::threads {
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    _In_ ThreadHandle handle, _Out_ std::string& thread_name) {
+    _In_ NativeThreadHandle handle, _Out_ NativeThreadName& thread_name) {
 #ifdef WB_OS_WIN
   // Minimum supported client is Windows 10, version 1607.
   wchar_t* wide_thread_name;
@@ -50,10 +46,9 @@ namespace wb::base::threads {
       wide_thread_name};
 
   if (!rc) [[likely]] {
-    thread_name =
-        std_ext::WideToAnsi({wide_thread_name, ::wcslen(wide_thread_name)});
+    thread_name = wide_thread_name;
   } else {
-    thread_name = "";
+    thread_name = L"";
   }
 
   return rc;
@@ -74,13 +69,10 @@ namespace wb::base::threads {
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    _In_ ThreadHandle handle, _In_ const std::string &thread_name) {
+    _In_ NativeThreadHandle handle, _In_ const NativeThreadName& thread_name) {
 #ifdef WB_OS_WIN
-  // Minimum supported client is Windows 10, version 1607.
-  const std::wstring wide_thread_name{std_ext::AnsiToWide(thread_name)};
-
   return windows::GetErrorCode(
-      ::SetThreadDescription(handle, wide_thread_name.c_str()));
+      ::SetThreadDescription(handle, thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
   return GetThreadPosixErrorCode(
       ::pthread_setname_np(handle, thread_name.data()));

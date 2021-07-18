@@ -146,7 +146,9 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
         bootmgr_args.small_icon_id, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3LOG(FATAL) << kOldWindowsVersionError;
+    G3PLOG_E(FATAL,
+             std::error_code(ERROR_OLD_WIN_VERSION, std::system_category()))
+        << kOldWindowsVersionError;
 
     return ERROR_OLD_WIN_VERSION;
   }
@@ -183,7 +185,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
 
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name =
-      threads::ScopedThreadName::New(::GetCurrentThread(), "WhiteBoxMain");
+      threads::ScopedThreadName::New(::GetCurrentThread(), L"WhiteBoxMain");
   G3PLOGE_IF(WARNING, !!std::get_if<std::error_code>(&scoped_thread_name),
              std::get<std::error_code>(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";

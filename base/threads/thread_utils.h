@@ -24,7 +24,13 @@ namespace wb::base::threads {
 /**
  * @brief Native thread handle.
  */
-using ThreadHandle = std::thread::native_handle_type;
+using NativeThreadHandle = std::thread::native_handle_type;
+
+#ifdef WB_OS_WIN
+using NativeThreadName = std::wstring;
+#else
+using NativeThreadName = std::string;
+#endif
 
 /**
  * @brief Gets thread name.
@@ -33,7 +39,7 @@ using ThreadHandle = std::thread::native_handle_type;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    _In_ ThreadHandle handle, _Out_ std::string &thread_name);
+    _In_ NativeThreadHandle handle, _Out_ NativeThreadName &thread_name);
 
 /**
  * @brief Set thread name.
@@ -42,7 +48,7 @@ using ThreadHandle = std::thread::native_handle_type;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    _In_ ThreadHandle handle, _In_ const std::string &thread_name);
+    _In_ NativeThreadHandle handle, _In_ const NativeThreadName &thread_name);
 
 /**
  * @brief Scoped thread name.
@@ -56,7 +62,8 @@ class ScopedThreadName {
    * @return ScopedThreadName.
    */
   [[nodiscard]] static std_ext::os_res<ScopedThreadName> New(
-      _In_ ThreadHandle thread, _In_ const std::string &new_thread_name) {
+      _In_ NativeThreadHandle thread,
+      _In_ const NativeThreadName &new_thread_name) {
     ScopedThreadName name{thread, new_thread_name};
 
     return !name.error_code()
@@ -93,7 +100,7 @@ class ScopedThreadName {
   /**
    * @brief Thread handle.
    */
-  ThreadHandle thread_;
+  NativeThreadHandle thread_;
   /**
    * @brief Error code.
    */
@@ -101,15 +108,15 @@ class ScopedThreadName {
   /**
    * @brief Previous thread name.
    */
-  std::string old_thread_name_;
+  NativeThreadName old_thread_name_;
 
   /**
    * @brief Set name for thread in scope and restore out of scope.
    * @param thread Thread.
    * @param new_thread_name Scoped thread name.
    */
-  explicit ScopedThreadName(_In_ ThreadHandle thread,
-                            _In_ const std::string &new_thread_name)
+  explicit ScopedThreadName(_In_ NativeThreadHandle thread,
+                            _In_ const NativeThreadName &new_thread_name)
       : thread_{thread}, error_code_{GetThreadName(thread, old_thread_name_)} {
     G3CHECK(!error_code());
 

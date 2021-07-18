@@ -31,25 +31,18 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 
   const auto cursor = LoadCursor(nullptr, IDC_ARROW);
   return wb::base::windows::ui::WindowDefinition{
-      kernel_args.instance,
-      window_title.c_str(),
-      kernel_args.main_icon_id,
-      kernel_args.small_icon_id,
-      cursor,
-      reinterpret_cast<HBRUSH>(COLOR_APPWORKSPACE),
-      WS_OVERLAPPEDWINDOW,
-      0,
-      CW_USEDEFAULT,
-      CW_USEDEFAULT,
-      width,
-      height};
+      kernel_args.instance, window_title.c_str(), kernel_args.main_icon_id,
+      kernel_args.small_icon_id, cursor,
+      // TODO(dimhotepus): Remove when use Vulkan renderer?
+      reinterpret_cast<HBRUSH>(COLOR_APPWORKSPACE), WS_OVERLAPPEDWINDOW, 0,
+      CW_USEDEFAULT, CW_USEDEFAULT, width, height};
 }
 
 /**
  * @brief Run app message loop.
  * @return App exit code.
  */
-int DispatchMessages() noexcept {
+int DispatchMessages(_In_z_ const char* main_window_name) noexcept {
   int rc{0};
   bool is_done{false};
   const auto handle_quit_message = [&](const MSG& msg) noexcept {
@@ -67,6 +60,10 @@ int DispatchMessages() noexcept {
     message_dispatcher.Dispatch(ui::HasNoPreDispatchMessage,
                                 handle_quit_message);
   }
+
+  G3LOG_IF(WARNING, rc != 0)
+      << "Main window '" << main_window_name
+      << "' message dispatch thread exited with non success code " << rc;
 
   return rc;
 }
@@ -89,11 +86,11 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If
     // the window was previously hidden, the return value is zero.
-    ::ShowWindow(window->NativeHandle(), kernel_args.show_window_flags);
+    window->Show(kernel_args.show_window_flags);
     // Send WM_PAINT directly to draw first time.
-    ::UpdateWindow(window->NativeHandle());
+    window->Update();
 
-    return DispatchMessages();
+    return DispatchMessages(window_definition.name);
   }
 
   const auto error_code = std::get<std::error_code>(window_result);

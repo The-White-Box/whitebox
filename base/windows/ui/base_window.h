@@ -145,11 +145,15 @@ class BaseWindow {
                : std_ext::os_res<un<TDerivedWindow>>{rc};
   }
 
-  /**
-   * @brief Native window handle.
-   * @return Native window handle.
-   */
-  [[nodiscard]] HWND NativeHandle() const noexcept { return hwnd_; }
+  int Show(int flags) const noexcept {
+    G3DCHECK(!!hwnd_);
+    return ::ShowWindow(hwnd_, flags);
+  }
+
+  int Update() const noexcept {
+    G3DCHECK(!!hwnd_);
+    return ::UpdateWindow(hwnd_);
+  }
 
  protected:
   /**
@@ -174,6 +178,12 @@ class BaseWindow {
    */
   virtual LRESULT HandleMessage(_In_ UINT message, _In_ WPARAM wParam,
                                 _In_ LPARAM lParam) noexcept = 0;
+
+  /**
+   * @brief Native window handle.
+   * @return Native window handle.
+   */
+  [[nodiscard]] HWND NativeHandle() const noexcept { return hwnd_; }
 
  private:
   HINSTANCE instance_;
