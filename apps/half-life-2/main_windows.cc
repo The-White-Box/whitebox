@@ -2,14 +2,16 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Half-Life 2 launcher app.
+// Half-Life 2 launcher app on Windows.
 
 #include <tchar.h>
 
 #include <filesystem>
+#include <string_view>
 #include <system_error>
 
 #include "base/deps/g3log/scoped_g3log_initializer.h"
+#include "base/std_ext/cstring_ext.h"
 #include "base/unique_module_ptr.h"
 #include "base/windows/com/scoped_com_fatal_exception_handler.h"
 #include "base/windows/com/scoped_com_initializer.h"
@@ -42,6 +44,37 @@ WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
 
 namespace {
 /**
+ * @brief Get app directory.
+ * @param instance App instance.
+ * @return App directory with trailing path separator.
+ */
+wb::base::std_ext::ec_res<std::string> GetApplicationDirectory(
+    _In_ HINSTANCE instance) {
+  std::wstring file_path;
+  file_path.resize(MAX_PATH);
+
+  const DWORD file_name_path_size{::GetModuleFileNameW(
+      instance, file_path.data(), static_cast<DWORD>(file_path.size()))};
+  if (file_name_path_size != 0) {
+    if (wb::base::std_ext::GetThreadNativeLastErrno() ==
+        ERROR_INSUFFICIENT_BUFFER) {
+      return std::error_code{ERROR_INSUFFICIENT_BUFFER, std::system_category()};
+    }
+
+    file_path.resize(file_name_path_size);
+
+    const size_t last_separator_pos{
+        file_path.rfind(std::filesystem::path::preferred_separator)};
+    return wb::base::std_ext::WideToAnsi(
+        last_separator_pos != std::wstring::npos
+            ? file_path.substr(0, last_separator_pos + 1)
+            : file_path);
+  }
+
+  return wb::base::std_ext::GetThreadErrorCode();
+}
+
+/**
  * @brief Load and run bootmgr.
  * @param instance App instance.
  * @param command_line Command line.
@@ -50,22 +83,31 @@ namespace {
  */
 int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPTSTR command_line,
                    _In_ int show_window_flags) noexcept {
-  std::error_code rc;
-  std::filesystem::path bootmgr_path{std::filesystem::current_path(rc)};
-  G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
-                                 "the app.  Please, contact authors.";
+  // Search for DLLs in the secure order to prevent DLL plant attacks.
+  std::error_code rc{wb::base::windows::GetErrorCode(::SetDefaultDllDirectories(
+      LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS))};
+  G3PLOGE_IF(WARNING, !!rc, rc)
+      << "Can't enable secure DLL search order, attacker can plant DLLs with "
+         "malicious code.";
 
-  bootmgr_path /= "bootmgr.dll";
+  const auto app_path = GetApplicationDirectory(instance);
+  G3PLOGE_IF(FATAL, !!std::get_if<std::error_code>(&app_path),
+             std::get<std::error_code>(app_path))
+      << "Can't get current directory.  Unable to load "
+         "the app.  Please, contact authors.";
 
-  constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
+  const std::string bootmgr_path{std::get<std::string>(app_path) +
+                                 "bootmgr.dll"};
 
   // TODO(dimhotepus): Correct flags + LOAD_LIBRARY_REQUIRE_SIGNED_TARGET.
   const auto bootmgr_load_result =
       wb::base::unique_module_ptr::from_load_library(
-          bootmgr_path.string(), LOAD_WITH_ALTERED_SEARCH_PATH);
+          bootmgr_path, LOAD_WITH_ALTERED_SEARCH_PATH);
   if (const auto* bootmgr_module =
           std::get_if<wb::base::unique_module_ptr>(&bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
+
+    constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
 
     // Good, try to find and launch bootmgr.
     const auto bootmgr_entry_result =
@@ -83,13 +125,12 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPTSTR command_line,
     rc = std::get<std::error_code>(bootmgr_entry_result);
     G3PLOG_E(WARNING, rc)
         << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
-        << bootmgr_path.string()
+        << bootmgr_path
         << "'.  Looks like app is broken, please, reinstall the one.";
   } else {
     // TODO(dimhotepus): Show fancy Ui message box.
     rc = std::get<std::error_code>(bootmgr_load_result);
-    G3PLOG_E(WARNING, rc) << "Can't load boot manager '"
-                          << bootmgr_path.string()
+    G3PLOG_E(WARNING, rc) << "Can't load boot manager '" << bootmgr_path
                           << "'.  Please, reinstall the app.";
   }
 
@@ -145,18 +186,23 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       << "Component Object Model initialization failed, continue without COM.";
 
   // Disable default COM exception swallowing, report all COM exceptions to us.
-  const com::ScopedComFatalExceptionHandler scoped_com_fatal_exception_handler;
-  G3PLOGE_IF(WARNING, !!scoped_com_fatal_exception_handler.error_code(),
-             scoped_com_fatal_exception_handler.error_code())
+  const auto scoped_com_fatal_exception_handler =
+      com::ScopedComFatalExceptionHandler::New();
+  G3PLOGE_IF(
+      WARNING,
+      !!std::get_if<std::error_code>(&scoped_com_fatal_exception_handler),
+      std::get<std::error_code>(scoped_com_fatal_exception_handler))
       << "Can't disable COM exceptions swallowing, some exceptions may not be "
          "passed to the app.";
 
   // Disallow COM marshalers and unmarshalers not from hardened system-trusted
   // per-process list.
-  const com::ScopedComStrongUnmarshallingPolicy
-      scoped_com_strong_unmarshalling_policy;
-  G3PLOGE_IF(WARNING, !!scoped_com_strong_unmarshalling_policy.error_code(),
-             scoped_com_strong_unmarshalling_policy.error_code())
+  const auto scoped_com_strong_unmarshalling_policy =
+      com::ScopedComStrongUnmarshallingPolicy::New();
+  G3PLOGE_IF(
+      WARNING,
+      !!std::get_if<std::error_code>(&scoped_com_strong_unmarshalling_policy),
+      std::get<std::error_code>(scoped_com_strong_unmarshalling_policy))
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 

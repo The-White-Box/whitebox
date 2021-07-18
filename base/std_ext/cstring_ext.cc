@@ -13,28 +13,30 @@
 
 namespace wb::base::std_ext {
 #ifdef WB_OS_WIN
-[[nodiscard]] WB_BASE_API std::string WideToAnsi(std::wstring_view in) {
-  const std::size_t in_size{in.size() + 1};  // +1 for empty in.
+[[nodiscard]] WB_BASE_API std::string WideToAnsi(const std::wstring &in) {
+  const std::size_t in_size{in.size() + 1};
   std::string ansi(in_size, '\0');
 
-  [[maybe_unused]] const std::error_code rc{
-      std_ext::GetThreadPosixErrorCode(
-          ::wcstombs_s(nullptr, &ansi[0], in_size, in.data(), in_size))};
+  [[maybe_unused]] const std::error_code rc{std_ext::GetThreadPosixErrorCode(
+      ::wcstombs_s(nullptr, &ansi[0], in_size, in.data(), in_size))};
   // Only debug as invalid CRT parameter handler expected to terminate app.
   G3DCHECK(!rc);
+
+  ansi.resize(in_size - 1);
 
   return ansi;
 }
 
-[[nodiscard]] WB_BASE_API std::wstring AnsiToWide(std::string_view in) {
-  const std::size_t in_size{in.size() + 1};  // +1 for empty in.
+[[nodiscard]] WB_BASE_API std::wstring AnsiToWide(const std::string &in) {
+  const std::size_t in_size{in.size() + 1};
   std::wstring wide(in_size, '\0');
 
-  [[maybe_unused]] const std::error_code rc{
-      std_ext::GetThreadPosixErrorCode(
-          ::mbstowcs_s(nullptr, &wide[0], in_size, in.data(), in_size))};
+  [[maybe_unused]] const std::error_code rc{std_ext::GetThreadPosixErrorCode(
+      ::mbstowcs_s(nullptr, &wide[0], in_size, in.data(), in_size))};
   // Only debug as invalid CRT parameter handler expected to terminate app.
   G3DCHECK(!rc);
+
+  wide.resize(in_size - 1);
 
   return wide;
 }

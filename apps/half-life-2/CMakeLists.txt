@@ -17,10 +17,16 @@ set(WB_HALF_LIFE2_TARGET_NAME "half-life-2")
 set(WB_CURRENT_TARGET_NAME ${WB_HALF_LIFE2_TARGET_NAME})
 set(WB_CURRENT_TARGET_SUFFIX ".exe")
 
-# We currently build app by finding all sources and header files.
-# We then exclude specific files below.
-wb_auto_sources(files "*.cc" "RECURSE" "${WB_HALF_LIFE2_SOURCE_DIR}")
-wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_HALF_LIFE2_SOURCE_DIR}")
+if (WB_OS_WINDOWS)
+  set(files "main_windows.cc")
+  set(hfiles "windows_resource.h")
+elseif (WB_OS_LINUX)
+  set(files "main_nix.cc")
+  set(hfiles "")
+elseif (WB_OS_MACOSX)
+  set(files "main_mac.cc")
+  set(hfiles "")
+endif()
 
 # Generate project info.
 configure_file(
@@ -51,7 +57,7 @@ if (WB_OS_WINDOWS)
     PRIVATE
       windows_half_life_2.rc
       ${WB_OS_WINDOWS_MANIFESTS_DIR}/dpi-aware.manifest
-      ${WB_BINARY_DIR}/enable-visual-styles.manifest
+      ${WB_BINARY_DIR}/gen/enable-visual-styles.manifest
       ${WB_OS_WINDOWS_MANIFESTS_DIR}/supported-os.manifest
       ${WB_OS_WINDOWS_MANIFESTS_DIR}/ultra-high-scroll-resolution.manifest
       ${WB_OS_WINDOWS_MANIFESTS_DIR}/utf-8-code-page.manifest
@@ -60,7 +66,7 @@ if (WB_OS_WINDOWS)
   # Generate visual styles manifest as requires project info.
   configure_file(
     ${WB_OS_WINDOWS_MANIFESTS_DIR}/enable-visual-styles.manifest.cmake
-    ${WB_BINARY_DIR}/enable-visual-styles.manifest
+    ${WB_BINARY_DIR}/gen/enable-visual-styles.manifest
   )
 endif()
 
@@ -76,5 +82,6 @@ target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME}
 )
 
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}
+wb_copy_all_target_dependencies_to_target_bin_dir(
+  ${WB_HALF_LIFE2_TARGET_NAME}
   "${WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES}")

@@ -9,7 +9,6 @@
 
 #include <cstring>
 #include <string>
-#include <string_view>
 #include <type_traits>
 
 #include "base/base_api.h"
@@ -83,14 +82,14 @@ inline Dest& BitwiseCopy(Dest& dest, const Source& source) noexcept {
  * @param in Wide string.
  * @return ANSI string.
  */
-[[nodiscard]] WB_BASE_API std::string WideToAnsi(std::wstring_view in);
+[[nodiscard]] WB_BASE_API std::string WideToAnsi(const std::wstring &in);
 
 /**
  * @brief ANSI string to wide one.
  * @param in ANSI string.
  * @return Wide string.
  */
-[[nodiscard]] WB_BASE_API std::wstring AnsiToWide(std::string_view in);
+[[nodiscard]] WB_BASE_API std::wstring AnsiToWide(const std::string &in);
 #endif
 }  // namespace wb::base::std_ext
 

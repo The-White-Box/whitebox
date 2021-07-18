@@ -10,7 +10,7 @@ set(WB_BASE_VERSION     ${CMAKE_PROJECT_VERSION})
 
 project("wb::base"
   VERSION ${WB_BASE_VERSION}
-  DESCRIPTION "Whitebox Base Abstractions and Definitons"
+  DESCRIPTION "Whitebox Base Abstractions and Definitions"
   LANGUAGES CXX)
 
 set(WB_BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})

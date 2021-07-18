@@ -124,7 +124,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @return (unique_module_ptr, error_code).
    */
   [[nodiscard]] static std_ext::ec_res<unique_module_ptr> from_load_library(
-      _In_ std::string &&library_path, _In_ unsigned load_flags) noexcept {
+      _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
     return library != nullptr ? std_ext::ec_res<unique_module_ptr>(
@@ -161,7 +161,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @return (unique_module_ptr, error_code).
    */
   [[nodiscard]] static std_ext::ec_res<unique_module_ptr> from_load_library(
-      std::string &&library_path, int load_flags) noexcept {
+      const std::string &library_path, int load_flags) noexcept {
     const void *library{::dlopen(library_name.c_str(), load_flags)};
     return library != nullptr
                ? std_ext::ec_res<unique_module_ptr>(std::move(

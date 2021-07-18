@@ -42,7 +42,7 @@ using ThreadHandle = std::thread::native_handle_type;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    _In_ ThreadHandle handle, _In_ const std::string_view thread_name);
+    _In_ ThreadHandle handle, _In_ const std::string &thread_name);
 
 /**
  * @brief Scoped thread name.
@@ -55,7 +55,7 @@ class ScopedThreadName {
    * @param new_thread_name Scoped thread name.
    */
   explicit ScopedThreadName(_In_ ThreadHandle thread,
-                            _In_ std::string_view new_thread_name)
+                            _In_ const std::string &new_thread_name)
       : thread_{thread}, error_code_{GetThreadName(thread, old_thread_name_)} {
     G3CHECK(!error_code());
 

@@ -72,7 +72,7 @@ namespace wb::base::threads {
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    _In_ ThreadHandle handle, _In_ std::string_view thread_name) {
+    _In_ ThreadHandle handle, _In_ const std::string &thread_name) {
 #ifdef WB_OS_WIN
   // Minimum supported client is Windows 10, version 1607.
   const std::wstring wide_thread_name{std_ext::AnsiToWide(thread_name)};

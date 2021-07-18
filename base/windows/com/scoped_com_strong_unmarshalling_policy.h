@@ -25,33 +25,32 @@ class ScopedComStrongUnmarshallingPolicy {
  public:
   /**
    * @brief Set strict COM unmarshalling policy for scope.
-   * @return nothing.
+   * @return ScopedComStrongUnmarshallingPolicy.
    */
-  ScopedComStrongUnmarshallingPolicy() noexcept
-      : global_options_{},
-        error_code_{GetErrorCode(global_options_.CreateInstance(
-            CLSID_GlobalOptions, nullptr, CLSCTX_INPROC_SERVER))},
-        old_global_unmarshalling_policy_option_value_{0} {
-    if (!error_code_) {
-      // Get current COM unmarshalling policy to restore later.
-      error_code_ = GetErrorCode(global_options_->Query(
-          COMGLB_UNMARSHALING_POLICY,
-          &old_global_unmarshalling_policy_option_value_));
-    }
+  static std_ext::ec_res<ScopedComStrongUnmarshallingPolicy> New() noexcept {
+    ScopedComStrongUnmarshallingPolicy policy;
 
-    if (!error_code_ && old_global_unmarshalling_policy_option_value_ !=
-                            COMGLB_UNMARSHALING_POLICY_STRONG) {
-      // Unmarshaling allows only a system-trusted list of hardened unmarshalers
-      // and unmarshalers allowed per-process by the CoAllowUnmarshalerCLSID
-      // function.
-      error_code_ = GetErrorCode(global_options_->Set(
-          COMGLB_UNMARSHALING_POLICY, COMGLB_UNMARSHALING_POLICY_STRONG));
-    }
-
-    G3DCHECK(!error_code());
+    return !policy.error_code()
+               ? std_ext::ec_res<ScopedComStrongUnmarshallingPolicy>{std::move(
+                     policy)}
+               : std_ext::ec_res<ScopedComStrongUnmarshallingPolicy>{
+                     policy.error_code()};
   }
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedComStrongUnmarshallingPolicy);
+  ScopedComStrongUnmarshallingPolicy(
+      ScopedComStrongUnmarshallingPolicy&& h) noexcept
+      : global_options_{std::move(h.global_options_)},
+        error_code_{std::move(h.error_code_)},
+        old_global_unmarshalling_policy_option_value_{
+            std::move(h.old_global_unmarshalling_policy_option_value_)} {
+    // Ensure no deinitialization occurs.
+    h.error_code_ = std::error_code{EINVAL, std::generic_category()};
+  }
+
+  ScopedComStrongUnmarshallingPolicy& operator=(
+      ScopedComStrongUnmarshallingPolicy&&) = delete;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedComStrongUnmarshallingPolicy);
 
   /**
    * @brief Restore old COM unmarshalling policy.
@@ -87,6 +86,34 @@ class ScopedComStrongUnmarshallingPolicy {
    * @brief Previous COM unmarshalling policy value.
    */
   ULONG_PTR old_global_unmarshalling_policy_option_value_;
+
+  /**
+   * @brief Set strict COM unmarshalling policy for scope.
+   * @return nothing.
+   */
+  ScopedComStrongUnmarshallingPolicy() noexcept
+      : global_options_{},
+        error_code_{GetErrorCode(global_options_.CreateInstance(
+            CLSID_GlobalOptions, nullptr, CLSCTX_INPROC_SERVER))},
+        old_global_unmarshalling_policy_option_value_{0} {
+    if (!error_code_) {
+      // Get current COM unmarshalling policy to restore later.
+      error_code_ = GetErrorCode(global_options_->Query(
+          COMGLB_UNMARSHALING_POLICY,
+          &old_global_unmarshalling_policy_option_value_));
+    }
+
+    if (!error_code_ && old_global_unmarshalling_policy_option_value_ !=
+                            COMGLB_UNMARSHALING_POLICY_STRONG) {
+      // Unmarshaling allows only a system-trusted list of hardened unmarshalers
+      // and unmarshalers allowed per-process by the CoAllowUnmarshalerCLSID
+      // function.
+      error_code_ = GetErrorCode(global_options_->Set(
+          COMGLB_UNMARSHALING_POLICY, COMGLB_UNMARSHALING_POLICY_STRONG));
+    }
+
+    G3DCHECK(!error_code());
+  }
 };
 }  // namespace wb::base::windows::com
 

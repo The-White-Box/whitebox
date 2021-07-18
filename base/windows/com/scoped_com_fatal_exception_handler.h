@@ -22,32 +22,31 @@ class ScopedComFatalExceptionHandler {
  public:
   /**
    * @brief Change COM fatal exception handling in scope.
-   * @return nothing.
+   * @return ScopedComFatalExceptionHandler.
    */
-  ScopedComFatalExceptionHandler() noexcept
-      : global_options_{},
-        error_code_{GetErrorCode(global_options_.CreateInstance(
-            CLSID_GlobalOptions, nullptr, CLSCTX_INPROC_SERVER))},
-        old_global_exception_handling_option_value_{0} {
-    if (!error_code_) {
-      // Get current COM exception handling policy to restore later.
-      error_code_ = GetErrorCode(
-          global_options_->Query(COMGLB_EXCEPTION_HANDLING,
-                                 &old_global_exception_handling_option_value_));
-    }
+  static std_ext::ec_res<ScopedComFatalExceptionHandler> New() noexcept {
+    ScopedComFatalExceptionHandler handler;
 
-    if (!error_code_ && old_global_exception_handling_option_value_ !=
-                            COMGLB_EXCEPTION_DONOT_HANDLE_ANY) {
-      // When set and a fatal exception occurs in a COM method, this causes the
-      // COM runtime to not handle the exception.
-      error_code_ = GetErrorCode(global_options_->Set(
-          COMGLB_EXCEPTION_HANDLING, COMGLB_EXCEPTION_DONOT_HANDLE_ANY));
-    }
-
-    G3DCHECK(!error_code());
+    return !handler.error_code()
+               ? std_ext::ec_res<ScopedComFatalExceptionHandler>{std::move(
+                     handler)}
+               : std_ext::ec_res<ScopedComFatalExceptionHandler>{
+                     handler.error_code()};
   }
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedComFatalExceptionHandler);
+  ScopedComFatalExceptionHandler(ScopedComFatalExceptionHandler&& h) noexcept
+      : global_options_{std::move(h.global_options_)},
+        error_code_{std::move(h.error_code_)},
+        old_global_exception_handling_option_value_{
+            std::move(h.old_global_exception_handling_option_value_)} {
+    // Ensure no deinitialization occurs.
+    h.error_code_ = std::error_code{EINVAL, std::generic_category()};
+  }
+
+  ScopedComFatalExceptionHandler& operator=(ScopedComFatalExceptionHandler&&) =
+      delete;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedComFatalExceptionHandler);
 
   /**
    * @brief REstore previous COM global options.
@@ -85,6 +84,33 @@ class ScopedComFatalExceptionHandler {
    * @brief Previous COM global options exception handling value.
    */
   ULONG_PTR old_global_exception_handling_option_value_;
+
+  /**
+   * @brief Change COM fatal exception handling in scope.
+   * @return nothing.
+   */
+  ScopedComFatalExceptionHandler() noexcept
+      : global_options_{},
+        error_code_{GetErrorCode(global_options_.CreateInstance(
+            CLSID_GlobalOptions, nullptr, CLSCTX_INPROC_SERVER))},
+        old_global_exception_handling_option_value_{0} {
+    if (!error_code_) {
+      // Get current COM exception handling policy to restore later.
+      error_code_ = GetErrorCode(
+          global_options_->Query(COMGLB_EXCEPTION_HANDLING,
+                                 &old_global_exception_handling_option_value_));
+    }
+
+    if (!error_code_ && old_global_exception_handling_option_value_ !=
+                            COMGLB_EXCEPTION_DONOT_HANDLE_ANY) {
+      // When set and a fatal exception occurs in a COM method, this causes the
+      // COM runtime to not handle the exception.
+      error_code_ = GetErrorCode(global_options_->Set(
+          COMGLB_EXCEPTION_HANDLING, COMGLB_EXCEPTION_DONOT_HANDLE_ANY));
+    }
+
+    G3DCHECK(!error_code());
+  }
 };
 }  // namespace wb::base::windows::com
 
