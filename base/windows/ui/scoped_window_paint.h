@@ -39,8 +39,22 @@ class ScopedWindowPaint {
       //
       // See
       // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-endpaint
-      ::EndPaint(window_, &paint_struct_);
+      G3CHECK(!!::EndPaint(window_, &paint_struct_));
     }
+  }
+
+  int TextDraw(LPCSTR text, int size, RECT* rc, UINT format) noexcept {
+    G3DCHECK(!!device_context_);
+
+    const int height_in_logical_units{
+        ::DrawTextA(device_context_, text, size, rc, format)};
+    G3DCHECK(!!height_in_logical_units);
+
+    return height_in_logical_units;
+  }
+
+  [[nodiscard]] const PAINTSTRUCT& PaintInfo() const noexcept {
+    return paint_struct_;
   }
 
  private:

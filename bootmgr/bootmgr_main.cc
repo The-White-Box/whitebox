@@ -142,7 +142,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
         kOldWindowsVersionError, kHideTechDetails, kSeeTechDetails,
         std_ext::GetThreadErrorCode(ERROR_OLD_WIN_VERSION).message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
-        ui::DialogBoxButton::kOk, false);
+        ui::DialogBoxButton::kOk, bootmgr_args.main_icon_id,
+        bootmgr_args.small_icon_id, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
     G3LOG(FATAL) << kOldWindowsVersionError;

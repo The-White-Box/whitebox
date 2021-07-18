@@ -27,8 +27,8 @@ struct WindowDefinition {
    * @brief Creates window definition.
    * @param instance_
    * @param name_
-   * @param icon_
-   * @param icon_small_
+   * @param icon_id_
+   * @param icon_small_id_
    * @param cursor_
    * @param class_brush_
    * @param style_
@@ -41,7 +41,7 @@ struct WindowDefinition {
    * @param menu_
    */
   WindowDefinition(_In_opt_ HINSTANCE instance_, _In_opt_ LPCTSTR name_,
-                   _In_opt_ HICON icon_, _In_opt_ HICON icon_small_,
+                   _In_ int icon_id_, _In_ int icon_small_id_,
                    _In_opt_ HCURSOR cursor_, _In_opt_ HBRUSH class_brush_,
                    _In_ DWORD style_, _In_ DWORD ex_style_ = 0,
                    _In_ int x_pos_ = CW_USEDEFAULT,
@@ -52,8 +52,8 @@ struct WindowDefinition {
                    _In_opt_ HMENU menu_ = nullptr) noexcept
       : instance{instance_},
         name{name_},
-        icon{icon_},
-        icon_small{icon_small_},
+        icon_id{icon_id_},
+        icon_small_id{icon_small_id_},
         cursor{cursor_},
         class_brush{class_brush_},
         style{style_},
@@ -67,7 +67,7 @@ struct WindowDefinition {
 
   HINSTANCE instance;
   LPCTSTR name;
-  HICON icon, icon_small;
+  int icon_id, icon_small_id;
   HCURSOR cursor;
   HBRUSH class_brush;
   DWORD style, ex_style;
@@ -97,7 +97,9 @@ class BaseWindow {
   BaseWindow(BaseWindow &&w) noexcept
       : instance_{w.instance_},
         hwnd_{w.hwnd_},
-        scoped_window_class_{std::move(w.scoped_window_class_)} {
+        scoped_window_class_{std::move(w.scoped_window_class_)},
+        icon_id_{w.icon_id_},
+        icon_small_id_{w.icon_small_id_} {
     w.instance_ = nullptr;
     w.hwnd_ = nullptr;
   }
@@ -110,6 +112,8 @@ class BaseWindow {
     std::swap(instance_, w.instance_);
     std::swap(hwnd_, w.hwnd_);
     std::swap(scoped_window_class_, w.scoped_window_class_);
+    std::swap(icon_id_, w.icon_id_);
+    std::swap(icon_small_id_, w.icon_small_id_);
     return *this;
   }
 
@@ -126,7 +130,8 @@ class BaseWindow {
   [[nodiscard]] static std_ext::os_res<un<TDerivedWindow>> Create(
       _In_ const WindowDefinition &definition,
       _In_ DWORD class_style) noexcept {
-    auto window = std::make_unique<TDerivedWindow>(definition.instance);
+    auto window = std::make_unique<TDerivedWindow>(
+        definition.instance, definition.icon_id, definition.icon_small_id);
     std::error_code rc{RegisterWindowClass(
         definition, class_style, TDerivedWindow::ClassName(), window)};
     if (!rc) {
@@ -152,8 +157,12 @@ class BaseWindow {
    * @param instance App instance.
    * @tparam TDerivedWindow.
    */
-  BaseWindow(_In_ HINSTANCE instance) noexcept
-      : instance_{instance}, hwnd_{nullptr} {}
+  BaseWindow(_In_ HINSTANCE instance, _In_ int icon_id,
+             _In_ int icon_small_id) noexcept
+      : instance_{instance},
+        hwnd_{nullptr},
+        icon_id_{icon_id},
+        icon_small_id_{icon_small_id} {}
 
   /**
    * @brief Window message handler.  Override in derived windows.
@@ -231,17 +240,25 @@ class BaseWindow {
       _In_ const std::unique_ptr<TDerivedWindow> &window) noexcept {
     G3DCHECK(!!class_name);
 
+    const auto icon =
+        LoadIcon(definition.instance, MAKEINTRESOURCE(definition.icon_id));
+    G3DCHECK(!!icon);
+
+    const auto icon_small = LoadIcon(definition.instance,
+                                     MAKEINTRESOURCE(definition.icon_small_id));
+    G3DCHECK(!!icon_small);
+
     WNDCLASSEX wnd_class = {sizeof(wnd_class)};
     wnd_class.style = class_style;
     wnd_class.lpfnWndProc = TDerivedWindow::WindowMessageHandler;
     wnd_class.cbClsExtra = 0;
     wnd_class.cbWndExtra = 0;
     wnd_class.hInstance = definition.instance;
-    wnd_class.hIcon = definition.icon;
+    wnd_class.hIcon = icon;
     wnd_class.hCursor = definition.cursor;
     wnd_class.hbrBackground = definition.class_brush;
     wnd_class.lpszClassName = class_name;
-    wnd_class.hIconSm = definition.icon_small;
+    wnd_class.hIconSm = icon_small;
 
     G3DCHECK(!!window);
     auto &scoped_window_class = window->scoped_window_class_;
@@ -249,6 +266,9 @@ class BaseWindow {
 
     return scoped_window_class->error_code();
   }
+
+ protected:
+  int icon_id_, icon_small_id_;
 };
 
 template <typename TDerivedWindow>

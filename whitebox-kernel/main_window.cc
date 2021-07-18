@@ -68,11 +68,11 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
         "Please, contact authors.",
         kHideTechDetails, kSeeTechDetails, mouse_->error_code().message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
-        ui::DialogBoxButton::kOk, false);
+        ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3LOG(FATAL) << "Unable to initialize mouse device: "
-                 << mouse_->error_code().message();
+    G3PLOG_E(FATAL, mouse_->error_code())
+        << "Unable to initialize mouse device.";
   }
 
   // Keyboard is ready.
@@ -86,11 +86,11 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
         "Please, contact authors.",
         kHideTechDetails, kSeeTechDetails, mouse_->error_code().message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
-        ui::DialogBoxButton::kOk, false);
+        ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3LOG(FATAL) << "Unable to initialize keyboard device: "
-                 << keyboard_->error_code().message();
+    G3PLOG_E(FATAL, keyboard_->error_code())
+        << "Unable to initialize keyboard device.";
   }
 
   // Now can go full screen.
@@ -181,32 +181,41 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     if (is_window_active_ && !::IsIconic(window)) {
       // TODO(dimhotepus): Repaint.
 
+      {
+        const auto get_fps_as_float = [](auto time_between_samples) noexcept {
+          const auto elapsed_since_last_frame_mks =
+              std::chrono::duration_cast<std::chrono::microseconds>(
+                  time_between_samples)
+                  .count();
+          return elapsed_since_last_frame_mks
+                     ? 1000000.0F /
+                           static_cast<float>(elapsed_since_last_frame_mks)
+                     : 0;
+        };
+
+        const float fps{get_fps_as_float(
+            render_sampling_profiler_.GetTimeBetweenLastSamples())};
+
+        TCHAR window_title[128];
+        _stprintf_s(window_title, _T("%.2f FPS"), fps);
+
+        {
+          RECT paint_rc{scoped_window_paint.PaintInfo().rcPaint};
+          const int w{paint_rc.right - paint_rc.left};
+          const int h{paint_rc.bottom - paint_rc.top};
+
+          scoped_window_paint.TextDraw(
+              window_title, -1, &paint_rc,
+              DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+        }
+      }
+
       // Simulate render.
       std::this_thread::sleep_for(6ms);
     } else {
       // Inactive or iconic, do not draw too much system power.
       std::this_thread::sleep_for(30ms);
     }
-  }
-
-  {
-    const auto get_fps_as_float = [](auto time_between_samples) noexcept {
-      const auto elapsed_since_last_frame_mks =
-          std::chrono::duration_cast<std::chrono::microseconds>(
-              time_between_samples)
-              .count();
-      return elapsed_since_last_frame_mks
-                 ? 1000000.0F / static_cast<float>(elapsed_since_last_frame_mks)
-                 : 0;
-    };
-
-    const float fps{get_fps_as_float(
-        render_sampling_profiler_.GetTimeBetweenLastSamples())};
-
-    TCHAR window_title[128];
-    _stprintf_s(window_title, _T("%.2f FPS"), fps);
-
-    ::SetWindowText(window, window_title);
   }
 
   // Generate continuous stream of WM_PAINT to render with up to display

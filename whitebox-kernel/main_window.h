@@ -45,8 +45,9 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
      * @param instance App instance.
      * @return nothing.
      */
-    explicit MainWindow(_In_ HINSTANCE instance) noexcept
-        : BaseWindow{instance},
+    explicit MainWindow(_In_ HINSTANCE instance, _In_ int icon_id,
+                        _In_ int icon_small_id) noexcept
+        : BaseWindow{instance, icon_id, icon_small_id},
           mouse_{},
           keyboard_{},
           render_sampling_profiler_{

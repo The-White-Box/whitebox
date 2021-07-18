@@ -17,27 +17,24 @@
 namespace {
 /**
  * @brief Creates main app window definition.
- * @param instance App instance.
+ * @param kernel_args Kernel args.
+ * @param window_title Window title.
+ * @param width Window width.
+ * @param height WIndow height.
  * @return Window definition.
  */
-wb::base::windows::ui::WindowDefinition CreateMainWindowDefinition(
-    const wb::kernel::KernelArgs& kernel_args, _In_ int width,
-    _In_ int height) noexcept {
+[[nodiscard]] wb::base::windows::ui::WindowDefinition
+CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
+                           const std::string& window_title, _In_ int width,
+                           _In_ int height) noexcept {
   G3DCHECK(!!kernel_args.instance);
 
-  const std::string window_title{std::string{kernel_args.app_description} +
-                                 " [64 bit]"};
-  const auto icon =
-      LoadIcon(kernel_args.instance, MAKEINTRESOURCE(kernel_args.main_icon_id));
-  const auto icon_small = LoadIcon(kernel_args.instance,
-                                   MAKEINTRESOURCE(kernel_args.small_icon_id));
   const auto cursor = LoadCursor(nullptr, IDC_ARROW);
-
   return wb::base::windows::ui::WindowDefinition{
       kernel_args.instance,
       window_title.c_str(),
-      icon,
-      icon_small,
+      kernel_args.main_icon_id,
+      kernel_args.small_icon_id,
       cursor,
       reinterpret_cast<HBRUSH>(COLOR_APPWORKSPACE),
       WS_OVERLAPPEDWINDOW,
@@ -80,8 +77,10 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   using namespace wb::base;
   using namespace wb::kernel;
 
+  const std::string window_title{std::string{kernel_args.app_description} +
+                                 " [64 bit]"};
   const windows::ui::WindowDefinition window_definition{
-      CreateMainWindowDefinition(kernel_args, 640, 480)};
+      CreateMainWindowDefinition(kernel_args, window_title, 640, 480)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
   auto window_result =

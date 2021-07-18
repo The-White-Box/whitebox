@@ -25,11 +25,26 @@ namespace wb::kernel {
  * @brief Kernel args.
  */
 struct KernelArgs {
+  /**
+   * @brief App instance.
+  */
   HINSTANCE instance;
+  /**
+   * @brief App description.
+  */
   const char *app_description;
+  /**
+   * @brief Show app window flags.
+  */
   int show_window_flags;
 
+  /**
+   * @brief Main app icon id.
+  */
   int main_icon_id;
+  /**
+   * @brief Small app icon id.
+  */
   int small_icon_id;
 
   std::byte pad[4];

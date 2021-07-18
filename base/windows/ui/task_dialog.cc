@@ -71,10 +71,11 @@ constexpr wb::base::windows::ui::DialogBoxButton GetButtonById(
 /**
  * @brief Set task dialog icon.
  * @param window Task dialog window.
+ * @param icon_id Icon id.
  * @return void.
  */
-template <int icon_type, int icon_id>
-void SetTaskDialogIcon(HWND window) noexcept {
+template <int icon_type>
+void SetTaskDialogIcon(HWND window, int icon_id) noexcept {
   const HANDLE exe_icon{::LoadImage(::GetModuleHandle(nullptr),
                                     MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0,
                                     LR_DEFAULTSIZE)};
@@ -85,17 +86,34 @@ void SetTaskDialogIcon(HWND window) noexcept {
 }
 
 /**
+ * @brief Task dialog context.
+ */
+struct TaskDialogContext {
+  /**
+   * @brief Main icon id.
+   */
+  int main_icon_id;
+  /**
+   * @brief Small icon id.
+   */
+  int small_icon_id;
+};
+
+/**
  * @brief Handles task dialog constructed message.
  * @param window Task dialog window.
  * @param Context.
  * @return void.
  */
-void OnTaskDialogConstructed(HWND window, LONG_PTR) noexcept {
+void OnTaskDialogConstructed(HWND window, LONG_PTR ctx) noexcept {
   G3DCHECK(!!window);
 
+  const auto* context = reinterpret_cast<TaskDialogContext*>(ctx);
+  G3DCHECK(!!context);
+
   // Need nice app icons for task dialog.
-  SetTaskDialogIcon<ICON_BIG, 101>(window);
-  SetTaskDialogIcon<ICON_SMALL, 102>(window);
+  SetTaskDialogIcon<ICON_BIG>(window, context->main_icon_id);
+  SetTaskDialogIcon<ICON_SMALL>(window, context->small_icon_id);
 }
 
 /**
@@ -168,6 +186,8 @@ WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
   const std::wstring expanded_content{
       std_ext::AnsiToWide(settings.expand_collapse_content)};
   const std::wstring footer{std_ext::AnsiToWide(settings.footer_text)};
+  const TaskDialogContext context{.main_icon_id = settings.main_icon_id,
+                                  .small_icon_id = settings.small_icon_id};
 
   const TASKDIALOGCONFIG config{
       .cbSize = static_cast<unsigned>(sizeof(config)),
@@ -192,7 +212,7 @@ WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
       .pszFooterIcon = GetIconByKind(DialogBoxKind::kInformation),
       .pszFooter = footer.c_str(),
       .pfCallback = &ShowDialogBoxCallback,
-      .lpCallbackData = 0,
+      .lpCallbackData = reinterpret_cast<LONG_PTR>(&context),
       .cxWidth = 0};
 
   int pressed_button_id;

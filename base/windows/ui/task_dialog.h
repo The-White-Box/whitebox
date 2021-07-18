@@ -121,6 +121,7 @@ struct DialogBoxSettings {
                     std::string collapsed_control_text_,
                     std::string expand_collapse_content_,
                     std::string footer_text_, DialogBoxButton buttons_,
+                    int main_icon_id_, int small_icon_id_,
                     bool rtl_layout_) noexcept
       : parent_window{parent_window_},
         title{std::move(title_)},
@@ -131,6 +132,8 @@ struct DialogBoxSettings {
         expand_collapse_content{std::move(expand_collapse_content_)},
         footer_text{std::move(footer_text_)},
         buttons{buttons_},
+        main_icon_id{main_icon_id_},
+        small_icon_id{small_icon_id_},
         rtl_layout{rtl_layout_} {}
 
   /**
@@ -169,6 +172,14 @@ struct DialogBoxSettings {
    * @brief Buttons.
    */
   const DialogBoxButton buttons;
+  /**
+   * @brief Main icon id.
+   */
+  const int main_icon_id;
+  /**
+   * @brief Small icon id.
+   */
+  const int small_icon_id;
   /**
    * @brief Is Left to right text layout or not?
    */
