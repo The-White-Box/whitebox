@@ -7,11 +7,9 @@
 #include <tchar.h>
 
 #include <filesystem>
-#include <string_view>
 #include <system_error>
 
 #include "base/deps/g3log/scoped_g3log_initializer.h"
-#include "base/std_ext/cstring_ext.h"
 #include "base/unique_module_ptr.h"
 #include "base/windows/com/scoped_com_fatal_exception_handler.h"
 #include "base/windows/com/scoped_com_initializer.h"
@@ -50,10 +48,10 @@ namespace {
  */
 wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
     _In_ HINSTANCE instance) {
-  std::wstring file_path;
+  std::string file_path;
   file_path.resize(MAX_PATH);
 
-  const DWORD file_name_path_size{::GetModuleFileNameW(
+  const DWORD file_name_path_size{::GetModuleFileNameA(
       instance, file_path.data(), static_cast<DWORD>(file_path.size()))};
   if (file_name_path_size != 0) {
     if (wb::base::std_ext::GetThreadNativeLastErrno() ==
@@ -65,10 +63,9 @@ wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
 
     const size_t last_separator_pos{
         file_path.rfind(std::filesystem::path::preferred_separator)};
-    return wb::base::std_ext::WideToAnsi(
-        last_separator_pos != std::wstring::npos
-            ? file_path.substr(0, last_separator_pos + 1)
-            : file_path);
+    return last_separator_pos != std::wstring::npos
+               ? file_path.substr(0, last_separator_pos + 1)
+               : file_path;
   }
 
   return wb::base::std_ext::GetThreadErrorCode();
