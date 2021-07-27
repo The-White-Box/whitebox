@@ -25,7 +25,7 @@ EnableTerminationOnHeapCorruption() noexcept;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code
-EnableHeapResourcesOptimization() noexcept;
+OptimizeHeapResourcesNow() noexcept;
 }  // namespace wb::base::windows::memory
 
 #endif  // !WB_BASE_WINDOWS_MEMORY_MEMORY_UTILS_H_

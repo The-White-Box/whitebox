@@ -43,12 +43,12 @@ void BootHeapMemoryAllocator() {
   }
 
   {
-    // Enable heap resources optimization.
+    // Optimize heap caches now.
     const auto error_code =
-        wb::base::windows::memory::EnableHeapResourcesOptimization();
+        wb::base::windows::memory::OptimizeHeapResourcesNow();
     G3PLOGE_IF(WARNING, !!error_code, error_code)
-        << "Can't enable 'heap resources optimization' os feature, some caches "
-           "will not be optimized.";
+        << "Can't optimize heap resources caches, some memory will not be "
+           "freed.";
   }
 
   // Ignore earlier allocations.
@@ -144,21 +144,22 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     constexpr char kOldWindowsVersionError[]{
         "Windows version is too old.  Version 1903 (May 2019 Update) or "
         "greater is required."};
+    constexpr DWORD kOldWindowsVersionErrorCode{ERROR_OLD_WIN_VERSION};
     ui::DialogBoxSettings dialog_settings(
         nullptr, kBootmgrDialogTitle,
         "Update Windows to \"Version 1903 (May 2019 Update)\" or greater",
         kOldWindowsVersionError, kHideTechDetails, kSeeTechDetails,
-        std_ext::GetThreadErrorCode(ERROR_OLD_WIN_VERSION).message(),
+        std_ext::GetThreadErrorCode(kOldWindowsVersionErrorCode).message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
         ui::DialogBoxButton::kOk, bootmgr_args.main_icon_id,
         bootmgr_args.small_icon_id, false);
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3PLOG_E(FATAL,
-             std::error_code(ERROR_OLD_WIN_VERSION, std::system_category()))
+    G3PLOG_E(FATAL, std::error_code(kOldWindowsVersionErrorCode,
+                                    std::system_category()))
         << kOldWindowsVersionError;
 
-    return ERROR_OLD_WIN_VERSION;
+    return kOldWindowsVersionErrorCode;
   }
 
   // Enable process attacks mitigation policies in scope.
