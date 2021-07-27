@@ -14,6 +14,7 @@
 #include "base/scoped_thread_terminate_handler.h"
 #include "base/threads/thread_utils.h"
 #include "base/unique_module_ptr.h"
+#include "base/windows/dll_load_utils.h"
 #include "base/windows/error_handling/scoped_pure_call_handler.h"
 #include "base/windows/error_handling/scoped_thread_invalid_parameter_handler.h"
 #include "base/windows/error_handling/scoped_thread_unexpected_handler.h"
@@ -62,22 +63,30 @@ void BootHeapMemoryAllocator() {
  * @return App exit code.
  */
 int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+  using namespace wb::base;
+
+  const auto app_path = windows::GetApplicationDirectory(bootmgr_args.instance);
+  G3PLOGE_IF(FATAL, !!std::get_if<std::error_code>(&app_path),
+             std::get<std::error_code>(app_path))
+      << "Can't get current directory.  Unable to load "
+         "the kernel.  Please, contact authors.";
+
   std::error_code rc;
-  std::filesystem::path kernel_path{std::filesystem::current_path(rc)};
-  G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
-                                 "the app.  Please, contact authors";
 
-  kernel_path /= "whitebox-kernel.dll";
+  const std::string kernel_path{std::get<std::string>(app_path) +
+                                "whitebox-kernel.dll"};
+  const unsigned kernel_load_flags{
+      LOAD_WITH_ALTERED_SEARCH_PATH |
+      (windows::MustBeSignedDllLoadTarget(bootmgr_args.command_line)
+           ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
+           : 0U)};
 
-  constexpr char kKernelMainFunctionName[]{"KernelMain"};
-
-  // TODO(dimhotepus): Correct flags + LOAD_LIBRARY_REQUIRE_SIGNED_TARGET.
   const auto kernel_load_result =
-      wb::base::unique_module_ptr::from_load_library(
-          kernel_path.string(), LOAD_WITH_ALTERED_SEARCH_PATH);
+      unique_module_ptr::from_load_library(kernel_path, kernel_load_flags);
   if (const auto* kernel_module =
-          std::get_if<wb::base::unique_module_ptr>(&kernel_load_result)) {
+          std::get_if<unique_module_ptr>(&kernel_load_result)) {
     using KernelMainFunction = decltype(&KernelMain);
+    constexpr char kKernelMainFunctionName[]{"KernelMain"};
 
     // Good, try to find and launch whitebox-kernel.
     const auto kernel_main_result =
@@ -95,13 +104,12 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
     rc = std::get<std::error_code>(kernel_main_result);
     G3PLOG_E(WARNING, rc)
         << "Can't get '" << kKernelMainFunctionName << "' entry point from '"
-        << kernel_path.string()
+        << kernel_path
         << "'.  Looks like app is broken, please, reinstall the one.";
   } else {
     // TODO(dimhotepus): Show fancy Ui message box.
     rc = std::get<std::error_code>(kernel_load_result);
-    G3PLOG_E(WARNING, rc) << "Can't load whitebox kernel '"
-                          << kernel_path.string()
+    G3PLOG_E(WARNING, rc) << "Can't load whitebox kernel '" << kernel_path
                           << "'.  Please, reinstall the app.";
   }
 

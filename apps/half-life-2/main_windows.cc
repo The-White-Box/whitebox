@@ -4,8 +4,6 @@
 //
 // Half-Life 2 launcher app on Windows.
 
-#include <tchar.h>
-
 #include <filesystem>
 #include <system_error>
 
@@ -14,9 +12,11 @@
 #include "base/windows/com/scoped_com_fatal_exception_handler.h"
 #include "base/windows/com/scoped_com_initializer.h"
 #include "base/windows/com/scoped_com_strong_unmarshalling_policy.h"
+#include "base/windows/dll_load_utils.h"
 #include "base/windows/error_handling/scoped_thread_error_mode.h"
 #include "base/windows/windows_light.h"
 #include "bootmgr/bootmgr_main.h"
+#include "build/command_line_flags.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
 #include "windows_resource.h"
@@ -42,52 +42,24 @@ WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
 
 namespace {
 /**
- * @brief Get app directory.
- * @param instance App instance.
- * @return App directory with trailing path separator.
- */
-wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
-    _In_ HINSTANCE instance) {
-  std::string file_path;
-  file_path.resize(MAX_PATH);
-
-  const DWORD file_name_path_size{::GetModuleFileNameA(
-      instance, file_path.data(), static_cast<DWORD>(file_path.size()))};
-  if (file_name_path_size != 0) {
-    if (wb::base::std_ext::GetThreadNativeLastErrno() ==
-        ERROR_INSUFFICIENT_BUFFER) {
-      return std::error_code{ERROR_INSUFFICIENT_BUFFER, std::system_category()};
-    }
-
-    file_path.resize(file_name_path_size);
-
-    const size_t last_separator_pos{
-        file_path.rfind(std::filesystem::path::preferred_separator)};
-    return last_separator_pos != std::wstring::npos
-               ? file_path.substr(0, last_separator_pos + 1)
-               : file_path;
-  }
-
-  return wb::base::std_ext::GetThreadErrorCode();
-}
-
-/**
  * @brief Load and run bootmgr.
  * @param instance App instance.
  * @param command_line Command line.
  * @param show_window_flags Show window flags.
  * @return App exit code.
  */
-int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPTSTR command_line,
+int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
                    _In_ int show_window_flags) noexcept {
+  using namespace wb::base;
+
   // Search for DLLs in the secure order to prevent DLL plant attacks.
-  std::error_code rc{wb::base::windows::GetErrorCode(::SetDefaultDllDirectories(
+  std::error_code rc{windows::GetErrorCode(::SetDefaultDllDirectories(
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS))};
   G3PLOGE_IF(WARNING, !!rc, rc)
       << "Can't enable secure DLL search order, attacker can plant DLLs with "
          "malicious code.";
 
-  const auto app_path = GetApplicationDirectory(instance);
+  const auto app_path = windows::GetApplicationDirectory(instance);
   G3PLOGE_IF(FATAL, !!std::get_if<std::error_code>(&app_path),
              std::get<std::error_code>(app_path))
       << "Can't get current directory.  Unable to load "
@@ -95,13 +67,16 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPTSTR command_line,
 
   const std::string bootmgr_path{std::get<std::string>(app_path) +
                                  "bootmgr.dll"};
+  const unsigned bootmgr_load_flags{
+      LOAD_WITH_ALTERED_SEARCH_PATH |
+      (windows::MustBeSignedDllLoadTarget(command_line)
+           ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
+           : 0U)};
 
-  // TODO(dimhotepus): Correct flags + LOAD_LIBRARY_REQUIRE_SIGNED_TARGET.
   const auto bootmgr_load_result =
-      wb::base::unique_module_ptr::from_load_library(
-          bootmgr_path, LOAD_WITH_ALTERED_SEARCH_PATH);
+      unique_module_ptr::from_load_library(bootmgr_path, bootmgr_load_flags);
   if (const auto* bootmgr_module =
-          std::get_if<wb::base::unique_module_ptr>(&bootmgr_load_result)) {
+          std::get_if<unique_module_ptr>(&bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
 
     constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
@@ -142,16 +117,20 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPTSTR command_line,
  * @param show_window_flags Show window flags.
  * @return App exit code.
  */
-#ifdef UNICODE
-int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
-                    [[maybe_unused]] _In_ LPWSTR command_line,
-                    _In_ int show_window_flags) {
-#else
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
                    _In_ LPSTR command_line, _In_ int show_window_flags) {
-#endif
   using namespace wb::base;
   using namespace wb::base::windows;
+
+#ifdef _DEBUG
+  // Simplifies debugging experience, no need to sign targets.
+  std::string debug_command_line{command_line};
+  debug_command_line.append(" ");
+  debug_command_line.append(
+      wb::build::cmd_args::kUnsafeAllowUnsignedModuleTargetFlag);
+
+  command_line = debug_command_line.data();
+#endif
 
   // Initialize g3log logging library first as logs are used extensively.
   const deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
