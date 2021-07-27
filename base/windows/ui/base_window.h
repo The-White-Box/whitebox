@@ -272,7 +272,8 @@ class BaseWindow {
 
     G3DCHECK(!!window);
     auto &scoped_window_class = window->scoped_window_class_;
-    scoped_window_class.reset(new ScopedWindowClass{wnd_class});
+    scoped_window_class.reset(
+        new ScopedWindowClass{wnd_class.hInstance, wnd_class});
 
     return scoped_window_class->error_code();
   }

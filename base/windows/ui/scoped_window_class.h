@@ -7,12 +7,35 @@
 #ifndef WB_BASE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
 #define WB_BASE_WINDOWS_UI_SCOPED_WINDOW_CLASS_H_
 
+#include <sal.h>
+
+#include <cstdint>
+
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/windows/system_error_ext.h"
-#include "base/windows/windows_light.h"
+#include "build/compiler_config.h"
+
+using WNDCLASSEXA = struct tagWNDCLASSEXA;
+using HINSTANCE = struct HINSTANCE__ *;
+
+extern "C" WB_ATTRIBUTE_DLL_IMPORT unsigned short __stdcall RegisterClassExA(
+    _In_ const WNDCLASSEXA *);
+extern "C" WB_ATTRIBUTE_DLL_IMPORT int __stdcall UnregisterClassA(
+    _In_ const char *lpClassName, _In_opt_ HINSTANCE hInstance);
 
 namespace wb::base::windows::ui {
+/**
+ * @brief Make long from args.
+ * @param a Left.
+ * @param b Right.
+ * @return Long.
+ */
+[[nodiscard]] constexpr long MakeLong(auto a, auto b) noexcept {
+  return (long)((short)(((uintptr_t)a) & 0xffff) |
+                ((unsigned long)((short)(((uintptr_t)b) & 0xffff))) << 16);
+}
+
 /**
  * @brief Registers window class in scope.
  */
@@ -20,12 +43,14 @@ class ScopedWindowClass {
  public:
   /**
    * @brief Creates scoped window class.
+   * @param instance App instance.
    * @param class_definition Window class definition.
    * @return nothing.
    */
-  explicit ScopedWindowClass(_In_ WNDCLASSEX &class_definition) noexcept
-      : instance_{class_definition.hInstance},
-        class_atom_{::RegisterClassEx(&class_definition)},
+  explicit ScopedWindowClass(_In_ HINSTANCE instance,
+                             _In_ WNDCLASSEXA &class_definition) noexcept
+      : instance_{instance},
+        class_atom_{::RegisterClassExA(&class_definition)},
         error_code_{GetErrorCode(class_atom_)} {
     G3DCHECK(!error_code());
   }
@@ -37,9 +62,9 @@ class ScopedWindowClass {
    */
   ~ScopedWindowClass() noexcept {
     if (!error_code_) {
-      const std::error_code rc{GetErrorCode(::UnregisterClass(
-          reinterpret_cast<LPCTSTR>(
-              static_cast<DWORD_PTR>(MAKELONG(class_atom_, 0))),
+      const std::error_code rc{GetErrorCode(::UnregisterClassA(
+          reinterpret_cast<const char *>(
+              static_cast<uintptr_t>(MakeLong(class_atom_, 0))),
           instance_))};
       G3CHECK(!rc);
     }
@@ -61,7 +86,7 @@ class ScopedWindowClass {
   /**
    * @brief Class atom.
    */
-  const ATOM class_atom_;
+  const unsigned short class_atom_;
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(class_atom_)];
   const std::error_code error_code_;
 };
