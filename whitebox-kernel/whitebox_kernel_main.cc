@@ -34,8 +34,8 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
       kernel_args.instance, window_title.c_str(), kernel_args.main_icon_id,
       kernel_args.small_icon_id, cursor,
       // TODO(dimhotepus): Remove when use Vulkan renderer?
-      reinterpret_cast<HBRUSH>(COLOR_APPWORKSPACE), WS_OVERLAPPEDWINDOW, 0,
-      CW_USEDEFAULT, CW_USEDEFAULT, width, height};
+      reinterpret_cast<HBRUSH>(GetStockObject(NULL_BRUSH)), WS_OVERLAPPEDWINDOW,
+      0, CW_USEDEFAULT, CW_USEDEFAULT, width, height};
 }
 
 /**

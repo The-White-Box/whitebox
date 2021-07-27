@@ -45,6 +45,7 @@ class ScopedWindowPaint {
 
   int TextDraw(LPCSTR text, int size, RECT* rc, UINT format) noexcept {
     G3DCHECK(!!device_context_);
+    G3DCHECK(!!rc);
 
     const int height_in_logical_units{
         ::DrawTextA(device_context_, text, size, rc, format)};

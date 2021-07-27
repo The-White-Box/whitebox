@@ -146,7 +146,7 @@ class ComErrorCategory : public std::error_category {
    * @param error_value HRESULT.
    * @return Error description.
    */
-  [[nodiscard]] std::string message(int error_value) const {
+  [[nodiscard]] std::string message(int error_value) const override {
     const _com_error com_error{static_cast<HRESULT>(error_value)};
     return std::string{com_error.ErrorMessage()};
   }

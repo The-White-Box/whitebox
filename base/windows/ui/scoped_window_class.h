@@ -32,8 +32,9 @@ namespace wb::base::windows::ui {
  * @return Long.
  */
 [[nodiscard]] constexpr long MakeLong(auto a, auto b) noexcept {
-  return (long)((short)(((uintptr_t)a) & 0xffff) |
-                ((unsigned long)((short)(((uintptr_t)b) & 0xffff))) << 16);
+  return (long)(((unsigned short)(((uintptr_t)(a)) & 0xffff)) |
+                ((unsigned long)((unsigned short)(((uintptr_t)(b)) & 0xffff)))
+                    << 16);
 }
 
 /**
