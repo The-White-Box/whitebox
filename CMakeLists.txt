@@ -144,8 +144,9 @@ wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
 # Ensure all dependencies reuse same memory allocators.
 foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
-  # Do not add mimalloc allocators to itself.
-  if (NOT ${WB_TARGET_NAME} MATCHES "mimalloc")
+  # Do not add mimalloc / custom targets allocators to itself.
+  if (NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
+      NOT ${WB_TARGET_NAME} MATCHES "clean-cmake")
     # Include the directories with the new files.
     target_include_directories(${WB_TARGET_NAME}
       PRIVATE ${WB_ROOT_DIR} "${WB_ROOT_DIR}/deps/mimalloc/include")

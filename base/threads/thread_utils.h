@@ -39,7 +39,7 @@ using NativeThreadName = std::string;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    _In_ NativeThreadHandle handle, _Out_ NativeThreadName &thread_name);
+    NativeThreadHandle handle, NativeThreadName &thread_name);
 
 /**
  * @brief Set thread name.
@@ -48,7 +48,7 @@ using NativeThreadName = std::string;
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    _In_ NativeThreadHandle handle, _In_ const NativeThreadName &thread_name);
+    NativeThreadHandle handle, const NativeThreadName &thread_name);
 
 /**
  * @brief Scoped thread name.
@@ -62,8 +62,7 @@ class ScopedThreadName {
    * @return ScopedThreadName.
    */
   [[nodiscard]] static std_ext::os_res<ScopedThreadName> New(
-      _In_ NativeThreadHandle thread,
-      _In_ const NativeThreadName &new_thread_name) {
+      NativeThreadHandle thread, const NativeThreadName &new_thread_name) {
     ScopedThreadName name{thread, new_thread_name};
 
     return !name.error_code()
@@ -85,7 +84,9 @@ class ScopedThreadName {
    * @brief Restore previous thread name.
    */
   ~ScopedThreadName() noexcept {
-    if (!error_code()) G3CHECK(!SetThreadName(thread_, old_thread_name_));
+    if (!error_code()) {
+      G3CHECK(!SetThreadName(thread_, old_thread_name_));
+    }
   }
 
   /**
@@ -115,8 +116,8 @@ class ScopedThreadName {
    * @param thread Thread.
    * @param new_thread_name Scoped thread name.
    */
-  explicit ScopedThreadName(_In_ NativeThreadHandle thread,
-                            _In_ const NativeThreadName &new_thread_name)
+  explicit ScopedThreadName(NativeThreadHandle thread,
+                            const NativeThreadName &new_thread_name)
       : thread_{thread}, error_code_{GetThreadName(thread, old_thread_name_)} {
     G3CHECK(!error_code());
 

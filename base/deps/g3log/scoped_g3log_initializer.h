@@ -21,10 +21,8 @@
 #include <intrin.h>  // __debugbreak
 #endif
 
-WB_COMPILER_MSVC_BEGIN_GLOG_WARNING_OVERRIDE_SCOPE()
 #include "g3log.h"
 #include "logworker.h"
-WB_COMPILER_MSVC_END_GLOG_WARNING_OVERRIDE_SCOPE()
 
 namespace wb::base::deps::g3log {
 /**

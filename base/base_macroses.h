@@ -45,20 +45,14 @@ template <typename To, typename From>
 }
 
 /**
- * @brief Enun concept.
- * @tparam TEnum Enum.
- */
-template <typename TEnum>
-concept Enum = std::is_enum_v<TEnum>;
-
-/**
  * @brief Safely casts enum value to its underlying type.
  * @tparam TEnum Enum.
  * @param value Enum value.
  * @return Enum value with underlying enum type.
  */
-template <Enum TEnum>
-constexpr auto underlying_cast(TEnum value) noexcept {
+template <typename TEnum>
+constexpr std::enable_if_t<std::is_enum_v<TEnum>, std::underlying_type_t<TEnum>>
+underlying_cast(TEnum value) noexcept {
   return static_cast<std::underlying_type_t<TEnum>>(value);
 }
 
@@ -66,7 +60,7 @@ constexpr auto underlying_cast(TEnum value) noexcept {
  * @brief Unique smart pointer alias.
  * @tparam T Object type for unique_ptr.
  * @tparam Deleter Deleter for T.
-*/
+ */
 template <typename T, typename Deleter = std::default_delete<T>>
 using un = std::unique_ptr<T, Deleter>;
 }  // namespace wb::base

@@ -191,6 +191,21 @@
  */
 #define WB_COMPILER_MSVC_SELECTANY __declspec(selectany)
 
+/*
+ * @brief Begins GCC / Clang warning override scope.
+ */
+#define WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+
+/*
+ * @brief Disables GCC / Clang warning.
+ */
+#define WB_COMPILER_GCC_DISABLE_PADDED_WARNING()
+
+/*
+ * @brief Ends GCC / Clang warning override scope.
+ */
+#define WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
+
 #else  // !WB_COMPILER_MSVC
 
 #define WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
@@ -221,5 +236,27 @@
 #define WB_COMPILER_MSVC_SELECTANY define me
 
 #endif  // WB_COMPILER_MSVC
+
+#if defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief Begins GCC / Clang warning override scope.
+ */
+#define WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE() \
+  _Pragma("GCC diagnostic push")
+
+/*
+ * @brief Disables GCC / Clang warning.
+ */
+#define WB_COMPILER_GCC_DISABLE_PADDED_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wpadded\"")
+
+/*
+ * @brief Ends GCC / Clang warning override scope.
+ */
+#define WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE() \
+  _Pragma("GCC diagnostic pop")
+
+#endif
 
 #endif  // !WB_BUILD_COMPILER_CONFIG_H_

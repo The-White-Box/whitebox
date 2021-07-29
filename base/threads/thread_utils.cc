@@ -35,7 +35,7 @@ namespace wb::base::threads {
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    _In_ NativeThreadHandle handle, _Out_ NativeThreadName& thread_name) {
+    NativeThreadHandle handle, NativeThreadName& thread_name) {
 #ifdef WB_OS_WIN
   // Minimum supported client is Windows 10, version 1607.
   wchar_t* wide_thread_name;
@@ -55,7 +55,7 @@ namespace wb::base::threads {
 #elif defined(WB_OS_POSIX)
   thread_name.resize(32);
 
-  return GetThreadPosixErrorCode(
+  return std_ext::GetThreadPosixErrorCode(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));
 #else
 #error Please, define GetThreadName for your os in base/include/threads/thread_utils.cc
@@ -69,12 +69,12 @@ namespace wb::base::threads {
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    _In_ NativeThreadHandle handle, _In_ const NativeThreadName& thread_name) {
+    NativeThreadHandle handle, const NativeThreadName& thread_name) {
 #ifdef WB_OS_WIN
   return windows::GetErrorCode(
       ::SetThreadDescription(handle, thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
-  return GetThreadPosixErrorCode(
+  return std_ext::GetThreadPosixErrorCode(
       ::pthread_setname_np(handle, thread_name.data()));
 #else
 #error Please, define SetThreadName for your os in base/include/threads/thread_utils.cc

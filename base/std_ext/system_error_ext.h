@@ -52,8 +52,7 @@ namespace wb::base::std_ext {
  * @brief Set system error code.
  * @param rc Native system error code.
  */
-[[nodiscard]] inline void SetThreadErrorCode(
-    const std::error_code rc) noexcept {
+inline void SetThreadErrorCode(const std::error_code rc) noexcept {
 #ifdef WB_OS_WIN
   ::SetLastError(static_cast<unsigned long>(rc.value()));
 #else
