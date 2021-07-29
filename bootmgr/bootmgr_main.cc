@@ -209,12 +209,14 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
       ScopedFloatingPointModeFlags::kFlushToZero};
 
   // Set minimum timers resolution to good enough, but not too power hungry.
-  const windows::ScopedMinimumTimerResolution scoped_minimum_timer_resolution{
-      wb::build::settings::kMinimumTimerResolutionMs};
-  G3LOG_IF(WARNING, !scoped_minimum_timer_resolution.IsSucceeded())
+  const auto scoped_minimum_timer_resolution =
+      windows::ScopedMinimumTimerResolution::New(
+          wb::build::settings::kMinimumTimerResolutionMs);
+  G3LOG_IF(WARNING, !!std::get_if<unsigned>(&scoped_minimum_timer_resolution))
       << "Failed to set minimum periodic timers resolution to "
       << wb::build::settings::kMinimumTimerResolutionMs
-      << "ms, will run with default system one.";
+      << "ms, will run with default system one: ("
+      << std::get<unsigned>(scoped_minimum_timer_resolution) << ").";
 
   return KernelStartup(bootmgr_args);
 }

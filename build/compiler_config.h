@@ -202,7 +202,7 @@
 
 #define WB_COMPILER_MSVC_HEAP_ALLOCATOR define me
 
-#define WB_ATTRIBUTE_DLL_EXPORT define me
+#define WB_ATTRIBUTE_DLL_EXPORT __attribute__((visibility("default")))
 #define WB_ATTRIBUTE_DLL_IMPORT define me
 
 #define WB_COMPILER_MSVC_NAKED define me
