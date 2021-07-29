@@ -323,7 +323,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # Try max optimization.  Be careful, this can lead to pessimization!
         $<$<BOOL:${WB_CLANG_RELEASE_OPTIMIZATION_LEVEL}>:${WB_CLANG_RELEASE_OPTIMIZATION_LEVEL}>
         # Enable link time optimization.
-        $<$<BOOL:${WB_CLANG_ENABLE_LTO}>:-flto=${WB_CLANG_ENABLE_LTO}>
+        $<$<BOOL:${WB_CLANG_ENABLE_LTO}>:${WB_CLANG_ENABLE_LTO}>
         # Enable loop unrolling.
         $<$<BOOL:${WB_CLANG_ENABLE_LOOPS_UNROLLING}>:-funroll-loops>
       >

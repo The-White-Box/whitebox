@@ -1,71 +1,78 @@
-name: CMake
+# Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+# Use of this source code is governed by a 3-Clause BSD license that can be
+# found in the LICENSE file.
+
+name: build
 
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-  
+
 jobs:
-  build-windows:
+  build-windows-latest:
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        build-type: [Release, Debug, RelWithDebInfo]
+        build: [Release, Debug]
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-        
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/out -DCMAKE_BUILD_TYPE=${{matrix.buildType}}
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: recursive
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/out --config ${{matrix.buildType}}
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/out -DCMAKE_BUILD_TYPE=${{matrix.build}}
 
-    - name: Test
-      working-directory: ${{github.workspace}}/out
-      run: ctest -C ${{matrix.buildType}}
+      - name: Build on a ${{runner.os}}
+        run: cmake --build ${{github.workspace}}/out --config ${{matrix.build}}
 
-  build-linux:
+      - name: Test
+        working-directory: ${{github.workspace}}/out
+        run: ctest -C ${{matrix.build}}
+
+  build-linux-latest:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        build-type: [Release, Debug, RelWithDebInfo]
+        build: [Release, Debug]
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-        
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/out -DCMAKE_BUILD_TYPE=${{matrix.buildType}}
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: recursive
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/out --config ${{matrix.buildType}}
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/out -DCMAKE_BUILD_TYPE=${{matrix.build}}
 
-    - name: Test
-      working-directory: ${{github.workspace}}/out
-      run: ctest -C ${{matrix.buildType}}
-      
-  build-macos:
+      - name: Build on a ${{runner.os}}
+        run: cmake --build ${{github.workspace}}/out --config ${{matrix.build}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/out
+        run: ctest -C ${{matrix.build}}
+
+  build-macos-latest:
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        build-type: [Release, Debug, RelWithDebInfo]
+        build: [Release, Debug]
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-        
-    - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/out -DCMAKE_BUILD_TYPE=${{matrix.buildType}}
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 1
+          submodules: recursive
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/out --config ${{matrix.buildType}}
+      - name: Configure CMake
+        run: cmake -B ${{github.workspace}}/out -DCMAKE_BUILD_TYPE=${{matrix.build}}
 
-    - name: Test
-      working-directory: ${{github.workspace}}/out
-      run: ctest -C ${{matrix.buildType}}
+      - name: Build on a ${{runner.os}}
+        run: cmake --build ${{github.workspace}}/out --config ${{matrix.build}}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/out
+        run: ctest -C ${{matrix.build}}
