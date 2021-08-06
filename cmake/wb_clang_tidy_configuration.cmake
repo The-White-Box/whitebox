@@ -25,11 +25,11 @@ function(wb_apply_clang_tidy_options_to_target RETURN_VALUE THE_TARGET CXX_STAND
 
   if (NOT WB_CLANG_TIDY_DIR)
     find_program(WB_CLANG_TIDY
-      NAMES "clang-tidy"
+      NAMES "clang-tidy" "clang-tidy-12"
       DOC "Path to clang-tidy executable")
   else()
     find_program(WB_CLANG_TIDY
-      NAMES "clang-tidy"
+      NAMES "clang-tidy" "clang-tidy-12"
       PATHS "${WB_CLANG_TIDY_DIR}"
       DOC "Path to clang-tidy executable")
   endif()
@@ -41,7 +41,8 @@ function(wb_apply_clang_tidy_options_to_target RETURN_VALUE THE_TARGET CXX_STAND
   else()
     message(STATUS "${THE_TARGET} clang-tidy     found: ${WB_CLANG_TIDY}, setup one.")
 
-    set(WB_CLANG_TIDY_OPTIONS "${WB_CLANG_TIDY}" "--checks=-*,cert-*;--extra-arg=-std=${CXX_STANDARD};--header-filter=^((?!deps).)*$;-p=${WB_BINARY_DIR};--use-color;--warnings-as-errors=*")
+    set(WB_CLANG_TIDY_OPTIONS
+        "${WB_CLANG_TIDY}" "--checks=-*,cert-*;--extra-arg=-std=${CXX_STANDARD};--header-filter=^((?!deps).)*$;-p=${WB_BINARY_DIR};--warnings-as-errors=*")
     set_target_properties(${THE_TARGET} PROPERTIES CXX_CLANG_TIDY "${WB_CLANG_TIDY_OPTIONS}" )
 
     set(${RETURN_VALUE} ON PARENT_SCOPE)

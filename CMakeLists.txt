@@ -19,20 +19,7 @@ if (POLICY CMP0079)
   cmake_policy(SET CMP0079 NEW)
 endif (POLICY CMP0079)
 
-# Binaries dir.
-set(WB_BINARY_DIR "${CMAKE_BINARY_DIR}")
-# Build system name.
-set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}")
-# Is build OS MacOs.
-set(WB_OS_MACOSX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Darwin\">)
-# Is build OS Linux.
-set(WB_OS_LINUX $<BOOL:WB_SYSTEM_NAME STREQUAL \"Linux\">)
-# Is build OS Windows.
-set(WB_OS_WINDOWS $<BOOL:WB_SYSTEM_NAME STREQUAL \"Windows\">)
-# Root dir.
-set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}")
-# Product name.
-set(WB_PRODUCT_NAME "WhiteBox Games Collection")
+set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}" CACHE STRING "Directory root of the project.")
 
 # Includes.
 if (CMAKE_MODULE_PATH)
@@ -58,57 +45,122 @@ project(${PACKAGE_NAME}
   VERSION ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}.${PACKAGE_VERSION_TWEAK}
   LANGUAGES CXX)
 
+message(STATUS "[common]: CMake version: ${CMAKE_VERSION}.")
+message(STATUS "[common]: ${PACKAGE_NAME} version: ${PACKAGE_VERSION}.")
+
+set(WB_BINARY_DIR "${CMAKE_BINARY_DIR}" CACHE STRING "Directory of the project binaries output.")
+set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}" CACHE STRING "Name of the build system.")
+
+if (${WB_SYSTEM_NAME} STREQUAL "Darwin")
+  set(WB_OS_MACOSX ON CACHE BOOL "MacOS is build system.")
+else()
+  set(WB_OS_MACOSX OFF CACHE BOOL "MacOS is NOT build system.")
+endif()
+
+if (${WB_SYSTEM_NAME} STREQUAL "Linux")
+  set(WB_OS_LINUX ON CACHE BOOL "Linux distro is build system.")
+else()
+  set(WB_OS_LINUX OFF CACHE BOOL "Linux distro is NOT build system.")
+endif()
+
+if (${WB_SYSTEM_NAME} STREQUAL "Windows")
+  set(WB_OS_WINDOWS ON CACHE BOOL "Windows is build system.")
+else()
+  set(WB_OS_WINDOWS OFF CACHE BOOL "Windows is NOT build system.")
+endif()
+
+set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING "Name of the product.")
+
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(wb_functions)
 wb_check_platform_requirements(${PACKAGE_NAME})
 
-# Build type.
-set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
-# Cxx compiler path.
-set(WB_CXX_COMPILER "${CMAKE_CXX_COMPILER}")
-# Configuration types.
-set(WB_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}")
-# Cxx compiler id.
-set(WB_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}")
-# Cxx compiler frontend variant.
-set(WB_CXX_COMPILER_FRONTEND_VARIANT "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}")
-# Export compile commands or not?
-set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS})
+set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING "CMake build type used to build ${PACKAGE_NAME}.")
+set(WB_CXX_COMPILER "${CMAKE_CXX_COMPILER}" CACHE STRING "Compiler used to build ${PACKAGE_NAME}.")
+set(WB_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "CMake available build types for building ${PACKAGE_NAME}.")
+set(WB_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}" CACHE STRING "Compiler id used to build ${PACKAGE_NAME}.")
+set(WB_CXX_COMPILER_FRONTEND_VARIANT "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" CACHE STRING "Compiler frontend used to build ${PACKAGE_NAME}.")
+set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS} CACHE BOOL "Enable/Disable output of compile commands during generation.")
 
 ## Find common dependencies.
-# pthread
+
+# Git.
+find_package(Git)
+if (Git_FOUND)
+  message(STATUS "[common]: Git version ${GIT_VERSION_STRING} found at '${GIT_EXECUTABLE}'.")
+
+  # Get the current working branch.
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" rev-parse --abbrev-ref HEAD
+    WORKING_DIRECTORY ${WB_ROOT_DIR}
+    OUTPUT_VARIABLE WB_GIT_BRANCH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  # Get the latest commit hash.
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" rev-parse HEAD
+    WORKING_DIRECTORY ${WB_ROOT_DIR}
+    OUTPUT_VARIABLE WB_GIT_COMMIT_HASH
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  # the subject of the commit
+  execute_process(
+    COMMAND "${GIT_EXECUTABLE}" log -1 --format=%s
+    WORKING_DIRECTORY "${WB_ROOT_DIR}"
+    OUTPUT_VARIABLE WB_GIT_COMMIT_SUBJECT
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+  message(STATUS
+    "[common]: Git using branch '${WB_GIT_BRANCH}', commit ${WB_GIT_COMMIT_HASH}/'${WB_GIT_COMMIT_SUBJECT}'.")
+endif()
+
+# pthread.
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads REQUIRED)
-set(WB_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}")
+set(WB_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}" CACHE BOOL "Do build host has pthreads library?")
 list(APPEND CMAKE_REQUIRED_LIBRARIES Threads::Threads)
+
+if (XCODE_VERSION)
+  message(STATUS "[common]: ${PACKAGE_NAME} using XCode version: ${XCODE_VERSION}.")
+endif()
 
 if (WB_CXX_COMPILER_ID MATCHES "Clang")
   # Clang or AppleClang.
   if (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-    message(STATUS "${PACKAGE_NAME} compiler Clang + MSVC frontend.")
+    message(STATUS "[common]: ${PACKAGE_NAME} use compiler Clang + MSVC frontend.")
+
     # Clang with clang-cl front end.
     include(compilers/wb_msvc)
-  elseif (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
-    message(STATUS "${PACKAGE_NAME} compiler Clang + GNU frontend.")
+  elseif (NOT WB_CXX_COMPILER_FRONTEND_VARIANT OR WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+    # No compiler frontend means GNU one.
+    message(STATUS "[common]: ${PACKAGE_NAME} use compiler Clang + GNU frontend.")
+
     # Clang with regular front end.
     include(compilers/wb_clang)
+  else()
+    message(FATAL_ERROR "[common]: Using Clang with unknown frontend '${WB_CXX_COMPILER_FRONTEND_VARIANT}'. "
+        "Please, define compiler/linker options for it.")
   endif()
 elseif (WB_CXX_COMPILER_ID STREQUAL "GNU")
-  message(STATUS "${PACKAGE_NAME} compiler GNU.")
+  message(STATUS "[common]: ${PACKAGE_NAME} use compiler GNU.")
+
   include(compilers/wb_gcc)
 elseif (WB_CXX_COMPILER_ID STREQUAL "MSVC")
-  message(STATUS "${PACKAGE_NAME} compiler MSVC.")
+  message(STATUS "[common]: ${PACKAGE_NAME} use compiler MSVC.")
+  message(STATUS "[common]: ${PACKAGE_NAME} MSVC         version: ${MSVC_VERSION}")
+  message(STATUS "[common]: ${PACKAGE_NAME} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
+
   include(compilers/wb_msvc)
 else()
   # Add compilers if needed.
-  message(FATAL_ERROR "'${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "
+  message(FATAL_ERROR "[common]: '${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "
     "Please, define compiler/linker options for it.")
 endif()
 
-message(STATUS "${PACKAGE_NAME} cxx compiler: ${WB_CXX_COMPILER}.")
-message(STATUS "${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
-message(STATUS "${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
+message(STATUS "[common]: ${PACKAGE_NAME} cxx compiler: ${WB_CXX_COMPILER}.")
+message(STATUS "[common]: ${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
+message(STATUS "[common]: ${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
 
 # Generate common product version info.
 configure_file(
@@ -119,11 +171,6 @@ configure_file(
 ## Include sub-projects.
 # Dependencies.
 add_subdirectory("deps/g3log")
-
-# For Windows: Prevent overriding the parent project's compiler/linker settings
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-# No need to install gtest.
-set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 
 # add_subdirectory("deps/googletest")
 add_subdirectory("deps/mimalloc")
@@ -144,7 +191,8 @@ wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
 # Ensure all dependencies reuse same memory allocators.
 foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
-  # Do not add mimalloc / custom targets allocators to itself.
+  # Do not add mimalloc / custom targets allocators to itself and some specific
+  # actions.
   if (NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
       NOT ${WB_TARGET_NAME} MATCHES "clean-cmake")
     # Include the directories with the new files.
@@ -158,7 +206,7 @@ foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
     )
 
     # Add mimalloc to handle allocators.
-    target_link_libraries(${WB_TARGET_NAME} mimalloc)
+    target_link_libraries(${WB_TARGET_NAME} PRIVATE mimalloc)
 
     # mimalloc should be copied by each target individually as haven't found way
     # to it here.

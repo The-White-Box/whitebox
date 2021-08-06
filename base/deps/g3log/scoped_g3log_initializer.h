@@ -12,11 +12,12 @@
 #include <string_view>
 
 #include "base/base_macroses.h"
+#include "base/std_ext/string_view_ext.h"
 #include "build/build_config.h"
 #include "g3log_config.h"
 
 #if defined(WB_OS_POSIX)
-#include <signal.h>
+#include <csignal>
 #elif defined(WB_OS_WIN)
 #include <intrin.h>  // __debugbreak
 #endif
@@ -114,7 +115,7 @@ class ScopedG3LogInitializer {
   static std::optional<std::string_view> GetFullExecutableName(
       std::string_view log_prefix) noexcept {
     // Assume \"x:\zzzzz\yyyy.exe\" www on Windows.
-    if (log_prefix.starts_with('"')) {
+    if (std_ext::starts_with(log_prefix, '"')) {
       const size_t end_exe_double_quote_idx{log_prefix.find('"', 1U)};
       const size_t backslash_before_name_idx{
           log_prefix.rfind('\\', end_exe_double_quote_idx)};
@@ -136,7 +137,7 @@ class ScopedG3LogInitializer {
    */
   static std::string_view TrimExeExtension(std::string_view exe_name) noexcept {
     constexpr char exe_extension[]{".exe"};
-    return exe_name.ends_with(exe_extension)
+    return std_ext::ends_with(exe_name, exe_extension)
                ? exe_name.substr(0,
                                  exe_name.size() - std::size(exe_extension) + 1)
                : exe_name;

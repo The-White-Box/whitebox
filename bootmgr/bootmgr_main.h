@@ -4,6 +4,7 @@
 //
 // Bootmgr main entry point.
 
+#include "base/deps/g3log/g3log.h"
 #include "bootmgr/bootmgr_api.h"
 #include "build/build_config.h"
 
@@ -63,11 +64,42 @@ struct BootmgrArgs {
 extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     const wb::bootmgr::BootmgrArgs &bootmgr_args);
 #else
+
+namespace wb::bootmgr {
+/**
+ * @brief Bootmgr args.
+ */
+struct BootmgrArgs {
+  BootmgrArgs(const char *appDescription, char **const argv_, const int argc_)
+      : app_description{appDescription}, argv{argv_}, argc{argc_} {
+    G3DCHECK(!!appDescription);
+    G3DCHECK(!!argc_);
+    G3DCHECK(!!argv_);
+  }
+
+  /**
+   * @brief App description.
+   */
+  const char *app_description;
+  /**
+   * App arguments.
+   */
+  char **const argv;
+  /**
+   * App arguments count.
+   */
+  const int argc;
+
+  std::byte pad[4]{};
+};
+}  // namespace wb::bootmgr
+
 /**
  * @brief Boot manager entry point on *nix and mac.
  * @param argc Arguments count.
  * @param argv Arguments.
  * @return 0 on success.
  */
-extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(int argc, char *argv[]);
+extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
+    const wb::bootmgr::BootmgrArgs &bootmgr_args);
 #endif

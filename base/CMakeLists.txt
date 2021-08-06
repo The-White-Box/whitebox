@@ -8,7 +8,7 @@ cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
 
 set(WB_BASE_VERSION     ${CMAKE_PROJECT_VERSION})
 
-project("wb::base"
+project("base"
   VERSION ${WB_BASE_VERSION}
   DESCRIPTION "Whitebox Base Abstractions and Definitions"
   LANGUAGES CXX)
@@ -23,6 +23,13 @@ set(WB_CURRENT_TARGET_SUFFIX ".dll")
 # We then exclude specific files below.
 wb_auto_sources(files "*.cc" "RECURSE" "${WB_BASE_SOURCE_DIR}")
 wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_BASE_SOURCE_DIR}")
+
+if (NOT WB_OS_WINDOWS)
+  wb_remove_matches_from_lists(files hfiles
+    MATCHES
+      "^${WB_BASE_SOURCE_DIR}/windows/"
+  )
+endif()
 
 # Generate project info.
 configure_file(
@@ -48,26 +55,21 @@ target_compile_definitions(${WB_BASE_TARGET_NAME}
   PRIVATE WB_BASE_DLL=1
 )
 
-set(WB_BASE_DEPENDENT_LINK_LIBRARIES g3log mimalloc)
+set(WB_BASE_LINK_LIBRARIES g3log mimalloc)
 
 if (WB_OS_WINDOWS)
-  # Delayimp.lib for delayed DLL loading.
-  # Comctl32.lib for TaskDialogIndirect.
-  # Shell32.lib for ShellExecuteW.
-  set(WB_BASE_OS_SPECIFIC_LINK_LIBRARIES "Delayimp.lib Comctl32.lib Shell32.lib")
+  # Delayimp for delayed DLL loading.
+  # Comctl32 for TaskDialogIndirect.
+  # Shell32 for ShellExecuteW.
+  list(APPEND WB_BASE_LINK_LIBRARIES "Delayimp;Comctl32;Shell32")
 
   # Do not use Comctl32 & Shell32 by default, so speed up initial app load.
   target_link_options(${WB_BASE_TARGET_NAME}
     PRIVATE
       /DELAYLOAD:Comctl32.dll /DELAYLOAD:Shell32.dll)
-else()
-  set(WB_BASE_OS_SPECIFIC_LINK_LIBRARIES "")
 endif()
 
-target_link_libraries(${WB_BASE_TARGET_NAME}
-  ${WB_BASE_DEPENDENT_LINK_LIBRARIES}
-  ${WB_BASE_OS_SPECIFIC_LINK_LIBRARIES}
-)
+target_link_libraries(${WB_BASE_TARGET_NAME} PRIVATE ${WB_BASE_LINK_LIBRARIES})
 
 # Specify library version / soversion.
 set_target_properties(${WB_BASE_TARGET_NAME}
@@ -84,6 +86,7 @@ if (WB_OS_WINDOWS)
   )
 endif()
 
+set(WB_BASE_DEPENDENCIES g3log mimalloc)
+
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TARGET_NAME}
-  "${WB_BASE_DEPENDENT_LINK_LIBRARIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TARGET_NAME} "${WB_BASE_DEPENDENCIES}")

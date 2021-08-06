@@ -8,7 +8,7 @@ cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
 
 set(WB_WHITEBOX_KERNEL_VERSION     ${CMAKE_PROJECT_VERSION})
 
-project("wb::whitebox-kernel"
+project("whitebox-kernel"
   VERSION ${WB_WHITEBOX_KERNEL_VERSION}
   DESCRIPTION "Whitebox Lightweight Kernel"
   LANGUAGES CXX)
@@ -23,6 +23,14 @@ set(WB_CURRENT_TARGET_SUFFIX ".dll")
 # We then exclude specific files below.
 wb_auto_sources(files "*.cc" "RECURSE" "${WB_WHITEBOX_KERNEL_SOURCE_DIR}")
 wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_WHITEBOX_KERNEL_SOURCE_DIR}")
+
+if (NOT WB_OS_WINDOWS)
+  wb_remove_matches_from_lists(files hfiles
+    MATCHES
+      "^${WB_WHITEBOX_KERNEL_SOURCE_DIR}/main_window.h"
+      "^${WB_WHITEBOX_KERNEL_SOURCE_DIR}/main_window.cc"
+  )
+endif()
 
 # Generate project info.
 configure_file(
@@ -49,12 +57,8 @@ target_compile_definitions(${WB_WHITEBOX_KERNEL_TARGET_NAME}
 )
 
 set(WB_WHITEBOX_KERNEL_DEPENDENT_LINK_LIBRARIES base g3log mimalloc)
-set(WB_WHITEBOX_KERNEL_OS_SPECIFIC_LINK_LIBRARIES "")
 
-target_link_libraries(${WB_WHITEBOX_KERNEL_TARGET_NAME}
-  ${WB_WHITEBOX_KERNEL_DEPENDENT_LINK_LIBRARIES}
-  ${WB_WHITEBOX_KERNEL_OS_SPECIFIC_LINK_LIBRARIES}
-)
+target_link_libraries(${WB_WHITEBOX_KERNEL_TARGET_NAME} PRIVATE base g3log mimalloc)
 
 # Specify library version / soversion.
 set_target_properties(${WB_WHITEBOX_KERNEL_TARGET_NAME}
@@ -71,6 +75,8 @@ if (WB_OS_WINDOWS)
   )
 endif()
 
+set(WB_WHITEBOX_KERNEL_DEPENDENCIES mimalloc)
+
 # Add runtime dependencies.
 wb_copy_all_target_dependencies_to_target_bin_dir(${WB_WHITEBOX_KERNEL_TARGET_NAME}
-  "${WB_WHITEBOX_KERNEL_DEPENDENT_LINK_LIBRARIES}")
+  "${WB_WHITEBOX_KERNEL_DEPENDENCIES}")

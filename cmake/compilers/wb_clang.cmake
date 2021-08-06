@@ -14,6 +14,7 @@ include(wb_clang_tidy_configuration)
 option(WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS           "Define _GLIBCXX_ASSERTIONS macro to enable extra error checking in the form of precondition assertions, such as bounds checking in strings and null pointer checks when dereferencing smart pointers." ON)
 option(WB_CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
 option(WB_CLANG_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the Clang compiler.  See https://clang.llvm.org/docs/UsersManual.html#enabling-all-diagnostics" ON)
+option(WB_CLANG_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
 option(WB_CLANG_ENABLE_FAST_MATH                     "Enable fast-math mode.  This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
 option(WB_CLANG_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
 option(WB_CLANG_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
@@ -22,6 +23,10 @@ option(WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror t
 wb_define_strings_option(WB_CLANG_DEFINE__FORTIFY_SOURCE
   "Define _FORTIFY_SOURCE macro to a positive integer to control which source fortification is enabled."
   "2" "1" "")
+
+wb_define_strings_option(WB_CLANG_DEFINE__LIBCPP_DEBUG
+  "Define _LIBCPP_DEBUG macro to enable extra error checking in libc++ to detect incorrect usage of the standard library. libc++ should be build with LIBCXX_ENABLE_DEBUG_MODE_SUPPORT."
+  "1" "0" "")
 
 wb_define_strings_option(WB_CLANG_DEFINE__POSIX_C_SOURCE
   "Define _POSIX_C_SOURCE macro to a positive integer to control which POSIX functionality is made available. The greater the value of this macro, the more functionality is made available."
@@ -87,8 +92,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       -fstrict-aliasing
       # Do not export symbols by default, only when explicitly marked.
       -fvisibility=hidden
+      # All inlined class member functions to have hidden visibility.
+      -fvisibility-inlines-hidden
       # Produce debugging information.
       -g
+      # Enable or disable exceptions.
+      $<$<NOT:$<BOOL:${WB_CLANG_ENABLE_EXCEPTIONS}>>:-fno-exceptions>
       # Avoid temporary files, speeding up builds.
       -pipe
       # Enables support for the Control-Flow Enforcement Technology (CET).
@@ -366,6 +375,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # When defined makes the debug mode extremely picky by making the use of
         # libstdc++ extensions and libstdc++-specific behavior into errors.
         $<$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>:_GLIBCXX_DEBUG_PEDANTIC>
+        # Enables special debugging checks meant to detect incorrect usage of the libc++ standard library.
+        $<$<NOT:$<STREQUAL:"${WB_CLANG_DEFINE__LIBCPP_DEBUG}","">>:_LIBCPP_DEBUG=${WB_CLANG_DEFINE__LIBCPP_DEBUG}>
       >
   )
 
@@ -401,4 +412,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   else()
     message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on Clang.")
   endif()
+
+  message("--")
 endfunction()

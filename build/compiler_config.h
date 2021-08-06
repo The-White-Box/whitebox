@@ -32,8 +32,9 @@
  */
 #define WB_COMPILER_MSVC_SCOPED_DISABLE_WARNING(warning_level, code) \
   WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()                    \
-  WB_COMPILER_MSVC_DISABLE_WARNING(warning_level)                    \
-  code WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+    WB_COMPILER_MSVC_DISABLE_WARNING(warning_level)                  \
+    code                                                             \
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
 /*
  * @brief Can be applied to custom memory-allocation functions to make the
@@ -63,6 +64,11 @@
  * See https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport
  */
 #define WB_ATTRIBUTE_DLL_IMPORT __declspec(dllimport)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_GCC_PURE
 
 /*
  * @brief Compiler generates code without prolog and epilog code.  You can use
@@ -200,6 +206,16 @@
  * @brief Disables GCC / Clang warning.
  */
 #define WB_COMPILER_GCC_DISABLE_PADDED_WARNING()
+ 
+ /*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
 
 /*
  * @brief Ends GCC / Clang warning override scope.
@@ -215,29 +231,32 @@
 
 // TODO: Add these at least for GCC / Clang.
 
-#define WB_COMPILER_MSVC_HEAP_ALLOCATOR define me
+#define WB_COMPILER_MSVC_HEAP_ALLOCATOR
 
-#define WB_ATTRIBUTE_DLL_EXPORT __attribute__((visibility("default")))
-#define WB_ATTRIBUTE_DLL_IMPORT define me
-
-#define WB_COMPILER_MSVC_NAKED define me
-
-#define WB_COMPILER_MSVC_NOALIAS define me
-
-#define WB_COMPILER_MSVC_NOINLINE define me
-
-#define WB_COMPILER_MSVC_NOSANITIZE_ADDRESS define me
-
-#define WB_COMPILER_MSVC_NOVTABLE define me
-
-#define WB_COMPILER_MSVC_RESTRICT_FUNCTION define me
-#define WB_COMPILER_MSVC_RESTRICT_VAR define me
-
-#define WB_COMPILER_MSVC_SELECTANY define me
+#define WB_COMPILER_MSVC_NAKED
+#define WB_COMPILER_MSVC_NOALIAS
+#define WB_COMPILER_MSVC_NOINLINE
+#define WB_COMPILER_MSVC_NOSANITIZE_ADDRESS
+#define WB_COMPILER_MSVC_NOVTABLE
+#define WB_COMPILER_MSVC_RESTRICT_FUNCTION
+#define WB_COMPILER_MSVC_RESTRICT_VAR
+#define WB_COMPILER_MSVC_SELECTANY
 
 #endif  // WB_COMPILER_MSVC
 
 #if defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+#define WB_ATTRIBUTE_DLL_EXPORT __attribute__((visibility("default")))
+#define WB_ATTRIBUTE_DLL_IMPORT
+
+/**
+ * The pure attribute prohibits a function from modifying the state of the
+ * program that is observable by means other than inspecting the function’s
+ * return value.  However, functions declared with the pure attribute can safely
+ * read any non-volatile objects, and modify the value of objects in a way that
+ * does not affect their return value or the observable state of the program.
+ */
+#define WB_ATTRIBUTE_GCC_PURE __attribute__((pure))
 
 /*
  * @brief Begins GCC / Clang warning override scope.
@@ -246,10 +265,34 @@
   _Pragma("GCC diagnostic push")
 
 /*
- * @brief Disables GCC / Clang warning.
+ * @brief Disables GCC / Clang padded warning.
  */
 #define WB_COMPILER_GCC_DISABLE_PADDED_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wpadded\"")
+
+#if defined(WB_COMPILER_GCC)
+/*
+ * @brief Disables GCC / Clang suggest-attribute=const warning.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=const\"")
+
+/*
+ * @brief Disables GCC suggest-attribute=malloc warning.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=malloc\"")
+#else
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
+#endif
 
 /*
  * @brief Ends GCC / Clang warning override scope.

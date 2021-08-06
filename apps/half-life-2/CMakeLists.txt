@@ -73,17 +73,17 @@ endif()
 # Specify project compile / link options.
 wb_apply_compile_options_to_target(${WB_HALF_LIFE2_TARGET_NAME})
 
-set(WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES g3log mimalloc)
-set(WB_HALF_LIFE2_OS_SPECIFIC_LINK_LIBRARIES "comsuppw")
+set(WB_HALF_LIFE2_LINK_LIBRARIES g3log mimalloc)
 
-target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME}
-  ${WB_HALF_LIFE2_DEPENDENT_LINK_LIBRARIES}
-  ${WB_HALF_LIFE2_OS_SPECIFIC_LINK_LIBRARIES}
-)
+if (WB_OS_WINDOWS)
+  list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "comsuppw")
+elseif (WB_OS_LINUX)
+  list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "dl;stdc++fs")
+endif()
 
-set(WB_HALF_LIFE2_DEPENDENCIES base bootmgr whitebox-kernel)
+target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME} PRIVATE ${WB_HALF_LIFE2_LINK_LIBRARIES})
+
+set(WB_HALF_LIFE2_DEPENDENCIES base bootmgr g3log mimalloc whitebox-kernel)
 
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(
-  ${WB_HALF_LIFE2_TARGET_NAME}
-  "${WB_HALF_LIFE2_DEPENDENCIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME} "${WB_HALF_LIFE2_DEPENDENCIES}")

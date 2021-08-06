@@ -13,7 +13,7 @@
 #include "product_version_config.h"
 
 // App long product name.
-#define WB_APP_VER_PRODUCT_NAME_STR "@WB_PRODUCT_NAME@"
+#define WB_APP_PRODUCT_NAME_STRING "@WB_PRODUCT_NAME@"
 
 // App file version header.
 #define WB_APP_VER_FILE_VERSION_HEADER WB_VER_PRODUCT_VERSION_HEADER
@@ -22,21 +22,21 @@
 #define WB_APP_VER_FILE_VERSION_INFO WB_VER_PRODUCT_VERSION_INFO
 
 // App file version as string.
-#define WB_APP_VER_FILE_VERSION_INFO_STR \
+#define WB_APP_PRODUCT_FILE_VERSION_INFO_STRING \
   WB_STRINGIFY(WB_APP_VER_FILE_VERSION_INFO)
 
 // App file description.
-#define WB_APP_VER_FILE_DESCRIPTION_STR "@PROJECT_DESCRIPTION@"
+#define WB_APP_PRODUCT_FILE_DESCRIPTION_STRING "@PROJECT_DESCRIPTION@"
 
 #ifdef _WIN32
 // App file internal name.  Should be the original filename, without
 // extension.
-#define WB_APP_VER_INTERNAL_NAME_STR "@WB_CURRENT_TARGET_NAME@"
+#define WB_APP_PRODUCT_INTERNAL_NAME_STRING "@WB_CURRENT_TARGET_NAME@"
 
 // App file original name.  This information enables an application to
 // determine whether a file has been renamed by a user.
-#define WB_APP_VER_ORIGINAL_NAME_STR \
-  WB_APP_VER_INTERNAL_NAME_STR "@WB_CURRENT_TARGET_SUFFIX@"
+#define WB_APP_PRODUCT_ORIGINAL_NAME_STRING \
+  WB_APP_PRODUCT_INTERNAL_NAME_STRING "@WB_CURRENT_TARGET_SUFFIX@"
 #endif  // _WIN32
 
 #endif  // !WB_BUILD_APP_VERSION_CONFIG_H_

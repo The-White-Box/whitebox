@@ -33,6 +33,15 @@ using NativeThreadName = std::string;
 #endif
 
 /**
+ * Gets current thread handle.
+ * @return Native thread handle.
+ */
+WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+[[nodiscard]] WB_BASE_API NativeThreadHandle GetCurrentThreadHandle() noexcept;
+WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
+
+/**
  * @brief Gets thread name.
  * @param handle Thread handle.
  * @param thread_name Thread name.
@@ -71,9 +80,9 @@ class ScopedThreadName {
   }
 
   ScopedThreadName(ScopedThreadName &&n) noexcept
-      : thread_{std::move(n.thread_)},
-        error_code_{std::move(n.error_code_)},
-        old_thread_name_{std::move(n.old_thread_name_)} {
+      : thread_{n.thread_},
+        old_thread_name_{std::move(n.old_thread_name_)},
+        error_code_{n.error_code_} {
     n.error_code_ = std::error_code{EINVAL, std::system_category()};
   }
   ScopedThreadName &operator=(ScopedThreadName &&) noexcept = delete;
@@ -103,13 +112,13 @@ class ScopedThreadName {
    */
   NativeThreadHandle thread_;
   /**
-   * @brief Error code.
-   */
-  std::error_code error_code_;
-  /**
    * @brief Previous thread name.
    */
   NativeThreadName old_thread_name_;
+  /**
+   * @brief Error code.
+   */
+  std::error_code error_code_;
 
   /**
    * @brief Set name for thread in scope and restore out of scope.
@@ -118,7 +127,9 @@ class ScopedThreadName {
    */
   explicit ScopedThreadName(NativeThreadHandle thread,
                             const NativeThreadName &new_thread_name)
-      : thread_{thread}, error_code_{GetThreadName(thread, old_thread_name_)} {
+      : thread_{thread},
+        old_thread_name_{},
+        error_code_{GetThreadName(thread, old_thread_name_)} {
     G3CHECK(!error_code());
 
     if (!error_code()) error_code_ = SetThreadName(thread_, new_thread_name);

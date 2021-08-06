@@ -479,9 +479,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       >
   )
 
-  message(STATUS "${THE_TARGET} MSVC         version: ${MSVC_VERSION}")
-  message(STATUS "${THE_TARGET} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
-
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")
   wb_dump_target_property(${THE_TARGET} COMPILE_DEFINITIONS "cxx compiler defines")
   wb_dump_target_property(${THE_TARGET} LINK_OPTIONS        "cxx linker     flags")
@@ -491,4 +488,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   else()
     message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on MSVC.")
   endif()
+
+  message("--")
 endfunction()

@@ -6,15 +6,20 @@
 
 #include "whitebox_kernel_main.h"
 
+#ifdef WB_OS_WIN
 #include <tchar.h>
+#endif
 
 #include "base/deps/g3log/g3log.h"
+#ifdef WB_OS_WIN
 #include "base/windows/ui/base_window.h"
 #include "base/windows/ui/peek_message_dispatcher.h"
 #include "base/windows/windows_light.h"
 #include "whitebox-kernel/main_window.h"
+#endif
 
 namespace {
+#ifdef WB_OS_WIN
 /**
  * @brief Creates main app window definition.
  * @param kernel_args Kernel args.
@@ -67,6 +72,7 @@ int DispatchMessages(_In_z_ const char* main_window_name) noexcept {
 
   return rc;
 }
+#endif
 }  // namespace
 
 extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
@@ -76,6 +82,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   const std::string window_title{std::string{kernel_args.app_description} +
                                  " [64 bit]"};
+
+#ifdef WB_OS_WIN
   const windows::ui::WindowDefinition window_definition{
       CreateMainWindowDefinition(kernel_args, window_title, 640, 480)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
@@ -99,4 +107,10 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       << "' window.  Please, contact authors.";
 
   return error_code.value();
+#else
+  G3LOG(WARNING) << "Unable to create main '" << window_title
+                 << "' window.  Not implemented.";
+
+  return 0;
+#endif
 }

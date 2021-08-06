@@ -6,7 +6,6 @@
 
 #include "thread_utils.h"
 
-#include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "build/build_config.h"
 
@@ -28,6 +27,21 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT HRESULT __stdcall SetThreadDescription(
 #endif
 
 namespace wb::base::threads {
+/**
+ * Gets current thread handle.
+ * @return Native thread handle.
+ */
+WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+[[nodiscard]] WB_BASE_API NativeThreadHandle GetCurrentThreadHandle() noexcept {
+#ifdef WB_OS_WIN
+  return NativeThreadHandle{::GetCurrentThread()};
+#else
+  return NativeThreadHandle{pthread_self()};
+#endif
+}
+WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
+
 /**
  * @brief Gets thread name.
  * @param handle Thread handle.

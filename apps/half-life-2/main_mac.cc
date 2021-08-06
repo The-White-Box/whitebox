@@ -63,9 +63,9 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   }
 
   constexpr char rel_path[]{
-      "../Frameworks/" WB_APP_VER_PRODUCT_NAME_STR
-      " Framework.framework/Versions/" WB_APP_VER_FILE_VERSION_INFO_STR
-      "/" WB_APP_VER_FILE_DESCRIPTION_STR " Framework"};
+      "../Frameworks/" WB_APP_PRODUCT_NAME_STRING
+      " Framework.framework/Versions/" WB_APP_PRODUCT_FILE_VERSION_INFO_STRING
+      "/" WB_APP_PRODUCT_FILE_DESCRIPTION_STRING " Framework"};
 
   // Slice off the last part of the main executable path, and append the
   // version framework information.
@@ -84,7 +84,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
            rel_path);
 
   const auto bootmgr_load_result =
-      wb::base::unique_module_ptr::from_load_library(
+      wb::base::unique_module_ptr::FromLibraryOnPath(
           framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
   if (const auto* rc = std::get_if<std::error_code>(&bootmgr_load_result))
       [[unlikely]] {
@@ -100,7 +100,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   // Good, try to find and launch boot manager.
   const auto bootmgr_entry_result =
-      bootmgr_module->get_address_as<BootmgrMainFunction>(
+      bootmgr_module->GetAddressAs<BootmgrMainFunction>(
           kBootmgrMainFunctionName);
   if (const auto* rc = std::get_if<std::error_code>(&bootmgr_entry_result))
       [[unlikely]] {

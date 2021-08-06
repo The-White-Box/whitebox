@@ -27,7 +27,7 @@ class ScopedNewHandler {
    * @param new_handler Handler.
    * @return nothing.
    */
-  explicit ScopedNewHandler(_In_ std::new_handler new_handler) noexcept
+  explicit ScopedNewHandler(std::new_handler new_handler) noexcept
       : previous_new_handler_{std::set_new_handler(new_handler)} {}
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedNewHandler);
@@ -54,8 +54,7 @@ class ScopedNewHandler {
          "have enough RAM to run the app.  Stopping the app.";
   // Unreachable.
   std::exit(ENOMEM);
-};
 }
 }  // namespace wb::base
 
-#endif  // !WB_BASE_WINDOWS_NEW_HANDLER_H_
+#endif  // !WB_BASE_SCOPED_NEW_HANDLER_H_

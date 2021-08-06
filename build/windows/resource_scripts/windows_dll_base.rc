@@ -31,14 +31,14 @@ BEGIN
     BEGIN
         BLOCK "040904B0"
         BEGIN
-            VALUE "CompanyName",      WB_VER_COMPANY_NAME_STR
-            VALUE "FileDescription",  WB_APP_VER_FILE_DESCRIPTION_STR
-            VALUE "FileVersion",      WB_APP_VER_FILE_VERSION_INFO_STR
-            VALUE "InternalName",     WB_APP_VER_INTERNAL_NAME_STR
-            VALUE "LegalCopyright",   WB_VER_LEGALCOPYRIGHT_STR
-            VALUE "OriginalFilename", WB_APP_VER_ORIGINAL_NAME_STR
-            VALUE "ProductName",      WB_APP_VER_PRODUCT_NAME_STR
-            VALUE "ProductVersion",   WB_VER_PRODUCT_VERSION_INFO_STR
+            VALUE "CompanyName",      WB_PRODUCT_COMPANY_NAME_STRING
+            VALUE "FileDescription",  WB_APP_PRODUCT_FILE_DESCRIPTION_STRING
+            VALUE "FileVersion",      WB_APP_PRODUCT_FILE_VERSION_INFO_STRING
+            VALUE "InternalName",     WB_APP_PRODUCT_INTERNAL_NAME_STRING
+            VALUE "LegalCopyright",   WB_PRODUCT_LEGAL_COPYRIGHT_STRING
+            VALUE "OriginalFilename", WB_APP_PRODUCT_ORIGINAL_NAME_STRING
+            VALUE "ProductName",      WB_APP_PRODUCT_NAME_STRING
+            VALUE "ProductVersion",   WB_PRODUCT_VERSION_INFO_STRING
         END
     END
 

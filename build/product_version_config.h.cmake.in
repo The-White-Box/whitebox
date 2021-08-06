@@ -11,14 +11,14 @@
 #define WB_BUILD_PRODUCT_VERSION_CONFIG_H_
 
 // Company long name.
-#define WB_VER_COMPANY_NAME_STR "The WhiteBox Authors"
+#define WB_PRODUCT_COMPANY_NAME_STRING "The WhiteBox Authors"
 
-// Compane short name.
-#define WB_VER_COMPANY_SHORT_NAME_INFO_STR "WhiteBox"
+// Company short name.
+#define WB_PRODUCT_COMPANY_SHORT_NAME_INFO_STRING "WhiteBox"
 
 // Copyright.
-#define WB_VER_LEGALCOPYRIGHT_STR \
-  "Copyright " WB_VER_COMPANY_NAME_STR ". All rights reserved."
+#define WB_PRODUCT_LEGAL_COPYRIGHT_STRING \
+  "Copyright " WB_PRODUCT_COMPANY_NAME_STRING ". All rights reserved."
 
 #ifndef WB_STRINGIFY_WORKER
 // Stringify worker.
@@ -41,7 +41,7 @@
 // clang-format on
 
 // Product version info as string.
-#define WB_VER_PRODUCT_VERSION_INFO_STR \
+#define WB_PRODUCT_VERSION_INFO_STRING \
   WB_STRINGIFY(WB_VER_PRODUCT_VERSION_INFO)
 
 // File version header.
@@ -51,7 +51,7 @@
 #define WB_VER_FILEVERSION_INFO WB_VER_PRODUCT_VERSION_INFO
 
 // File version info string.
-#define WB_VER_FILEVERSION_INFO_STR \
+#define WB_PRODUCT_FILEVERSION_INFO_STRING \
   WB_STRINGIFY(WB_VER_FILEVERSION_INFO)
 
 // All file flags mask.

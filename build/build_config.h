@@ -56,8 +56,8 @@
 #else
 #error Please add support for your platform in build/build_config.h
 #endif
-// NOTE: Adding a new port? Please follow
-// https://chromium.googlesource.com/chromium/src/+/master/docs/new_port_policy.md
+// NOTE: Adding a new port?  Please follow
+// https://github.com/dimhotepus/whitebox/tree/master/docs/REVIEW_OWNERS.md
 
 // For access to standard BSD features, use WB_OS_BSD instead of a
 // more specific macro.
@@ -134,12 +134,14 @@
 // Type detection for wchar_t.
 #if defined(WB_OS_WIN)
 #define WB_WCHAR_T_IS_UTF16
-#elif defined(WB_OS_POSIX) && defined(WB_COMPILER_GCC) && \
-    defined(__WCHAR_MAX__) &&                             \
+#elif defined(WB_OS_POSIX) &&                                   \
+    (defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)) && \
+    defined(__WCHAR_MAX__) &&                                   \
     (__WCHAR_MAX__ == 0x7fffffff || __WCHAR_MAX__ == 0xffffffff)
 #define WB_WCHAR_T_IS_UTF32
-#elif defined(WB_OS_POSIX) && defined(WB_COMPILER_GCC) && \
-    defined(__WCHAR_MAX__) &&                             \
+#elif defined(WB_OS_POSIX) &&                                   \
+    (defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)) && \
+    defined(__WCHAR_MAX__) &&                                   \
     (__WCHAR_MAX__ == 0x7fff || __WCHAR_MAX__ == 0xffff)
 // On Posix, we'll detect short wchar_t, but projects aren't guaranteed to
 // compile in this mode (in particular, Chrome doesn't). This is intended for

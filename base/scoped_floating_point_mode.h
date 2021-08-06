@@ -74,7 +74,7 @@ class ScopedFloatingPointMode {
    * @return nothing.
    */
   explicit ScopedFloatingPointMode(
-      _In_ ScopedFloatingPointModeFlags new_flags) noexcept
+      ScopedFloatingPointModeFlags new_flags) noexcept
       : previous_mxcsr_register_value_{::_mm_getcsr()} {
     ::_mm_setcsr(previous_mxcsr_register_value_ | underlying_cast(new_flags));
   }

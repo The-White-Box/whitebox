@@ -8,7 +8,7 @@ cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
 
 set(WB_BOOTMGR_VERSION     ${CMAKE_PROJECT_VERSION})
 
-project("wb::bootmgr"
+project("bootmgr"
   VERSION ${WB_BOOTMGR_VERSION}
   DESCRIPTION "Whitebox Boot Manager"
   LANGUAGES CXX)
@@ -48,17 +48,15 @@ target_compile_definitions(${WB_BOOTMGR_TARGET_NAME}
   PRIVATE WB_BOOTMGR_DLL=1
 )
 
-set(WB_BOOTMGR_DEPENDENT_LINK_LIBRARIES g3log mimalloc whitebox-kernel)
-set(WB_BOOTMGR_OS_SPECIFIC_LINK_LIBRARIES "")
+set(WB_BOOTMGR_LINK_LIBRARIES base g3log mimalloc)
 
 if (WB_OS_WINDOWS)
-  set(WB_BOOTMGR_OS_SPECIFIC_LINK_LIBRARIES Winmm)
+  list(APPEND WB_BOOTMGR_LINK_LIBRARIES "Winmm")
+else()
+  list(APPEND WB_BOOTMGR_LINK_LIBRARIES "dl;stdc++fs")
 endif()
 
-target_link_libraries(${WB_BOOTMGR_TARGET_NAME}
-  ${WB_BOOTMGR_DEPENDENT_LINK_LIBRARIES}
-  ${WB_BOOTMGR_OS_SPECIFIC_LINK_LIBRARIES}
-)
+target_link_libraries(${WB_BOOTMGR_TARGET_NAME} PRIVATE ${WB_BOOTMGR_LINK_LIBRARIES})
 
 # Specify library version / soversion.
 set_target_properties(${WB_BOOTMGR_TARGET_NAME}
@@ -75,6 +73,7 @@ if (WB_OS_WINDOWS)
   )
 endif()
 
+set(WB_BOOTMGR_DEPENDENCIES mimalloc whitebox-kernel)
+
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BOOTMGR_TARGET_NAME}
-  "${WB_BOOTMGR_DEPENDENT_LINK_LIBRARIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BOOTMGR_TARGET_NAME} "${WB_BOOTMGR_DEPENDENCIES}")

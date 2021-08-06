@@ -47,13 +47,16 @@ namespace wb::base {
  */
 using module_descriptor = HINSTANCE__;
 #elif defined(WB_OS_POSIX)
-struct alignas(void *) MODULE__;
+struct alignas(void *) MODULE_ {
+  int unused;
+  int unused2;
+};
 /**
  * @brief Shared library descriptor.  Do not use native void* here as it means
  * smb can accidentally delete void* ptr via module deleter which is not we
  * want.
  */
-using module_descriptor = MODULE__ *;
+using module_descriptor = MODULE_;
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add module descriptor support for your platform in base/unique_module_ptr.h
 #endif  // WB_OS_WIN
@@ -79,7 +82,7 @@ template <>
 struct default_delete<wb::base::module_descriptor> {
   void operator()(wb::base::module_descriptor *module) const {
     const int dlclose_error_code{module ? ::dlclose(module) : 0};
-    CHECK(dlclose_error_code == 0);
+    G3DCHECK(dlclose_error_code == 0);
   }
 };
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
@@ -123,7 +126,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @param load_flags Library load flags.
    * @return (unique_module_ptr, error_code).
    */
-  [[nodiscard]] static std_ext::os_res<unique_module_ptr> from_load_library(
+  [[nodiscard]] static std_ext::os_res<unique_module_ptr> FromLibraryOnPath(
       _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
@@ -140,7 +143,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @return (address, error_code).
    */
   template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> get_address_as(
+  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> GetAddressAs(
       _In_z_ const char *function_name) const noexcept {
     WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
       // C4191 'reinterpret_cast': unsafe conversion from 'FARPROC' to 'T'
@@ -160,13 +163,13 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
    * @param load_flags Library load flags.
    * @return (unique_module_ptr, error_code).
    */
-  [[nodiscard]] static std_ext::os_res<unique_module_ptr> from_load_library(
+  [[nodiscard]] static std_ext::os_res<unique_module_ptr> FromLibraryOnPath(
       const std::string &library_path, int load_flags) noexcept {
-    const void *library{::dlopen(library_name.c_str(), load_flags)};
+    void *library{::dlopen(library_path.c_str(), load_flags)};
     return library != nullptr
-               ? std_ext::os_res<unique_module_ptr>(std::move(
-                     unique_module_ptr{reintrerpret_cast<MODULE__ *>(library)}))
-               // TODO(dimhotepus): What error code should be set here?
+               ? std_ext::os_res<unique_module_ptr>(
+                     unique_module_ptr{reinterpret_cast<MODULE_ *>(library)})
+               // Decided to use EINVAL here as likely args invalid or no DLL.
                : std_ext::os_res<unique_module_ptr>(
                      std_ext::GetThreadErrorCode(EINVAL));
   }
@@ -174,12 +177,12 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
   // Gets (address, error_code) of function |function_name| in loaded shared
   // library.
   template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> get_address_as(
-      const ch *function_name) const noexcept {
+  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> GetAddressAs(
+      const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
-    return address != nullptr ? std_ext::os_res<T>(address)
-                              : std_ext::os_res<unique_module_ptr>(
-                                    std_ext::GetThreadErrorCode());
+    return address != nullptr
+               ? std_ext::os_res<T>(address)
+               : std_ext::os_res<T>(std_ext::GetThreadErrorCode());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add module default_delete support for your platform in base/unique_module_ptr.h

@@ -74,7 +74,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
            : 0U)};
 
   const auto bootmgr_load_result =
-      unique_module_ptr::from_load_library(bootmgr_path, bootmgr_load_flags);
+      unique_module_ptr::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
   if (const auto* bootmgr_module =
           std::get_if<unique_module_ptr>(&bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
@@ -83,24 +83,24 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
 
     // Good, try to find and launch bootmgr.
     const auto bootmgr_entry_result =
-        bootmgr_module->get_address_as<BootmgrMainFunction>(
+        bootmgr_module->GetAddressAs<BootmgrMainFunction>(
             kBootmgrMainFunctionName);
     if (const auto* bootmgr_main =
             std::get_if<BootmgrMainFunction>(&bootmgr_entry_result)) {
       return (*bootmgr_main)({instance, command_line,
-                              WB_APP_VER_FILE_DESCRIPTION_STR,
+                              WB_APP_PRODUCT_FILE_DESCRIPTION_STRING,
                               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
                               WB_HALF_LIFE_2_IDI_SMALL_ICON});
     }
 
-    // TODO(dimhotepus): Show fancy Ui message box.
+    // TODO(dimhotepus): Show fancy UI box.
     rc = std::get<std::error_code>(bootmgr_entry_result);
     G3PLOG_E(WARNING, rc)
         << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
         << bootmgr_path
         << "'.  Looks like app is broken, please, reinstall the one.";
   } else {
-    // TODO(dimhotepus): Show fancy Ui message box.
+    // TODO(dimhotepus): Show fancy UI box.
     rc = std::get<std::error_code>(bootmgr_load_result);
     G3PLOG_E(WARNING, rc) << "Can't load boot manager '" << bootmgr_path
                           << "'.  Please, reinstall the app.";

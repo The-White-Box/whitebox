@@ -14,6 +14,7 @@ include(wb_clang_tidy_configuration)
 option(WB_GCC_DEFINE__GLIBCXX_ASSERTIONS           "Define _GLIBCXX_ASSERTIONS macro to enable extra error checking in the form of precondition assertions, such as bounds checking in strings and null pointer checks when dereferencing smart pointers." ON)
 option(WB_GCC_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
 option(WB_GCC_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the GCC compiler." ON)
+option(WB_GCC_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
 option(WB_GCC_ENABLE_FAST_MATH                     "Enable fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
 option(WB_GCC_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
 option(WB_GCC_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
@@ -91,8 +92,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       -fstrict-aliasing
       # Do not export symbols by default, only when explicitly marked.
       -fvisibility=hidden
+      # All inlined class member functions to have hidden visibility.
+      -fvisibility-inlines-hidden
       # Produce debugging information.
       -g
+      # Enable or disable exceptions.
+      $<$<NOT:$<BOOL:${WB_GCC_ENABLE_EXCEPTIONS}>>:-fno-exceptions>
       # Avoid temporary files, speeding up builds.
       -pipe
       # Enables support for the Control-Flow Enforcement Technology (CET).
@@ -409,4 +414,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       message(STATUS "${THE_TARGET} cxx clang-tidy flags: not applied on GCC.")
     endif()
   endif()
+
+  message("--")
 endfunction()
