@@ -110,7 +110,7 @@ enum class KeyboardKeyFlags : unsigned short {
   }
 
   return result;
-};
+}
 
 /**
  * @brief Keyboard input.

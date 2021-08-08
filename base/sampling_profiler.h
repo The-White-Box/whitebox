@@ -57,7 +57,8 @@ class SamplingProfiler {
    * @brief Gets time between last samples.
    * @return Time between last samples.  Note, time may be zero!
    */
-  time_point::duration GetTimeBetweenLastSamples() const noexcept {
+  [[nodiscard]] time_point::duration GetTimeBetweenLastSamples()
+      const noexcept {
     return sample_times_[last_written_sample_idx_] -
            sample_times_[GetPreviousSampleIdx()];
   }
@@ -76,7 +77,7 @@ class SamplingProfiler {
    * @brief Get previous sample position index.
    * @return Previous sample position index.
    */
-  std::size_t GetPreviousSampleIdx() const noexcept {
+  [[nodiscard]] std::size_t GetPreviousSampleIdx() const noexcept {
     return (last_written_sample_idx_ - 1) % sample_times_.size();
   }
 };

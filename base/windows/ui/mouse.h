@@ -105,7 +105,7 @@ enum class MouseStateFlags : unsigned short {
   }
 
   return result;
-};
+}
 
 /**
  * @brief The transition state of the mouse buttons.  Can be one or more of the
@@ -248,7 +248,7 @@ enum class MouseButtonTransitionState : unsigned short {
   }
 
   return result.size() ? result : "None";
-};
+}
 
 /**
  * @brief Mouse input.

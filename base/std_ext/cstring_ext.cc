@@ -6,7 +6,7 @@
 
 #include "cstring_ext.h"
 
-#include <stdlib.h>  // *_s
+#include <cstdlib>  // *_s
 
 #include "base/deps/g3log/g3log.h"
 #include "base/std_ext/system_error_ext.h"
