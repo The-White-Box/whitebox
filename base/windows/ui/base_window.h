@@ -7,8 +7,6 @@
 #ifndef WB_BASE_WINDOWS_UI_BASE_WINDOW_H_
 #define WB_BASE_WINDOWS_UI_BASE_WINDOW_H_
 
-#include <tchar.h>
-
 #include <type_traits>
 
 #include "base/base_macroses.h"

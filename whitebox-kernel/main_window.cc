@@ -6,7 +6,6 @@
 
 #include "main_window.h"
 
-#include <tchar.h>  // _T
 #include <timeapi.h>
 #include <windowsx.h>
 
@@ -195,8 +194,8 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
         const float fps{get_fps_as_float(
             render_sampling_profiler_.GetTimeBetweenLastSamples())};
 
-        TCHAR window_title[128];
-        _stprintf_s(window_title, _T("%.2f FPS"), fps);
+        char fps_text[128];
+        sprintf_s(fps_text, "%.2f FPS", fps);
 
         {
           RECT paint_rc{scoped_window_paint.PaintInfo().rcPaint};
@@ -204,7 +203,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
           const int h{paint_rc.bottom - paint_rc.top};
 
           scoped_window_paint.TextDraw(
-              window_title, -1, &paint_rc,
+              fps_text, -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
         }
       }

@@ -6,10 +6,6 @@
 
 #include "whitebox_kernel_main.h"
 
-#ifdef WB_OS_WIN
-#include <tchar.h>
-#endif
-
 #include "base/deps/g3log/g3log.h"
 #ifdef WB_OS_WIN
 #include "base/windows/ui/base_window.h"

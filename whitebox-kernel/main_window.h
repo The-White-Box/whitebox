@@ -8,7 +8,6 @@
 #define WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_
 
 #include <sal.h>
-#include <tchar.h>
 
 #include <cstddef>  // std::byte
 #include <memory>
@@ -123,8 +122,8 @@ class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
    * @brief Gets window class name.
    * @return Window class name.
    */
-  [[nodiscard]] static PCTSTR ClassName() noexcept {
-    return _T("WhiteBox_App_Half_Life2_Window_Class");
+  [[nodiscard]] static LPCSTR ClassName() noexcept {
+    return "WhiteBox_App_Half_Life2_Window_Class";
   }
 
   /**
