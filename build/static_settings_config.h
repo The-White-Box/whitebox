@@ -41,7 +41,7 @@ constexpr int kMinHeight{480};
 namespace error_dialog {
 // TODO(dimhotepus): Localize.
 constexpr char kFooterLink[]{
-    "<A HREF=\"https://github.com/dimhotepus/whitebox/issues\">Nudge</A> "
+    "<A HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</A> "
     "authors"};
 }  // namespace error_dialog
 }  // namespace ui

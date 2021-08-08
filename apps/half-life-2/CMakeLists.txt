@@ -4,7 +4,7 @@
 #
 # Half-Life 2 launcher project definition.
 
-cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project("Half-Life 2"
   VERSION ${CMAKE_PROJECT_VERSION}
@@ -17,7 +17,7 @@ set(WB_HALF_LIFE2_TARGET_NAME "half-life-2")
 set(WB_CURRENT_TARGET_NAME ${WB_HALF_LIFE2_TARGET_NAME})
 set(WB_CURRENT_TARGET_SUFFIX ".exe")
 
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   set(files "main_windows.cc")
   set(hfiles "windows_resource.h")
 elseif (WB_OS_LINUX)
@@ -34,7 +34,7 @@ configure_file(
   ${WB_HALF_LIFE2_BINARY_DIR}/gen/app_version_config.h
 )
 
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   add_executable(${WB_HALF_LIFE2_TARGET_NAME} WIN32 ${files} ${hfiles})
 elseif (WB_OS_MACOSX)
   add_executable(${WB_HALF_LIFE2_TARGET_NAME} MACOSX_BUNDLE ${files} ${hfiles})
@@ -51,7 +51,7 @@ target_include_directories(${WB_HALF_LIFE2_TARGET_NAME}
 )
 
 # Append Windows specific.
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   set(WB_OS_WINDOWS_MANIFESTS_DIR "${WB_ROOT_DIR}/build/windows/manifests")
   target_sources(${WB_HALF_LIFE2_TARGET_NAME}
     PRIVATE
@@ -75,7 +75,7 @@ wb_apply_compile_options_to_target(${WB_HALF_LIFE2_TARGET_NAME})
 
 set(WB_HALF_LIFE2_LINK_LIBRARIES g3log mimalloc)
 
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "comsuppw")
 elseif (WB_OS_LINUX)
   list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "dl;stdc++fs")

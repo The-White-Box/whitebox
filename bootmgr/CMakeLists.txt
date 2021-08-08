@@ -4,7 +4,7 @@
 #
 # Bootmgr library project definition.
 
-cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(WB_BOOTMGR_VERSION     ${CMAKE_PROJECT_VERSION})
 
@@ -50,7 +50,7 @@ target_compile_definitions(${WB_BOOTMGR_TARGET_NAME}
 
 set(WB_BOOTMGR_LINK_LIBRARIES base g3log mimalloc)
 
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   list(APPEND WB_BOOTMGR_LINK_LIBRARIES "Winmm")
 else()
   list(APPEND WB_BOOTMGR_LINK_LIBRARIES "dl;stdc++fs")
@@ -66,7 +66,7 @@ set_target_properties(${WB_BOOTMGR_TARGET_NAME}
 )
 
 # Append Windows specific.
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   target_sources(${WB_BOOTMGR_TARGET_NAME}
     PRIVATE
       ${WB_ROOT_DIR}/build/windows/resource_scripts/windows_dll_base.rc

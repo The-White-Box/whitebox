@@ -1,6 +1,6 @@
 # ![Logo](apps/half-life-2/resources/half-life-2_product-64.png) The WhiteBox
-[![License](https://img.shields.io/github/license/dimhotepus/whitebox.svg)](../LICENSE.md)
-[![Build and Test](https://github.com/dimhotepus/whitebox/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/dimhotepus/whitebox/)
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](./LICENSE)
+[![Build and Test](https://github.com/The-White-Box/whitebox/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/The-White-Box/whitebox/actions/workflows/cmake.yml)
 
 WhiteBox is an open-source Source 1 rework project that aims to build a safer,
 faster, and more feature-rich Source 1 apps.

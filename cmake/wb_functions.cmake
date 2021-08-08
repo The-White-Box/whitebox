@@ -225,7 +225,7 @@ function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPEND
     endif()
   endforeach()
 
-  if (WB_SHOULD_COPY_MIMALLOC AND WB_OS_WINDOWS AND MI_BUILD_SHARED)
+  if (WB_SHOULD_COPY_MIMALLOC AND WB_OS_WIN AND MI_BUILD_SHARED)
     # On windows copy the mimalloc redirection dll too.
     add_custom_command(
       TARGET ${THE_TARGET} POST_BUILD

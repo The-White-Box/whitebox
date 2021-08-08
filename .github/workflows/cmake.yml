@@ -2,7 +2,7 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 
-name: build & test
+name: Build & Test
 
 on:
   push:
@@ -11,12 +11,12 @@ on:
     branches: [ master ]
 
 jobs:
-  build-windows-latest:
+  build-windows:
     runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        build: [Release, Debug]
+        build: [ Release, Debug ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,7 +24,7 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_BUILD_TYPE=${{matrix.build}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=OFF -DMI_BUILD_TESTS=OFF -DMI_SECURE=ON -DWB_MSVC_CXX_LANGUAGE_VERSION="c++latest"
+        run: cmake -B ${{github.workspace}}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON -Dgtest_hide_internal_symbols=ON -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=OFF -DMI_BUILD_TESTS=OFF -DMI_SECURE=ON -DWB_BUILD_TESTS=ON -DWB_MSVC_CXX_LANGUAGE_VERSION="c++latest"
 
       - name: Build on a ${{runner.os}}
         run: cmake --build ${{github.workspace}}/out --config ${{matrix.build}}
@@ -33,12 +33,12 @@ jobs:
         working-directory: ${{github.workspace}}/out
         run: ctest -C ${{matrix.build}}
 
-  build-linux-latest:
+  build-linux:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        build: [Release, Debug]
+        build: [ Release, Debug ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -46,7 +46,7 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_BUILD_TYPE=${{matrix.build}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=OFF -DMI_BUILD_TESTS=OFF -DMI_SECURE=ON
+        run: cmake -B ${{github.workspace}}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON -Dgtest_hide_internal_symbols=ON -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=OFF -DMI_BUILD_TESTS=OFF -DMI_SECURE=ON -DWB_BUILD_TESTS=ON
 
       - name: Build on a ${{runner.os}}
         run: cmake --build ${{github.workspace}}/out --config ${{matrix.build}}
@@ -55,12 +55,12 @@ jobs:
         working-directory: ${{github.workspace}}/out
         run: ctest -C ${{matrix.build}}
 
-  build-macos-latest:
+  build-macos:
     runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        build: [Release, Debug]
+        build: [ Release, Debug ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -68,7 +68,7 @@ jobs:
           submodules: recursive
 
       - name: Configure CMake
-        run: cmake -B ${{github.workspace}}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_BUILD_TYPE=${{matrix.build}} -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=OFF -DMI_BUILD_TESTS=OFF -DMI_SECURE=ON
+        run: cmake -B ${{github.workspace}}/out -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON -Dgtest_hide_internal_symbols=ON -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=OFF -DMI_BUILD_TESTS=OFF -DMI_SECURE=ON -DWB_BUILD_TESTS=ON
 
       - name: Build on a ${{runner.os}}
         run: cmake --build ${{github.workspace}}/out --config ${{matrix.build}}

@@ -4,7 +4,7 @@
 #
 # Base library project definition.
 
-cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(WB_BASE_VERSION     ${CMAKE_PROJECT_VERSION})
 
@@ -24,7 +24,12 @@ set(WB_CURRENT_TARGET_SUFFIX ".dll")
 wb_auto_sources(files "*.cc" "RECURSE" "${WB_BASE_SOURCE_DIR}")
 wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_BASE_SOURCE_DIR}")
 
-if (NOT WB_OS_WINDOWS)
+wb_remove_matches_from_lists(files hfiles
+  MATCHES
+    "^${WB_BASE_SOURCE_DIR}(.*)?_tests.cc$"
+)
+
+if (NOT WB_OS_WIN)
   wb_remove_matches_from_lists(files hfiles
     MATCHES
       "^${WB_BASE_SOURCE_DIR}/windows/"
@@ -57,7 +62,7 @@ target_compile_definitions(${WB_BASE_TARGET_NAME}
 
 set(WB_BASE_LINK_LIBRARIES g3log mimalloc)
 
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   # Delayimp for delayed DLL loading.
   # Comctl32 for TaskDialogIndirect.
   # Shell32 for ShellExecuteW.
@@ -79,7 +84,7 @@ set_target_properties(${WB_BASE_TARGET_NAME}
 )
 
 # Append Windows specific.
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   target_sources(${WB_BASE_TARGET_NAME}
     PRIVATE
       ${WB_ROOT_DIR}/build/windows/resource_scripts/windows_dll_base.rc
@@ -90,3 +95,28 @@ set(WB_BASE_DEPENDENCIES g3log mimalloc)
 
 # Add runtime dependencies.
 wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TARGET_NAME} "${WB_BASE_DEPENDENCIES}")
+
+if (WB_BUILD_TESTS)
+  # We currently build tests by finding all sources and header files.
+  # We then exclude specific files below.
+  wb_auto_sources(tests_files "*_tests.cc" "RECURSE" "${WB_BASE_SOURCE_DIR}")
+
+  if (NOT WB_OS_WIN)
+    wb_remove_matches_from_lists(tests_files
+        MATCHES
+        "^${WB_BASE_SOURCE_DIR}/windows/"
+        )
+  endif ()
+
+  add_executable("${WB_BASE_TARGET_NAME}_tests" ${tests_files})
+
+  # Specify project compile / link options.
+  wb_apply_compile_options_to_target("${WB_BASE_TARGET_NAME}_tests")
+
+  # Consume GTest as shared library to reduce tests size (slow down them a bit).
+  target_compile_definitions("${WB_BASE_TARGET_NAME}_tests" PRIVATE GTEST_LINKED_AS_SHARED_LIBRARY=1)
+  target_link_libraries("${WB_BASE_TARGET_NAME}_tests" PRIVATE GTest::gtest_main)
+
+  include(GoogleTest)
+  gtest_discover_tests("${WB_BASE_TARGET_NAME}_tests")
+endif()

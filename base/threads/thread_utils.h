@@ -37,8 +37,9 @@ using NativeThreadName = std::string;
  * @return Native thread handle.
  */
 WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
-WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
-[[nodiscard]] WB_BASE_API NativeThreadHandle GetCurrentThreadHandle() noexcept;
+  WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+  [[nodiscard]] WB_BASE_API NativeThreadHandle
+  GetCurrentThreadHandle() noexcept;
 WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 /**

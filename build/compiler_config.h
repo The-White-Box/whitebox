@@ -66,11 +66,6 @@
 #define WB_ATTRIBUTE_DLL_IMPORT __declspec(dllimport)
 
 /*
- * @brief Do nothing.
- */
-#define WB_ATTRIBUTE_GCC_PURE
-
-/*
  * @brief Compiler generates code without prolog and epilog code.  You can use
  * this feature to write your own prolog/epilog code sequences using inline
  * assembler code:
@@ -197,32 +192,7 @@
  */
 #define WB_COMPILER_MSVC_SELECTANY __declspec(selectany)
 
-/*
- * @brief Begins GCC / Clang warning override scope.
- */
-#define WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
-
-/*
- * @brief Disables GCC / Clang warning.
- */
-#define WB_COMPILER_GCC_DISABLE_PADDED_WARNING()
- 
- /*
- * @brief Do nothing.
- */
-#define WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
-
-/*
- * @brief Do nothing.
- */
-#define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
-
-/*
- * @brief Ends GCC / Clang warning override scope.
- */
-#define WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
-
-#else  // !WB_COMPILER_MSVC
+#else  // WB_COMPILER_MSVC
 
 #define WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
 #define WB_COMPILER_MSVC_DISABLE_WARNING(warning_level)
@@ -242,7 +212,7 @@
 #define WB_COMPILER_MSVC_RESTRICT_VAR
 #define WB_COMPILER_MSVC_SELECTANY
 
-#endif  // WB_COMPILER_MSVC
+#endif  // !WB_COMPILER_MSVC
 
 #if defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
 
@@ -270,7 +240,14 @@
 #define WB_COMPILER_GCC_DISABLE_PADDED_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wpadded\"")
 
+/*
+ * @brief Disables GCC / Clang undef warning.
+ */
+#define WB_COMPILER_GCC_DISABLE_UNDEF_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wundef\"")
+
 #if defined(WB_COMPILER_GCC)
+
 /*
  * @brief Disables GCC / Clang suggest-attribute=const warning.
  */
@@ -282,7 +259,9 @@
  */
 #define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=malloc\"")
-#else
+
+#else  // !WB_COMPILER_GCC
+
 /*
  * @brief Do nothing.
  */
@@ -292,7 +271,8 @@
  * @brief Do nothing.
  */
 #define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
-#endif
+
+#endif  // WB_COMPILER_GCC
 
 /*
  * @brief Ends GCC / Clang warning override scope.
@@ -300,6 +280,43 @@
 #define WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE() \
   _Pragma("GCC diagnostic pop")
 
-#endif
+#else  // defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_GCC_PURE
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_PADDED_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_UNDEF_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
+
+#endif  // !(defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG))
 
 #endif  // !WB_BUILD_COMPILER_CONFIG_H_

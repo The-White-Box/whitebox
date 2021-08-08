@@ -32,14 +32,15 @@ namespace wb::base::threads {
  * @return Native thread handle.
  */
 WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
-WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
-[[nodiscard]] WB_BASE_API NativeThreadHandle GetCurrentThreadHandle() noexcept {
+  WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+  [[nodiscard]] WB_BASE_API NativeThreadHandle
+  GetCurrentThreadHandle() noexcept {
 #ifdef WB_OS_WIN
-  return NativeThreadHandle{::GetCurrentThread()};
+    return NativeThreadHandle{::GetCurrentThread()};
 #else
-  return NativeThreadHandle{pthread_self()};
+    return NativeThreadHandle{pthread_self()};
 #endif
-}
+  }
 WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 /**

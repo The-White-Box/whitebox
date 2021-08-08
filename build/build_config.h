@@ -57,7 +57,7 @@
 #error Please add support for your platform in build/build_config.h
 #endif
 // NOTE: Adding a new port?  Please follow
-// https://github.com/dimhotepus/whitebox/tree/master/docs/REVIEW_OWNERS.md
+// https://github.com/The-White-Box/whitebox/blob/master/REVIEW_OWNERS.md
 
 // For access to standard BSD features, use WB_OS_BSD instead of a
 // more specific macro.

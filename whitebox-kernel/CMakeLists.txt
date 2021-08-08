@@ -4,7 +4,7 @@
 #
 # Bootmgr library project definition.
 
-cmake_minimum_required (VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(WB_WHITEBOX_KERNEL_VERSION     ${CMAKE_PROJECT_VERSION})
 
@@ -24,7 +24,7 @@ set(WB_CURRENT_TARGET_SUFFIX ".dll")
 wb_auto_sources(files "*.cc" "RECURSE" "${WB_WHITEBOX_KERNEL_SOURCE_DIR}")
 wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_WHITEBOX_KERNEL_SOURCE_DIR}")
 
-if (NOT WB_OS_WINDOWS)
+if (NOT WB_OS_WIN)
   wb_remove_matches_from_lists(files hfiles
     MATCHES
       "^${WB_WHITEBOX_KERNEL_SOURCE_DIR}/main_window.h"
@@ -68,7 +68,7 @@ set_target_properties(${WB_WHITEBOX_KERNEL_TARGET_NAME}
 )
 
 # Append Windows specific.
-if (WB_OS_WINDOWS)
+if (WB_OS_WIN)
   target_sources(${WB_WHITEBOX_KERNEL_TARGET_NAME}
     PRIVATE
       ${WB_ROOT_DIR}/build/windows/resource_scripts/windows_dll_base.rc
