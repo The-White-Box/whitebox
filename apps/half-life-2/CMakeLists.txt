@@ -81,9 +81,13 @@ elseif (WB_OS_LINUX)
   list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "dl;stdc++fs")
 endif()
 
-target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME} PRIVATE ${WB_HALF_LIFE2_LINK_LIBRARIES})
+target_link_libraries(${WB_HALF_LIFE2_TARGET_NAME}
+  PRIVATE
+    ${WB_HALF_LIFE2_LINK_LIBRARIES}
+)
 
 set(WB_HALF_LIFE2_DEPENDENCIES base bootmgr g3log mimalloc whitebox-kernel)
 
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME} "${WB_HALF_LIFE2_DEPENDENCIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}
+  "${WB_HALF_LIFE2_DEPENDENCIES}")

@@ -58,7 +58,10 @@ target_compile_definitions(${WB_WHITEBOX_KERNEL_TARGET_NAME}
 
 set(WB_WHITEBOX_KERNEL_DEPENDENT_LINK_LIBRARIES base g3log mimalloc)
 
-target_link_libraries(${WB_WHITEBOX_KERNEL_TARGET_NAME} PRIVATE base g3log mimalloc)
+target_link_libraries(${WB_WHITEBOX_KERNEL_TARGET_NAME}
+  PRIVATE
+    base g3log mimalloc
+)
 
 # Specify library version / soversion.
 set_target_properties(${WB_WHITEBOX_KERNEL_TARGET_NAME}
@@ -78,5 +81,7 @@ endif()
 set(WB_WHITEBOX_KERNEL_DEPENDENCIES mimalloc)
 
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_WHITEBOX_KERNEL_TARGET_NAME}
-  "${WB_WHITEBOX_KERNEL_DEPENDENCIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(
+  ${WB_WHITEBOX_KERNEL_TARGET_NAME}
+  "${WB_WHITEBOX_KERNEL_DEPENDENCIES}"
+)

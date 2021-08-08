@@ -94,7 +94,8 @@ endif()
 set(WB_BASE_DEPENDENCIES g3log mimalloc)
 
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TARGET_NAME} "${WB_BASE_DEPENDENCIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TARGET_NAME}
+  "${WB_BASE_DEPENDENCIES}")
 
 if (WB_BUILD_TESTS)
   # We currently build tests by finding all sources and header files.

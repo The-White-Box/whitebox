@@ -56,7 +56,10 @@ else()
   list(APPEND WB_BOOTMGR_LINK_LIBRARIES "dl;stdc++fs")
 endif()
 
-target_link_libraries(${WB_BOOTMGR_TARGET_NAME} PRIVATE ${WB_BOOTMGR_LINK_LIBRARIES})
+target_link_libraries(${WB_BOOTMGR_TARGET_NAME}
+  PRIVATE
+    ${WB_BOOTMGR_LINK_LIBRARIES}
+)
 
 # Specify library version / soversion.
 set_target_properties(${WB_BOOTMGR_TARGET_NAME}
@@ -76,4 +79,5 @@ endif()
 set(WB_BOOTMGR_DEPENDENCIES mimalloc whitebox-kernel)
 
 # Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BOOTMGR_TARGET_NAME} "${WB_BOOTMGR_DEPENDENCIES}")
+wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BOOTMGR_TARGET_NAME}
+  "${WB_BOOTMGR_DEPENDENCIES}")
