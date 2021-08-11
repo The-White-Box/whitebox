@@ -57,9 +57,9 @@ struct alignas(void *) MODULE_ {
  * want.
  */
 using module_descriptor = MODULE_;
-#else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
+#else  // WB_OS_POSIX
 #error Please add module descriptor support for your platform in base/unique_module_ptr.h
-#endif  // WB_OS_WIN
+#endif  // !WB_OS_WIN && !WB_OS_POSIX
 }  // namespace wb::base
 
 namespace std {
@@ -85,9 +85,9 @@ struct default_delete<wb::base::module_descriptor> {
     G3DCHECK(dlclose_error_code == 0);
   }
 };
-#else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
+#else  // WB_OS_POSIX
 #error Please add module default_delete support for your platform in base/unique_module_ptr.h
-#endif  // WB_OS_WIN
+#endif  // !WB_OS_WIN && !WB_OS_POSIX
 }  // namespace std
 
 namespace wb::base {
@@ -186,7 +186,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add module default_delete support for your platform in base/unique_module_ptr.h
-#endif  // WB_OS_WIN
+#endif  // WB_OS_POSIX
 };
 }  // namespace wb::base
 
