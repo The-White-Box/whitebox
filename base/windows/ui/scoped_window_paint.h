@@ -7,41 +7,32 @@
 #ifndef WB_BASE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
 #define WB_BASE_WINDOWS_UI_SCOPED_WINDOW_PAINT_H_
 
+#include "base/base_api.h"
 #include "base/base_macroses.h"
-#include "base/deps/g3log/g3log.h"
-#include "base/windows/windows_light.h"
+#include "build/compiler_config.h"
+
+using HWND = struct HWND__*;
+using PAINTSTRUCT = struct tagPAINTSTRUCT;
+using RECT = struct tagRECT;
 
 namespace wb::base::windows::ui {
 /**
- * @brief Paints to window in scope.
+ * @brief Paints to window in the scope.
  */
-class ScopedWindowPaint {
+class WB_BASE_API ScopedWindowPaint {
  public:
   /**
    * @brief Creates scoped paint window context.
    * @param window Window to paint on.
    * @return nothing.
    */
-  explicit ScopedWindowPaint(_In_ HWND window) noexcept
-      : window_{window}, device_context_{::BeginPaint(window, &paint_struct_)} {
-    G3DCHECK(!!window_);
-    G3DCHECK(!!device_context_);
-  }
-
+  explicit ScopedWindowPaint(_In_ HWND window) noexcept;
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);
 
   /**
    * @brief Closes painting device.
    */
-  ~ScopedWindowPaint() noexcept {
-    if (device_context_) {
-      // The return value is always nonzero.
-      //
-      // See
-      // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-endpaint
-      G3CHECK(!!::EndPaint(window_, &paint_struct_));
-    }
-  }
+  ~ScopedWindowPaint() noexcept;
 
   /**
    * @brief Draws text.
@@ -51,38 +42,26 @@ class ScopedWindowPaint {
    * @param format Text format flags.
    * @return Height of the drawn text in logical units.
    */
-  int TextDraw(LPCSTR text, int size, RECT* rc, UINT format) noexcept {
-    G3DCHECK(!!device_context_);
-    G3DCHECK(!!rc);
-
-    const int height_in_logical_units{
-        ::DrawTextA(device_context_, text, size, rc, format)};
-    G3DCHECK(!!height_in_logical_units);
-
-    return height_in_logical_units;
-  }
+  int TextDraw(const char* text, int size, RECT* rc, unsigned format) noexcept;
 
   /**
    * @brief Paint information.
    * @return PAINTSTRUCT.
    */
-  [[nodiscard]] const PAINTSTRUCT& PaintInfo() const noexcept {
-    return paint_struct_;
-  }
+  [[nodiscard]] const PAINTSTRUCT& PaintInfo() const noexcept;
 
  private:
-  /**
-   * @brief Window.
-   */
-  const HWND window_;
-  /**
-   * @brief Window device context.
-   */
-  const HDC device_context_;
-  /**
-   * @brief Paint info.
-   */
-  PAINTSTRUCT paint_struct_;
+  class ScopedWindowPaintImpl;
+
+  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Private member is not accessible to the DLL's client, including inline
+    // functions.
+    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    /**
+     * @brief Actual implementation.
+     */
+    wb::base::un<ScopedWindowPaintImpl> impl_;
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
 }  // namespace wb::base::windows::ui
 
