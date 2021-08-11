@@ -14,64 +14,64 @@ function(wb_check_sanitizers_configuration_valid ROOT_DIRECTORY_PATH
           "[sanitizers]: ${ENABLE_ASAN_LSAN} and ${FORTIFY_SOURCE_DEFINED} may be not compatible.  "
           "Please, use either ${ENABLE_ASAN_LSAN} or ${FORTIFY_SOURCE_DEFINED}, or set ${FORCE_ENABLE_ASAN_LSAN} to force ASan "
           "even with ${FORTIFY_SOURCE_DEFINED} enabled (may lead to missed by ASan errors).")
-    endif ()
+    endif()
 
     if (DEFINED ENV{ASAN_OPTIONS})
       message(STATUS "[sanitizers]: ASAN uses predefined ASAN_OPTIONS env variable: $ENV{ASAN_OPTIONS}")
-    else ()
+    else()
       # Choose acceptable ASAN options as default.  Enable LSAN as default.
       set(ASAN_OPTIONS
           "strict_string_checks=1:detect_leaks=1:detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:suppressions=${ROOT_DIRECTORY_PATH}/sanitizers/asan_suppressions")
       set(ENV{ASAN_OPTIONS} "${ASAN_OPTIONS}")
 
       message(STATUS "[sanitizers]: ASAN uses new ASAN_OPTIONS: $ENV{ASAN_OPTIONS}")
-    endif ()
+    endif()
 
     # ASan includes LSan.
     if (DEFINED ENV{LSAN_OPTIONS})
       message(STATUS "[sanitizers]: LSAN uses predefined LSAN_OPTIONS env variable: $ENV{LSAN_OPTIONS}")
-    else ()
+    else()
       # Choose acceptable LSAN options as default.
       set(LSAN_OPTIONS "suppressions=${ROOT_DIRECTORY_PATH}/sanitizers/lsan_suppressions")
       set(ENV{LSAN_OPTIONS} "${LSAN_OPTIONS}")
 
       message(STATUS "[sanitizers]: LSAN uses new LSAN_OPTIONS: $ENV{LSAN_OPTIONS}")
-    endif ()
-  endif ()
+    endif()
+  endif()
 
   if (${${ENABLE_MSAN}})
     if (DEFINED ENV{MSAN_OPTIONS})
       message(STATUS "[sanitizers]: MSAN uses predefined MSAN_OPTIONS env variable: $ENV{MSAN_OPTIONS}")
-    else ()
+    else()
       # Choose acceptable MSAN options as default.
       set(MSAN_OPTIONS "poison_in_dtor=1:suppressions=${ROOT_DIRECTORY_PATH}/sanitizers/msan_suppressions")
       set(ENV{MSAN_OPTIONS} "${MSAN_OPTIONS}")
 
       message(STATUS "[sanitizers]: MSAN uses new MSAN_OPTIONS: $ENV{MSAN_OPTIONS}")
-    endif ()
-  endif ()
+    endif()
+  endif()
 
   if (${${ENABLE_TSAN}})
     if (DEFINED ENV{TSAN_OPTIONS})
       message(STATUS "[sanitizers]: TSAN uses predefined TSAN_OPTIONS env variable: $ENV{TSAN_OPTIONS}")
-    else ()
+    else()
       # Choose acceptable TSAN options as default.
       set(TSAN_OPTIONS "suppressions=${ROOT_DIRECTORY_PATH}/sanitizers/tsan_suppressions")
       set(ENV{TSAN_OPTIONS} "${TSAN_OPTIONS}")
 
       message(STATUS "[sanitizers]: TSAN uses new TSAN_OPTIONS: $ENV{TSAN_OPTIONS}")
-    endif ()
-  endif ()
+    endif()
+  endif()
 
   if (${${ENABLE_UBSAN}})
     if (DEFINED ENV{UBSAN_OPTIONS})
       message(STATUS "[sanitizers]: UBSAN uses predefined UBSAN_OPTIONS env variable: $ENV{UBSAN_OPTIONS}")
-    else ()
+    else()
       # Choose acceptable UBSAN options as default.
       set(UBSAN_OPTIONS "suppressions=${ROOT_DIRECTORY_PATH}/sanitizers/ubsan_suppressions")
       set(ENV{UBSAN_OPTIONS} "${UBSAN_OPTIONS}")
 
       message(STATUS "[sanitizers]: UBSAN uses new UBSAN_OPTIONS: $ENV{UBSAN_OPTIONS}")
-    endif ()
-  endif ()
+    endif()
+  endif()
 endfunction()

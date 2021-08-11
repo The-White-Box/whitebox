@@ -9,19 +9,20 @@ option(WB_BUILD_TESTS "Build tests or not." OFF)
 # Compiler id for Apple Clang is now AppleClang.
 if (POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
-endif (POLICY CMP0025)
+endif()
 
 # option() honor variables.
 if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
-endif (POLICY CMP0077)
+endif()
 
 # target_link_libraries() allows use with targets in other directories.
 if (POLICY CMP0079)
   cmake_policy(SET CMP0079 NEW)
-endif (POLICY CMP0079)
+endif()
 
-set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}" CACHE STRING "Directory root of the project.")
+set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}" CACHE STRING
+  "Directory root of the project.")
 
 # Includes.
 if (CMAKE_MODULE_PATH)
@@ -33,25 +34,27 @@ endif()
 # Package information.
 set(PACKAGE_NAME      "WhiteBox")
 if (NOT DEFINED PACKAGE_VERSION)
-  set(PACKAGE_VERSION_MAJOR 0)
-  set(PACKAGE_VERSION_MINOR 1)
-  set(PACKAGE_VERSION_PATCH 0)
-  set(PACKAGE_VERSION_TWEAK 0)
-  set(PACKAGE_VERSION   "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}.${PACKAGE_VERSION_TWEAK}-dev")
+  set(PACKAGE_VER_MAJOR 0)
+  set(PACKAGE_VER_MAJOR 1)
+  set(PACKAGE_VER_PATCH 0)
+  set(PACKAGE_VER_TWEAK 0)
+  set(PACKAGE_VERSION   "${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MAJOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}-dev")
 endif()
 set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
 set(PACKAGE_BUGREPORT "https://github.com/The-White-Box/whitebox/issues")
 
 project(${PACKAGE_NAME}
-  VERSION ${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}.${PACKAGE_VERSION_TWEAK}
+  VERSION ${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MAJOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}
   LANGUAGES CXX)
 
 message(STATUS "[common]: CMake version: ${CMAKE_VERSION}.")
 message(STATUS "[common]: ${PACKAGE_NAME} version: ${PACKAGE_VERSION}.")
 
-set(WB_BINARY_DIR "${CMAKE_BINARY_DIR}" CACHE STRING "Directory of the project binaries output.")
-set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}" CACHE STRING "Name of the build system.")
+set(WB_BINARY_DIR "${CMAKE_BINARY_DIR}" CACHE STRING
+  "Directory of the project binaries output.")
+set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}" CACHE STRING
+  "Name of the build system.")
 
 if (${WB_SYSTEM_NAME} STREQUAL "Darwin")
   set(WB_OS_MACOSX ON CACHE BOOL "MacOS is build system.")
@@ -71,19 +74,26 @@ else()
   set(WB_OS_WIN OFF CACHE BOOL "Windows is NOT build system.")
 endif()
 
-set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING "Name of the product.")
+set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING
+  "Name of the product.")
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(wb_functions)
 wb_check_platform_requirements(${PACKAGE_NAME})
 
-set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING "CMake build type used to build ${PACKAGE_NAME}.")
-set(WB_CXX_COMPILER "${CMAKE_CXX_COMPILER}" CACHE STRING "Compiler used to build ${PACKAGE_NAME}.")
-set(WB_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING "CMake available build types for building ${PACKAGE_NAME}.")
-set(WB_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}" CACHE STRING "Compiler id used to build ${PACKAGE_NAME}.")
-set(WB_CXX_COMPILER_FRONTEND_VARIANT "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}" CACHE STRING "Compiler frontend used to build ${PACKAGE_NAME}.")
-set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS} CACHE BOOL "Enable/Disable output of compile commands during generation.")
+set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
+  "CMake build type used to build ${PACKAGE_NAME}.")
+set(WB_CXX_COMPILER "${CMAKE_CXX_COMPILER}" CACHE STRING
+  "Compiler used to build ${PACKAGE_NAME}.")
+set(WB_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+  "CMake available build types for building ${PACKAGE_NAME}.")
+set(WB_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}" CACHE STRING
+  "Compiler id used to build ${PACKAGE_NAME}.")
+set(WB_CXX_COMPILER_FRONTEND_VARIANT "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}"
+  CACHE STRING "Compiler frontend used to build ${PACKAGE_NAME}.")
+set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS} CACHE BOOL
+  "Enable/Disable output of compile commands during generation.")
 
 if (WB_CXX_COMPILER_ID MATCHES "Clang")
   set(WB_COMPILER_CLANG ON CACHE BOOL "Compiler is Clang.")
@@ -124,7 +134,7 @@ if (Git_FOUND)
     OUTPUT_VARIABLE WB_GIT_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-  # the subject of the commit
+  # Get the subject of the commit.
   execute_process(
     COMMAND "${GIT_EXECUTABLE}" log -1 --format=%s
     WORKING_DIRECTORY "${WB_ROOT_DIR}"
@@ -138,7 +148,8 @@ endif()
 # pthread.
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads REQUIRED)
-set(WB_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}" CACHE BOOL "Do build host has pthreads library?")
+set(WB_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}" CACHE BOOL
+  "Do build host has pthreads library?")
 list(APPEND CMAKE_REQUIRED_LIBRARIES Threads::Threads)
 
 if (XCODE_VERSION)
@@ -159,8 +170,9 @@ if (WB_COMPILER_CLANG)
     # Clang with regular front end.
     include(compilers/wb_clang)
   else()
-    message(FATAL_ERROR "[common]: Using Clang with unknown frontend '${WB_CXX_COMPILER_FRONTEND_VARIANT}'. "
-        "Please, define compiler/linker options for it.")
+    message(FATAL_ERROR
+      "[common]: Using Clang with unknown frontend '${WB_CXX_COMPILER_FRONTEND_VARIANT}'. "
+      "Please, define compiler/linker options for it.")
   endif()
 elseif (WB_COMPILER_GCC)
   message(STATUS "[common]: ${PACKAGE_NAME} use compiler GNU.")
@@ -168,13 +180,16 @@ elseif (WB_COMPILER_GCC)
   include(compilers/wb_gcc)
 elseif (WB_COMPILER_MSVC)
   message(STATUS "[common]: ${PACKAGE_NAME} use compiler MSVC.")
-  message(STATUS "[common]: ${PACKAGE_NAME} MSVC         version: ${MSVC_VERSION}")
-  message(STATUS "[common]: ${PACKAGE_NAME} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
+  message(STATUS
+    "[common]: ${PACKAGE_NAME} MSVC         version: ${MSVC_VERSION}")
+  message(STATUS
+    "[common]: ${PACKAGE_NAME} MSVC toolset version: ${MSVC_TOOLSET_VERSION}")
 
   include(compilers/wb_msvc)
 else()
   # Add compilers if needed.
-  message(FATAL_ERROR "[common]: '${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "
+  message(FATAL_ERROR 
+    "[common]: '${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "
     "Please, define compiler/linker options for it.")
 endif()
 

@@ -17,7 +17,7 @@ function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
     SET(PATH ".")
     if (${ARGC} EQUAL 4)
       list(GET ARGV 3 PATH)
-    endif ()
+    endif()
   endif()
 
   if ("${SOURCE_SUBDIRS}" STREQUAL "RECURSE")
@@ -42,7 +42,7 @@ function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
       file(GLOB SUBDIR_FILES "${PATH}/${PATTERN}")
       list(APPEND ${RETURN_VALUE} ${SUBDIR_FILES})
     endforeach()
-  endif ()
+  endif()
 
   set(${RETURN_VALUE} ${${RETURN_VALUE}} PARENT_SCOPE)
 endfunction(wb_auto_sources)
@@ -83,9 +83,9 @@ function(wb_define_strings_option OPTIONS_VAR_NAME OPTIONS_VAR_DESCRIPTION DEFAU
 
   if (NOT DEFINED ${OPTIONS_VAR_NAME})
     set(${OPTIONS_VAR_NAME} "${DEFAULT_OPTION}" PARENT_SCOPE)
-  else ()
+  else()
     set(${OPTIONS_VAR_NAME} ${${OPTIONS_VAR_NAME}} PARENT_SCOPE)
-  endif ()
+  endif()
 
   message(STATUS "[options]: ${OPTIONS_VAR_NAME} is ${${OPTIONS_VAR_NAME}}")
 
