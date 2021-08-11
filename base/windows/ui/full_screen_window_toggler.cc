@@ -6,53 +6,78 @@
 
 #include "full_screen_window_toggler.h"
 
-#include <system_error>
+#include <cstddef>  // std::byte
 
 #include "base/deps/g3log/g3log.h"
 #include "base/windows/error_handling/scoped_thread_last_error.h"
 #include "base/windows/system_error_ext.h"
+#include "base/windows/windows_light.h"
 
 namespace wb::base::windows::ui {
-FullScreenWindowToggler::FullScreenWindowToggler(
-    _In_ HWND window, _In_ LONG default_window_style) noexcept
-    : window_{window},
-      default_window_style_{default_window_style},
-      narrow_window_placement_{sizeof(narrow_window_placement_), 0U, 0U},
-      is_fullscreen_now_{false} {
-  G3DCHECK(!!window);
-}
+/**
+ * @brief Actual implementation of window full/narrow screen toggler.
+ */
+class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
+ public:
+  FullScreenWindowTogglerImpl(_In_ HWND window,
+                              _In_ LONG default_window_style) noexcept
+      : window_{window},
+        default_window_style_{default_window_style},
+        narrow_window_placement_{sizeof(narrow_window_placement_), 0U, 0U},
+        is_fullscreen_now_{false} {
+    G3DCHECK(!!window);
+  }
 
-void FullScreenWindowToggler::Toggle(bool toggle) noexcept {
-  if (is_fullscreen_now_ != toggle) {
-    const LONG_PTR window_style{::GetWindowLongPtr(window_, GWL_STYLE)};
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FullScreenWindowTogglerImpl);
 
-    if (!is_fullscreen_now_) {
-      GoFullScreen(window_style);
-    } else {
-      GoNarrowScreen(window_style);
+  void Toggle(bool toggle) noexcept {
+    if (is_fullscreen_now_ != toggle) {
+      const LONG_PTR window_style{::GetWindowLongPtr(window_, GWL_STYLE)};
+
+      if (!is_fullscreen_now_) {
+        GoFullScreen(window_style);
+      } else {
+        GoNarrowScreen(window_style);
+      }
     }
   }
-}
 
-[[nodiscard]] bool FullScreenWindowToggler::SetWindowStyle(
-    _In_ LONG_PTR window_style) const noexcept {
-  error_handling::ScopedThreadLastError restore_last_error_on_out;
+  [[nodiscard]] bool IsFullScreen() const noexcept {
+    return is_fullscreen_now_;
+  }
 
-  // To determine success or failure, clear the last error information by
-  // calling SetLastError with 0, then call SetWindowLongPtr.  Function
-  // failure will be indicated by a return value of zero and a
-  // GetLastError result that is nonzero.
-  std_ext::SetThreadErrorCode({});
+ private:
+  const HWND window_;
+  const LONG default_window_style_;
 
-  const LONG_PTR rc{::SetWindowLongPtr(window_, GWL_STYLE, window_style)};
-  const bool ok{rc != 0 || !std_ext::GetThreadErrorCode()};
+  WINDOWPLACEMENT narrow_window_placement_;
+  bool is_fullscreen_now_;
 
-  G3DCHECK(ok);
+  std::byte pad_[sizeof(char*) - sizeof(is_fullscreen_now_)];
 
-  return ok;
-}
+  [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
+    error_handling::ScopedThreadLastError restore_last_error_on_out;
 
-void FullScreenWindowToggler::GoFullScreen(
+    // To determine success or failure, clear the last error information by
+    // calling SetLastError with 0, then call SetWindowLongPtr.  Function
+    // failure will be indicated by a return value of zero and a
+    // GetLastError result that is nonzero.
+    std_ext::SetThreadErrorCode({});
+
+    const LONG_PTR rc{::SetWindowLongPtr(window_, GWL_STYLE, window_style)};
+    const bool ok{rc != 0 || !std_ext::GetThreadErrorCode()};
+
+    G3DCHECK(ok);
+
+    return ok;
+  }
+
+  void GoFullScreen(_In_ LONG_PTR window_style) noexcept;
+
+  void GoNarrowScreen(_In_ LONG_PTR window_style) noexcept;
+};
+
+void FullScreenWindowToggler::FullScreenWindowTogglerImpl::GoFullScreen(
     _In_ LONG_PTR window_style) noexcept {
   MONITORINFO mi{sizeof(mi), {}, {}, 0U};
 
@@ -72,7 +97,7 @@ void FullScreenWindowToggler::GoFullScreen(
   if (is_succeeded) is_fullscreen_now_ = true;
 }
 
-void FullScreenWindowToggler::GoNarrowScreen(
+void FullScreenWindowToggler::FullScreenWindowTogglerImpl::GoNarrowScreen(
     _In_ LONG_PTR window_style) noexcept {
   const bool is_succeeded{
       SetWindowStyle(window_style |
@@ -85,5 +110,20 @@ void FullScreenWindowToggler::GoNarrowScreen(
   G3DCHECK(is_succeeded);
 
   if (is_succeeded) is_fullscreen_now_ = false;
+}
+
+FullScreenWindowToggler::FullScreenWindowToggler(
+    _In_ HWND window, _In_ LONG default_window_style) noexcept
+    : impl_{std::make_unique<FullScreenWindowTogglerImpl>(
+          window, default_window_style)} {}
+
+FullScreenWindowToggler::~FullScreenWindowToggler() noexcept = default;
+
+void FullScreenWindowToggler::Toggle(bool toggle) noexcept {
+  impl_->Toggle(toggle);
+}
+
+[[nodiscard]] bool FullScreenWindowToggler::IsFullScreen() const noexcept {
+  return impl_->IsFullScreen();
 }
 }  // namespace wb::base::windows::ui

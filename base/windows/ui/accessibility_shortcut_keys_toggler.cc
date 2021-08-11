@@ -6,6 +6,8 @@
 
 #include "accessibility_shortcut_keys_toggler.h"
 
+#include <cstddef>  // std::byte
+#include <optional>
 #include <type_traits>
 
 #include "base/deps/g3log/g3log.h"
@@ -54,14 +56,56 @@ using system_key_concept =
 
 template <unsigned key_action, typename TSystemKey>
 system_key_concept<key_action, TSystemKey, std::error_code> SystemKeysInfo(
-    _In_ TSystemKey &key) noexcept {
+    _In_ TSystemKey& key) noexcept {
   return wb::base::windows::GetErrorCode(
       ::SystemParametersInfo(key_action, sizeof(key), &key, 0));
 }
 }  // namespace
 
 namespace wb::base::windows::ui {
-AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysToggler() noexcept
+/**
+ * @brief Windows accessibility shortcut keys toggler implementation.  See
+ * https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/disabling-shortcut-keys-in-games#disable-the-accessibility-shortcut-keys
+ */
+class AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl {
+ public:
+  /**
+   * @brief Creates windows accessibility shortcut keys Toggler.
+   * @return nothing.
+   */
+  AccessibilityShortcutKeysTogglerImpl() noexcept;
+  ~AccessibilityShortcutKeysTogglerImpl() noexcept;
+
+  AccessibilityShortcutKeysTogglerImpl(
+      AccessibilityShortcutKeysTogglerImpl&&) noexcept = default;
+  AccessibilityShortcutKeysTogglerImpl& operator=(
+      AccessibilityShortcutKeysTogglerImpl&&) noexcept = default;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(AccessibilityShortcutKeysTogglerImpl);
+
+  /**
+   * @brief Toggles windows accessibility shortcut keys on/off.
+   * @param toggle Toggle on/off.
+   * @return Is toggle successfull?
+   */
+  bool Toggle(bool toggle) noexcept;
+
+ private:
+  // Small wrapper for better semantics.
+  using nullable_bool = std::optional<bool>;
+
+  STICKYKEYS startup_sticky_keys_;
+  TOGGLEKEYS startup_toggle_keys_;
+  FILTERKEYS startup_filter_keys_;
+
+  std::error_code error_code_;
+
+  nullable_bool is_toggled_;
+  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(nullable_bool)];
+};
+
+AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl::
+    AccessibilityShortcutKeysTogglerImpl() noexcept
     : startup_sticky_keys_{sizeof(decltype(startup_sticky_keys_)), 0},
       startup_toggle_keys_{sizeof(decltype(startup_toggle_keys_)), 0},
       startup_filter_keys_{sizeof(decltype(startup_filter_keys_)), 0},
@@ -85,11 +129,13 @@ AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysToggler() noexcept
   error_code_ = rc;
 }
 
-AccessibilityShortcutKeysToggler::~AccessibilityShortcutKeysToggler() noexcept {
+AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl::
+    ~AccessibilityShortcutKeysTogglerImpl() noexcept {
   Toggle(true);
 }
 
-bool AccessibilityShortcutKeysToggler::Toggle(bool toggle) noexcept {
+bool AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl::
+    Toggle(bool toggle) noexcept {
   if (is_toggled_.has_value() && is_toggled_.value() == toggle) return false;
   if (error_code_) return false;
 
@@ -144,5 +190,21 @@ bool AccessibilityShortcutKeysToggler::Toggle(bool toggle) noexcept {
 
   is_toggled_ = toggle;
   return true;
+}
+
+AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysToggler() noexcept
+    : impl_{std::make_unique<AccessibilityShortcutKeysTogglerImpl>()} {}
+
+AccessibilityShortcutKeysToggler::~AccessibilityShortcutKeysToggler() noexcept =
+    default;
+
+AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysToggler(
+    AccessibilityShortcutKeysToggler&&) noexcept = default;
+
+AccessibilityShortcutKeysToggler& AccessibilityShortcutKeysToggler::operator=(
+    AccessibilityShortcutKeysToggler&&) noexcept = default;
+
+bool AccessibilityShortcutKeysToggler::Toggle(bool toggle) noexcept {
+  return impl_->Toggle(toggle);
 }
 }  // namespace wb::base::windows::ui

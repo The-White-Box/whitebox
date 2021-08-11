@@ -7,11 +7,11 @@
 #ifndef WB_BASE_WINDOWS_UI_FULL_SCREEN_WINDOW_TOGGLER_H_
 #define WB_BASE_WINDOWS_UI_FULL_SCREEN_WINDOW_TOGGLER_H_
 
-#include <cstddef>  // std::byte
-
 #include "base/base_api.h"
 #include "base/base_macroses.h"
-#include "base/windows/windows_light.h"
+#include "build/compiler_config.h"
+
+using HWND = struct HWND__ *;
 
 namespace wb::base::windows::ui {
 /**
@@ -20,11 +20,11 @@ namespace wb::base::windows::ui {
 class WB_BASE_API FullScreenWindowToggler {
  public:
   FullScreenWindowToggler(_In_ HWND window,
-                          _In_ LONG default_window_style) noexcept;
+                          _In_ long default_window_style) noexcept;
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FullScreenWindowToggler);
 
-  ~FullScreenWindowToggler() noexcept = default;
+  ~FullScreenWindowToggler() noexcept;
 
   /**
    * @brief Toggle window full/narrow screen.
@@ -37,24 +37,20 @@ class WB_BASE_API FullScreenWindowToggler {
    * @brief Is window full screen now?
    * @return true if full screen, false otherwise.
    */
-  [[nodiscard]] bool IsFullScreen() const noexcept {
-    return is_fullscreen_now_;
-  }
+  [[nodiscard]] bool IsFullScreen() const noexcept;
 
  private:
-  const HWND window_;
-  const LONG default_window_style_;
+  class FullScreenWindowTogglerImpl;
 
-  WINDOWPLACEMENT narrow_window_placement_;
-  bool is_fullscreen_now_;
-
-  std::byte pad[sizeof(char*) - sizeof(is_fullscreen_now_)];
-
-  [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept;
-
-  void GoFullScreen(_In_ LONG_PTR window_style) noexcept;
-
-  void GoNarrowScreen(_In_ LONG_PTR window_style) noexcept;
+  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Private member is not accessible to the DLL's client, including inline
+    // functions.
+    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    /**
+     * @brief Actual implementation.
+     */
+    wb::base::un<FullScreenWindowTogglerImpl> impl_;
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
 }  // namespace wb::base::windows::ui
 

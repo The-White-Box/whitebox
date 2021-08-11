@@ -2,59 +2,53 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Toggles Windows Accessibility Shortcut Keys.
+// Toggles windows accessibility shortcut keys.
 
 #ifndef WB_BASE_WINDOWS_UI_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
 #define WB_BASE_WINDOWS_UI_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
 
-#include <cstddef>  // std::byte
-#include <optional>
-#include <system_error>
-
 #include "base/base_api.h"
 #include "base/base_macroses.h"
-#include "base/windows/windows_light.h"
+#include "build/compiler_config.h"
 
 namespace wb::base::windows::ui {
 /**
- * @brief Toggles Windows Accessibility Shortcut Keys.  See
- * https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/disabling-shortcut-keys-in-games#disable-the-accessibility-shortcut-keys
+ * @brief Toggles windows accessibility shortcut keys.
  */
-class AccessibilityShortcutKeysToggler {
+class WB_BASE_API AccessibilityShortcutKeysToggler {
  public:
   /**
-   * @brief Creates Windows Accessibility Shortcut Keys Toggler.
+   * @brief Creates windows accessibility shortcut keys toggler.
    * @return nothing.
    */
-  WB_BASE_API AccessibilityShortcutKeysToggler() noexcept;
-  WB_BASE_API ~AccessibilityShortcutKeysToggler() noexcept;
-
-  AccessibilityShortcutKeysToggler(
-      AccessibilityShortcutKeysToggler&&) noexcept = default;
+  AccessibilityShortcutKeysToggler() noexcept;
+  AccessibilityShortcutKeysToggler(AccessibilityShortcutKeysToggler&&) noexcept;
   AccessibilityShortcutKeysToggler& operator=(
-      AccessibilityShortcutKeysToggler&&) noexcept = default;
+      AccessibilityShortcutKeysToggler&&) noexcept;
+
+  ~AccessibilityShortcutKeysToggler() noexcept;
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(AccessibilityShortcutKeysToggler);
 
   /**
-   * @brief Toggles Windows Accessibility Shortcut Keys on/off.
+   * @brief Toggles windows accessibility shortcut keys on/off.
    * @param toggle Toggle on/off.
    * @return Is toggle successfull?
    */
-  WB_BASE_API bool Toggle(bool toggle) noexcept;
+  bool Toggle(bool toggle) noexcept;
 
  private:
-  // Small wrapper for better semantics.
-  using nullable_bool = std::optional<bool>;
+  class AccessibilityShortcutKeysTogglerImpl;
 
-  STICKYKEYS startup_sticky_keys_;
-  TOGGLEKEYS startup_toggle_keys_;
-  FILTERKEYS startup_filter_keys_;
-
-  std::error_code error_code_;
-
-  nullable_bool is_toggled_;
-  [[maybe_unused]] std::byte pad_[6];
+  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Private member is not accessible to the DLL's client, including inline
+    // functions.
+    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    /**
+     * @brief Actual implementation.
+     */
+    wb::base::un<AccessibilityShortcutKeysTogglerImpl> impl_;
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
 }  // namespace wb::base::windows::ui
 
