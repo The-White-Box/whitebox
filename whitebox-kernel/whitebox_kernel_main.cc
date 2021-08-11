@@ -26,13 +26,13 @@ namespace {
  */
 [[nodiscard]] wb::base::windows::ui::WindowDefinition
 CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
-                           const std::string& window_title, _In_ int width,
+                           const char *window_title, _In_ int width,
                            _In_ int height) noexcept {
   G3DCHECK(!!kernel_args.instance);
 
   const auto cursor = LoadCursor(nullptr, IDC_ARROW);
   return wb::base::windows::ui::WindowDefinition{
-      kernel_args.instance, window_title.c_str(), kernel_args.main_icon_id,
+      kernel_args.instance, window_title, kernel_args.main_icon_id,
       kernel_args.small_icon_id, cursor,
       // TODO(dimhotepus): Remove when use Vulkan renderer?
       reinterpret_cast<HBRUSH>(GetStockObject(NULL_BRUSH)), WS_OVERLAPPEDWINDOW,
@@ -76,12 +76,11 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   using namespace wb::base;
   using namespace wb::kernel;
 
-  const std::string window_title{std::string{kernel_args.app_description} +
-                                 " [64 bit]"};
-
 #ifdef WB_OS_WIN
+  // TODO(dimhotepus): Get screen size and use it if less than our minimal.
   const windows::ui::WindowDefinition window_definition{
-      CreateMainWindowDefinition(kernel_args, window_title, 640, 480)};
+      CreateMainWindowDefinition(kernel_args, kernel_args.app_description, 1024,
+                                 768)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
   auto window_result =
