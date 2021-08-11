@@ -11,9 +11,6 @@
 
 #include <cstddef>  // std::size_t, std::ptrdiff_t.
 #include <cstdint>  // precise bit integral types.
-#include <string>   // std::string, std::wstring.
-
-#include "build/build_config.h"
 
 namespace wb {
 // uint8_t.
@@ -59,7 +56,7 @@ static_assert(sizeof(f64) == 8,
 using ch = char;
 static_assert(sizeof(ch) == 1,
               "char should be 1 byte length. "
-              "Please, define 8 bytes double for your platform in "
+              "Please, define 1 byte char for your platform in "
               "base/base_types.h.");
 
 // char16_t.
@@ -68,11 +65,6 @@ using ch16 = char16_t;
 using ch32 = char32_t;
 // wchar_t.
 using wch = wchar_t;
-
-// Basic char string type.
-using str = std::string;
-// Basic wide char string type.
-using wstr = std::wstring;
 }  // namespace wb
 
 #endif  // !WB_BASE_BASE_TYPES_H_
