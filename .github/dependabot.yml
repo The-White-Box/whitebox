@@ -6,11 +6,11 @@ version: 2
 updates:
   # Enable version updates for submodules.
   - package-ecosystem: "gitsubmodule"
-    # Look for deps in the `deps` directory.
-    directory: "/deps"
+    # Look for deps in the `/` directory.
+    directory: "/"
     # Check for updates every day (weekdays).
     schedule:
       interval: "daily"
     open-pull-requests-limit: 10
     labels:
-      - Dependencies
+      - dependencies
