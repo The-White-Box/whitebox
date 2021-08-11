@@ -113,14 +113,8 @@ if (WB_BUILD_TESTS)
 
   # Specify project compile / link options.
   wb_apply_compile_options_to_target("${WB_BASE_TARGET_NAME}_tests")
-  
-  # Ignore a warning about __declspec(dllimport) was specified for a symbol even
-  # though the symbol is defined in an object file in the same image.  Remove
-  # the __declspec(dllimport) modifier to resolve this warning (GTest).
-  set_property(TARGET "${WB_BASE_TARGET_NAME}_tests" APPEND_STRING PROPERTY LINK_FLAGS " /ignore:4217")
 
   # Consume GTest as shared library to reduce tests size (slow down them a bit).
-  target_compile_definitions("${WB_BASE_TARGET_NAME}_tests" PRIVATE GTEST_LINKED_AS_SHARED_LIBRARY=1)
   target_link_libraries("${WB_BASE_TARGET_NAME}_tests" PRIVATE GTest::gtest_main)
 
   include(GoogleTest)

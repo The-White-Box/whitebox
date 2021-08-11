@@ -97,21 +97,21 @@ set(WB_EXPORT_COMPILE_COMMANDS ${CMAKE_EXPORT_COMPILE_COMMANDS} CACHE BOOL
 
 if (WB_CXX_COMPILER_ID MATCHES "Clang")
   set(WB_COMPILER_CLANG ON CACHE BOOL "Compiler is Clang.")
-else ()
+else()
   set(WB_COMPILER_CLANG OFF CACHE BOOL "Compiler is NOT Clang.")
-endif ()
+endif()
 
 if (WB_CXX_COMPILER_ID STREQUAL "GNU")
   set(WB_COMPILER_GCC ON CACHE BOOL "Compiler is GCC.")
-else ()
+else()
   set(WB_COMPILER_GCC OFF CACHE BOOL "Compiler is NOT GCC.")
-endif ()
+endif()
 
 if (WB_CXX_COMPILER_ID STREQUAL "MSVC")
   set(WB_COMPILER_MSVC ON CACHE BOOL "Compiler is MSVC.")
-else ()
+else()
   set(WB_COMPILER_MSVC OFF CACHE BOOL "Compiler is NOT MSVC.")
-endif ()
+endif()
 
 ## Find common dependencies.
 
@@ -220,10 +220,7 @@ if (WB_BUILD_TESTS)
   elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
     # Prevent ld linker warning as error "reloc which may overflow at runtime" (-fPIC).
     target_compile_options(gtest PRIVATE -fPIC)
-  endif ()
-
-  # Consume GTest as shared library to reduce tests size.
-  target_compile_definitions(gtest PRIVATE GTEST_CREATE_SHARED_LIBRARY=1)
+  endif()
 endif()
 
 add_subdirectory("deps/mimalloc")
