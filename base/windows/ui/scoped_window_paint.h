@@ -43,6 +43,14 @@ class ScopedWindowPaint {
     }
   }
 
+  /**
+   * @brief Draws text.
+   * @param text Text to draw.
+   * @param size Text size.
+   * @param rc Rectangle to draw text into.
+   * @param format Text format flags.
+   * @return Height of the drawn text in logical units.
+   */
   int TextDraw(LPCSTR text, int size, RECT* rc, UINT format) noexcept {
     G3DCHECK(!!device_context_);
     G3DCHECK(!!rc);
@@ -54,6 +62,10 @@ class ScopedWindowPaint {
     return height_in_logical_units;
   }
 
+  /**
+   * @brief Paint information.
+   * @return PAINTSTRUCT.
+   */
   [[nodiscard]] const PAINTSTRUCT& PaintInfo() const noexcept {
     return paint_struct_;
   }
