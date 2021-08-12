@@ -10,12 +10,8 @@
 #include "base/base_macroses.h"
 #include "build/compiler_config.h"
 
-#ifndef _MAC
 using HICON = struct HICON__*;
 using HCURSOR = HICON; /* HICONs & HCURSORs are polymorphic */
-#else
-using HCURSOR = struct HCURSOR__*; /* HICONs & HCURSORs are not polymorphic */
-#endif
 
 WB_ATTRIBUTE_DLL_IMPORT HCURSOR __stdcall SetCursor(_In_opt_ HCURSOR hCursor);
 
