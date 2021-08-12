@@ -107,16 +107,25 @@ if (WB_BUILD_TESTS)
       MATCHES
         "^${WB_BASE_SOURCE_DIR}/windows/"
     )
-  endif ()
+  endif()
 
-  add_executable("${WB_BASE_TARGET_NAME}_tests" ${tests_files})
+  set(WB_BASE_TESTS_TARGET_NAME "${WB_BASE_TARGET_NAME}_tests")
+
+  add_executable(${WB_BASE_TESTS_TARGET_NAME} ${tests_files})
 
   # Specify project compile / link options.
-  wb_apply_compile_options_to_target("${WB_BASE_TARGET_NAME}_tests")
+  wb_apply_compile_options_to_target(${WB_BASE_TESTS_TARGET_NAME})
 
   # Consume GTest as shared library to reduce tests size (slow down them a bit).
-  target_link_libraries("${WB_BASE_TARGET_NAME}_tests" PRIVATE GTest::gtest_main)
+  target_link_libraries(${WB_BASE_TESTS_TARGET_NAME}
+    PRIVATE comsuppw GTest::gtest_main mimalloc)
+
+  set(WB_BASE_TESTS_DEPENDENCIES mimalloc)
+
+  # Add runtime dependencies.
+  wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TESTS_TARGET_NAME}
+    "${WB_BASE_TESTS_DEPENDENCIES}")
 
   include(GoogleTest)
-  gtest_discover_tests("${WB_BASE_TARGET_NAME}_tests")
+  gtest_discover_tests(${WB_BASE_TESTS_TARGET_NAME})
 endif()

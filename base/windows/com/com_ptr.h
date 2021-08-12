@@ -8,7 +8,15 @@
 #define WB_BASE_WINDOWS_COM_COM_PTR_H_
 
 #include <ObjBase.h>
+
+#include "build/compiler_config.h"
+//
+WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  // '_bstr_t::Data_t': '4' bytes padding added after data member
+  // '_bstr_t::Data_t::m_RefCount'
+  WB_COMPILER_MSVC_DISABLE_WARNING(4820)
 #include <comip.h>
+WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
 #include <type_traits>
 

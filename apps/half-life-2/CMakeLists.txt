@@ -76,8 +76,10 @@ wb_apply_compile_options_to_target(${WB_HALF_LIFE2_TARGET_NAME})
 set(WB_HALF_LIFE2_LINK_LIBRARIES g3log mimalloc)
 
 if (WB_OS_WIN)
+  # _com_ptr_t support.
   list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "comsuppw")
 elseif (WB_OS_LINUX)
+  # dlopen, filesystem.
   list(APPEND WB_HALF_LIFE2_LINK_LIBRARIES "dl;stdc++fs")
 endif()
 
