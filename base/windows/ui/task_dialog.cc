@@ -175,17 +175,17 @@ namespace wb::base::windows::ui {
  */
 WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings& settings) noexcept {
-  const std::wstring title{std_ext::AnsiToWide(settings.title)};
+  const std::wstring title{std_ext::UTF8ToWide(settings.title)};
   const std::wstring main_instruction{
-      std_ext::AnsiToWide(settings.main_instruction)};
-  const std::wstring content{std_ext::AnsiToWide(settings.content)};
+      std_ext::UTF8ToWide(settings.main_instruction)};
+  const std::wstring content{std_ext::UTF8ToWide(settings.content)};
   const std::wstring expanded_control_text{
-      std_ext::AnsiToWide(settings.expanded_control_text)};
+      std_ext::UTF8ToWide(settings.expanded_control_text)};
   const std::wstring collapsed_control_text{
-      std_ext::AnsiToWide(settings.collapsed_control_text)};
+      std_ext::UTF8ToWide(settings.collapsed_control_text)};
   const std::wstring expanded_content{
-      std_ext::AnsiToWide(settings.expand_collapse_content)};
-  const std::wstring footer{std_ext::AnsiToWide(settings.footer_text)};
+      std_ext::UTF8ToWide(settings.expand_collapse_content)};
+  const std::wstring footer{std_ext::UTF8ToWide(settings.footer_text)};
   const TaskDialogContext context{.main_icon_id = settings.main_icon_id,
                                   .small_icon_id = settings.small_icon_id};
 
