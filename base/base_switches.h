@@ -2,17 +2,17 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Command line flags.
+// Command line switches.
 
-#ifndef WB_BUILD_COMMAND_LINE_FLAGS_H_
-#define WB_BUILD_COMMAND_LINE_FLAGS_H_
+#ifndef WB_BASE_BASE_SWITCHES_H_
+#define WB_BASE_BASE_SWITCHES_H_
 
-namespace wb::build::cmd_args {
+namespace wb::base::switches {
 /**
  * @brief Allow to load unsigned module targets.  Insecure!
  */
 constexpr char kUnsafeAllowUnsignedModuleTargetFlag[]{
     "--unsafe-allow-unsigned-module-target"};
-}  // namespace wb::build::cmd_args
+}  // namespace wb::base::switches
 
-#endif  // !WB_BUILD_COMMAND_LINE_FLAGS_H_
+#endif  // !WB_BASE_BASE_SWITCHES_H_

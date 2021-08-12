@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Half-Life 2 launcher app on Mac.
+// The entry point for Mac Half-Life 2 process.
 //
 // Based on
 // https://github.com/chromium/chromium/blob/master/chrome/app/chrome_exe_main_mac.cc

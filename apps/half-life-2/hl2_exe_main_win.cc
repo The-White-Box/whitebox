@@ -2,11 +2,12 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Half-Life 2 launcher app on Windows.
+// The entry point for windows Half-Life 2 process.
 
 #include <filesystem>
 #include <system_error>
 
+#include "base/base_switches.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/unique_module_ptr.h"
 #include "base/windows/com/scoped_com_fatal_exception_handler.h"
@@ -16,7 +17,6 @@
 #include "base/windows/error_handling/scoped_thread_error_mode.h"
 #include "base/windows/windows_light.h"
 #include "bootmgr/bootmgr_main.h"
-#include "build/command_line_flags.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
 #include "windows_resource.h"
@@ -127,7 +127,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   std::string debug_command_line{command_line};
   debug_command_line.append(" ");
   debug_command_line.append(
-      wb::build::cmd_args::kUnsafeAllowUnsignedModuleTargetFlag);
+      wb::base::switches::kUnsafeAllowUnsignedModuleTargetFlag);
 
   command_line = debug_command_line.data();
 #endif

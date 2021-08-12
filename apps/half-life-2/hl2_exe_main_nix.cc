@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Half-Life 2 launcher app on *nix.
+// The entry point for *nix Half-Life 2 process.
 
 #include <filesystem>
 
