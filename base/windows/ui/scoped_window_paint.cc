@@ -4,7 +4,7 @@
 //
 // Scoped window painting on GDI device context.
 
-#include "base/windows/ui/scoped_window_paint.h"
+#include "scoped_window_paint.h"
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
