@@ -196,10 +196,12 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   }
 
   // Enable process attacks mitigation policies in scope.
-  const security::ScopedProcessMitigationPolicies
-      scoped_process_mitigation_policies;
-  G3PLOGE_IF(FATAL, !!scoped_process_mitigation_policies.error_code(),
-             scoped_process_mitigation_policies.error_code())
+  const auto scoped_process_mitigation_policies =
+      security::ScopedProcessMitigationPolicies::New();
+  G3PLOGE_IF(
+      WARNING,
+      !!std::get_if<std::error_code>(&scoped_process_mitigation_policies),
+      std::get<std::error_code>(scoped_process_mitigation_policies))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 

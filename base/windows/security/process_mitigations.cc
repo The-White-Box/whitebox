@@ -4,6 +4,8 @@
 
 #include "process_mitigations.h"
 
+#include <tuple>
+
 #include "base/deps/g3log/g3log.h"
 #include "base/std_ext/cstring_ext.h"
 #include "base/windows/system_error_ext.h"
@@ -29,6 +31,10 @@ EnableDefaultSecureDllSearch() noexcept {
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS));
 }
 
+/**
+ * @brief Computes mitigation policy flag based on policy type.
+ * @tparam TPolicy Policy to get mitigation flag for.
+ */
 template <typename TPolicy>
 constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
     std::is_same_v<TPolicy, PROCESS_MITIGATION_DEP_POLICY> ? ProcessDEPPolicy
@@ -52,10 +58,22 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
         ? ProcessUserShadowStackPolicy
         : MaxProcessMitigationPolicy;
 
+/**
+ * @brief Mitigation policy concept.
+ * @tparam TPolicy Mitigation policy.
+ * @tparam R Return type.
+ */
 template <typename TPolicy, typename R>
 using mitigation_policy_concept = std::enable_if_t<
     mitigation_policy_flag<TPolicy> != MaxProcessMitigationPolicy, R>;
 
+/**
+ * @brief Get mitigation policy setting from OS.
+ * @tparam TPolicy Policy to get.
+ * @param process Process handle.
+ * @param policy Policy to fill with OS data.
+ * @return Error code.
+ */
 template <typename TPolicy>
 [[nodiscard]] mitigation_policy_concept<TPolicy, std::error_code>
 GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
@@ -65,6 +83,12 @@ GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
       process, mitigation_policy_flag<TPolicy>, &policy, sizeof(policy)));
 }
 
+/**
+ * @brief Set mitigation policy setting in OS.
+ * @tparam TPolicy Policy to set.
+ * @param policy Policy data to set in OS.
+ * @return Error code.
+ */
 template <typename TPolicy>
 [[nodiscard]] mitigation_policy_concept<TPolicy, std::error_code>
 SetProcessMitigationPolicy(TPolicy& policy) noexcept {
@@ -75,7 +99,95 @@ SetProcessMitigationPolicy(TPolicy& policy) noexcept {
   return !rc || rc.value() == ERROR_ACCESS_DENIED ? std::error_code{} : rc;
 }
 
-ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
+/**
+ * @brief Impementation for enabler of process mitigation policies in scope.
+ */
+class ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl {
+ public:
+  ScopedProcessMitigationPoliciesImpl() noexcept;
+
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedProcessMitigationPoliciesImpl);
+
+  ~ScopedProcessMitigationPoliciesImpl() noexcept;
+
+  /**
+   * @brief Gets process mitigations policies apply error code.
+   * @return Error code.
+   */
+  [[nodiscard]] std::error_code error_code() const noexcept {
+    return error_code_;
+  }
+
+ private:
+  /**
+   * @brief Policies apply error code.
+   */
+  std::error_code error_code_;
+
+  /**
+   * @brief Old policy + set new one error code.
+   * @tparam TPolicy.
+   */
+  template <typename TPolicy>
+  using old_policy_2_new_errc = std::tuple<TPolicy, std::error_code>;
+
+  /**
+   * @brief Data Execution Prevention policy.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_DEP_POLICY>
+      old_dep_policy_to_new_errc_;
+  /**
+   * @brief Address Space Layout Randomization (ASLR) policy.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_ASLR_POLICY>
+      old_aslr_policy_to_new_errc_;
+  /**
+   * @brief The dynamic code policy of the process.  When turned on, the process
+   * cannot generate dynamic code or modify existing executable code.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_DYNAMIC_CODE_POLICY>
+      old_dcp_policy_to_new_errc_;
+  /**
+   * @brief The process will receive a fatal error if it manipulates a handle
+   * that is not valid.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_STRICT_HANDLE_CHECK_POLICY>
+      old_shc_policy_to_new_errc_;
+  /**
+   * @brief Prevents certain built-in third party extension points from being
+   * enabled, preventing legacy extension point DLLs from being loaded into the
+   * process.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY>
+      old_epd_policy_to_new_errc_;
+  /**
+   * @brief The Control Flow Guard (CFG) policy of the process.  All DLLs that
+   * are loaded must enable CFG.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY>
+      old_cfg_policy_to_new_errc_;
+  /**
+   * @brief Disable nonsystem fonts policy.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_FONT_DISABLE_POLICY>
+      old_sfd_policy_to_new_errc_;
+  /**
+   * @brief The policy that turns off the ability of the process to load images
+   * from some locations, such a remote devices or files that have the low
+   * mandatory label.
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_IMAGE_LOAD_POLICY>
+      old_sil_policy_to_new_errc_;
+  /**
+   * @brief Process mitigation policy settings for user-mode Hardware-enforced
+   * Stack Protection (HSP).
+   */
+  old_policy_2_new_errc<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>
+      old_uss_policy_to_new_errc_;
+};
+
+ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
+    ScopedProcessMitigationPoliciesImpl() noexcept
     : error_code_{},
       old_dep_policy_to_new_errc_{},
       old_aslr_policy_to_new_errc_{},
@@ -315,7 +427,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
   }
 }
 
-ScopedProcessMitigationPolicies::~ScopedProcessMitigationPolicies() noexcept {
+ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl ::
+    ~ScopedProcessMitigationPoliciesImpl() noexcept {
   {
     auto [old_policy, new_policy_result] = old_uss_policy_to_new_errc_;
 
@@ -388,4 +501,29 @@ ScopedProcessMitigationPolicies::~ScopedProcessMitigationPolicies() noexcept {
     }
   }
 }
+
+std_ext::os_res<ScopedProcessMitigationPolicies>
+ScopedProcessMitigationPolicies::New() noexcept {
+  ScopedProcessMitigationPolicies policies;
+
+  return !policies.error_code()
+             ? std_ext::os_res<ScopedProcessMitigationPolicies>{std::move(
+                   policies)}
+             : std_ext::os_res<ScopedProcessMitigationPolicies>{
+                   policies.error_code()};
+}
+
+ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept
+    : impl_{std::make_unique<ScopedProcessMitigationPoliciesImpl>()} {}
+
+[[nodiscard]] std::error_code ScopedProcessMitigationPolicies::error_code()
+    const noexcept {
+  return impl_->error_code();
+}
+
+ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies(
+    ScopedProcessMitigationPolicies&& p) noexcept = default;
+
+ScopedProcessMitigationPolicies::~ScopedProcessMitigationPolicies() noexcept =
+    default;
 }  // namespace wb::base::windows::security
