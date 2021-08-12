@@ -186,7 +186,7 @@ class BaseWindow {
  private:
   HINSTANCE instance_;
   HWND hwnd_;
-  std::unique_ptr<ScopedWindowClass> scoped_window_class_;
+  wb::base::un<ScopedWindowClass> scoped_window_class_;
 
   /**
    * @brief Static window message handler.  Dispatch window message to
@@ -245,7 +245,7 @@ class BaseWindow {
   [[nodiscard]] static std::error_code RegisterWindowClass(
       _In_ const WindowDefinition &definition, _In_ const DWORD class_style,
       _In_ LPCTSTR class_name,
-      _In_ const std::unique_ptr<TDerivedWindow> &window) noexcept {
+      _In_ const wb::base::un<TDerivedWindow> &window) noexcept {
     G3DCHECK(!!class_name);
 
     const auto icon =

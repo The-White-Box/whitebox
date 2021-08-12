@@ -101,11 +101,11 @@ class ScopedG3LogInitializer {
   /**
    * @brief Log worker.
    */
-  std::unique_ptr<g3::LogWorker> log_worker_;
+  wb::base::un<g3::LogWorker> log_worker_;
   /**
    * @brief File sink handle.
    */
-  std::unique_ptr<g3::FileSinkHandle> file_sink_handle_;
+  wb::base::un<g3::FileSinkHandle> file_sink_handle_;
 
   /**
    * @brief Extracts full executable name from log prefix.
