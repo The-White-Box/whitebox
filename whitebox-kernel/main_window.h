@@ -29,8 +29,8 @@ namespace wb::kernel {
 /**
  * @brief Main app window.
  */
-class MainWindow : public wb::base::windows::ui::BaseWindow<MainWindow> {
-  friend class BaseWindow<MainWindow>;
+class MainWindow : public wb::base::windows::ui::BaseWindow {
+  friend class BaseWindow;
 
  public:
   WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()

@@ -7,133 +7,67 @@
 #ifndef WB_BASE_WINDOWS_UI_BASE_WINDOW_H_
 #define WB_BASE_WINDOWS_UI_BASE_WINDOW_H_
 
+#include <sal.h>
+
+#include <cstdint>
+#include <memory>
 #include <type_traits>
 
+#include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/windows/error_handling/scoped_thread_last_error.h"
 #include "base/windows/system_error_ext.h"
 #include "base/windows/ui/scoped_window_class.h"
-#include "base/windows/windows_light.h"
+#include "base/windows/ui/window_definition.h"
+#include "build/compiler_config.h"
+
+using HINSTANCE = struct HINSTANCE__ *;
+using HMENU = struct HMENU__ *;
+using HWND = struct HWND__ *;
+using WNDPROC = intptr_t(__stdcall *)(HWND, unsigned, uintptr_t, intptr_t);
+
+HWND WB_ATTRIBUTE_DLL_IMPORT __stdcall CreateWindowExA(
+    _In_ unsigned long dwExStyle, _In_opt_ const char *lpClassName,
+    _In_opt_ const char *lpWindowName, _In_ unsigned long dwStyle, _In_ int X,
+    _In_ int Y, _In_ int nWidth, _In_ int nHeight, _In_opt_ HWND hWndParent,
+    _In_opt_ HMENU hMenu, _In_opt_ HINSTANCE hInstance, _In_opt_ void *lpParam);
 
 namespace wb::base::windows::ui {
 /**
- * @brief Window definition.
- */
-struct WindowDefinition {
-  /**
-   * @brief Creates window definition.
-   * @param instance_
-   * @param name_
-   * @param icon_id_
-   * @param icon_small_id_
-   * @param cursor_
-   * @param class_brush_
-   * @param style_
-   * @param ex_style_
-   * @param x_pos_
-   * @param y_pos_
-   * @param width_
-   * @param height_
-   * @param parent_window_
-   * @param menu_
-   */
-  WindowDefinition(_In_opt_ HINSTANCE instance_, _In_opt_ LPCTSTR name_,
-                   _In_ int icon_id_, _In_ int icon_small_id_,
-                   _In_opt_ HCURSOR cursor_, _In_opt_ HBRUSH class_brush_,
-                   _In_ DWORD style_, _In_ DWORD ex_style_ = 0,
-                   _In_ int x_pos_ = CW_USEDEFAULT,
-                   _In_ int y_pos_ = CW_USEDEFAULT,
-                   _In_ int width_ = CW_USEDEFAULT,
-                   _In_ int height_ = CW_USEDEFAULT,
-                   _In_opt_ HWND parent_window_ = nullptr,
-                   _In_opt_ HMENU menu_ = nullptr) noexcept
-      : instance{instance_},
-        name{name_},
-        icon_id{icon_id_},
-        icon_small_id{icon_small_id_},
-        cursor{cursor_},
-        class_brush{class_brush_},
-        style{style_},
-        ex_style{ex_style_},
-        x_pos{x_pos_},
-        y_pos{y_pos_},
-        width{width_},
-        height{height_},
-        parent_window{parent_window_},
-        menu{menu_} {}
-
-  HINSTANCE instance;
-  LPCTSTR name;
-  int icon_id, icon_small_id;
-  HCURSOR cursor;
-  HBRUSH class_brush;
-  DWORD style, ex_style;
-  int x_pos, y_pos, width, height;
-  HWND parent_window;
-  HMENU menu;
-};
-
-/**
  * @brief Base UI window.
- * @param definition Window definition
- * @param class_style
- * @return
  */
-template <typename TDerivedWindow>
-class BaseWindow {
-  // static_assert(std::is_base_of_v<BaseWindow<TDerivedWindow>,
-  // TDerivedWindow>);
-
+class WB_BASE_API BaseWindow {
  public:
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(BaseWindow);
 
   /**
    * @brief Move ctor.
-   * @tparam TDerivedWindow
    */
-  BaseWindow(BaseWindow &&w) noexcept
-      : instance_{w.instance_},
-        hwnd_{w.hwnd_},
-        scoped_window_class_{std::move(w.scoped_window_class_)},
-        icon_id_{w.icon_id_},
-        icon_small_id_{w.icon_small_id_} {
-    w.instance_ = nullptr;
-    w.hwnd_ = nullptr;
-  }
+  BaseWindow(BaseWindow &&w) noexcept;
 
   /**
    * @brief Move assingment.
-   * @tparam TDerivedWindow
    */
-  BaseWindow &operator=(BaseWindow &&w) noexcept {
-    std::swap(instance_, w.instance_);
-    std::swap(hwnd_, w.hwnd_);
-    std::swap(scoped_window_class_, w.scoped_window_class_);
-    std::swap(icon_id_, w.icon_id_);
-    std::swap(icon_small_id_, w.icon_small_id_);
-    return *this;
-  }
+  BaseWindow &operator=(BaseWindow &&w) noexcept;
 
   /**
    * @brief Dtor.
-   * @tparam TDerivedWindow
    */
   virtual ~BaseWindow() noexcept = 0;
 
-  /**
-   * @brief Creates window.
-   * @tparam TDerivedWindow
-   */
-  [[nodiscard]] static std_ext::os_res<un<TDerivedWindow>> Create(
+  template <typename TDerivedWindow>
+  [[nodiscard]] static std_ext::os_res<un<TDerivedWindow>> New(
       _In_ const WindowDefinition &definition,
-      _In_ DWORD class_style) noexcept {
+      _In_ unsigned long class_style) noexcept {
+    static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
+
     auto window = std::make_unique<TDerivedWindow>(
         definition.instance, definition.icon_id, definition.icon_small_id);
-    std::error_code rc{RegisterWindowClass(
-        definition, class_style, TDerivedWindow::ClassName(), window)};
+    std::error_code rc{
+        RegisterWindowClass<TDerivedWindow>(definition, class_style, window)};
     if (!rc) {
-      rc = GetErrorCode(::CreateWindowEx(
+      rc = GetErrorCode(::CreateWindowExA(
           definition.ex_style, TDerivedWindow::ClassName(), definition.name,
           definition.style, definition.x_pos, definition.y_pos,
           definition.width, definition.height, definition.parent_window,
@@ -143,15 +77,19 @@ class BaseWindow {
                : std_ext::os_res<un<TDerivedWindow>>{rc};
   }
 
-  int Show(int flags) const noexcept {
-    G3DCHECK(!!hwnd_);
-    return ::ShowWindow(hwnd_, flags);
-  }
+  /**
+   * @brief Show window with flags.
+   * @param flags Flags.
+   * @return true if window was visible, 0 otherwise.
+   */
+  bool Show(int flags) const noexcept;
 
-  int Update() const noexcept {
-    G3DCHECK(!!hwnd_);
-    return ::UpdateWindow(hwnd_);
-  }
+  /**
+   * @brief Updates the client area of the specified window by sending a
+   * WM_PAINT message.
+   * @return true if success, false otherwise.
+   */
+  bool Update() const noexcept;
 
  protected:
   /**
@@ -160,11 +98,7 @@ class BaseWindow {
    * @tparam TDerivedWindow.
    */
   BaseWindow(_In_ HINSTANCE instance, _In_ int icon_id,
-             _In_ int icon_small_id) noexcept
-      : instance_{instance},
-        hwnd_{nullptr},
-        icon_id_{icon_id},
-        icon_small_id_{icon_small_id} {}
+             _In_ int icon_small_id) noexcept;
 
   /**
    * @brief Window message handler.  Override in derived windows.
@@ -174,8 +108,9 @@ class BaseWindow {
    * @param lParam Low message parameter.
    * @return Result code, usually 0 if message was handled.
    */
-  virtual LRESULT HandleMessage(_In_ UINT message, _In_ WPARAM wParam,
-                                _In_ LPARAM lParam) noexcept = 0;
+  virtual intptr_t HandleMessage(_In_ unsigned int message,
+                                 _In_ uintptr_t wParam,
+                                 _In_ intptr_t lParam) noexcept = 0;
 
   /**
    * @brief Native window handle.
@@ -186,7 +121,13 @@ class BaseWindow {
  private:
   HINSTANCE instance_;
   HWND hwnd_;
-  wb::base::un<ScopedWindowClass> scoped_window_class_;
+
+  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Private member is not accessible to the DLL's client, including inline
+    // functions.
+    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    wb::base::un<ScopedWindowClass> scoped_window_class_;
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   /**
    * @brief Static window message handler.  Dispatch window message to
@@ -197,10 +138,13 @@ class BaseWindow {
    * @param lParam Low message parameter.
    * @return Result code, usually 0 if message was handled.
    */
-  static LRESULT CALLBACK WindowMessageHandler(_In_ HWND hwnd,
-                                               _In_ UINT message,
-                                               _In_ WPARAM wParam,
-                                               _In_ LPARAM lParam) {
+  template <typename TDerivedWindow>
+  static intptr_t CALLBACK WindowMessageHandler(_In_ HWND hwnd,
+                                                _In_ unsigned message,
+                                                _In_ uintptr_t wParam,
+                                                _In_ intptr_t lParam) {
+    static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
+
     TDerivedWindow *window{nullptr};
 
     if (message == WM_NCCREATE) {
@@ -242,46 +186,42 @@ class BaseWindow {
    * @param window Window to put class to.
    * @return Registration result code.
    */
+  template <typename TDerivedWindow>
   [[nodiscard]] static std::error_code RegisterWindowClass(
-      _In_ const WindowDefinition &definition, _In_ const DWORD class_style,
-      _In_ LPCTSTR class_name,
+      _In_ const WindowDefinition &definition,
+      _In_ const unsigned long class_style,
       _In_ const wb::base::un<TDerivedWindow> &window) noexcept {
-    G3DCHECK(!!class_name);
+    static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
 
-    const auto icon =
-        LoadIcon(definition.instance, MAKEINTRESOURCE(definition.icon_id));
-    G3DCHECK(!!icon);
-
-    const auto icon_small = LoadIcon(definition.instance,
-                                     MAKEINTRESOURCE(definition.icon_small_id));
-    G3DCHECK(!!icon_small);
-
-    WNDCLASSEX wnd_class = {sizeof(wnd_class)};
-    wnd_class.style = class_style;
-    wnd_class.lpfnWndProc = TDerivedWindow::WindowMessageHandler;
-    wnd_class.cbClsExtra = 0;
-    wnd_class.cbWndExtra = 0;
-    wnd_class.hInstance = definition.instance;
-    wnd_class.hIcon = icon;
-    wnd_class.hCursor = definition.cursor;
-    wnd_class.hbrBackground = definition.class_brush;
-    wnd_class.lpszClassName = class_name;
-    wnd_class.hIconSm = icon_small;
+    auto new_scoped_window_class =
+        CreateWindowClass(definition, class_style, TDerivedWindow::ClassName(),
+                          &WindowMessageHandler<TDerivedWindow>);
 
     G3DCHECK(!!window);
+
     auto &scoped_window_class = window->scoped_window_class_;
-    scoped_window_class.reset(
-        new ScopedWindowClass{wnd_class.hInstance, wnd_class});
+    scoped_window_class.swap(new_scoped_window_class);
 
     return scoped_window_class->error_code();
   }
 
+  /**
+   * @brief Creates window class.
+   * @tparam TDerivedWindow Window type.
+   * @param definition Window definition.
+   * @param class_style Window class style.
+   * @param class_name Window class name.
+   * @param window_message_handler Window message handler.
+   * @return ScopedWindowClass.
+   */
+  [[nodiscard]] static wb::base::un<ScopedWindowClass> CreateWindowClass(
+      _In_ const WindowDefinition &definition,
+      _In_ const unsigned long class_style, _In_ const char *class_name,
+      _In_ WNDPROC window_message_handler) noexcept;
+
  protected:
   int icon_id_, icon_small_id_;
 };
-
-template <typename TDerivedWindow>
-BaseWindow<TDerivedWindow>::~BaseWindow() noexcept {}
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WINDOWS_UI_BASE_WINDOW_H_

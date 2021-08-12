@@ -26,7 +26,7 @@ namespace {
  */
 [[nodiscard]] wb::base::windows::ui::WindowDefinition
 CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
-                           const char *window_title, _In_ int width,
+                           const char* window_title, _In_ int width,
                            _In_ int height) noexcept {
   G3DCHECK(!!kernel_args.instance);
 
@@ -83,8 +83,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                                  768)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
-  auto window_result =
-      MainWindow::Create(window_definition, window_class_style);
+  auto window_result = windows::ui::BaseWindow::New<MainWindow>(
+      window_definition, window_class_style);
   if (auto* window_ptr = std::get_if<un<MainWindow>>(&window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If

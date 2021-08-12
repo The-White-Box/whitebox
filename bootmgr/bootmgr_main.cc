@@ -178,6 +178,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
         "Windows version is too old.  Version 1903 (May 2019 Update) or "
         "greater is required."};
     constexpr DWORD kOldWindowsVersionErrorCode{ERROR_OLD_WIN_VERSION};
+
     ui::DialogBoxSettings dialog_settings(
         nullptr, kBootmgrDialogTitle,
         "Update Windows to \"Version 1903 (May 2019 Update)\" or greater",
