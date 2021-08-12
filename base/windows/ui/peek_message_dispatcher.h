@@ -29,6 +29,17 @@ constexpr inline bool HasNoPreDispatchMessage(const MSG&) noexcept {
 constexpr inline void HasNoPostDispatchMessage(const MSG&) noexcept {}
 
 /**
+ * @brief Dispatcher functions concept.
+ * @tparam HasPreDispatchedMessageFn Predispatch function.
+ * @tparam PostDispatchedMessageFn Postdispatch function.
+ */
+template <typename HasPreDispatchedMessageFn, typename PostDispatchedMessageFn>
+using dispatcher_functions_concept = std::enable_if_t<
+    std::is_nothrow_invocable_r_v<bool, HasPreDispatchedMessageFn,
+                                  const MSG&> &&
+    std::is_nothrow_invocable_r_v<void, PostDispatchedMessageFn, const MSG&>>;
+
+/**
  * @brief Window messages peeking dispatcher.
  */
 class PeekMessageDispatcher {
@@ -47,29 +58,25 @@ class PeekMessageDispatcher {
    * arrived in queue messages.
    * @tparam HasPreDispatchedMessageFn Message predispatcher.
    * @tparam PostDispatchedMessageFn Message postdispatcher.
-   * @tparam
    * @param has_pre_dispatched_message_fn Predispather.
    * @param post_dispatched_message_fn Postdispatcher.
-   * @param lowest_message_id Lowest message id.  Ids lower than than are
+   * @param lowest_message_id Lowest message id.  Ids lower than this are
    * ignored.
-   * @param highest_message_id Highest message id.  Ids higher than than are
+   * @param highest_message_id Highest message id.  Ids higher than this are
    * ignored.
    * @return void.
    */
   template <
       typename HasPreDispatchedMessageFn = decltype(&HasNoPreDispatchMessage),
-      typename PostDispatchedMessageFn = decltype(&HasNoPostDispatchMessage),
-      typename =
-          std::enable_if_t<std::is_nothrow_invocable_r_v<
-                               bool, HasPreDispatchedMessageFn, const MSG&> &&
-                           std::is_nothrow_invocable_r_v<
-                               void, PostDispatchedMessageFn, const MSG&>>>
-  void Dispatch(_In_ HasPreDispatchedMessageFn has_pre_dispatched_message_fn =
-                    HasNoPreDispatchMessage,
-                _In_ PostDispatchedMessageFn post_dispatched_message_fn =
-                    HasNoPostDispatchMessage,
-                _In_ UINT lowest_message_id = 0U,
-                _In_ UINT highest_message_id = 0U) const noexcept {
+      typename PostDispatchedMessageFn = decltype(&HasNoPostDispatchMessage)>
+  dispatcher_functions_concept<HasPreDispatchedMessageFn,
+                               PostDispatchedMessageFn>
+  Dispatch(_In_ HasPreDispatchedMessageFn has_pre_dispatched_message_fn =
+               HasNoPreDispatchMessage,
+           _In_ PostDispatchedMessageFn post_dispatched_message_fn =
+               HasNoPostDispatchMessage,
+           _In_ UINT lowest_message_id = 0U,
+           _In_ UINT highest_message_id = 0U) const noexcept {
     MSG msg;
     while (PeekMessage(&msg, hwnd_, lowest_message_id, highest_message_id,
                        PM_NOREMOVE)) {
