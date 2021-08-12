@@ -37,8 +37,10 @@ WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
   GetCurrentThreadHandle() noexcept {
 #ifdef WB_OS_WIN
     return NativeThreadHandle{::GetCurrentThread()};
-#else
+#elif defined(WB_OS_POSIX)
     return NativeThreadHandle{pthread_self()};
+#else
+#error Please, define GetCurrentThreadHandle for your os in base/threads/thread_utils.cc
 #endif
   }
 WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
@@ -73,7 +75,7 @@ WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
   return std_ext::GetThreadPosixErrorCode(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));
 #else
-#error Please, define GetThreadName for your os in base/include/threads/thread_utils.cc
+#error Please, define GetThreadName for your os in base/threads/thread_utils.cc
 #endif
 }
 
@@ -92,7 +94,7 @@ WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
   return std_ext::GetThreadPosixErrorCode(
       ::pthread_setname_np(handle, thread_name.data()));
 #else
-#error Please, define SetThreadName for your os in base/include/threads/thread_utils.cc
+#error Please, define SetThreadName for your os in base/threads/thread_utils.cc
 #endif
 }
 }  // namespace wb::base::threads
