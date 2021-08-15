@@ -342,11 +342,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       ## Warnings to disable:
       # Please, check _STL_EXTRA_DISABLED_WARNINGS can be applied first for
       # system header warnings.
-      # C4514: 'function' : unreferenced inline function has been removed.
+      # C4514: 'function': unreferenced inline function has been removed.
       # C4710: 'function': function not inlined.
+      # C4711: 'function': function selected for automatic inline expansion.
       # C5045: Compiler will insert Spectre mitigation for memory load if
       #        /Qspectre switch specified.
-      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710;/wd5045>
+      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710;/wd4711;/wd5045>
 
       ## Warnings to treat as errors:
       # Mixed use of struct and class on same type names.

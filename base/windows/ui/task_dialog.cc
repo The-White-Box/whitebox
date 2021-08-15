@@ -75,7 +75,7 @@ constexpr wb::base::windows::ui::DialogBoxButton GetButtonById(
  * @return void.
  */
 template <int icon_type>
-void SetTaskDialogIcon(HWND window, int icon_id) noexcept {
+inline void SetTaskDialogIcon(HWND window, int icon_id) noexcept {
   const HANDLE exe_icon{::LoadImage(::GetModuleHandle(nullptr),
                                     MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0,
                                     LR_DEFAULTSIZE)};
@@ -105,7 +105,7 @@ struct TaskDialogContext {
  * @param Context.
  * @return void.
  */
-void OnTaskDialogConstructed(HWND window, LONG_PTR ctx) noexcept {
+inline void OnTaskDialogConstructed(HWND window, LONG_PTR ctx) noexcept {
   G3DCHECK(!!window);
 
   const auto* context = reinterpret_cast<TaskDialogContext*>(ctx);
@@ -123,8 +123,8 @@ void OnTaskDialogConstructed(HWND window, LONG_PTR ctx) noexcept {
  * @param url Hyperlink url.
  * @return void.
  */
-void OnTaskDialogHyperlinkClicked(HWND window, LONG_PTR,
-                                  const wchar_t* url) noexcept {
+inline void OnTaskDialogHyperlinkClicked(HWND window, LONG_PTR,
+                                         const wchar_t* url) noexcept {
   G3DCHECK(!!window);
   G3DCHECK(!!url);
 
