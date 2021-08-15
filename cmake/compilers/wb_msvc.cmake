@@ -287,7 +287,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # Minimum architecture (instruction sets) to use when generating code.
       $<$<BOOL:${WB_MSVC_MINIMUM_CPU_ARCHITECTURE}>:/arch:${WB_MSVC_MINIMUM_CPU_ARCHITECTURE}>
       # Specify floating-point behavior.
-      ######## /fp:${WB_MSVC_FLOATING_POINT_BEHAVIOR}
+      /fp:${WB_MSVC_FLOATING_POINT_BEHAVIOR}
       # Specify floating-point exceptions behavior.
       /fp:${WB_MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR}
       # Enables the external headers options. This option isn't required in
