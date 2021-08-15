@@ -98,34 +98,9 @@ wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TARGET_NAME}
   "${WB_BASE_DEPENDENCIES}")
 
 if (WB_BUILD_TESTS)
-  # We currently build tests by finding all sources and header files.
-  # We then exclude specific files below.
-  wb_auto_sources(tests_files "*_tests.cc" "RECURSE" "${WB_BASE_SOURCE_DIR}")
-
-  if (NOT WB_OS_WIN)
-    wb_remove_matches_from_lists(tests_files
-      MATCHES
-        "^${WB_BASE_SOURCE_DIR}/windows/"
-    )
-  endif()
-
-  set(WB_BASE_TESTS_TARGET_NAME "${WB_BASE_TARGET_NAME}_tests")
-
-  add_executable(${WB_BASE_TESTS_TARGET_NAME} ${tests_files})
-
-  # Specify project compile / link options.
-  wb_apply_compile_options_to_target(${WB_BASE_TESTS_TARGET_NAME})
-
-  # Consume GTest as shared library to reduce tests size (slow down them a bit).
-  target_link_libraries(${WB_BASE_TESTS_TARGET_NAME}
-    PRIVATE comsuppw GTest::gtest_main mimalloc)
-
-  set(WB_BASE_TESTS_DEPENDENCIES mimalloc)
-
-  # Add runtime dependencies.
-  wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BASE_TESTS_TARGET_NAME}
-    "${WB_BASE_TESTS_DEPENDENCIES}")
-
-  include(GoogleTest)
-  gtest_discover_tests(${WB_BASE_TESTS_TARGET_NAME})
+  wb_cxx_test_exe_for_target(
+    TARGET        ${WB_BASE_TARGET_NAME}
+    SRC_DIR       ${WB_BASE_SOURCE_DIR}
+    LINK_DEPS     comsuppw
+  )
 endif()

@@ -231,7 +231,8 @@ function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPEND
       TARGET ${THE_TARGET} POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll" $<TARGET_FILE_DIR:${THE_TARGET}>
       DEPENDS ${THE_DEPENDENCY}
-      COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${THE_TARGET} output directory")
+      COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${THE_TARGET} output directory"
+    )
   endif()
 endfunction()
 
@@ -246,7 +247,7 @@ function(wb_get_all_targets RESULT ROOT_DIR)
   get_property(SUB_DIRS DIRECTORY "${ROOT_DIR}" PROPERTY SUBDIRECTORIES)
 
   foreach(SUB_DIR IN LISTS SUB_DIRS)
-      wb_get_all_targets(${RESULT} "${SUB_DIR}")
+    wb_get_all_targets(${RESULT} "${SUB_DIR}")
   endforeach()
 
   get_directory_property(SUB_TARGETS DIRECTORY "${ROOT_DIR}" BUILDSYSTEM_TARGETS)

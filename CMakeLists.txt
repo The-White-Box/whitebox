@@ -79,7 +79,8 @@ set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-include(wb_functions)
+include(wb_common_functions)
+include(wb_build_functions)
 wb_check_platform_requirements(${PACKAGE_NAME})
 
 set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
