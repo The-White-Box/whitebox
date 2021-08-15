@@ -7,8 +7,14 @@ name: Build & Test
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'assets/**'
   pull_request:
     branches: [ master ]
+    paths-ignore:
+      - '**.md'
+      - 'assets/**'
 
 jobs:
   build-windows:
