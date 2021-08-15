@@ -19,7 +19,7 @@
 #include "bootmgr/bootmgr_main.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
-#include "windows_resource.h"
+#include "resource_win.h"
 
 extern "C" {
 // Starting with the Release 302 drivers, application developers can direct the

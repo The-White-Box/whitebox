@@ -2,9 +2,9 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// App main window.
+// App main window on Windows.
 
-#include "main_window.h"
+#include "main_window_win.h"
 
 #include <timeapi.h>
 #include <windowsx.h>

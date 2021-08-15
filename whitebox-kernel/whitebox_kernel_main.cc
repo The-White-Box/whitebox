@@ -11,7 +11,7 @@
 #include "base/windows/ui/base_window.h"
 #include "base/windows/ui/peek_message_dispatcher.h"
 #include "base/windows/windows_light.h"
-#include "whitebox-kernel/main_window.h"
+#include "whitebox-kernel/main_window_win.h"
 #endif
 
 namespace {

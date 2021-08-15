@@ -6,78 +6,29 @@
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-set(WB_BOOTMGR_VERSION     ${CMAKE_PROJECT_VERSION})
+set(WB_BOOTMGR_SOURCE_DIR   ${CMAKE_CURRENT_SOURCE_DIR})
+set(WB_BOOTMGR_BINARY_DIR   ${CMAKE_CURRENT_BINARY_DIR})
+set(WB_BOOTMGR_TARGET_NAME  "bootmgr")
 
-project("bootmgr"
-  VERSION ${WB_BOOTMGR_VERSION}
-  DESCRIPTION "Whitebox Boot Manager"
-  LANGUAGES CXX)
+set(WB_BOOTMGR_LINK_OPTIONS "")
 
-set(WB_BOOTMGR_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(WB_BOOTMGR_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(WB_BOOTMGR_TARGET_NAME "bootmgr")
-set(WB_CURRENT_TARGET_NAME ${WB_BOOTMGR_TARGET_NAME})
-set(WB_CURRENT_TARGET_SUFFIX ".dll")
-
-# We currently build app by finding all sources and header files.
-# We then exclude specific files below.
-wb_auto_sources(files "*.cc" "RECURSE" "${WB_BOOTMGR_SOURCE_DIR}")
-wb_auto_sources(hfiles "*.h" "RECURSE" "${WB_BOOTMGR_SOURCE_DIR}")
-
-# Generate project info.
-configure_file(
-  ${WB_ROOT_DIR}/build/app_version_config.h.cmake.in
-  ${WB_BOOTMGR_BINARY_DIR}/gen/app_version_config.h
-)
-
-add_library(${WB_BOOTMGR_TARGET_NAME} SHARED ${files} ${hfiles})
-
-# Include the directory with the new files.
-target_include_directories(${WB_BOOTMGR_TARGET_NAME}
-  PRIVATE
-    ${WB_ROOT_DIR}
-    ${WB_BOOTMGR_BINARY_DIR}/gen
-    ${WB_BINARY_DIR}
-)
-
-# Specify project compile / link options.
-wb_apply_compile_options_to_target(${WB_BOOTMGR_TARGET_NAME})
-
-# Specify definitions for library.
-target_compile_definitions(${WB_BOOTMGR_TARGET_NAME}
-  PRIVATE WB_BOOTMGR_DLL=1
-)
-
-set(WB_BOOTMGR_LINK_LIBRARIES base g3log mimalloc)
-
+set(WB_BOOTMGR_LINK_DEPS base g3log mimalloc)
 if (WB_OS_WIN)
-  list(APPEND WB_BOOTMGR_LINK_LIBRARIES "Winmm")
+  list(APPEND WB_BOOTMGR_LINK_DEPS "Winmm")
 else()
-  list(APPEND WB_BOOTMGR_LINK_LIBRARIES "dl;stdc++fs")
+  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;stdc++fs")
 endif()
 
-target_link_libraries(${WB_BOOTMGR_TARGET_NAME}
-  PRIVATE
-    ${WB_BOOTMGR_LINK_LIBRARIES}
+set(WB_BOOTMGR_RUNTIME_DEPS base g3log mimalloc whitebox-kernel)
+
+wb_cxx_shared_library(
+  TARGET        ${WB_BOOTMGR_TARGET_NAME}
+  VERSION       ${CMAKE_PROJECT_VERSION}
+  DESCRIPTION   "Whitebox Boot Manager"
+  SOURCE_DIR    ${WB_BOOTMGR_SOURCE_DIR}
+  BINARY_DIR    ${WB_BOOTMGR_BINARY_DIR}
+  CXX_DEFS      WB_BOOTMGR_DLL=1
+  LINK_OPTS     ${WB_BOOTMGR_LINK_OPTIONS}
+  LINK_DEPS     ${WB_BOOTMGR_LINK_DEPS}
+  RUNTIME_DEPS  ${WB_BOOTMGR_RUNTIME_DEPS}
 )
-
-# Specify library version / soversion.
-set_target_properties(${WB_BOOTMGR_TARGET_NAME}
-  PROPERTIES
-    VERSION ${WB_BOOTMGR_VERSION}
-    SOVERSION ${WB_BOOTMGR_VERSION}
-)
-
-# Append Windows specific.
-if (WB_OS_WIN)
-  target_sources(${WB_BOOTMGR_TARGET_NAME}
-    PRIVATE
-      ${WB_ROOT_DIR}/build/windows/resource_scripts/windows_dll_base.rc
-  )
-endif()
-
-set(WB_BOOTMGR_DEPENDENCIES mimalloc whitebox-kernel)
-
-# Add runtime dependencies.
-wb_copy_all_target_dependencies_to_target_bin_dir(${WB_BOOTMGR_TARGET_NAME}
-  "${WB_BOOTMGR_DEPENDENCIES}")

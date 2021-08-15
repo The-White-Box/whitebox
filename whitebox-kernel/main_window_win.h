@@ -2,10 +2,10 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// App main window.
+// App main window on Windows.
 
-#ifndef WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_
-#define WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_
+#ifndef WB_WHITEBOX_KERNEL_MAIN_WINDOW_WIN_H_
+#define WB_WHITEBOX_KERNEL_MAIN_WINDOW_WIN_H_
 
 #include <sal.h>
 
@@ -116,7 +116,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    * @brief Is window active or not?
    */
   bool is_window_active_;
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - 1];
+  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(is_window_active_)];
 
   /**
    * @brief Gets window class name.
@@ -186,4 +186,4 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
 };
 }  // namespace wb::kernel
 
-#endif  // !WB_WHITEBOX_KERNEL_MAIN_WINDOW_H_
+#endif  // !WB_WHITEBOX_KERNEL_MAIN_WINDOW_WIN_H_

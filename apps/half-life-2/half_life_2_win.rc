@@ -6,7 +6,7 @@
 
 #include <winresrc.h>
 
-#include "windows_resource.h"
+#include "resource_win.h"
 
 // clang-format off
 
