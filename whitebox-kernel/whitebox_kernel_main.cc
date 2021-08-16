@@ -103,7 +103,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   return error_code.value();
 #else
-  G3LOG(WARNING) << "Unable to create main '" << window_title
+  G3LOG(WARNING) << "Unable to create main '" << kernel_args.app_description
                  << "' window.  Not implemented.";
 
   return 0;
