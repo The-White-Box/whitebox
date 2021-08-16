@@ -101,7 +101,9 @@ class ScopedThreadErrorMode {
    * @brief Old thread error mode.
    */
   unsigned long old_error_mode_;
-  [[maybe_unused]] std::byte pad_[4];
+
+  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(old_error_mode_)];
+
   /**
    * @brief Set thread error mode error code.
    */

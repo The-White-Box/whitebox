@@ -53,7 +53,7 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
   WINDOWPLACEMENT narrow_window_placement_;
   bool is_fullscreen_now_;
 
-  std::byte pad_[sizeof(char*) - sizeof(is_fullscreen_now_)];
+  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(is_fullscreen_now_)];
 
   [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
     error_handling::ScopedThreadLastError restore_last_error_on_out;

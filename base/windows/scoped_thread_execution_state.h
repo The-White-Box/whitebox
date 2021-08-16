@@ -104,7 +104,8 @@ class ScopedThreadExecutionState {
 
     return !state.error_code()
                ? std_ext::os_res<ScopedThreadExecutionState>{std::move(state)}
-               : std_ext::os_res<ScopedThreadExecutionState>{state.error_code()};
+               : std_ext::os_res<ScopedThreadExecutionState>{
+                     state.error_code()};
   }
 
   ScopedThreadExecutionState(ScopedThreadExecutionState&& s) noexcept
@@ -128,7 +129,8 @@ class ScopedThreadExecutionState {
    * @brief Old thread execution state flags.
    */
   ScopedThreadExecutionStateFlags old_flags_;
-  std::byte pad_[4];
+
+  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(old_flags)];
   /**
    * @brief Thread execution state acquire error code.
    */

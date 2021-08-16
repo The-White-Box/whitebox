@@ -37,7 +37,7 @@ struct ComptrTest : public IComptrTest {
   // Holds reference counter.
   ULONG counter;
 
-  std::byte pad_[sizeof(char *) - sizeof(counter)];
+  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(counter)];
 
   ComptrTest() : counter{0} { AddRef(); }
 

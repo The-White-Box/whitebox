@@ -118,6 +118,7 @@ class ScopedComInitializer {
    * @brief COM initializing thread id.
    */
   std::thread::id thread_id_;
+
   [[maybe_unused]] std::byte pad_[4];
 #endif
 

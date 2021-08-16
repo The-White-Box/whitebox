@@ -116,6 +116,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    * @brief Is window active or not?
    */
   bool is_window_active_;
+
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(is_window_active_)];
 
   /**
