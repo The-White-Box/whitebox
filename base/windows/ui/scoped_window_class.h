@@ -88,7 +88,12 @@ class ScopedWindowClass {
    * @brief Class atom.
    */
   const unsigned short class_atom_;
+
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(class_atom_)];
+
+  /**
+   * @brief Error code.
+  */
   const std::error_code error_code_;
 };
 }  // namespace wb::base::windows::ui

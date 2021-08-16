@@ -21,7 +21,6 @@ class WB_BASE_API FullScreenWindowToggler {
  public:
   FullScreenWindowToggler(_In_ HWND window,
                           _In_ long default_window_style) noexcept;
-
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FullScreenWindowToggler);
 
   ~FullScreenWindowToggler() noexcept;

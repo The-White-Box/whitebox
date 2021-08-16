@@ -184,6 +184,7 @@ struct DialogBoxSettings {
    * @brief Is Left to right text layout or not?
    */
   const bool rtl_layout;
+
   [[maybe_unused]] std::byte pad[sizeof(int) - sizeof(rtl_layout)];
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(DialogBoxSettings);

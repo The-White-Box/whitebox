@@ -22,13 +22,12 @@ class WB_BASE_API AccessibilityShortcutKeysToggler {
    * @return nothing.
    */
   AccessibilityShortcutKeysToggler() noexcept;
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(AccessibilityShortcutKeysToggler);
   AccessibilityShortcutKeysToggler(AccessibilityShortcutKeysToggler&&) noexcept;
   AccessibilityShortcutKeysToggler& operator=(
       AccessibilityShortcutKeysToggler&&) noexcept;
 
   ~AccessibilityShortcutKeysToggler() noexcept;
-
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(AccessibilityShortcutKeysToggler);
 
   /**
    * @brief Toggles windows accessibility shortcut keys on/off.

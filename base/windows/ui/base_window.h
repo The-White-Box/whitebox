@@ -40,22 +40,18 @@ namespace wb::base::windows::ui {
 class WB_BASE_API BaseWindow {
  public:
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(BaseWindow);
-
-  /**
-   * @brief Move ctor.
-   */
   BaseWindow(BaseWindow &&w) noexcept;
-
-  /**
-   * @brief Move assingment.
-   */
   BaseWindow &operator=(BaseWindow &&w) noexcept;
 
-  /**
-   * @brief Dtor.
-   */
   virtual ~BaseWindow() noexcept = 0;
 
+  /**
+   * @brief Creates TDerivedWindow window.
+   * @tparam TDerivedWindow Window type to create.
+   * @param definition Window definition.
+   * @param class_style Window class style.
+   * @return TDerivedWindow window.
+   */
   template <typename TDerivedWindow>
   [[nodiscard]] static std_ext::os_res<un<TDerivedWindow>> New(
       _In_ const WindowDefinition &definition,
