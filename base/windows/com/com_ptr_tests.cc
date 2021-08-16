@@ -71,7 +71,7 @@ struct ComptrTest : public IComptrTest {
   ULONG STDMETHODCALLTYPE AddRef() override { return ++counter; }
 
   ULONG STDMETHODCALLTYPE Release() override {
-    if (counter-- == 0) {
+    if (--counter == 0) {
       delete this;
       return 0UL;
     }
@@ -491,7 +491,7 @@ TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
       << "com_ptr should be converted to true when has interface ptr."
       << std::endl;
 
-  raw_ptr->Release();
+  // Attach doesn't change reference count, but still com_ptr Released on dtor.
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
@@ -653,7 +653,8 @@ TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
       << "Should set interface ptr." << std::endl;
 
   (*pp1)->Release();
-  raw_ptr->Release();
+
+  // Pointer already set in com_ptr and will be released.
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
@@ -683,5 +684,6 @@ TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
       << "Should set interface ptr." << std::endl;
 
   (*pp1)->Release();
-  raw_ptr->Release();
+
+  // Pointer already set in com_ptr and will be released.
 }
