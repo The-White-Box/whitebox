@@ -10,25 +10,19 @@
 #include <sal.h>
 #include <winerror.h>  // ERROR_INSUFFICIENT_BUFFER
 
-#include <cstring>
+#include <cctype>
+#include <cstdlib>
+#include <filesystem>
+#include <string_view>
 
 #include "base/base_switches.h"
 #include "base/std_ext/system_error_ext.h"
+#include "build/compiler_config.h"
 
-struct HINSTANCE__;
-
-/**
- * @brief HINSTANCE type.
- */
 using HINSTANCE = struct HINSTANCE__*;
-
-/**
- * @brief HMODULE type.
- */
 using HMODULE = HINSTANCE;
 
-WINBASEAPI
-_Success_(return != 0)
+extern "C" WB_ATTRIBUTE_DLL_IMPORT _Success_(return != 0)
     _Ret_range_(1, nSize) unsigned long __stdcall GetModuleFileNameA(
         _In_opt_ HMODULE hModule,
         _Out_writes_to_(nSize, ((return < nSize) ? (return +1)
@@ -42,17 +36,27 @@ namespace wb::base::windows {
  * @return true if signed dll required, false otherwise.
  */
 [[nodiscard]] inline bool MustBeSignedDllLoadTarget(
-    _In_ const char* command_line) noexcept {
-  const char* unsafe_allow_unsigned_module_target{std::strstr(
-      command_line, wb::base::switches::kUnsafeAllowUnsignedModuleTargetFlag)};
+    _In_ std::string_view command_line) noexcept {
+  const size_t unsafe_arg_idx{
+      command_line.find(switches::insecure::kAllowUnsignedModuleTargetFlag)};
+  // No arg.
+  if (unsafe_arg_idx == std::string_view::npos) [[likely]] {
+    return true;
+  }
 
-  if (unsafe_allow_unsigned_module_target == nullptr) return true;
+  // Should start with arg or has space char before.
+  if (unsafe_arg_idx != 0U && !std::isspace(static_cast<unsigned char>(
+                                  command_line[unsafe_arg_idx - 1U]))) {
+    return true;
+  }
 
-  const char after_flag_char{
-      *(unsafe_allow_unsigned_module_target +
-        sizeof(wb::base::switches::kUnsafeAllowUnsignedModuleTargetFlag) - 1)};
-  return after_flag_char != '\0' &&
-         !std::isspace(static_cast<unsigned char>(after_flag_char));
+  // Should end with arg or has space char after.
+  const size_t next_char_after_unsafe_arg_idx{
+      unsafe_arg_idx +
+      sizeof(switches::insecure::kAllowUnsignedModuleTargetFlag) - 1U};
+  return next_char_after_unsafe_arg_idx < command_line.size() &&
+         !std::isspace(static_cast<unsigned char>(
+             command_line[next_char_after_unsafe_arg_idx]));
 }
 
 /**
@@ -63,10 +67,11 @@ namespace wb::base::windows {
 wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
     _In_ HINSTANCE instance) {
   std::string file_path;
-  file_path.resize(MAX_PATH + 1);
+  file_path.resize(_MAX_PATH + 1);
 
-  const DWORD file_name_path_size{::GetModuleFileNameA(
-      instance, file_path.data(), static_cast<DWORD>(file_path.size()))};
+  const unsigned long file_name_path_size{
+      ::GetModuleFileNameA(instance, file_path.data(),
+                           static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
     if (wb::base::std_ext::GetThreadNativeLastErrno() ==
         ERROR_INSUFFICIENT_BUFFER) {

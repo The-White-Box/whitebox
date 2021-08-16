@@ -84,7 +84,7 @@ struct ComptrTest : public IComptrTest {
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldDefaultConstructTest) {
+GTEST_TEST(ComPtrTests, ShouldDefaultConstructTest) {
   const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   auto *interface_ptr = p.GetInterfacePtr();
 
@@ -94,7 +94,7 @@ TEST(ComPtrTests, ShouldDefaultConstructTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
+GTEST_TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -121,7 +121,7 @@ TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldCopyComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -148,7 +148,7 @@ TEST(ComPtrTests, ShouldCopyComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -176,7 +176,7 @@ TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -206,7 +206,7 @@ TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldMoveComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldMoveComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -234,7 +234,7 @@ TEST(ComPtrTests, ShouldMoveComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -263,7 +263,7 @@ TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
 
   ASSERT_NE(raw_ptr, nullptr)
@@ -293,7 +293,7 @@ TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldGetIidTest) {
+GTEST_TEST(ComPtrTests, ShouldGetIidTest) {
   auto actual_iid =
       wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest>::GetIID();
 
@@ -301,7 +301,7 @@ TEST(ComPtrTests, ShouldGetIidTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -327,7 +327,7 @@ TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
+GTEST_TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -353,7 +353,7 @@ TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -379,7 +379,7 @@ TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
   wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   EXPECT_EQ(p.GetInterfacePtr(), nullptr)
       << "com_ptr should have nullptr interface pointer by default."
@@ -411,7 +411,7 @@ TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
   auto *raw_ptr1 = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr1, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -452,7 +452,7 @@ TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -476,7 +476,7 @@ TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -495,7 +495,7 @@ TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -514,7 +514,7 @@ TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -542,7 +542,7 @@ TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -570,7 +570,7 @@ TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -600,7 +600,7 @@ TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -631,7 +631,7 @@ TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
@@ -658,7 +658,7 @@ TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
+GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;

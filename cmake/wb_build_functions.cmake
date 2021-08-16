@@ -230,11 +230,11 @@ function(wb_cxx_shared_library)
   wb_auto_sources(source_files "*.cc" "RECURSE" "${target_source_dir}")
 
   # Exclude OS specific files.
-  if (NOT WB_OS_WIN)
+  if (NOT WB_OS_MACOSX)
     wb_remove_matches_from_lists(header_files source_files
       MATCHES
-        "^${target_source_dir}/windows/"
-        "^${target_source_dir}(.*)_win.cc"
+        "^${target_source_dir}/macos/"
+        "^${target_source_dir}(.*)_macos.cc"
     )
   endif()
 
@@ -247,19 +247,19 @@ function(wb_cxx_shared_library)
     )
   endif()
 
-  if (NOT WB_OS_MACOSX)
+  if (NOT WB_OS_WIN)
     wb_remove_matches_from_lists(header_files source_files
       MATCHES
-        "^${target_source_dir}/macos/"
-        "^${target_source_dir}(.*)_macos.cc"
+        "^${target_source_dir}/windows/"
+        "^${target_source_dir}(.*)_win.cc"
     )
   endif()
 
   # Remove tests.
   wb_remove_matches_from_lists(header_files source_files
     MATCHES
-      "^${target_source_dir}(.*)?_tests.h$"
-      "^${target_source_dir}(.*)?_tests.cc$"
+      "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.h$"
+      "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.cc$"
   )
 
   # Generate project info.
@@ -315,7 +315,7 @@ endfunction(wb_cxx_shared_library)
 # Usage example:
 # wb_cxx_test_exe_for_target(
 #   TARGET        testing_target
-#   SRC_DIR       tests_source_directory
+#   SOURCE_DIR    tests_source_directory
 #   LINK_DEPS?    tests_link_dependencies
 #   RUNTIME_DEPS? tests_runtime_dependencies
 # )
@@ -323,49 +323,63 @@ function(wb_cxx_test_exe_for_target)
   cmake_parse_arguments(
     args
     ""
-    "TARGET;SRC_DIR"
+    "TARGET;SOURCE_DIR"
     "LINK_DEPS;RUNTIME_DEPS"
     ${ARGN}
   )
 
-  if (NOT args_TARGET OR NOT args_SRC_DIR)
-    message(FATAL_ERROR "[tests]: TARGET & SRC_DIR arguments are required.")
+  if (NOT args_TARGET OR NOT args_SOURCE_DIR)
+    message(FATAL_ERROR "[tests]: TARGET & SOURCE_DIR arguments are required.")
   endif()
+  
+  set(target_name         ${args_TARGET})
+  set(target_source_dir   ${args_SOURCE_DIR})
 
   # First find all test sources and header files.
-  wb_auto_sources(header_files "*_tests.h" "RECURSE" "${args_SRC_DIR}")
-  wb_auto_sources(source_files "*_tests.cc" "RECURSE" "${args_SRC_DIR}")
+  wb_auto_sources(header_files "*_tests*.h" "RECURSE" "${target_source_dir}")
+  wb_auto_sources(source_files "*_tests*.cc" "RECURSE" "${target_source_dir}")
 
   # Exclude OS specific files.
+  if (NOT WB_OS_MACOSX)
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        "^${target_source_dir}/macos/"
+        "^${target_source_dir}(.*)_macos.cc"
+    )
+  endif()
+
+  if (NOT WB_OS_LINUX)
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        # Technically Linux is not Unix, but more or less similar.
+        "^${target_source_dir}/unix/"
+        "^${target_source_dir}(.*)_unix.cc"
+    )
+  endif()
+
   if (NOT WB_OS_WIN)
     wb_remove_matches_from_lists(header_files source_files
       MATCHES
-        "^${args_SRC_DIR}/windows/"
-    )
-  elseif (NOT WB_OS_LINUX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${args_SRC_DIR}/linux/"
-    )
-  elseif (NOT WB_OS_MACOSX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${args_SRC_DIR}/macos/"
+        "^${target_source_dir}/windows/"
+        "^${target_source_dir}(.*)_win.cc"
     )
   endif()
 
-  set(tests_target_name "${args_TARGET}_tests")
+  set(tests_target_name "${target_name}_tests")
   add_executable(${tests_target_name} ${header_files} ${source_files})
 
   # Specify tests compile / link options.
   wb_apply_compile_options_to_target(${tests_target_name})
 
+  set(target_link_dependencies     ${args_LINK_DEPS})
+  set(target_runtime_dependencies  ${args_RUNTIME_DEPS})
+
   set(tests_link_dependencies GTest::gtest_main mimalloc)
-  list(APPEND tests_link_dependencies ${args_LINK_DEPS} ${args_TARGET})
+  list(APPEND tests_link_dependencies ${target_link_dependencies} ${target_name})
   target_link_libraries(${tests_target_name} PRIVATE ${tests_link_dependencies})
 
   set(tests_runtime_dependencies mimalloc)
-  list(APPEND tests_runtime_dependencies ${args_RUNTIME_DEPS})
+  list(APPEND tests_runtime_dependencies ${target_runtime_dependencies})
   wb_copy_all_target_dependencies_to_target_bin_dir(${tests_target_name}
     "${tests_runtime_dependencies}")
 

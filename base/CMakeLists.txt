@@ -46,7 +46,7 @@ if (WB_BUILD_TESTS)
 
   wb_cxx_test_exe_for_target(
     TARGET        ${WB_BASE_TARGET_NAME}
-    SRC_DIR       ${WB_BASE_SOURCE_DIR}
+    SOURCE_DIR    ${WB_BASE_SOURCE_DIR}
     LINK_DEPS     ${WB_BASE_LINK_DEPS}
   )
 endif()

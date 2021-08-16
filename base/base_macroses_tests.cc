@@ -34,7 +34,7 @@ enum class Enum : unsigned int { kNone = 0U };
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(BaseMacrosesTest, NoCopyConstructorAndAssignment) {
+GTEST_TEST(BaseMacrosesTest, NoCopyConstructorAndAssignment) {
   static_assert(!std::is_copy_constructible_v<NotCopyable>,
                 "NotCopyable should be not copyable");
   static_assert(!std::is_copy_assignable_v<NotCopyable>,
@@ -42,7 +42,7 @@ TEST(BaseMacrosesTest, NoCopyConstructorAndAssignment) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(BaseMacrosesTest, NoMoveConstructorAndAssignment) {
+GTEST_TEST(BaseMacrosesTest, NoMoveConstructorAndAssignment) {
   static_assert(!std::is_move_constructible_v<NotMovable>,
                 "NotMovable should be not movable");
   static_assert(!std::is_move_assignable_v<NotMovable>,
@@ -50,7 +50,7 @@ TEST(BaseMacrosesTest, NoMoveConstructorAndAssignment) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(BaseMacrosesTest, NoCopyMoveConstructorAndAssignment) {
+GTEST_TEST(BaseMacrosesTest, NoCopyMoveConstructorAndAssignment) {
   static_assert(!std::is_copy_constructible_v<NotCopyMovable>,
                 "NotCopyMovable should be not copyable");
   static_assert(!std::is_copy_assignable_v<NotCopyMovable>,
@@ -63,7 +63,7 @@ TEST(BaseMacrosesTest, NoCopyMoveConstructorAndAssignment) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(BaseMacrosesTest, ImplicitCast) {
+GTEST_TEST(BaseMacrosesTest, ImplicitCast) {
   static_assert(wb::base::implicit_cast<int>(12) == 12);
   static_assert(wb::base::implicit_cast<unsigned>(12U) == 12U);
   static_assert(wb::base::implicit_cast<long long int>(12) == 12LL);
@@ -74,14 +74,14 @@ TEST(BaseMacrosesTest, ImplicitCast) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(BaseMacrosesTest, UnderlyingCast) {
+GTEST_TEST(BaseMacrosesTest, UnderlyingCast) {
   static_assert(std::is_same_v<unsigned int, decltype(wb::base::underlying_cast(
                                                  Enum::kNone))>);
   static_assert(wb::base::underlying_cast(Enum::kNone) == 0U);
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
-TEST(BaseMacrosesTest, UniquePtrAlias) {
+GTEST_TEST(BaseMacrosesTest, UniquePtrAlias) {
   wb::base::un<int> v = std::make_unique<int>(36);
 
   EXPECT_EQ(*v, 36);

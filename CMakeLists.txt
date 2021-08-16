@@ -228,6 +228,14 @@ if (WB_BUILD_TESTS)
 
   add_subdirectory("deps/googletest")
 
+  # Disallow macro name clamps.
+  target_compile_definitions(gtest
+    PUBLIC
+      GTEST_DONT_DEFINE_FAIL=1
+      GTEST_DONT_DEFINE_SUCCEED=1
+      GTEST_DONT_DEFINE_TEST=1
+  )
+
   if (WB_COMPILER_MSVC)
     # Prevent MSVC linker warning as error for __except + /guard:ehcont.
     target_compile_options(gtest PRIVATE /guard:ehcont)

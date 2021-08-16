@@ -127,7 +127,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   std::string debug_command_line{command_line};
   debug_command_line.append(" ");
   debug_command_line.append(
-      wb::base::switches::kUnsafeAllowUnsignedModuleTargetFlag);
+      wb::base::switches::insecure::kAllowUnsignedModuleTargetFlag);
 
   command_line = debug_command_line.data();
 #endif

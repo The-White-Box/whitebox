@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
   // std::string debug_command_line{command_line};
   // debug_command_line.append(" ");
   // debug_command_line.append(
-  //     wb::build::cmd_args::kUnsafeAllowUnsignedModuleTargetFlag);
+  //     wb::base::switches::insecure::kAllowUnsignedModuleTargetFlag);
   //
   // command_line = debug_command_line.data();
 #endif
