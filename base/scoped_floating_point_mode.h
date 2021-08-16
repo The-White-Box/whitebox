@@ -16,6 +16,7 @@
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "build/build_config.h"
 
 namespace wb::base {
 #if defined(WB_ARCH_CPU_X86_64)
@@ -38,8 +39,8 @@ enum class ScopedFloatingPointModeFlags : unsigned {
   kFlushToZero = _MM_FLUSH_ZERO_ON,
   /**
    * @brief Denormals are zero.  DAZ is an input filter: When an FP math /
-   * compare instruction reads its inputs, denormals are considered +/-0.0. So a
-   * compare between two denormals finds they're equal. Arithmetic can easily
+   * compare instruction reads its inputs, denormals are considered +/-0.0.  So
+   * a compare between two denormals finds they're equal.  Arithmetic can easily
    * produce denormal results, though.  May be not supported by CPU.
    */
   kDenormalsAreZero = 1U << 6U

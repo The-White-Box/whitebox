@@ -86,7 +86,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto bootmgr_load_result =
       wb::base::unique_module_ptr::FromLibraryOnPath(
           framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
-  if (const auto* rc = std::get_if<std::error_code>(&bootmgr_load_result))
+  if (const auto* rc = wb::base::std_ext::GetErrorCode(bootmgr_load_result))
       [[unlikely]] {
     FatalError("Can't load boot manager '%s': %s.", framework_path.get(),
                rc->message());
@@ -102,7 +102,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto bootmgr_entry_result =
       bootmgr_module->GetAddressAs<BootmgrMainFunction>(
           kBootmgrMainFunctionName);
-  if (const auto* rc = std::get_if<std::error_code>(&bootmgr_entry_result))
+  if (const auto* rc = wb::base::std_ext::GetErrorCode(bootmgr_entry_result))
       [[unlikely]] {
     FatalError("Can't get '%s' entry point from '%s': %s.",
                kBootmgrMainFunctionName, framework_path.get(), rc->message());

@@ -58,7 +58,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
 
   // Mouse is ready.
   auto mouse_result = hal::hid::Mouse::New(window);
-  if (auto *mouse = std::get_if<base::un<hal::hid::Mouse>>(&mouse_result)) {
+  if (auto *mouse = wb::base::std_ext::GetSuccessResult(mouse_result)) {
     mouse_.swap(*mouse);
   } else {
     const auto rc = std::get<std::error_code>(mouse_result);
@@ -79,8 +79,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
 
   // Keyboard is ready.
   auto keyboard_result = hal::hid::Keyboard::New(window);
-  if (auto *keyboard =
-          std::get_if<base::un<hal::hid::Keyboard>>(&keyboard_result)) {
+  if (auto *keyboard = wb::base::std_ext::GetSuccessResult(keyboard_result)) {
     keyboard_.swap(*keyboard);
   } else {
     const auto rc = std::get<std::error_code>(keyboard_result);

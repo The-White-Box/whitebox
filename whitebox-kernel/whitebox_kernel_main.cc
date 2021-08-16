@@ -85,7 +85,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   auto window_result = windows::ui::BaseWindow::New<MainWindow>(
       window_definition, window_class_style);
-  if (auto* window_ptr = std::get_if<un<MainWindow>>(&window_result);
+  if (auto* window_ptr = wb::base::std_ext::GetSuccessResult(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If
     // the window was previously hidden, the return value is zero.

@@ -76,6 +76,42 @@ inline void SetThreadErrorCode(const std::error_code rc) noexcept {
  */
 template <typename TResult>
 using os_res = std::variant<TResult, std::error_code>;
+
+/**
+ * @brief Get error code from system result.
+ * @tparam TResult System result success.
+ * @param rc System result.
+ * @return error code pointer or nullptr.
+ */
+template <typename TResult>
+[[nodiscard]] constexpr const std::error_code* GetErrorCode(
+    const os_res<TResult>& rc) noexcept {
+  return std::get_if<std::error_code>(&rc);
+}
+
+/**
+ * @brief Get success result from system result.
+ * @tparam TResult TResult System result success.
+ * @param rc System result.
+ * @return System result success pointer or nullptr.
+ */
+template <typename TResult>
+[[nodiscard]] constexpr TResult* GetSuccessResult(
+    os_res<TResult>& rc) noexcept {
+  return std::get_if<TResult>(&rc);
+}
+
+/**
+ * @brief Get success result from system result.
+ * @tparam TResult TResult System result success.
+ * @param rc System result.
+ * @return System result success pointer or nullptr.
+ */
+template <typename TResult>
+[[nodiscard]] constexpr const TResult* GetSuccessResult(
+    const os_res<TResult>& rc) noexcept {
+  return std::get_if<TResult>(&rc);
+}
 }  // namespace wb::base::std_ext
 
 #endif  // !WB_BASE_STD_EXT_SYSTEM_ERROR_EXT_H_

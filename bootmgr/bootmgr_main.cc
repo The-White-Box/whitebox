@@ -80,8 +80,8 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
 #ifdef WB_OS_WIN
   const auto app_path = windows::GetApplicationDirectory(bootmgr_args.instance);
   // TODO(dimhotepus): Show fancy UI box.
-  G3PLOGE_IF(FATAL, !!std::get_if<std::error_code>(&app_path),
-             std::get<std::error_code>(app_path))
+  G3PLOGE_IF(FATAL, !!std_ext::GetErrorCode(app_path),
+             *std_ext::GetErrorCode(app_path))
       << "Can't get current directory.  Unable to load "
          "the kernel.  Please, contact authors.";
 
@@ -110,7 +110,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   const auto kernel_load_result =
       unique_module_ptr::FromLibraryOnPath(kernel_path, kernel_load_flags);
   if (const auto* kernel_module =
-          std::get_if<unique_module_ptr>(&kernel_load_result)) {
+          std_ext::GetSuccessResult(kernel_load_result)) {
     using KernelMainFunction = decltype(&KernelMain);
     constexpr char kKernelMainFunctionName[]{"KernelMain"};
 
@@ -119,7 +119,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
         kernel_module->GetAddressAs<KernelMainFunction>(
             kKernelMainFunctionName);
     if (const auto* kernel_main =
-            std::get_if<KernelMainFunction>(&kernel_main_result)) {
+            std_ext::GetSuccessResult(kernel_main_result)) {
 #ifdef WB_OS_WIN
       return (*kernel_main)(
           {bootmgr_args.instance, bootmgr_args.app_description,
@@ -199,10 +199,9 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
-  G3PLOGE_IF(
-      WARNING,
-      !!std::get_if<std::error_code>(&scoped_process_mitigation_policies),
-      std::get<std::error_code>(scoped_process_mitigation_policies))
+  G3PLOGE_IF(WARNING,
+             !!std_ext::GetErrorCode(scoped_process_mitigation_policies),
+             *std_ext::GetErrorCode(scoped_process_mitigation_policies))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 
@@ -240,8 +239,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name = threads::ScopedThreadName::New(
       threads::GetCurrentThreadHandle(), new_thread_name);
-  G3PLOGE_IF(WARNING, !!std::get_if<std::error_code>(&scoped_thread_name),
-             std::get<std::error_code>(scoped_thread_name))
+  G3PLOGE_IF(WARNING, !!std_ext::GetErrorCode(scoped_thread_name),
+             *std_ext::GetErrorCode(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 
   // Setup heap memory allocator.

@@ -36,7 +36,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   const auto bootmgr_load_result =
       unique_module_ptr::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
   if (const auto* bootmgr_module =
-          std::get_if<unique_module_ptr>(&bootmgr_load_result)) {
+          wb::base::std_ext::GetSuccessResult(bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
 
     constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
@@ -46,9 +46,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
         bootmgr_module->GetAddressAs<BootmgrMainFunction>(
             kBootmgrMainFunctionName);
     if (const auto* bootmgr_main =
-            std::get_if<BootmgrMainFunction>(&bootmgr_entry_result)) {
-      return (*bootmgr_main)(
-          {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
+            wb::base::std_ext::GetSuccessResult(bootmgr_entry_result)) {
+      return (*bootmgr_main)({WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
     }
 
     // TODO(dimhotepus): Show fancy UI box.
@@ -93,9 +92,8 @@ int main(int argc, char* argv[]) {
               << _GLIBCXX_RELEASE << ", ABI stamp " << __GLIBCXX__ << ".";
 #endif
 #ifdef _LIBCPP_VERSION
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING
-              << " build using libc++ " << _LIBCPP_VERSION << "/ ABI "
-              << _LIBCPP_ABI_VERSION;
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build using libc++ "
+              << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
 #endif
 #endif
 
