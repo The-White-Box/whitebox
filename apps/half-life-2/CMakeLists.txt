@@ -21,7 +21,8 @@ elseif (WB_OS_LINUX)
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs")
 endif()
 
-set(WB_HALF_LIFE2_RUNTIME_DEPS base bootmgr g3log mimalloc whitebox-kernel)
+set(WB_HALF_LIFE2_RUNTIME_DEPS
+  base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel)
 
 wb_cxx_executable(
   PROJECT_NAME  "Half-Life 2" 

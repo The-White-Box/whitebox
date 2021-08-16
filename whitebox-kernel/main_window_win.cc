@@ -17,8 +17,8 @@
 #include "base/windows/ui/task_dialog.h"
 #include "base/windows/ui/window_message_handlers.h"
 #include "base/windows/ui/window_utilities.h"
-#include "base/windows/ui/windows_raw_input.h"
 #include "build/static_settings_config.h"
+#include "hal/drivers/hid/raw_input_win.h"
 
 namespace wb::kernel {
 LRESULT MainWindow::HandleMessage(_In_ UINT message,
@@ -57,39 +57,46 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   constexpr char kHideTechDetails[]{"Hide techical details"};
 
   // Mouse is ready.
-  mouse_.reset(new ui::Mouse{window});
-  if (mouse_->error_code()) {
-    ui::DialogBoxSettings dialog_settings(
+  auto mouse_result = hal::hid::Mouse::New(window);
+  if (auto *mouse = std::get_if<base::un<hal::hid::Mouse>>(&mouse_result)) {
+    mouse_.swap(*mouse);
+  } else {
+    const auto rc = std::get<std::error_code>(mouse_result);
+    const ui::DialogBoxSettings dialog_settings(
         nullptr, kKernelDialogTitle, "Unable to initialize mouse device",
         "Unfortunately we unable to register mouse device for <A "
         "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
         "about-raw-input\">Raw Input</A> data supply.  "
         "Please, contact authors.",
-        kHideTechDetails, kSeeTechDetails, mouse_->error_code().message(),
+        kHideTechDetails, kSeeTechDetails, rc.message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
         ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
+
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3PLOG_E(FATAL, mouse_->error_code())
-        << "Unable to initialize mouse device.";
+    G3PLOG_E(FATAL, rc) << "Unable to initialize mouse device.";
   }
 
   // Keyboard is ready.
-  keyboard_.reset(new ui::Keyboard{window});
-  if (keyboard_->error_code()) {
-    ui::DialogBoxSettings dialog_settings(
+  auto keyboard_result = hal::hid::Keyboard::New(window);
+  if (auto *keyboard =
+          std::get_if<base::un<hal::hid::Keyboard>>(&keyboard_result)) {
+    keyboard_.swap(*keyboard);
+  } else {
+    const auto rc = std::get<std::error_code>(keyboard_result);
+    const ui::DialogBoxSettings dialog_settings(
         nullptr, kKernelDialogTitle, "Unable to initialize keyboard device",
         "Unfortunately we unable to register keyboard device for <A "
         "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
         "about-raw-input\">Raw Input</A> data supply.  "
         "Please, contact authors.",
-        kHideTechDetails, kSeeTechDetails, mouse_->error_code().message(),
+        kHideTechDetails, kSeeTechDetails, rc.message(),
         wb::build::settings::ui::error_dialog::kFooterLink,
         ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
+
     ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3PLOG_E(FATAL, keyboard_->error_code())
-        << "Unable to initialize keyboard device.";
+    G3PLOG_E(FATAL, rc) << "Unable to initialize keyboard device.";
   }
 
   // Now can go full screen.
@@ -112,26 +119,28 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
     using namespace wb::base::windows;
 
     RAWINPUT read_input;
-    if (ui::ReadRawInput(source_input, read_input)) [[likely]] {
+    if (hal::hid::ReadRawInput(source_input, read_input)) [[likely]] {
       bool is_raw_input_handled{false};
 
       if (mouse_ && keyboard_) [[likely]] {
-        ui::MouseInput mouse_input;
+        hal::hid::MouseInput mouse_input;
 
         if (mouse_->Handle(read_input, mouse_input)) {
           // TODO(dimhotepus): Do smth with mouse.
           is_raw_input_handled = true;
         } else {
-          ui::KeyboardInput keyboard_input;
+          hal::hid::KeyboardInput keyboard_input;
 
           if (keyboard_->Handle(read_input, keyboard_input) &&
-              keyboard_input.make_code != ui::KeyboardInput::kOverrunMakeCode) {
+              keyboard_input.make_code !=
+                  hal::hid::KeyboardInput::kOverrunMakeCode) {
             // TODO(dimhotepus): Do smth with keyboard.
             is_raw_input_handled = true;
 
             if (keyboard_input.make_code == 0x57 &&
-                (keyboard_input.key_flags & ui::KeyboardKeyFlags::kDown) ==
-                    ui::KeyboardKeyFlags::kDown) {
+                (keyboard_input.key_flags &
+                 hal::hid::KeyboardKeyFlags::kDown) ==
+                    hal::hid::KeyboardKeyFlags::kDown) {
               full_screen_window_toggler_->Toggle(
                   !full_screen_window_toggler_->IsFullScreen());
             }
@@ -141,7 +150,8 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
 
       // Nor mouse or keyboard so system can do what it needs with.
       if (!is_raw_input_handled) {
-        const auto rc = ui::HandleNonHandledRawInput(sizeof(read_input.header));
+        const auto rc =
+            hal::hid::HandleNonHandledRawInput(sizeof(read_input.header));
         G3DCHECK(rc == 0);
       }
     }

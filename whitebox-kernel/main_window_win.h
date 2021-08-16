@@ -17,8 +17,8 @@
 #include "base/windows/ui/accessibility_shortcut_keys_toggler.h"
 #include "base/windows/ui/base_window.h"
 #include "base/windows/ui/full_screen_window_toggler.h"
-#include "base/windows/ui/keyboard.h"
-#include "base/windows/ui/mouse.h"
+#include "hal/drivers/hid/keyboard_win.h"
+#include "hal/drivers/hid/mouse_win.h"
 
 /**
  * @brief Raw input handle.
@@ -93,11 +93,11 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
   /**
    * @brief Mouse device.
    */
-  wb::base::un<wb::base::windows::ui::Mouse> mouse_;
+  wb::base::un<wb::hal::hid::Mouse> mouse_;
   /**
    * @brief Keyboard device.
    */
-  wb::base::un<wb::base::windows::ui::Keyboard> keyboard_;
+  wb::base::un<wb::hal::hid::Keyboard> keyboard_;
   /**
    * @brief Sampling profiler for rendering.
    */

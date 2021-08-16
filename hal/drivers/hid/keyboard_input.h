@@ -2,21 +2,17 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Keyboard input device.
+// Keyboard input definitions.
 
-#ifndef WB_BASE_WINDOWS_UI_KEYBOARD_H_
-#define WB_BASE_WINDOWS_UI_KEYBOARD_H_
+#ifndef WB_HAL_DRIVERS_HID_KEYBOARD_INPUT_H_
+#define WB_HAL_DRIVERS_HID_KEYBOARD_INPUT_H_
 
 #include <string>
-#include <system_error>
 
-#include "base/base_api.h"
 #include "base/base_macroses.h"
+#include "build/build_config.h"
 
-using HWND = struct HWND__ *;
-using RAWINPUT = struct tagRAWINPUT;
-
-namespace wb::base::windows::ui {
+namespace wb::hal::hid {
 /**
  * @brief Flags for scan code information.
  */
@@ -60,8 +56,8 @@ enum class KeyboardKeyFlags : unsigned short {
  */
 [[nodiscard]] constexpr KeyboardKeyFlags operator&(
     KeyboardKeyFlags left, KeyboardKeyFlags right) noexcept {
-  return static_cast<KeyboardKeyFlags>(underlying_cast(left) &
-                                       underlying_cast(right));
+  return static_cast<KeyboardKeyFlags>(base::underlying_cast(left) &
+                                       base::underlying_cast(right));
 }
 
 /**
@@ -72,8 +68,8 @@ enum class KeyboardKeyFlags : unsigned short {
  */
 [[nodiscard]] constexpr KeyboardKeyFlags operator|(
     KeyboardKeyFlags left, KeyboardKeyFlags right) noexcept {
-  return static_cast<KeyboardKeyFlags>(underlying_cast(left) |
-                                       underlying_cast(right));
+  return static_cast<KeyboardKeyFlags>(base::underlying_cast(left) |
+                                       base::underlying_cast(right));
 }
 
 /**
@@ -127,13 +123,14 @@ struct KeyboardInput {
    */
   KeyboardKeyFlags key_flags;
 
-  // TODO(dimhotepus): Map values below and remove entirely?
-
   /**
    * @brief To align to machine word.
    */
   unsigned short reserved;
 
+  // TODO(dimhotepus): Map values below and remove entirely?
+
+#ifdef WB_OS_WIN
   /*
    * The corresponding legacy virtual-key code.
    */
@@ -143,6 +140,7 @@ struct KeyboardInput {
    * The corresponding legacy keyboard window message.
    */
   unsigned message;
+#endif
 
   /**
    * @brief Special MakeCode value sent when an invalid or unrecognizable
@@ -171,55 +169,6 @@ struct KeyboardInput {
 
   return result;
 }
+}  // namespace wb::hal::hid
 
-/**
- * @brief Low level keyboard input device.
- */
-class Keyboard {
- public:
-  /**
-   * @brief Creates keyboard device.
-   * @param window Window to handle keyboard input.
-   * @return nothing.
-   */
-  WB_BASE_API Keyboard(_In_ HWND window) noexcept;
-  /**
-   * @brief Shut down keyboard device.
-   */
-  WB_BASE_API ~Keyboard() noexcept;
-
-  Keyboard(Keyboard &&) = default;
-  Keyboard &operator=(Keyboard &&) = default;
-
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(Keyboard);
-
-  /**
-   * @brief Keyboard initialization error code.
-   * @return Error code.
-   */
-  [[nodiscard]] std::error_code error_code() const noexcept {
-    return error_code_;
-  }
-
-  /**
-   * @brief Handle raw input.
-   * @param raw_input Raw input.
-   * @param keyboard_input Raw input as keyboard input if it is keyboard input.
-   * @return true if raw input is keyboard input, false otherwise.
-   */
-  [[nodiscard]] WB_BASE_API bool Handle(const RAWINPUT &raw_input,
-                                        KeyboardInput &keyboard_input) noexcept;
-
- private:
-  /**
-   * @brief Window handle to get keyboard input for.
-   */
-  HWND window_;
-  /**
-   * @brief Keyboard initialization error code.
-   */
-  std::error_code error_code_;
-};
-}  // namespace wb::base::windows::ui
-
-#endif  // !WB_BASE_WINDOWS_UI_KEYBOARD_H_
+#endif  // !WB_HAL_DRIVERS_HID_KEYBOARD_INPUT_H_

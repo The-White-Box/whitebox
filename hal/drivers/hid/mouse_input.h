@@ -2,21 +2,16 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Mouse input device.
+// Mouse input definitions.
 
-#ifndef WB_BASE_WINDOWS_UI_MOUSE_H_
-#define WB_BASE_WINDOWS_UI_MOUSE_H_
+#ifndef WB_HAL_DRIVERS_HID_MOUSE_INPUT_H_
+#define WB_HAL_DRIVERS_HID_MOUSE_INPUT_H_
 
 #include <string>
-#include <system_error>
 
-#include "base/base_api.h"
 #include "base/base_macroses.h"
 
-using HWND = struct HWND__ *;
-using RAWINPUT = struct tagRAWINPUT;
-
-namespace wb::base::windows::ui {
+namespace wb::hal::hid {
 /**
  * @brief The mouse state.  Can be any reasonable combination of the following.
  */
@@ -56,8 +51,8 @@ enum class MouseStateFlags : unsigned short {
  */
 [[nodiscard]] constexpr MouseStateFlags operator&(
     MouseStateFlags left, MouseStateFlags right) noexcept {
-  return static_cast<MouseStateFlags>(underlying_cast(left) &
-                                      underlying_cast(right));
+  return static_cast<MouseStateFlags>(base::underlying_cast(left) &
+                                      base::underlying_cast(right));
 }
 
 /**
@@ -68,8 +63,8 @@ enum class MouseStateFlags : unsigned short {
  */
 [[nodiscard]] constexpr MouseStateFlags operator|(
     MouseStateFlags left, MouseStateFlags right) noexcept {
-  return static_cast<MouseStateFlags>(underlying_cast(left) |
-                                      underlying_cast(right));
+  return static_cast<MouseStateFlags>(base::underlying_cast(left) |
+                                      base::underlying_cast(right));
 }
 
 /**
@@ -183,8 +178,8 @@ enum class MouseButtonTransitionState : unsigned short {
 [[nodiscard]] constexpr MouseButtonTransitionState operator&(
     MouseButtonTransitionState left,
     MouseButtonTransitionState right) noexcept {
-  return static_cast<MouseButtonTransitionState>(underlying_cast(left) &
-                                                 underlying_cast(right));
+  return static_cast<MouseButtonTransitionState>(base::underlying_cast(left) &
+                                                 base::underlying_cast(right));
 }
 
 /**
@@ -334,55 +329,6 @@ struct MouseInput {
 
   return result;
 }
+}  // namespace wb::hal::hid
 
-/**
- * @brief Low level mouse input device.
- */
-class Mouse {
- public:
-  /**
-   * @brief Creates mouse device.
-   * @param window Window to handle mouse input.
-   * @return nothing.
-   */
-  WB_BASE_API Mouse(_In_ HWND window) noexcept;
-  /**
-   * @brief Shut down mouse device.
-   */
-  WB_BASE_API ~Mouse() noexcept;
-
-  Mouse(Mouse &&) = default;
-  Mouse &operator=(Mouse &&) = default;
-
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(Mouse);
-
-  /**
-   * @brief Mouse initialization error code.
-   * @return Error code.
-   */
-  [[nodiscard]] std::error_code error_code() const noexcept {
-    return error_code_;
-  }
-
-  /**
-   * @brief Handle raw input.
-   * @param raw_input Raw input.
-   * @param mouse_input Raw input as mouse input if it is mouse input.
-   * @return true if raw input is mouse input, false otherwise.
-   */
-  [[nodiscard]] WB_BASE_API bool Handle(const RAWINPUT &raw_input,
-                                        MouseInput &mouse_input) noexcept;
-
- private:
-  /**
-   * @brief Window handle to get mouse input for.
-   */
-  HWND window_;
-  /**
-   * @brief Mouse initialization error code.
-   */
-  std::error_code error_code_;
-};
-}  // namespace wb::base::windows::ui
-
-#endif  // !WB_BASE_WINDOWS_UI_MOUSE_H_
+#endif  // !WB_HAL_DRIVERS_HID_MOUSE_INPUT_H_

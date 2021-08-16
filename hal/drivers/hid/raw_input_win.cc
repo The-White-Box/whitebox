@@ -4,21 +4,22 @@
 //
 // Windows Raw Input API wrappers.
 
-#include "windows_raw_input.h"
+#include "raw_input_win.h"
 
 #include "base/deps/g3log/g3log.h"
 #include "base/windows/system_error_ext.h"
 #include "base/windows/windows_light.h"
 
-namespace wb::base::windows::ui {
+namespace wb::hal::hid {
 /**
  * @brief Register raw input device.
  * @param device Device.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code RegisterRawInputDevices(
+[[nodiscard]] WB_HAL_HID_DRIVER_API std::error_code RegisterRawInputDevices(
     _In_ const RAWINPUTDEVICE& device) noexcept {
-  return GetErrorCode(::RegisterRawInputDevices(&device, 1, sizeof(device)));
+  return base::windows::GetErrorCode(
+      ::RegisterRawInputDevices(&device, 1, sizeof(device)));
 }
 
 /**
@@ -26,7 +27,7 @@ namespace wb::base::windows::ui {
  * @param header_size Header size.
  * @return 0 on success, -1 on failure.
  */
-[[nodiscard]] WB_BASE_API LRESULT
+[[nodiscard]] WB_HAL_HID_DRIVER_API LRESULT
 HandleNonHandledRawInput(unsigned header_size) noexcept {
   // First two parameters are ignored.
   return ::DefRawInputProc(nullptr, 0, header_size);
@@ -38,8 +39,8 @@ HandleNonHandledRawInput(unsigned header_size) noexcept {
  * @param read_input Input.
  * @return true on success, false on failure.
  */
-[[nodiscard]] WB_BASE_API bool ReadRawInput(_In_ HRAWINPUT source_input,
-                                            RAWINPUT& read_input) noexcept {
+[[nodiscard]] WB_HAL_HID_DRIVER_API bool ReadRawInput(
+    _In_ HRAWINPUT source_input, RAWINPUT& read_input) noexcept {
   G3DCHECK(!!source_input);
 
   constexpr unsigned kRawInputError{static_cast<unsigned>(-1)};
@@ -53,4 +54,4 @@ HandleNonHandledRawInput(unsigned header_size) noexcept {
 
   return error_code != kRawInputError;
 }
-}  // namespace wb::base::windows::ui
+}  // namespace wb::hal::hid

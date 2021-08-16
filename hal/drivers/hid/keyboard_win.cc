@@ -4,11 +4,11 @@
 //
 // Keyboard input device.
 
-#include "keyboard.h"
+#include "keyboard_win.h"
 
 #include "base/deps/g3log/g3log.h"
-#include "base/windows/ui/windows_raw_input.h"
 #include "base/windows/windows_light.h"
+#include "raw_input_win.h"
 // Should go after windows.h
 #include <hidusage.h>
 
@@ -28,17 +28,34 @@ namespace {
 }
 }  // namespace
 
-namespace wb::base::windows::ui {
+namespace wb::hal::hid {
+/**
+ * @brief Alias to simplify API.
+ */
+using KeyboardNewResult = base::std_ext::os_res<base::un<Keyboard>>;
+
+/**
+ * @brief Creates keyboard device.
+ * @param window Window to handle keyboard input.
+ * @return Keyboard.
+ */
+[[nodiscard]] KeyboardNewResult Keyboard::New(_In_ HWND window) noexcept {
+  base::un<Keyboard> keyboard{std::make_unique<Keyboard>(window)};
+  return !keyboard->error_code() ? KeyboardNewResult{std::move(keyboard)}
+                                 : KeyboardNewResult{keyboard->error_code()};
+}
+
 /**
  * @brief Creates keyboard device.
  * @param window Window to handle keyboard input.
  * @return nothing.
  */
-WB_BASE_API Keyboard::Keyboard(_In_ HWND window) noexcept
+Keyboard::Keyboard(_In_ HWND window) noexcept
     : window_{window},
       error_code_{RegisterRawInputDevices(
           // Disable app hotkeys results in Windows keys passed to the app as we
-          // need.
+          // need (or Win keys will invoke standart Windows behavior and
+          // interrupt gameplay).
           CreateKeyboardDeviceDefinition(window, RIDEV_NOHOTKEYS))} {
   G3DCHECK(!error_code()) << "Unable to register raw keyboard handler: "
                           << error_code().message();
@@ -47,7 +64,7 @@ WB_BASE_API Keyboard::Keyboard(_In_ HWND window) noexcept
 /**
  * @brief Shut down keyboard device.
  */
-WB_BASE_API Keyboard::~Keyboard() noexcept {
+Keyboard::~Keyboard() noexcept {
   if (!error_code()) {
     // "If a RAWINPUTDEVICE structure has the RIDEV_REMOVE flag set and the
     // hwndTarget parameter is not set to NULL, then parameter validation will
@@ -63,13 +80,24 @@ WB_BASE_API Keyboard::~Keyboard() noexcept {
 }
 
 /**
+ * @brief Move constructor.
+ * @param k Keyboard.
+ * @return nothing.
+ */
+Keyboard::Keyboard(Keyboard&& k) noexcept
+    : window_{k.window_}, error_code_{std::move(k.error_code_)} {
+  k.window_ = nullptr;
+  k.error_code_ = std::error_code{EINVAL, std::system_category()};
+}
+
+/**
  * @brief Handle raw input.
  * @param raw_input Raw input.
  * @param keyboard_input Raw input as keyboard input if it is keyboard input.
  * @return true if raw input is keyboard input, false otherwise.
  */
-[[nodiscard]] WB_BASE_API bool Keyboard::Handle(
-    const RAWINPUT& raw_input, KeyboardInput& keyboard_input) noexcept {
+[[nodiscard]] bool Keyboard::Handle(const RAWINPUT& raw_input,
+                                    KeyboardInput& keyboard_input) noexcept {
   if (raw_input.header.dwType == RIM_TYPEKEYBOARD) {
     const auto& keyboard = raw_input.data.keyboard;
 
@@ -87,7 +115,8 @@ WB_BASE_API Keyboard::~Keyboard() noexcept {
             ((keyboard.Flags & RI_KEY_E0) || (keyboard.Flags & RI_KEY_E1))) {
       // Fix this one if Windows will use our custom flag.  App will be
       // terminated, fix required (or we will assume key down when it is not).
-      G3CHECK(!(keyboard.Flags & underlying_cast(KeyboardKeyFlags::kDown)))
+      G3CHECK(
+          !(keyboard.Flags & base::underlying_cast(KeyboardKeyFlags::kDown)))
           << "Windows raw input keyboard data contains flags used for app "
              "itself.  It means app can't detect key down in some cases.  "
              "Please, contact support.";
@@ -104,4 +133,4 @@ WB_BASE_API Keyboard::~Keyboard() noexcept {
 
   return false;
 }
-}  // namespace wb::base::windows::ui
+}  // namespace wb::hal::hid

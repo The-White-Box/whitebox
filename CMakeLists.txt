@@ -38,7 +38,8 @@ if (NOT DEFINED PACKAGE_VERSION)
   set(PACKAGE_VER_MAJOR 1)
   set(PACKAGE_VER_PATCH 0)
   set(PACKAGE_VER_TWEAK 0)
-  set(PACKAGE_VERSION   "${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MAJOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}-dev")
+  set(PACKAGE_VERSION
+    "${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MAJOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}-dev")
 endif()
 set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
@@ -119,7 +120,8 @@ endif()
 # Git.
 find_package(Git)
 if (Git_FOUND)
-  message(STATUS "[common]: Git version ${GIT_VERSION_STRING} found at '${GIT_EXECUTABLE}'.")
+  message(STATUS
+    "[common]: Git version ${GIT_VERSION_STRING} found at '${GIT_EXECUTABLE}'.")
 
   # Get the current working branch.
   execute_process(
@@ -143,7 +145,8 @@ if (Git_FOUND)
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE)
 
   message(STATUS
-    "[common]: Git using branch '${WB_GIT_BRANCH}', commit ${WB_GIT_COMMIT_HASH}/'${WB_GIT_COMMIT_SUBJECT}'.")
+    "[common]: Git using branch '${WB_GIT_BRANCH}', "
+    "commit ${WB_GIT_COMMIT_HASH} | ${WB_GIT_COMMIT_SUBJECT}.")
 endif()
 
 # pthread.
@@ -154,25 +157,30 @@ set(WB_HAVE_PTHREAD "${CMAKE_USE_PTHREADS_INIT}" CACHE BOOL
 list(APPEND CMAKE_REQUIRED_LIBRARIES Threads::Threads)
 
 if (XCODE_VERSION)
-  message(STATUS "[common]: ${PACKAGE_NAME} using XCode version: ${XCODE_VERSION}.")
+  message(STATUS
+    "[common]: ${PACKAGE_NAME} using XCode version: ${XCODE_VERSION}.")
 endif()
 
 if (WB_COMPILER_CLANG)
   # Clang or AppleClang.
   if (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
-    message(STATUS "[common]: ${PACKAGE_NAME} use compiler Clang + MSVC frontend.")
+    message(STATUS
+      "[common]: ${PACKAGE_NAME} use compiler Clang + MSVC frontend.")
 
     # Clang with clang-cl front end.
     include(compilers/wb_msvc)
-  elseif (NOT WB_CXX_COMPILER_FRONTEND_VARIANT OR WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
+  elseif (NOT WB_CXX_COMPILER_FRONTEND_VARIANT OR
+          WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     # No compiler frontend means GNU one.
-    message(STATUS "[common]: ${PACKAGE_NAME} use compiler Clang + GNU frontend.")
+    message(STATUS
+      "[common]: ${PACKAGE_NAME} use compiler Clang + GNU frontend.")
 
     # Clang with regular front end.
     include(compilers/wb_clang)
   else()
     message(FATAL_ERROR
-      "[common]: Using Clang with unknown frontend '${WB_CXX_COMPILER_FRONTEND_VARIANT}'. "
+      "[common]: Using Clang with unknown frontend "
+      "'${WB_CXX_COMPILER_FRONTEND_VARIANT}'. "
       "Please, define compiler/linker options for it.")
   endif()
 elseif (WB_COMPILER_GCC)
@@ -196,7 +204,8 @@ endif()
 
 message(STATUS "[common]: ${PACKAGE_NAME} cxx compiler: ${WB_CXX_COMPILER}.")
 message(STATUS "[common]: ${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
-message(STATUS "[common]: ${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
+message(STATUS
+  "[common]: ${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
 
 # Generate common product version info.
 configure_file(
@@ -209,7 +218,7 @@ configure_file(
 add_subdirectory("deps/g3log")
 
 if (WB_BUILD_TESTS)
-  # For Windows: Prevent overriding the parent project's compiler/linker settings.
+  # Prevent overriding the parent project's compiler/linker settings.
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
   add_subdirectory("deps/googletest")
@@ -219,7 +228,7 @@ if (WB_BUILD_TESTS)
     target_compile_options(gtest PRIVATE /guard:ehcont)
     target_link_options(gtest PRIVATE /guard:ehcont)
   elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
-    # Prevent ld linker warning as error "reloc which may overflow at runtime" (-fPIC).
+    # Prevent linker warning "reloc which may overflow at runtime" (-fPIC).
     target_compile_options(gtest PRIVATE -fPIC)
   endif()
 endif()
@@ -229,6 +238,11 @@ add_subdirectory("deps/mimalloc")
 # Libraries.
 add_subdirectory("base")
 add_subdirectory("bootmgr")
+
+# Hardware Abstraction Layer.
+add_subdirectory("hal/drivers/hid")
+
+# Kernel.
 add_subdirectory("whitebox-kernel")
 
 # Apps.

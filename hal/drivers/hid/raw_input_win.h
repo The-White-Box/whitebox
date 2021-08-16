@@ -4,27 +4,27 @@
 //
 // Windows Raw Input API wrappers.
 
-#ifndef WB_BASE_WINDOWS_UI_WINDOWS_RAW_INPUT_H_
-#define WB_BASE_WINDOWS_UI_WINDOWS_RAW_INPUT_H_
+#ifndef WB_HAL_DRIVERS_HID_RAW_INPUT_WIN_H_
+#define WB_HAL_DRIVERS_HID_RAW_INPUT_WIN_H_
 
 #include <cstdint>
 #include <system_error>
 
-#include "base/base_api.h"
+#include "hid_api.h"
 
+using RAWINPUT = struct tagRAWINPUT;
 using RAWINPUTDEVICE = struct tagRAWINPUTDEVICE;
 using HRAWINPUT = struct HRAWINPUT__*;
-using RAWINPUT = struct tagRAWINPUT;
 
 using LRESULT = std::intptr_t;
 
-namespace wb::base::windows::ui {
+namespace wb::hal::hid {
 /**
  * @brief Register raw input device.
  * @param device Device.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code RegisterRawInputDevices(
+[[nodiscard]] WB_HAL_HID_DRIVER_API std::error_code RegisterRawInputDevices(
     _In_ const RAWINPUTDEVICE& device) noexcept;
 
 /**
@@ -32,7 +32,7 @@ namespace wb::base::windows::ui {
  * @param header_size Header size.
  * @return 0 on success, -1 on failure.
  */
-[[nodiscard]] WB_BASE_API LRESULT
+[[nodiscard]] WB_HAL_HID_DRIVER_API LRESULT
 HandleNonHandledRawInput(unsigned header_size) noexcept;
 
 /**
@@ -41,8 +41,8 @@ HandleNonHandledRawInput(unsigned header_size) noexcept;
  * @param read_input Input.
  * @return true on success, false on failure.
  */
-[[nodiscard]] WB_BASE_API bool ReadRawInput(_In_ HRAWINPUT source_input,
-                                            RAWINPUT& read_input) noexcept;
-}  // namespace wb::base::windows::ui
+[[nodiscard]] WB_HAL_HID_DRIVER_API bool ReadRawInput(
+    _In_ HRAWINPUT source_input, RAWINPUT& read_input) noexcept;
+}  // namespace wb::hal::hid
 
-#endif  // !WB_BASE_WINDOWS_UI_WINDOWS_RAW_INPUT_H_
+#endif  // !WB_HAL_DRIVERS_HID_RAW_INPUT_WIN_H_
