@@ -169,11 +169,16 @@ if (WB_COMPILER_CLANG)
 
     # Clang with clang-cl front end.
     include(compilers/wb_msvc)
-  elseif (NOT WB_CXX_COMPILER_FRONTEND_VARIANT OR
-          WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
-    # No compiler frontend means GNU one.
+  elseif (WB_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "GNU")
     message(STATUS
       "[common]: ${PACKAGE_NAME} use compiler Clang + GNU frontend.")
+
+    # Clang with regular front end.
+    include(compilers/wb_clang)
+  elseif (NOT WB_CXX_COMPILER_FRONTEND_VARIANT)
+    # No compiler frontend means Apple one.
+    message(STATUS
+      "[common]: ${PACKAGE_NAME} use compiler Clang + Apple frontend.")
 
     # Clang with regular front end.
     include(compilers/wb_clang)
