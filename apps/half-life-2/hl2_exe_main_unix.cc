@@ -48,7 +48,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
     if (const auto* bootmgr_main =
             std::get_if<BootmgrMainFunction>(&bootmgr_entry_result)) {
       return (*bootmgr_main)(
-          {WB_APP_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
+          {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
     }
 
     // TODO(dimhotepus): Show fancy UI box.
@@ -88,12 +88,12 @@ int main(int argc, char* argv[]) {
 
 #ifdef WB_OS_LINUX
 #if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
-  G3LOG(INFO) << WB_APP_PRODUCT_FILE_DESCRIPTION_STRING << " build using glibc "
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build using glibc "
               << __GLIBC__ << "." << __GLIBC_MINOR__ << ", glibc++ "
               << _GLIBCXX_RELEASE << ", ABI stamp " << __GLIBCXX__ << ".";
 #endif
 #ifdef _LIBCPP_VERSION
-  G3LOG(INFO) << WB_APP_PRODUCT_FILE_DESCRIPTION_STRING
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING
               << " build using libc++ " << _LIBCPP_VERSION << "/ ABI "
               << _LIBCPP_ABI_VERSION;
 #endif

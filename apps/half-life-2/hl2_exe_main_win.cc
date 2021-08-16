@@ -88,7 +88,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
     if (const auto* bootmgr_main =
             std::get_if<BootmgrMainFunction>(&bootmgr_entry_result)) {
       return (*bootmgr_main)({instance, command_line,
-                              WB_APP_PRODUCT_FILE_DESCRIPTION_STRING,
+                              WB_PRODUCT_FILE_DESCRIPTION_STRING,
                               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
                               WB_HALF_LIFE_2_IDI_SMALL_ICON});
     }

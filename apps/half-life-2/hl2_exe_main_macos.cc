@@ -63,9 +63,9 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   }
 
   constexpr char rel_path[]{
-      "../Frameworks/" WB_APP_PRODUCT_NAME_STRING
-      " Framework.framework/Versions/" WB_APP_PRODUCT_FILE_VERSION_INFO_STRING
-      "/" WB_APP_PRODUCT_FILE_DESCRIPTION_STRING " Framework"};
+      "../Frameworks/" WB_PRODUCT_NAME_STRING
+      " Framework.framework/Versions/" WB_PRODUCT_FILE_VERSION_INFO_STRING
+      "/" WB_PRODUCT_FILE_DESCRIPTION_STRING " Framework"};
 
   // Slice off the last part of the main executable path, and append the
   // version framework information.
