@@ -23,11 +23,11 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
-
   auto app_path = std::filesystem::current_path(rc);
   // TODO(dimhotepus): Show fancy UI box.
   G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
                                  "the app.  Please, contact authors.";
+
   app_path /= "libbootmgr.so." WB_PRODUCT_VERSION_INFO_STRING;
 
   const std::string bootmgr_path{app_path.string()};
@@ -36,7 +36,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   const auto bootmgr_load_result =
       unique_module_ptr::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
   if (const auto* bootmgr_module =
-          wb::base::std_ext::GetSuccessResult(bootmgr_load_result)) {
+          std_ext::GetSuccessResult(bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
 
     constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
@@ -46,7 +46,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
         bootmgr_module->GetAddressAs<BootmgrMainFunction>(
             kBootmgrMainFunctionName);
     if (const auto* bootmgr_main =
-            wb::base::std_ext::GetSuccessResult(bootmgr_entry_result)) {
+            std_ext::GetSuccessResult(bootmgr_entry_result)) {
       return (*bootmgr_main)({WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
     }
 
