@@ -104,7 +104,7 @@ class ScopedThreadExecutionState {
 
     return !state.error_code()
                ? std_ext::os_res<ScopedThreadExecutionState>{std::move(state)}
-               : std_ext::os_res<ScopedThreadExecutionState>{state.error_code_};
+               : std_ext::os_res<ScopedThreadExecutionState>{state.error_code()};
   }
 
   ScopedThreadExecutionState(ScopedThreadExecutionState&& s) noexcept
@@ -121,14 +121,6 @@ class ScopedThreadExecutionState {
       G3CHECK(!!::SetThreadExecutionState(underlying_cast(
           old_flags_ & ScopedThreadExecutionStateFlags::kContinuous)));
     }
-  }
-
-  /**
-   * @brief Get initialization error code.
-   * @return Error code.
-   */
-  [[nodiscard]] std::error_code error_code() const noexcept {
-    return error_code_;
   }
 
  private:
@@ -154,6 +146,14 @@ class ScopedThreadExecutionState {
         error_code_{(old_flags_ != ScopedThreadExecutionStateFlags::kError
                          ? std::error_code{}
                          : wb::base::std_ext::GetThreadErrorCode())} {}
+
+  /**
+   * @brief Get initialization error code.
+   * @return Error code.
+   */
+  [[nodiscard]] std::error_code error_code() const noexcept {
+    return error_code_;
+  }
 };
 }  // namespace wb::base::windows
 
