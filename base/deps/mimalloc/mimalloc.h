@@ -7,6 +7,8 @@
 #ifndef WB_BASE_DEPS_MIMALLOC_MIMALLOC_H_
 #define WB_BASE_DEPS_MIMALLOC_MIMALLOC_H_
 
+#include "base/deps/mimalloc/mimalloc_config.h"
+//
 #include "deps/mimalloc/include/mimalloc.h"
 
 #endif  // !WB_BASE_DEPS_MIMALLOC_MIMALLOC_H_
