@@ -18,6 +18,7 @@ option(WB_GCC_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
 option(WB_GCC_ENABLE_FAST_MATH                     "Enable fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
 option(WB_GCC_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
 option(WB_GCC_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
+option(WB_GCC_ENABLE_WARNING_WUNDEF                "If enabled, use -Wundef." ON)
 option(WB_GCC_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the GCC compiler." ON)
 
 wb_define_strings_option(WB_GCC_DEFINE__FORTIFY_SOURCE
@@ -302,7 +303,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wtrampolines>
       # Warn if an undefined identifier is evaluated in an #if directive.  Such
       # identifiers are replaced with zero.
-      -Wundef
+      $<$<BOOL:${WB_GCC_ENABLE_WARNING_WUNDEF}>:-Wundef>
       # Warn on unused functions vars, etc.
       -Wunused
       # Warn about macros defined in the main file that are unused.  A macro is
