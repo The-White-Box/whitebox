@@ -242,7 +242,7 @@ enum class MouseButtonTransitionState : unsigned short {
     result += "Horizontal Wheel ";
   }
 
-  return result.size() ? result : "None";
+  return !result.empty() ? result : "None";
 }
 
 /**

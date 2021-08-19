@@ -186,7 +186,7 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add module default_delete support for your platform in base/unique_module_ptr.h
-#endif  // WB_OS_POSIX
+#endif  // WB_OS_WIN
 };
 }  // namespace wb::base
 
