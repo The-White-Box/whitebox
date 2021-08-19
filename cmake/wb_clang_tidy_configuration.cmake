@@ -4,8 +4,9 @@
 #
 # Clang-Tidy configuration.
 
-option(WB_CLANG_TIDY_DIR          "Define custom clang-tidy directory path." "")
-option(WB_GCC_ENABLE_CLANG_TIDY   "Determines clang-tidy enabled in GCC builds.  Results in common set of Clang and GCC flags passed to GCC, which can lead to undetected source code warnings." OFF)
+option(WB_CLANG_TIDY_DIR "Define custom clang-tidy directory path." "")
+option(WB_CLANG_TIDY_NAME "Determines clang-tidy executable name to use." "clang-tidy-13")
+option(WB_GCC_ENABLE_CLANG_TIDY "Determines clang-tidy enabled in GCC builds.  Results in common set of Clang and GCC flags passed to GCC, which can lead to undetected source code warnings." OFF)
 
 # Searches for clang-tidy and applies it for the target.
 function(wb_apply_clang_tidy_options_to_target RETURN_VALUE THE_TARGET CXX_STANDARD)
@@ -25,13 +26,13 @@ function(wb_apply_clang_tidy_options_to_target RETURN_VALUE THE_TARGET CXX_STAND
 
   if (NOT WB_CLANG_TIDY_DIR)
     find_program(WB_CLANG_TIDY
-      NAMES "clang-tidy" "clang-tidy-12"
-      DOC "Path to clang-tidy executable")
+        NAMES "clang-tidy" "${WB_CLANG_TIDY_NAME}"
+        DOC "Path to clang-tidy executable")
   else()
     find_program(WB_CLANG_TIDY
-      NAMES "clang-tidy" "clang-tidy-12"
-      PATHS "${WB_CLANG_TIDY_DIR}"
-      DOC "Path to clang-tidy executable")
+        NAMES "clang-tidy" "${WB_CLANG_TIDY_NAME}"
+        PATHS "${WB_CLANG_TIDY_DIR}"
+        DOC "Path to clang-tidy executable")
   endif()
 
   if (NOT WB_CLANG_TIDY)
