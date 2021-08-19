@@ -351,3 +351,8 @@ healthchecksdb
 
 # Resource compiler generated files.
 RCa*
+
+# PVS-Studio analyzer specific files.
+.PVS-Studio/
+*.PVS-Studio.cfg
+*.PVS-Studio.i
