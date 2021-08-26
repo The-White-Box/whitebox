@@ -28,9 +28,9 @@ class WB_BASE_API FullScreenWindowToggler {
   /**
    * @brief Toggle window full/narrow screen.
    * @param toggle Go full screen?
-   * @return void.
+   * @return Old full screen state, true if was full screen, false otherwise.
    */
-  void Toggle(bool toggle) noexcept;
+  bool Toggle(bool toggle) noexcept;
 
   /**
    * @brief Is window full screen now?

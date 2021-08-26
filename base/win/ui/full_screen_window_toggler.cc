@@ -30,16 +30,20 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FullScreenWindowTogglerImpl);
 
-  void Toggle(bool toggle) noexcept {
+  bool Toggle(bool toggle) noexcept {
     if (is_fullscreen_now_ != toggle) {
       const LONG_PTR window_style{::GetWindowLongPtr(window_, GWL_STYLE)};
 
       if (!is_fullscreen_now_) {
         GoFullScreen(window_style);
-      } else {
-        GoNarrowScreen(window_style);
+        return false;
       }
+
+      GoNarrowScreen(window_style);
+      return true;
     }
+
+    return is_fullscreen_now_;
   }
 
   [[nodiscard]] bool IsFullScreen() const noexcept {
@@ -119,8 +123,8 @@ FullScreenWindowToggler::FullScreenWindowToggler(
 
 FullScreenWindowToggler::~FullScreenWindowToggler() noexcept = default;
 
-void FullScreenWindowToggler::Toggle(bool toggle) noexcept {
-  impl_->Toggle(toggle);
+bool FullScreenWindowToggler::Toggle(bool toggle) noexcept {
+  return impl_->Toggle(toggle);
 }
 
 [[nodiscard]] bool FullScreenWindowToggler::IsFullScreen() const noexcept {
