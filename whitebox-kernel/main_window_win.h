@@ -14,6 +14,7 @@
 
 #include "base/base_macroses.h"
 #include "base/sampling_profiler.h"
+#include "base/win/mmcss/scoped_mmcss_toggle_dwm.h"
 #include "base/win/ui/accessibility_shortcut_keys_toggler.h"
 #include "base/win/ui/base_window.h"
 #include "base/win/ui/full_screen_window_toggler.h"
@@ -53,6 +54,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
               wb::base::HighResolutionSamplingProfiler::clock::now()},
           full_screen_window_toggler_{},
           accessibility_shortcut_keys_toggler_{},
+          scoped_mmcss_toggle_dwm_{},
           is_window_active_{false} {}
   WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
@@ -71,6 +73,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
         full_screen_window_toggler_{std::move(w.full_screen_window_toggler_)},
         accessibility_shortcut_keys_toggler_{
             std::move(w.accessibility_shortcut_keys_toggler_)},
+        scoped_mmcss_toggle_dwm_{std::move(w.scoped_mmcss_toggle_dwm_)},
         is_window_active_{std::move(w.is_window_active_)} {}
   /**
    * @brief Move window assigment.
@@ -85,6 +88,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
     std::swap(full_screen_window_toggler_, w.full_screen_window_toggler_);
     std::swap(accessibility_shortcut_keys_toggler_,
               w.accessibility_shortcut_keys_toggler_);
+    std::swap(scoped_mmcss_toggle_dwm_, w.scoped_mmcss_toggle_dwm_);
     std::swap(is_window_active_, w.is_window_active_);
     return *this;
   }
@@ -112,6 +116,12 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    */
   wb::base::windows::ui::AccessibilityShortcutKeysToggler
       accessibility_shortcut_keys_toggler_;
+  /**
+   * @brief Display Window Manager runs using Multimedia Class Schedule Service
+   * (MMCSS) scheduling to speed up window composition.
+   */
+  wb::base::un<wb::base::windows::mmcss::ScopedMmcssToggleDwm>
+      scoped_mmcss_toggle_dwm_;
   /**
    * @brief Is window active or not?
    */
@@ -184,6 +194,15 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    * @return void.
    */
   void OnWindowDestroy(_In_ HWND) noexcept;
+
+ private:
+  /**
+   * @brief When window is of normal size, should enable DWM MMCSS to speed up
+   * window composition.
+   * @param enable Enable DWM MMCSS?
+   * @return void.
+   */
+  void ToggleDwmMmcss(_In_ bool enable) noexcept;
 };
 }  // namespace wb::kernel
 

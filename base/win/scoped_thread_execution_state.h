@@ -110,7 +110,7 @@ class ScopedThreadExecutionState {
   ScopedThreadExecutionState(ScopedThreadExecutionState&& s) noexcept
       : old_flags_{std::move(s.old_flags_)},
         error_code_{std::move(s.error_code_)} {
-    s.error_code_ = std::error_code(EINVAL, std::system_category());
+    s.error_code_ = std::error_code{EINVAL, std::system_category()};
   }
   ScopedThreadExecutionState& operator=(ScopedThreadExecutionState&&) = delete;
 

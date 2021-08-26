@@ -56,6 +56,10 @@ class WB_BASE_API ScopedProcessMitigationPolicies {
     wb::base::un<ScopedProcessMitigationPoliciesImpl> impl_;
   WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
+  /**
+   * @brief Creates ScopedProcessMitigationPolicies.
+   * @return nothing.
+   */
   ScopedProcessMitigationPolicies() noexcept;
 
   /**

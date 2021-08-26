@@ -56,51 +56,59 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   constexpr char kSeeTechDetails[]{"See techical details"};
   constexpr char kHideTechDetails[]{"Hide techical details"};
 
-  // Mouse is ready.
-  auto mouse_result = hal::hid::Mouse::New(window);
-  if (auto *mouse = wb::base::std_ext::GetSuccessResult(mouse_result)) {
-    mouse_.swap(*mouse);
-  } else {
-    const auto rc = std::get<std::error_code>(mouse_result);
-    const ui::DialogBoxSettings dialog_settings(
-        nullptr, kKernelDialogTitle, "Unable to initialize mouse device",
-        "Unfortunately we unable to register mouse device for <A "
-        "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
-        "about-raw-input\">Raw Input</A> data supply.  "
-        "Please, contact authors.",
-        kHideTechDetails, kSeeTechDetails, rc.message(),
-        wb::build::settings::ui::error_dialog::kFooterLink,
-        ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
+  {
+    // Mouse is ready.
+    auto mouse_result = hal::hid::Mouse::New(window);
+    if (auto *mouse = wb::base::std_ext::GetSuccessResult(mouse_result)) {
+      mouse_.swap(*mouse);
+    } else {
+      const auto rc = std::get<std::error_code>(mouse_result);
+      const ui::DialogBoxSettings dialog_settings(
+          nullptr, kKernelDialogTitle, "Unable to initialize mouse device",
+          "Unfortunately we unable to register mouse device for <A "
+          "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
+          "about-raw-input\">Raw Input</A> data supply.  "
+          "Please, contact authors.",
+          kHideTechDetails, kSeeTechDetails, rc.message(),
+          wb::build::settings::ui::error_dialog::kFooterLink,
+          ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
 
-    ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
+      ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3PLOG_E(FATAL, rc) << "Unable to initialize mouse device.";
+      G3PLOG_E(FATAL, rc) << "Unable to initialize mouse device.";
+    }
   }
 
-  // Keyboard is ready.
-  auto keyboard_result = hal::hid::Keyboard::New(window);
-  if (auto *keyboard = wb::base::std_ext::GetSuccessResult(keyboard_result)) {
-    keyboard_.swap(*keyboard);
-  } else {
-    const auto rc = std::get<std::error_code>(keyboard_result);
-    const ui::DialogBoxSettings dialog_settings(
-        nullptr, kKernelDialogTitle, "Unable to initialize keyboard device",
-        "Unfortunately we unable to register keyboard device for <A "
-        "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
-        "about-raw-input\">Raw Input</A> data supply.  "
-        "Please, contact authors.",
-        kHideTechDetails, kSeeTechDetails, rc.message(),
-        wb::build::settings::ui::error_dialog::kFooterLink,
-        ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
+  {
+    // Keyboard is ready.
+    auto keyboard_result = hal::hid::Keyboard::New(window);
+    if (auto *keyboard = wb::base::std_ext::GetSuccessResult(keyboard_result)) {
+      keyboard_.swap(*keyboard);
+    } else {
+      const auto rc = std::get<std::error_code>(keyboard_result);
+      const ui::DialogBoxSettings dialog_settings(
+          nullptr, kKernelDialogTitle, "Unable to initialize keyboard device",
+          "Unfortunately we unable to register keyboard device for <A "
+          "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
+          "about-raw-input\">Raw Input</A> data supply.  "
+          "Please, contact authors.",
+          kHideTechDetails, kSeeTechDetails, rc.message(),
+          wb::build::settings::ui::error_dialog::kFooterLink,
+          ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
 
-    ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
+      ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
 
-    G3PLOG_E(FATAL, rc) << "Unable to initialize keyboard device.";
+      G3PLOG_E(FATAL, rc) << "Unable to initialize keyboard device.";
+    }
   }
 
   // Now can go full screen.
   full_screen_window_toggler_.reset(
       new ui::FullScreenWindowToggler{window, create_struct->style});
+
+  // When window is of normal size, should enable DWM MMCSS to speed up window
+  // composition.
+  ToggleDwmMmcss(!full_screen_window_toggler_->IsFullScreen());
 
   using namespace std::chrono_literals;
   // TODO(dimhotepus): Simulate long loading.  Move to the task?
@@ -140,8 +148,12 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
                 (keyboard_input.key_flags &
                  hal::hid::KeyboardKeyFlags::kDown) ==
                     hal::hid::KeyboardKeyFlags::kDown) {
-              full_screen_window_toggler_->Toggle(
-                  !full_screen_window_toggler_->IsFullScreen());
+              const bool need_full_screen{
+                  !full_screen_window_toggler_->IsFullScreen()};
+
+              full_screen_window_toggler_->Toggle(need_full_screen);
+
+              ToggleDwmMmcss(!need_full_screen);
             }
           }
         }
@@ -249,4 +261,32 @@ void MainWindow::OnGetWindowSizeBounds(_In_ HWND,
 }
 
 void MainWindow::OnWindowDestroy(_In_ HWND) noexcept { ::PostQuitMessage(0); }
+
+void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
+  using namespace wb::base::windows;
+
+  if (enable) {
+    // Change window to normal size, should enable DWM MMCSS to
+    // speed up window composition.
+    auto scoped_toggle_dwm_mmcs_result = mmcss::ScopedMmcssToggleDwm::New(true);
+    if (auto *scheduler = wb::base::std_ext::GetSuccessResult(
+            scoped_toggle_dwm_mmcs_result)) {
+      auto *memory = new unsigned char[sizeof(mmcss::ScopedMmcssToggleDwm)];
+
+      // Trick with placement new + move.
+      scoped_mmcss_toggle_dwm_.reset(
+          new (reinterpret_cast<mmcss::ScopedMmcssToggleDwm *>(memory))
+              mmcss::ScopedMmcssToggleDwm{std::move(*scheduler)});
+    } else {
+      const auto rc = std::get<std::error_code>(scoped_toggle_dwm_mmcs_result);
+      G3PLOG_E(WARNING, rc)
+          << "Unable to enable Desktop Window Manager (DWM) Multimedia Class "
+             "Schedule Service (MMCSS) scheduling.  Rendering will not be "
+             "optimized for multimedia applications.";
+    }
+  } else {
+    // Full screen, disable DWM MMCSS.
+    scoped_mmcss_toggle_dwm_.reset();
+  }
+}
 }  // namespace wb::kernel

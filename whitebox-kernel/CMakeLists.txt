@@ -12,6 +12,10 @@ set(WB_WHITEBOX_KERNEL_TARGET_NAME  "whitebox-kernel")
 
 set(WB_WHITEBOX_KERNEL_LINK_OPTIONS "")
 set(WB_WHITEBOX_KERNEL_LINK_DEPS base g3log mimalloc whitebox-hid-driver)
+if (WB_OS_WIN)
+  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
+endif()
+
 set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS base g3log mimalloc whitebox-hid-driver)
 
 wb_cxx_shared_library(
