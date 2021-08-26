@@ -9,6 +9,13 @@
 #include <chrono>
 #include <thread>
 #include <type_traits>
+
+#include "build/build_config.h"
+
+#if WB_OS_WIN
+#include "base/windows/scoped_minimum_timer_resolution.h"
+#endif
+
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
@@ -37,17 +44,24 @@ GTEST_TEST(SamplingProfilerTest, NoCopyConstructorAndAssignment) {
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
+  using namespace std::chrono_literals;
+
+  constexpr auto average_sample_time{15ms};
+  // Allow 50% deviation for testing host CPU fluctuations.
+  constexpr auto sample_time_deviation{average_sample_time / 2};
+
+#ifdef WB_OS_WIN
+  // Well, windows sleep precision can be not so high.  Need to increase it to
+  // fluctuate no more than sample_time_deviation.
+  const auto scoped_minimum_timer_resolution =
+      wb::base::windows::ScopedMinimumTimerResolution::New(
+          sample_time_deviation);
+  EXPECT_TRUE(!!std::get_if<wb::base::windows::ScopedMinimumTimerResolution>(
+      &scoped_minimum_timer_resolution));
+#endif
+
   wb::base::HighResolutionSamplingProfiler profiler{
       std::chrono::steady_clock::now()};
-
-  using namespace std::chrono_literals;
-  // Well, windows sleep precision can be not so high.  Can be changed by
-  // ScopedMinimumTimerResolution, but can affect other processes.  Decided to
-  // use a bit larger sleep time than the default precision to ensure test
-  // passes.
-  constexpr auto average_sample_time{15ms};
-  // Allow 25% deviation for testing host CPU fluctuations.
-  constexpr auto sample_time_deviation{average_sample_time / 4};
 
   auto moved_profiler = std::move(profiler);
 
@@ -68,17 +82,24 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(HighResolutionSamplingProfilerTest,
            SampleAndGetTimeBetweenLastSamples) {
+  using namespace std::chrono_literals;
+
+  constexpr auto average_sample_time{15ms};
+  // Allow 50% deviation for testing host CPU fluctuations.
+  constexpr auto sample_time_deviation{average_sample_time / 2};
+
+#ifdef WB_OS_WIN
+  // Well, windows sleep precision can be not so high.  Need to increase it to
+  // fluctuate no more than sample_time_deviation.
+  const auto scoped_minimum_timer_resolution =
+      wb::base::windows::ScopedMinimumTimerResolution::New(
+          sample_time_deviation);
+  EXPECT_TRUE(!!std::get_if<wb::base::windows::ScopedMinimumTimerResolution>(
+      &scoped_minimum_timer_resolution));
+#endif
+
   wb::base::HighResolutionSamplingProfiler profiler{
       std::chrono::steady_clock::now()};
-
-  using namespace std::chrono_literals;
-  // Well, windows sleep precision can be not so high.  Can be changed by
-  // ScopedMinimumTimerResolution, but can affect other processes.  Decided to
-  // use a bit larger sleep time than the default precision to ensure test
-  // passes.
-  constexpr auto average_sample_time{15ms};
-  // Allow 25% deviation for testing host CPU fluctuations.
-  constexpr auto sample_time_deviation{average_sample_time / 4};
 
   {
     std::this_thread::sleep_for(average_sample_time);

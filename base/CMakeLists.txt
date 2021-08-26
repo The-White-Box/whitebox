@@ -41,7 +41,7 @@ if (WB_BUILD_TESTS)
 
   if (WB_OS_WIN)
     # _com_ptr_t support.
-    list(APPEND WB_BASE_TESTS_LINK_DEPS "comsuppw")
+    list(APPEND WB_BASE_TESTS_LINK_DEPS "comsuppw;Winmm")
   endif()
 
   wb_cxx_test_exe_for_target(

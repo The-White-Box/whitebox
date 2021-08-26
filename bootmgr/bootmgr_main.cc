@@ -255,8 +255,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
 #ifdef WB_OS_WIN
   // Set minimum timers resolution to good enough, but not too power hungry.
   const auto scoped_minimum_timer_resolution =
-      windows::ScopedMinimumTimerResolution::New(
-          wb::build::settings::kMinimumTimerResolutionMs);
+      windows::ScopedMinimumTimerResolution::New(std::chrono::milliseconds{
+          wb::build::settings::kMinimumTimerResolutionMs});
   G3LOG_IF(WARNING, !!std::get_if<unsigned>(&scoped_minimum_timer_resolution))
       << "Failed to set minimum periodic timers resolution to "
       << wb::build::settings::kMinimumTimerResolutionMs

@@ -218,6 +218,11 @@ configure_file(
   ${WB_BINARY_DIR}/product_version_config.h
 )
 
+if (WB_OS_WIN)
+  # Remove clashing min/max macroses from windows headers.
+  add_definitions(-DNOMINMAX)
+endif()
+
 ## Include sub-projects.
 # Dependencies.
 add_subdirectory("deps/g3log")
