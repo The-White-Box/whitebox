@@ -343,6 +343,10 @@ healthchecksdb
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 
+# CMake artifacts.
+*/CMakeFiles/
+*/gen/
+
 # Default MSVC CMake build output folder.
 /out/
 
