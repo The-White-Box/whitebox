@@ -71,15 +71,15 @@ class ScopedEndError {
 }  // namespace wb::base::deps::g3log
 
 // G3LOG(level) is the API for the stream log
-#define G3LOG(level)          \
-  if (!g3::logLevel(level)) { \
-  } else                      \
+#define G3LOG(level)                     \
+  if (!g3::logLevel(level)) [[likely]] { \
+  } else                                 \
     INTERNAL_LOG_MESSAGE(level).stream()
 
 // G3PLOG_E(level, error_code) is the API for the stream log + system error
 // code.
 #define G3PLOG_E(level, error_code)                       \
-  if (!g3::logLevel(level)) {                             \
+  if (!g3::logLevel(level)) [[likely]] {                  \
   } else                                                  \
     wb::base::deps::g3log::ScopedEndError{                \
         error_code, INTERNAL_LOG_MESSAGE(level).stream()} \
@@ -89,26 +89,26 @@ class ScopedEndError {
 #define G3PLOG(level) G3PLOG_E(level, std_ext::GetThreadErrorCode())
 
 // 'Conditional' stream log
-#define G3LOG_IF(level, boolean_expression)                    \
-  if (!g3::logLevel(level) || false == (boolean_expression)) { \
-  } else                                                       \
+#define G3LOG_IF(level, boolean_expression)                               \
+  if (!g3::logLevel(level) || false == (boolean_expression)) [[likely]] { \
+  } else                                                                  \
     INTERNAL_LOG_MESSAGE(level).stream()
 
 // 'Conditional' stream log + system error code.
-#define G3PLOGE_IF(level, boolean_expression, error_code)      \
-  if (!g3::logLevel(level) || false == (boolean_expression)) { \
-  } else                                                       \
-    wb::base::deps::g3log::ScopedEndError{                     \
-        error_code, INTERNAL_LOG_MESSAGE(level).stream()}      \
+#define G3PLOGE_IF(level, boolean_expression, error_code)                 \
+  if (!g3::logLevel(level) || false == (boolean_expression)) [[likely]] { \
+  } else                                                                  \
+    wb::base::deps::g3log::ScopedEndError{                                \
+        error_code, INTERNAL_LOG_MESSAGE(level).stream()}                 \
         .stream()
 
 // 'Design By Contract' stream API. Broken Contracts will exit the application
 // by using fatal signal SIGABRT
 //  For unit testing, you can override the fatal handling using
 //  setFatalExitHandler(...). See tes_io.cpp for examples
-#define G3CHECK(boolean_expression)   \
-  if (true == (boolean_expression)) { \
-  } else                              \
+#define G3CHECK(boolean_expression)              \
+  if (true == (boolean_expression)) [[likely]] { \
+  } else                                         \
     INTERNAL_CONTRACT_MESSAGE(#boolean_expression).stream()
 
 // 'Design By Contract' stream API + error code. Broken Contracts will exit the
@@ -116,7 +116,7 @@ class ScopedEndError {
 //  For unit testing, you can override the fatal handling using
 //  setFatalExitHandler(...). See tes_io.cpp for examples
 #define G3PCHECK_E(boolean_expression, error_code)                           \
-  if (true == (boolean_expression)) {                                        \
+  if (true == (boolean_expression)) [[likely]] {                             \
   } else                                                                     \
     wb::base::deps::g3log::ScopedEndError{                                   \
         error_code, INTERNAL_CONTRACT_MESSAGE(#boolean_expression).stream()} \
@@ -171,14 +171,14 @@ And here is possible output
 :      Width trick:    10
 :      A string  \endverbatim */
 #define G3LOGF(level, printf_like_message, ...) \
-  if (!g3::logLevel(level)) {                   \
+  if (!g3::logLevel(level)) [[likely]] {        \
   } else                                        \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
 // Conditional log printf syntax
-#define G3LOGF_IF(level, boolean_expression, printf_like_message, ...) \
-  if (!g3::logLevel(level) || false == (boolean_expression)) {         \
-  } else                                                               \
+#define G3LOGF_IF(level, boolean_expression, printf_like_message, ...)    \
+  if (!g3::logLevel(level) || false == (boolean_expression)) [[likely]] { \
+  } else                                                                  \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
 // Design By Contract, printf-like API syntax with variadic input parameters.
@@ -187,7 +187,7 @@ And here is possible output
 // setFatalExitHandler(...) which can be overriden for unit tests (ref
 // test_io.cpp)
 #define G3CHECKF(boolean_expression, printf_like_message, ...) \
-  if (true == (boolean_expression)) {                          \
+  if (true == (boolean_expression)) [[likely]] {               \
   } else                                                       \
     INTERNAL_CONTRACT_MESSAGE(#boolean_expression)             \
         .capturef(printf_like_message, ##__VA_ARGS__)
@@ -198,7 +198,7 @@ And here is possible output
 // setFatalExitHandler(...) which can be overriden for unit tests (ref
 // test_io.cpp)
 #define G3CHECK_F(boolean_expression, printf_like_message, ...) \
-  if (true == (boolean_expression)) {                           \
+  if (true == (boolean_expression)) [[likely]] {                \
   } else                                                        \
     INTERNAL_CONTRACT_MESSAGE(#boolean_expression)              \
         .capturef(printf_like_message, ##__VA_ARGS__)
@@ -323,14 +323,14 @@ And here is possible output
 :      Width trick:    10
 :      A string  \endverbatim */
 #define G3DLOGF(level, printf_like_message, ...) \
-  if (!g3::logLevel(level)) {                    \
+  if (!g3::logLevel(level)) [[likely]] {         \
   } else                                         \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
 // Conditional log printf syntax
-#define G3DLOGF_IF(level, boolean_expression, printf_like_message, ...) \
-  if (false == (boolean_expression) || !g3::logLevel(level)) {          \
-  } else                                                                \
+#define G3DLOGF_IF(level, boolean_expression, printf_like_message, ...)   \
+  if (false == (boolean_expression) || !g3::logLevel(level)) [[likely]] { \
+  } else                                                                  \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
 // 'Design By Contract' stream API. For Broken Contracts:
@@ -348,7 +348,7 @@ And here is possible output
 // Design By Contract, printf-like API syntax with variadic input parameters.
 // Throws std::runtime_eror if contract breaks
 #define G3DCHECKF(boolean_expression, printf_like_message, ...) \
-  if (true == (boolean_expression)) {                           \
+  if (true == (boolean_expression)) [[likely]] {                \
   } else                                                        \
     INTERNAL_CONTRACT_MESSAGE(#boolean_expression)              \
         .capturef(printf_like_message, ##__VA_ARGS__)
