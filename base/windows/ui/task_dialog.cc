@@ -10,7 +10,7 @@
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/cstring_ext.h"
+#include "base/std_ext/string_ext.h"
 #include "base/windows/system_error_ext.h"
 #include "base/windows/ui/window_message_handlers.h"
 #include "base/windows/windows_light.h"

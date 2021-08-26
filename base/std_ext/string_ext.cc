@@ -2,14 +2,11 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// <cstring> extensions.
+// <string> extensions.
 
-#include "cstring_ext.h"
-
-#include <cstdlib>  // *_s
+#include "string_ext.h"
 
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/system_error_ext.h"
 
 #ifdef WB_OS_WIN
 #include "base/windows/windows_light.h"

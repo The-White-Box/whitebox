@@ -75,22 +75,6 @@ inline Dest& BitwiseCopy(Dest& dest, const Source& source) noexcept {
 
   return *static_cast<Dest*>(std::memcpy(&dest, &source, sizeof(dest)));
 }
-
-#ifdef WB_OS_WIN
-/**
- * @brief Wide string to ANSI one.
- * @param in Wide string.
- * @return ANSI string.
- */
-[[nodiscard]] WB_BASE_API std::string WideToUTF8(const std::wstring &in);
-
-/**
- * @brief ANSI string to wide one.
- * @param in ANSI string.
- * @return Wide string.
- */
-[[nodiscard]] WB_BASE_API std::wstring UTF8ToWide(const std::string &in);
-#endif
 }  // namespace wb::base::std_ext
 
 #endif  // !WB_BASE_STD_EXT_CSTRING_EXT_H_

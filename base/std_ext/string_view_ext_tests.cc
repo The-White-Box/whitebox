@@ -10,94 +10,96 @@
 
 #include "base/deps/googletest/gtest/gtest.h"
 
+using namespace wb::base::std_ext;
+
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtTests, StartsWithHasEmptyString) {
-  EXPECT_FALSE(wb::base::std_ext::starts_with("", '\0'));
-  EXPECT_FALSE(wb::base::std_ext::starts_with("", ' '));
-  EXPECT_FALSE(wb::base::std_ext::starts_with("", 'a'));
+  EXPECT_FALSE(starts_with("", '\0'));
+  EXPECT_FALSE(starts_with("", ' '));
+  EXPECT_FALSE(starts_with("", 'a'));
 
-  EXPECT_FALSE(wb::base::std_ext::starts_with(std::string{}, '\0'));
-  EXPECT_FALSE(wb::base::std_ext::starts_with(std::string{}, ' '));
-  EXPECT_FALSE(wb::base::std_ext::starts_with(std::string{}, 'a'));
+  EXPECT_FALSE(starts_with(std::string{}, '\0'));
+  EXPECT_FALSE(starts_with(std::string{}, ' '));
+  EXPECT_FALSE(starts_with(std::string{}, 'a'));
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtTests, StartsWithValue) {
-  EXPECT_FALSE(wb::base::std_ext::starts_with("a", '\0'));
-  EXPECT_FALSE(wb::base::std_ext::starts_with("abc", 'b'));
-  EXPECT_FALSE(wb::base::std_ext::starts_with("abc", 'c'));
-  EXPECT_TRUE(wb::base::std_ext::starts_with("abc", 'a'));
+  EXPECT_FALSE(starts_with("a", '\0'));
+  EXPECT_FALSE(starts_with("abc", 'b'));
+  EXPECT_FALSE(starts_with("abc", 'c'));
+  EXPECT_TRUE(starts_with("abc", 'a'));
 
-  EXPECT_FALSE(wb::base::std_ext::starts_with(std::string{"abc"}, '\0'));
-  EXPECT_FALSE(wb::base::std_ext::starts_with(std::string{"abc"}, 'b'));
-  EXPECT_FALSE(wb::base::std_ext::starts_with(std::string{"abc"}, 'c'));
-  EXPECT_TRUE(wb::base::std_ext::starts_with(std::string{"abc"}, 'a'));
+  EXPECT_FALSE(starts_with(std::string{"abc"}, '\0'));
+  EXPECT_FALSE(starts_with(std::string{"abc"}, 'b'));
+  EXPECT_FALSE(starts_with(std::string{"abc"}, 'c'));
+  EXPECT_TRUE(starts_with(std::string{"abc"}, 'a'));
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtTests, EndsWithHasEmptyString) {
-  EXPECT_FALSE(wb::base::std_ext::ends_with("", '\0'));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("", ' '));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("", 'a'));
+  EXPECT_FALSE(ends_with("", '\0'));
+  EXPECT_FALSE(ends_with("", ' '));
+  EXPECT_FALSE(ends_with("", 'a'));
 
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{}, '\0'));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{}, ' '));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{}, 'a'));
+  EXPECT_FALSE(ends_with(std::string{}, '\0'));
+  EXPECT_FALSE(ends_with(std::string{}, ' '));
+  EXPECT_FALSE(ends_with(std::string{}, 'a'));
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtTests, EndsWithHasValue) {
-  EXPECT_FALSE(wb::base::std_ext::ends_with("a", '\0'));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("abc", 'b'));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("abc", 'a'));
-  EXPECT_TRUE(wb::base::std_ext::ends_with("abc", 'c'));
+  EXPECT_FALSE(ends_with("a", '\0'));
+  EXPECT_FALSE(ends_with("abc", 'b'));
+  EXPECT_FALSE(ends_with("abc", 'a'));
+  EXPECT_TRUE(ends_with("abc", 'c'));
 
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{"abc"}, '\0'));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{"abc"}, 'b'));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{"abc"}, 'a'));
-  EXPECT_TRUE(wb::base::std_ext::ends_with(std::string{"abc"}, 'c'));
+  EXPECT_FALSE(ends_with(std::string{"abc"}, '\0'));
+  EXPECT_FALSE(ends_with(std::string{"abc"}, 'b'));
+  EXPECT_FALSE(ends_with(std::string{"abc"}, 'a'));
+  EXPECT_TRUE(ends_with(std::string{"abc"}, 'c'));
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtTests, EndsWithStringHasEmptyString) {
-  EXPECT_TRUE(wb::base::std_ext::ends_with("", ""));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("", " "));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("", "a"));
+  EXPECT_TRUE(ends_with("", ""));
+  EXPECT_FALSE(ends_with("", " "));
+  EXPECT_FALSE(ends_with("", "a"));
 
-  EXPECT_TRUE(wb::base::std_ext::ends_with(std::string{}, ""));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{}, " "));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{}, "a"));
+  EXPECT_TRUE(ends_with(std::string{}, ""));
+  EXPECT_FALSE(ends_with(std::string{}, " "));
+  EXPECT_FALSE(ends_with(std::string{}, "a"));
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtTests, EndsWithStringHasValue) {
-  EXPECT_TRUE(wb::base::std_ext::ends_with("a", ""));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("abc", "b"));
-  EXPECT_FALSE(wb::base::std_ext::ends_with("abc", "ab"));
-  EXPECT_TRUE(wb::base::std_ext::ends_with("abc", "c"));
-  EXPECT_TRUE(wb::base::std_ext::ends_with("abc", "bc"));
-  EXPECT_TRUE(wb::base::std_ext::ends_with("abc", "abc"));
+  EXPECT_TRUE(ends_with("a", ""));
+  EXPECT_FALSE(ends_with("abc", "b"));
+  EXPECT_FALSE(ends_with("abc", "ab"));
+  EXPECT_TRUE(ends_with("abc", "c"));
+  EXPECT_TRUE(ends_with("abc", "bc"));
+  EXPECT_TRUE(ends_with("abc", "abc"));
 
-  EXPECT_TRUE(wb::base::std_ext::ends_with(std::string{"a"}, ""));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{"abc"}, "b"));
-  EXPECT_FALSE(wb::base::std_ext::ends_with(std::string{"abc"}, "ab"));
-  EXPECT_TRUE(wb::base::std_ext::ends_with(std::string{"abc"}, "c"));
-  EXPECT_TRUE(wb::base::std_ext::ends_with(std::string{"abc"}, "bc"));
-  EXPECT_TRUE(wb::base::std_ext::ends_with(std::string{"abc"}, "abc"));
+  EXPECT_TRUE(ends_with(std::string{"a"}, ""));
+  EXPECT_FALSE(ends_with(std::string{"abc"}, "b"));
+  EXPECT_FALSE(ends_with(std::string{"abc"}, "ab"));
+  EXPECT_TRUE(ends_with(std::string{"abc"}, "c"));
+  EXPECT_TRUE(ends_with(std::string{"abc"}, "bc"));
+  EXPECT_TRUE(ends_with(std::string{"abc"}, "abc"));
 }
 
 #if WB_COMPILER_HAS_DEBUG
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
 #ifdef WB_OS_WIN
-  EXPECT_EXIT((void)!!wb::base::std_ext::ends_with("", nullptr),
+  EXPECT_EXIT((void)!!ends_with("", nullptr),
               testing::ExitedWithCode(STATUS_BREAKPOINT), "");
-  EXPECT_EXIT((void)!!wb::base::std_ext::ends_with("a", nullptr),
+  EXPECT_EXIT((void)!!ends_with("a", nullptr),
               testing::ExitedWithCode(STATUS_BREAKPOINT), "");
 #else
-  EXPECT_EXIT((void)!!wb::base::std_ext::ends_with("", nullptr),
+  EXPECT_EXIT((void)!!ends_with("", nullptr),
               testing::KilledBySignal(SIGABRT), "");
-  EXPECT_EXIT((void)!!wb::base::std_ext::ends_with("a", nullptr),
+  EXPECT_EXIT((void)!!ends_with("a", nullptr),
               testing::KilledBySignal(SIGABRT), "");
 #endif
 }
