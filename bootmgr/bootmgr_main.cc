@@ -24,6 +24,7 @@
 #include "base/win/memory/memory_utils.h"
 #include "base/win/memory/scoped_new_handler.h"
 #include "base/win/memory/scoped_new_mode.h"
+#include "base/win/mmcss/scoped_mmcss_thread_controller.h"
 #include "base/win/scoped_minimum_timer_resolution.h"
 #include "base/win/security/process_mitigations.h"
 #include "base/win/ui/task_dialog.h"
@@ -261,7 +262,51 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
       << "Failed to set minimum periodic timers resolution to "
       << wb::build::settings::kMinimumTimerResolutionMs
       << "ms, will run with default system one: ("
-      << std::get<unsigned>(scoped_minimum_timer_resolution) << ").";
+      << std::get<unsigned>(scoped_minimum_timer_resolution)
+      << "ms).  See "
+         "https://docs.microsoft.com/en-us/windows/win32/api/timeapi/"
+         "nf-timeapi-timebeginperiod";
+
+  {
+    // Signal Multimedia Class Scheduler Service we have game thread here, so
+    // utilize as much of the CPU as possible without denying CPU resources to
+    // lower-priority applications.
+    // TODO(dimhotepus): Add more tasks when we add more possibilities?
+    const windows::mmcss::ScopedMmcssThreadTask game_task{
+        windows::mmcss::KnownScopedMmcssThreadTaskName::kGames};
+    const auto scoped_mmcss_thread_controller =
+        windows::mmcss::ScopedMmcssThreadController::New(game_task, game_task);
+    if (const auto* controller = std_ext::GetSuccessResult(
+            scoped_mmcss_thread_controller)) [[likely]] {
+      const auto responsiveness_percent =
+          controller->GetResponsivenessPercent();
+
+      if (const auto* percent =
+              std_ext::GetSuccessResult(responsiveness_percent)) [[likely]] {
+        G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
+                     << implicit_cast<unsigned>(*percent)
+                     << "% system responsiveness value.";
+      } else {
+        G3PLOG_E(WARNING, *std_ext::GetErrorCode(responsiveness_percent))
+            << "Can't get system responsiveness setting used by Multimedia "
+               "Class Scheduler Service for the main app thread.";
+      }
+
+      // TODO(dimhotepus): Main thread still does a lot of work.  Need to split
+      // it.
+      const auto bump_thread_priority_rc = controller->SetPriority(
+          windows::mmcss::ScopedMmcssThreadPriority::kHigh);
+      G3PLOGE_IF(WARNING, !!bump_thread_priority_rc, bump_thread_priority_rc)
+          << "Can't get system responsiveness setting used by Multimedia "
+             "Class Scheduler Service for the thread.";
+    } else {
+      G3PLOG_E(WARNING, *std_ext::GetErrorCode(scoped_mmcss_thread_controller))
+          << "Can't enable Multimedia Class Scheduler Service for the app, "
+             "some CPU resources may be underutilized.  See "
+             "https://docs.microsoft.com/en-us/windows/win32/procthread/"
+             "multimedia-class-scheduler-service#registry-settings";
+    }
+  }
 #endif
 
   return KernelStartup(bootmgr_args);

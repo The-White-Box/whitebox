@@ -57,6 +57,20 @@ underlying_cast(TEnum value) noexcept {
 }
 
 /**
+ * @brief More or less safely casts from enum to enum.
+ * @tparam ToEnum Enum to cast to.
+ * @tparam FromEnum Enum to cast from.
+ * @param from Enum to cast from.
+ * @return Enum to cast from as enum to cast to.
+ */
+template <typename ToEnum, typename FromEnum>
+[[nodiscard]] constexpr std::enable_if_t<
+    std::is_enum_v<ToEnum> && std::is_enum_v<FromEnum>, ToEnum>
+enum_cast(FromEnum from) noexcept {
+  return static_cast<ToEnum>(underlying_cast(from));
+}
+
+/**
  * @brief Unique smart pointer alias.
  * @tparam T Object type for unique_ptr.
  * @tparam Deleter Deleter for T.
