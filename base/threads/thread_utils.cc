@@ -12,8 +12,8 @@
 #ifdef WB_OS_WIN
 #include <sal.h>
 
-#include "base/windows/memory/scoped_local_memory.h"
-#include "base/windows/system_error_ext.h"
+#include "base/win/memory/scoped_local_memory.h"
+#include "base/win/system_error_ext.h"
 
 using HANDLE = void*;
 using HRESULT = long;

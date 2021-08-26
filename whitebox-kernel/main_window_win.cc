@@ -12,11 +12,11 @@
 #include <chrono>
 
 #include "base/deps/g3log/g3log.h"
-#include "base/windows/ui/scoped_change_cursor.h"
-#include "base/windows/ui/scoped_window_paint.h"
-#include "base/windows/ui/task_dialog.h"
-#include "base/windows/ui/window_message_handlers.h"
-#include "base/windows/ui/window_utilities.h"
+#include "base/win/ui/scoped_change_cursor.h"
+#include "base/win/ui/scoped_window_paint.h"
+#include "base/win/ui/task_dialog.h"
+#include "base/win/ui/window_message_handlers.h"
+#include "base/win/ui/window_utilities.h"
 #include "build/static_settings_config.h"
 #include "hal/drivers/hid/raw_input_win.h"
 

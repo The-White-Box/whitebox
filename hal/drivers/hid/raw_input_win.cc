@@ -7,8 +7,8 @@
 #include "raw_input_win.h"
 
 #include "base/deps/g3log/g3log.h"
-#include "base/windows/system_error_ext.h"
-#include "base/windows/windows_light.h"
+#include "base/win/system_error_ext.h"
+#include "base/win/windows_light.h"
 
 namespace wb::hal::hid {
 /**

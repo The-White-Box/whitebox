@@ -14,9 +14,9 @@
 
 #include "base/base_macroses.h"
 #include "base/sampling_profiler.h"
-#include "base/windows/ui/accessibility_shortcut_keys_toggler.h"
-#include "base/windows/ui/base_window.h"
-#include "base/windows/ui/full_screen_window_toggler.h"
+#include "base/win/ui/accessibility_shortcut_keys_toggler.h"
+#include "base/win/ui/base_window.h"
+#include "base/win/ui/full_screen_window_toggler.h"
 #include "hal/drivers/hid/keyboard_win.h"
 #include "hal/drivers/hid/mouse_win.h"
 

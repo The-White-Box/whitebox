@@ -9,7 +9,7 @@
 #include "base/deps/g3log/g3log.h"
 
 #ifdef WB_OS_WIN
-#include "base/windows/windows_light.h"
+#include "base/win/windows_light.h"
 #include "build/compiler_config.h"
 //
 #include <WinNls.h>

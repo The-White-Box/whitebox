@@ -13,7 +13,7 @@
 #include "build/build_config.h"
 
 #if WB_OS_WIN
-#include "base/windows/scoped_minimum_timer_resolution.h"
+#include "base/win/scoped_minimum_timer_resolution.h"
 #endif
 
 //

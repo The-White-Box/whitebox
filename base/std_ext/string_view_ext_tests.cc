@@ -5,7 +5,7 @@
 #include "string_view_ext.h"
 //
 #ifdef WB_OS_WIN
-#include "base/windows/windows_light.h"
+#include "base/win/windows_light.h"
 #endif
 
 #include "base/deps/googletest/gtest/gtest.h"

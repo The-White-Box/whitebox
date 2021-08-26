@@ -7,7 +7,7 @@
 #include "keyboard_win.h"
 
 #include "base/deps/g3log/g3log.h"
-#include "base/windows/windows_light.h"
+#include "base/win/windows_light.h"
 #include "raw_input_win.h"
 // Should go after windows.h
 #include <hidusage.h>

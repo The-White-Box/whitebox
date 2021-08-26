@@ -72,7 +72,7 @@ function(wb_cxx_executable)
   if (NOT WB_OS_WIN)
     wb_remove_matches_from_lists(header_files source_files
       MATCHES
-        "^${target_source_dir}/windows/"
+        "^${target_source_dir}/win/"
         "^${target_source_dir}(.*)_win.cc"
     )
   endif()
@@ -125,7 +125,7 @@ function(wb_cxx_executable)
 
   # Append Windows specific.
   if (WB_OS_WIN)
-    set(manifests_dir "${WB_ROOT_DIR}/build/windows/manifests")
+    set(manifests_dir "${WB_ROOT_DIR}/build/win/manifests")
     # Generate visual styles manifest as requires project info.
     configure_file(
       ${manifests_dir}/enable-visual-styles.manifest.cmake
@@ -250,7 +250,7 @@ function(wb_cxx_shared_library)
   if (NOT WB_OS_WIN)
     wb_remove_matches_from_lists(header_files source_files
       MATCHES
-        "^${target_source_dir}/windows/"
+        "^${target_source_dir}/win/"
         "^${target_source_dir}(.*)_win.cc"
     )
   endif()
@@ -301,7 +301,7 @@ function(wb_cxx_shared_library)
   if (WB_OS_WIN)
     target_sources(${target_name}
       PRIVATE
-        ${WB_ROOT_DIR}/build/windows/resource_scripts/windows_dll_base.rc
+        ${WB_ROOT_DIR}/build/win/resource_scripts/windows_dll_base.rc
     )
   endif()
 
@@ -360,7 +360,7 @@ function(wb_cxx_test_exe_for_target)
   if (NOT WB_OS_WIN)
     wb_remove_matches_from_lists(header_files source_files
         MATCHES
-        "^${target_source_dir}/windows/"
+        "^${target_source_dir}/win/"
         "^${target_source_dir}(.*)_win.cc"
         )
   endif ()
