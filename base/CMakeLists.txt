@@ -37,16 +37,16 @@ wb_cxx_shared_library(
 )
 
 if (WB_BUILD_TESTS)
-  set(WB_BASE_LINK_DEPS "")
+  set(WB_BASE_TESTS_LINK_DEPS base g3log mimalloc)
 
   if (WB_OS_WIN)
     # _com_ptr_t support.
-    list(APPEND WB_BASE_LINK_DEPS "comsuppw")
+    list(APPEND WB_BASE_TESTS_LINK_DEPS "comsuppw")
   endif()
 
   wb_cxx_test_exe_for_target(
-    TARGET        ${WB_BASE_TARGET_NAME}
-    SOURCE_DIR    ${WB_BASE_SOURCE_DIR}
-    LINK_DEPS     ${WB_BASE_LINK_DEPS}
+      TARGET ${WB_BASE_TARGET_NAME}
+      SOURCE_DIR ${WB_BASE_SOURCE_DIR}
+      LINK_DEPS ${WB_BASE_TESTS_LINK_DEPS}
   )
 endif()

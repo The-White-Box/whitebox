@@ -28,6 +28,10 @@ class SamplingProfiler {
    * @brief Time point.
    */
   using time_point = std::chrono::time_point<clock>;
+  /**
+   * @brief Time duration.
+   */
+  using duration = typename time_point::duration;
 
   /**
    * @brief Creates sampling profiler.
@@ -57,8 +61,7 @@ class SamplingProfiler {
    * @brief Gets time between last samples.
    * @return Time between last samples.  Note, time may be zero!
    */
-  [[nodiscard]] time_point::duration GetTimeBetweenLastSamples()
-      const noexcept {
+  [[nodiscard]] duration GetTimeBetweenLastSamples() const noexcept {
     return sample_times_[last_written_sample_idx_] -
            sample_times_[GetPreviousSampleIdx()];
   }

@@ -359,20 +359,27 @@ function(wb_cxx_test_exe_for_target)
 
   if (NOT WB_OS_WIN)
     wb_remove_matches_from_lists(header_files source_files
-      MATCHES
+        MATCHES
         "^${target_source_dir}/windows/"
         "^${target_source_dir}(.*)_win.cc"
-    )
-  endif()
+        )
+  endif ()
 
   set(tests_target_name "${target_name}_tests")
   add_executable(${tests_target_name} ${header_files} ${source_files})
 
+  # Include the root and with generated info directories.
+  target_include_directories(${tests_target_name}
+      PRIVATE
+      ${WB_ROOT_DIR}
+      ${target_binary_dir}/gen
+      )
+
   # Specify tests compile / link options.
   wb_apply_compile_options_to_target(${tests_target_name})
 
-  set(target_link_dependencies     ${args_LINK_DEPS})
-  set(target_runtime_dependencies  ${args_RUNTIME_DEPS})
+  set(target_link_dependencies ${args_LINK_DEPS})
+  set(target_runtime_dependencies ${args_RUNTIME_DEPS})
 
   set(tests_link_dependencies GTest::gtest_main mimalloc)
   list(APPEND tests_link_dependencies ${target_link_dependencies} ${target_name})
