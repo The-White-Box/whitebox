@@ -9,6 +9,80 @@
 
 #include "build/build_config.h"
 
+#if defined(__cplusplus)
+#if __cplusplus > 201703L
+#define WB_COMPILER_HAS_CXX20     1
+#define WB_COMPILER_HAS_CXX17     1
+#define WB_COMPILER_HAS_CXX14     1
+#define WB_COMPILER_HAS_CXX11     1
+#define WB_COMPILER_HAS_CXX98     1
+#define WB_COMPILER_HAS_CXXPRE98  1
+#elif __cplusplus > 201402L
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     1
+#define WB_COMPILER_HAS_CXX14     1
+#define WB_COMPILER_HAS_CXX11     1
+#define WB_COMPILER_HAS_CXX98     1
+#define WB_COMPILER_HAS_CXXPRE98  1
+#elif __cplusplus > 201103L
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     0
+#define WB_COMPILER_HAS_CXX14     1
+#define WB_COMPILER_HAS_CXX11     1
+#define WB_COMPILER_HAS_CXX98     1
+#define WB_COMPILER_HAS_CXXPRE98  1
+#elif __cplusplus > 199711L
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     0
+#define WB_COMPILER_HAS_CXX14     0
+#define WB_COMPILER_HAS_CXX11     1
+#define WB_COMPILER_HAS_CXX98     1
+#define WB_COMPILER_HAS_CXXPRE98  1
+#elif __cplusplus > 1L
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     0
+#define WB_COMPILER_HAS_CXX14     0
+#define WB_COMPILER_HAS_CXX11     0
+#define WB_COMPILER_HAS_CXX98     1
+#define WB_COMPILER_HAS_CXXPRE98  1
+#elif __cplusplus == 1L
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     0
+#define WB_COMPILER_HAS_CXX14     0
+#define WB_COMPILER_HAS_CXX11     0
+#define WB_COMPILER_HAS_CXX98     0
+#define WB_COMPILER_HAS_CXXPRE98  1
+#else
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     0
+#define WB_COMPILER_HAS_CXX14     0
+#define WB_COMPILER_HAS_CXX11     0
+#define WB_COMPILER_HAS_CXX98     0
+#define WB_COMPILER_HAS_CXXPRE98  0
+#endif
+#else  // !__cplusplus
+#define WB_COMPILER_HAS_CXX20     0
+#define WB_COMPILER_HAS_CXX17     0
+#define WB_COMPILER_HAS_CXX14     0
+#define WB_COMPILER_HAS_CXX11     0
+#define WB_COMPILER_HAS_CXX98     0
+#define WB_COMPILER_HAS_CXXPRE98  0
+#endif  // __cplusplus
+
+// We extended NDEBUG from asserts (as C++ standard says) to all debug code.
+// Done for simplicity and as extensively used practise.
+#ifdef NDEBUG
+/*
+ * @brief Compiling in NON-debug mode.
+ */
+#define WB_COMPILER_HAS_DEBUG 0
+#else
+/*
+ * @brief Compiling in debug mode.
+ */
+#define WB_COMPILER_HAS_DEBUG 1
+#endif
+
 #ifdef WB_COMPILER_MSVC
 
 /*
