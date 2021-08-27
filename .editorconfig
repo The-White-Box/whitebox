@@ -9,6 +9,8 @@ root = true
 [*]
 # Expect sources in utf-8.
 charset = utf-8
+# Honor max line length setting.
+max_line_length = 80
 # Apply visual editor guidelines for all files.  For MSVC use EditorGuidelines
 # extension to support this.
 guidelines = 80
