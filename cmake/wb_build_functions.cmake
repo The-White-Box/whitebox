@@ -381,7 +381,7 @@ function(wb_cxx_test_exe_for_target)
   set(target_link_dependencies ${args_LINK_DEPS})
   set(target_runtime_dependencies ${args_RUNTIME_DEPS})
 
-  set(tests_link_dependencies GTest::gtest_main mimalloc)
+  set(tests_link_dependencies GTest::gtest mimalloc)
   list(APPEND tests_link_dependencies ${target_link_dependencies} ${target_name})
   target_link_libraries(${tests_target_name} PRIVATE ${tests_link_dependencies})
 

@@ -6,6 +6,8 @@
 //
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
+#else
+#include <signal.h>  // SIGABRT
 #endif
 
 #include "base/deps/googletest/gtest/gtest.h"
@@ -91,16 +93,19 @@ GTEST_TEST(StringViewExtTests, EndsWithStringHasValue) {
 #if WB_COMPILER_HAS_DEBUG
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
+  GTEST_FLAG_SET(death_test_style, "threadsafe");
 #ifdef WB_OS_WIN
   EXPECT_EXIT((void)!!ends_with("", nullptr),
               testing::ExitedWithCode(STATUS_BREAKPOINT), "");
   EXPECT_EXIT((void)!!ends_with("a", nullptr),
               testing::ExitedWithCode(STATUS_BREAKPOINT), "");
 #else
-  EXPECT_EXIT((void)!!ends_with("", nullptr),
-              testing::KilledBySignal(SIGABRT), "");
-  EXPECT_EXIT((void)!!ends_with("a", nullptr),
-              testing::KilledBySignal(SIGABRT), "");
+  [[maybe_unused]] volatile bool ensure_result_used;
+
+  EXPECT_EXIT(ensure_result_used = ends_with("", nullptr),
+              testing::KilledBySignal(SIGTRAP), "");
+  EXPECT_EXIT(ensure_result_used = ends_with("a", nullptr),
+              testing::KilledBySignal(SIGTRAP), "");
 #endif
 }
 #endif

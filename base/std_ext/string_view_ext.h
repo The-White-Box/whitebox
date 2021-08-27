@@ -20,8 +20,8 @@ namespace wb::base::std_ext {
  * @param c Character.
  * @return true if starts, false otherwise.
  */
-[[nodiscard]] WB_ATTRIBUTE_GCC_PURE bool starts_with(std::string_view s,
-                                                     char c) noexcept {
+[[nodiscard]] WB_ATTRIBUTE_GCC_PURE inline bool starts_with(std::string_view s,
+                                                            char c) noexcept {
   return !s.empty() && s[0] == c;
 }
 
@@ -31,8 +31,8 @@ namespace wb::base::std_ext {
  * @param c Character.
  * @return true if ends, false otherwise.
  */
-[[nodiscard]] WB_ATTRIBUTE_GCC_PURE bool ends_with(std::string_view s,
-                                                   char c) noexcept {
+[[nodiscard]] WB_ATTRIBUTE_GCC_PURE inline bool ends_with(std::string_view s,
+                                                          char c) noexcept {
   return !s.empty() && s[s.size() - 1] == c;
 }
 
@@ -42,7 +42,7 @@ namespace wb::base::std_ext {
  * @param v C string.
  * @return true if ends, false otherwise.
  */
-[[nodiscard]] WB_ATTRIBUTE_GCC_PURE bool ends_with(
+[[nodiscard]] WB_ATTRIBUTE_GCC_PURE inline bool ends_with(
     std::string_view s, const char* WB_COMPILER_MSVC_RESTRICT_VAR v) noexcept {
   G3DCHECK(!!v) << "v is nullptr";
 #if WB_COMPILER_HAS_CXX20

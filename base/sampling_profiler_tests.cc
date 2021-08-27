@@ -10,9 +10,9 @@
 #include <thread>
 #include <type_traits>
 
-#include "build/build_config.h"
+#include "build/build_config.h"  // WB_OS_WIN
 
-#if WB_OS_WIN
+#ifdef WB_OS_WIN
 #include "base/win/scoped_minimum_timer_resolution.h"
 #endif
 
@@ -69,7 +69,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
     std::this_thread::sleep_for(average_sample_time);
     moved_profiler.Sample();
 
-    const auto time_delta = moved_profiler.GetTimeBetweenLastSamples();
+    const auto time_delta =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            moved_profiler.GetTimeBetweenLastSamples());
 
     EXPECT_GE(time_delta, average_sample_time - sample_time_deviation)
         << "Should sample " << average_sample_time.count() << "ms or more.";
@@ -105,7 +107,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
     std::this_thread::sleep_for(average_sample_time);
     profiler.Sample();
 
-    const auto time_delta = profiler.GetTimeBetweenLastSamples();
+    const auto time_delta =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            profiler.GetTimeBetweenLastSamples());
 
     EXPECT_GE(time_delta, average_sample_time - sample_time_deviation)
         << "Should sample " << average_sample_time.count() << "ms or more.";
@@ -118,7 +122,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
     std::this_thread::sleep_for(average_sample_time);
     profiler.Sample();
 
-    const auto time_delta = profiler.GetTimeBetweenLastSamples();
+    const auto time_delta =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            profiler.GetTimeBetweenLastSamples());
 
     EXPECT_GE(time_delta, average_sample_time - sample_time_deviation)
         << "Should sample " << average_sample_time.count() << "ms or more.";
@@ -131,7 +137,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
     std::this_thread::sleep_for(average_sample_time);
     profiler.Sample();
 
-    const auto time_delta = profiler.GetTimeBetweenLastSamples();
+    const auto time_delta =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            profiler.GetTimeBetweenLastSamples());
 
     EXPECT_GE(time_delta, average_sample_time - sample_time_deviation)
         << "Should sample " << average_sample_time.count() << "ms or more.";

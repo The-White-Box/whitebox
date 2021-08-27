@@ -10,6 +10,7 @@
 
 using namespace wb::base::std_ext;
 
+#ifdef WB_OS_WIN
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(StringExtTests, WideToUTF8AndBack) {
   const std::wstring expected{L"Привет!"};
@@ -23,3 +24,4 @@ GTEST_TEST(StringExtTests, UTF8ToWideAndBack) {
 
   EXPECT_EQ(expected, WideToUTF8(UTF8ToWide(expected)));
 }
+#endif
