@@ -9,17 +9,22 @@ option(WB_BUILD_TESTS "Build tests or not." OFF)
 # Compiler id for Apple Clang is now AppleClang.
 if (POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
-endif()
+endif ()
+
+# Include file check macros honor CMAKE_REQUIRED_LIBRARIES.
+if (POLICY CMP0075)
+  cmake_policy(SET CMP0075 NEW)
+endif ()
 
 # option() honor variables.
 if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
-endif()
+endif ()
 
 # target_link_libraries() allows use with targets in other directories.
 if (POLICY CMP0079)
   cmake_policy(SET CMP0079 NEW)
-endif()
+endif ()
 
 set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}" CACHE STRING
   "Directory root of the project.")
@@ -253,6 +258,12 @@ endif()
 
 add_subdirectory("deps/mimalloc")
 
+if (NOT WB_OS_WIN)
+  set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)
+  set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
+  add_subdirectory(deps/sdl)
+endif ()
+
 # Libraries.
 add_subdirectory("base")
 add_subdirectory("bootmgr")
@@ -277,17 +288,18 @@ wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
-  if (NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
-      NOT ${WB_TARGET_NAME} MATCHES "clean-cmake")
+  if (NOT ${WB_TARGET_NAME} MATCHES "clean-cmake" AND
+      NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
+      NOT ${WB_TARGET_NAME} MATCHES "uninstall")
     # Include the directories with the new files.
     target_include_directories(${WB_TARGET_NAME}
-      PRIVATE ${WB_ROOT_DIR} "${WB_ROOT_DIR}/deps/mimalloc/include")
+        PRIVATE ${WB_ROOT_DIR} "${WB_ROOT_DIR}/deps/mimalloc/include")
 
     # Add new / delete allocator overrides.
     target_sources(${WB_TARGET_NAME}
-      PRIVATE
+        PRIVATE
         ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
-    )
+        )
 
     # Add mimalloc to handle allocators.
     target_link_libraries(${WB_TARGET_NAME} PRIVATE mimalloc)

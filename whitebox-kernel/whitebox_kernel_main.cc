@@ -12,6 +12,9 @@
 #include "base/win/ui/peek_message_dispatcher.h"
 #include "base/win/windows_light.h"
 #include "whitebox-kernel/main_window_win.h"
+#else
+#include "base/deps/sdl/sdl.h"
+#include "build/static_settings_config.h"
 #endif
 
 namespace {
@@ -43,7 +46,8 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
  * @brief Run app message loop.
  * @return App exit code.
  */
-int DispatchMessages(_In_z_ const char* main_window_name) noexcept {
+[[nodiscard]] int DispatchMessages(
+    _In_z_ const char* main_window_name) noexcept {
   int rc{0};
   bool is_done{false};
   const auto handle_quit_message = [&](const MSG& msg) noexcept {
@@ -68,6 +72,42 @@ int DispatchMessages(_In_z_ const char* main_window_name) noexcept {
 
   return rc;
 }
+#else
+/**
+ * @brief Run app message loop.
+ * @return App exit code.
+ */
+[[nodiscard]] int DispatchMessages() noexcept {
+  SDL_Event event;
+  bool is_done{false};
+
+  while (!is_done) {
+    while (::SDL_PollEvent(&event) == 1) {
+      switch (event.type) {
+        case SDL_QUIT:
+          is_done = true;
+          break;
+      }
+    }
+
+    // Do smth when no events.
+  }
+
+  return 0;
+}
+
+[[noreturn]] void FatalError(const char* title, const char* error) {
+  G3LOG(WARNING) << error;
+
+  std::string error_title{title};
+  error_title += " Startup Error";
+
+  ShowSimpleMessageBox(
+      wb::sdl::MessageBoxFlags::Error | wb::sdl::MessageBoxFlags::LeftToRight,
+      error_title.c_str(), error);
+
+  std::exit(1);
+}
 #endif
 }  // namespace
 
@@ -76,16 +116,19 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   using namespace wb::base;
   using namespace wb::kernel;
 
-#ifdef WB_OS_WIN
   // TODO(dimhotepus): Get screen size and use it if less than our minimal.
+  constexpr int window_width{1024};
+  constexpr int window_height{768};
+
+#ifdef WB_OS_WIN
   const windows::ui::WindowDefinition window_definition{
-      CreateMainWindowDefinition(kernel_args, kernel_args.app_description, 1024,
-                                 768)};
+      CreateMainWindowDefinition(kernel_args, kernel_args.app_description,
+                                 window_width, window_height)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
   auto window_result = windows::ui::BaseWindow::New<MainWindow>(
       window_definition, window_class_style);
-  if (auto* window_ptr = wb::base::std_ext::GetSuccessResult(window_result);
+  if (auto* window_ptr = std_ext::GetSuccessResult(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If
     // the window was previously hidden, the return value is zero.
@@ -101,11 +144,92 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       << "Unable to create main '" << window_definition.name
       << "' window.  Please, contact authors.";
 
-  return error_code.value();
-#else
-  G3LOG(WARNING) << "Unable to create main '" << kernel_args.app_description
-                 << "' window.  Not implemented.";
+    return error_code.value();
+  #else
+  using namespace wb::sdl;
 
-  return 0;
+  const ::SDL_version compiled_sdl_version{GetCompileTimeVersion()};
+  const ::SDL_version linked_sdl_version{GetLinkTimeVersion()};
+
+  const auto sdl_initializer = SdlInitializer::New(SdlInitializerFlags::kAudio |
+                                                   SdlInitializerFlags::kVideo);
+  if (GetSuccessResult(sdl_initializer) != nullptr) [[likely]] {
+    G3LOG(INFO) << "Using SDL (build v." << compiled_sdl_version
+                << ", runtime v." << linked_sdl_version << ") to create main '"
+                << kernel_args.app_description << "' window.";
+  } else {
+    std::stringstream error_stream{std::ios_base::out};
+    error_stream << "Unable to initialize SDL (build v." << compiled_sdl_version
+                 << ", runtime v." << linked_sdl_version << "), revision '"
+                 << ::SDL_GetRevision()
+                 << "', error: " << *GetErrorCode(sdl_initializer)
+                 << ".\n\nPlease, fill the issue at "
+                 << wb::build::settings::ui::error_dialog::kIssuesLink;
+
+    FatalError(kernel_args.app_description, error_stream.str().c_str());
+  }
+
+  // TODO(dimhotepus): kAllowHighDpi requires usage of SDL_GetWindowSize() to
+  // query the client area's size in screen coordinates, and
+  // SDL_GL_GetDrawableSize() or SDL_GetRendererOutputSize() to query the
+  // drawable size in pixels.
+  SdlWindowFlags window_flags{SdlWindowFlags::kResizable |
+                              SdlWindowFlags::kAllowHighDpi};
+
+#if defined(WB_OS_LINUX)
+  window_flags = window_flags | SdlWindowFlags::kUseOpengl;
+#elif defined(WB_OS_MACOSX)
+  window_flags = window_flags | SdlWindowFlags::kUseMetal;
+#else
+#error Unknown platform. Please, define SDL window flags for your platform in \
+  whitebox-kernel/whitebox_kernel_main.cc
+#endif
+
+  const auto sdl_window = SdlWindow::New(
+      kernel_args.app_description, SDL_WINDOWPOS_CENTERED,
+      SDL_WINDOWPOS_CENTERED, window_width, window_height, window_flags);
+  const auto* window = GetSuccessResult(sdl_window);
+  if (!window) [[unlikely]] {
+    const auto get_graphics_context = [](SdlWindowFlags flags) noexcept {
+      if ((flags & SdlWindowFlags::kUseOpengl) == SdlWindowFlags::kUseOpengl) {
+        return "OpenGL";
+      }
+
+      if ((flags & SdlWindowFlags::kUseVulkan) == SdlWindowFlags::kUseVulkan) {
+        return "Vulkan";
+      }
+
+      if ((flags & SdlWindowFlags::kUseMetal) == SdlWindowFlags::kUseMetal) {
+        return "Metal";
+      }
+
+      return "N/A";
+    };
+
+    std::stringstream error_stream{std::ios_base::out};
+    error_stream << "Unable to create SDL window with "
+                 << get_graphics_context(window_flags)
+                 << " context, error: " << *GetErrorCode(sdl_window)
+                 << ".\n\nMay be you forget to install "
+                 << get_graphics_context(window_flags) << " drivers?"
+                 << "\n\nIf it is not the case, please, fill the issue at "
+                 << wb::build::settings::ui::error_dialog::kIssuesLink;
+
+    FatalError(kernel_args.app_description, error_stream.str().c_str());
+  }
+
+  {
+    SDL_SysWMinfo platform_window_info;
+    const auto rc = window->GetPlatformInfo(platform_window_info);
+    if (rc.IsSucceeded()) [[likely]] {
+      G3LOG(INFO) << "Using SDL window subsystem '"
+                  << platform_window_info.subsystem << "'.";
+    } else {
+      G3LOG(WARNING) << "Can't get platform specific SDL window info, error: "
+                     << rc;
+    }
+  }
+
+  return DispatchMessages();
 #endif
 }

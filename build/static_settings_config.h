@@ -43,6 +43,8 @@ namespace error_dialog {
 constexpr char kFooterLink[]{
     "<A HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</A> "
     "authors"};
+constexpr char kIssuesLink[]{
+    "https://github.com/The-White-Box/whitebox/issues"};
 }  // namespace error_dialog
 }  // namespace ui
 }  // namespace wb::build::settings

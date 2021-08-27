@@ -14,9 +14,14 @@ set(WB_WHITEBOX_KERNEL_LINK_OPTIONS "")
 set(WB_WHITEBOX_KERNEL_LINK_DEPS base g3log mimalloc whitebox-hid-driver)
 if (WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
-endif()
+else ()
+  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS SDL2::SDL2)
+endif ()
 
 set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS base g3log mimalloc whitebox-hid-driver)
+if (NOT WB_OS_WIN)
+  list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS SDL2::SDL2)
+endif ()
 
 wb_cxx_shared_library(
   TARGET        ${WB_WHITEBOX_KERNEL_TARGET_NAME}

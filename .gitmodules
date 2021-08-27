@@ -7,3 +7,6 @@
 [submodule "deps/googletest"]
 	path = deps/googletest
 	url = git@github.com:The-White-Box/googletest.git
+[submodule "deps/sdl"]
+	path = deps/sdl
+	url = git@github.com:The-White-Box/SDL.git

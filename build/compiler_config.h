@@ -309,6 +309,12 @@
   _Pragma("GCC diagnostic push")
 
 /*
+ * @brief Disables GCC / Clang old-style-cast warning.
+ */
+#define WB_COMPILER_GCC_DISABLE_OLD_STYLE_CAST_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")
+
+/*
  * @brief Disables GCC / Clang padded warning.
  */
 #define WB_COMPILER_GCC_DISABLE_PADDED_WARNING() \
@@ -365,6 +371,11 @@
  * @brief Do nothing.
  */
 #define WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_COMPILER_GCC_DISABLE_OLD_STYLE_CAST_WARNING()
 
 /*
  * @brief Do nothing.

@@ -1,0 +1,32 @@
+// Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+// Use of this source code is governed by a 3-Clause BSD license that can be
+// found in the LICENSE file.
+//
+// SDL configuration.
+
+#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_CONFIG_H_
+#define WHITEBOX_BASE_DEPS_SDL_SDL_CONFIG_H_
+
+#include "build/compiler_config.h"
+
+/**
+ * @brief Open SDL compiler warnings suppression scope.
+ */
+#define WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()          \
+  WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()       \
+    WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()    \
+      WB_COMPILER_MSVC_DISABLE_WARNING(4668)           \
+      WB_COMPILER_MSVC_DISABLE_WARNING(4820)           \
+      WB_COMPILER_GCC_DISABLE_OLD_STYLE_CAST_WARNING() \
+      WB_COMPILER_GCC_DISABLE_PADDED_WARNING()
+
+/**
+ * @brief Close SDL compiler warnings suppression scope.
+ */
+#define WB_END_SDL_WARNING_OVERRIDE_SCOPE()   \
+  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE \
+  ()                                          \
+  WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE  \
+  ()
+
+#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_CONFIG_H_
