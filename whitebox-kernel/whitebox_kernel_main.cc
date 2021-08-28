@@ -96,6 +96,11 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
   return 0;
 }
 
+/**
+ * Dump fata error to log, show UI messsage box and exit.
+ * @param title Message box title.
+ * @param error Message box error.
+ */
 [[noreturn]] void FatalError(const char* title, const char* error) {
   G3LOG(WARNING) << error;
 
@@ -108,6 +113,26 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 
   std::exit(1);
 }
+
+[[nodiscard]] const char* GetWindowGraphicsContext(
+    wb::sdl::SdlWindowFlags flags) noexcept {
+  if ((flags & wb::sdl::SdlWindowFlags::kUseOpengl) ==
+      wb::sdl::SdlWindowFlags::kUseOpengl) {
+    return "OpenGL";
+  }
+
+  if ((flags & wb::sdl::SdlWindowFlags::kUseVulkan) ==
+      wb::sdl::SdlWindowFlags::kUseVulkan) {
+    return "Vulkan";
+  }
+
+  if ((flags & wb::sdl::SdlWindowFlags::kUseMetal) ==
+      wb::sdl::SdlWindowFlags::kUseMetal) {
+    return "Metal";
+  }
+
+  return "N/A";
+};
 #endif
 }  // namespace
 
@@ -144,8 +169,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       << "Unable to create main '" << window_definition.name
       << "' window.  Please, contact authors.";
 
-    return error_code.value();
-  #else
+  return error_code.value();
+#else
   using namespace wb::sdl;
 
   const ::SDL_version compiled_sdl_version{GetCompileTimeVersion()};
@@ -154,15 +179,14 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto sdl_initializer = SdlInitializer::New(SdlInitializerFlags::kAudio |
                                                    SdlInitializerFlags::kVideo);
   if (GetSuccessResult(sdl_initializer) != nullptr) [[likely]] {
-    G3LOG(INFO) << "Using SDL (build v." << compiled_sdl_version
-                << ", runtime v." << linked_sdl_version << ") to create main '"
-                << kernel_args.app_description << "' window.";
+    G3LOG(INFO) << "SDL build v." << compiled_sdl_version << ", runtime v."
+                << linked_sdl_version ;
   } else {
     std::stringstream error_stream{std::ios_base::out};
-    error_stream << "Unable to initialize SDL (build v." << compiled_sdl_version
-                 << ", runtime v." << linked_sdl_version << "), revision '"
-                 << ::SDL_GetRevision()
-                 << "', error: " << *GetErrorCode(sdl_initializer)
+    error_stream << "Unable to initialize SDL build/runtime v."
+                 << compiled_sdl_version << "/v." << linked_sdl_version
+                 << ", revision '" << ::SDL_GetRevision() << '\'' << ".\n\n"
+                 << *GetErrorCode(sdl_initializer)
                  << ".\n\nPlease, fill the issue at "
                  << wb::build::settings::ui::error_dialog::kIssuesLink;
 
@@ -190,28 +214,12 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       SDL_WINDOWPOS_CENTERED, window_width, window_height, window_flags);
   const auto* window = GetSuccessResult(sdl_window);
   if (!window) [[unlikely]] {
-    const auto get_graphics_context = [](SdlWindowFlags flags) noexcept {
-      if ((flags & SdlWindowFlags::kUseOpengl) == SdlWindowFlags::kUseOpengl) {
-        return "OpenGL";
-      }
-
-      if ((flags & SdlWindowFlags::kUseVulkan) == SdlWindowFlags::kUseVulkan) {
-        return "Vulkan";
-      }
-
-      if ((flags & SdlWindowFlags::kUseMetal) == SdlWindowFlags::kUseMetal) {
-        return "Metal";
-      }
-
-      return "N/A";
-    };
-
     std::stringstream error_stream{std::ios_base::out};
     error_stream << "Unable to create SDL window with "
-                 << get_graphics_context(window_flags)
-                 << " context, error: " << *GetErrorCode(sdl_window)
+                 << GetWindowGraphicsContext(window_flags) << " context."
+                 << "\n\n: " << *GetErrorCode(sdl_window)
                  << ".\n\nMay be you forget to install "
-                 << get_graphics_context(window_flags) << " drivers?"
+                 << GetWindowGraphicsContext(window_flags) << " drivers?"
                  << "\n\nIf it is not the case, please, fill the issue at "
                  << wb::build::settings::ui::error_dialog::kIssuesLink;
 
@@ -222,8 +230,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     SDL_SysWMinfo platform_window_info;
     const auto rc = window->GetPlatformInfo(platform_window_info);
     if (rc.IsSucceeded()) [[likely]] {
-      G3LOG(INFO) << "Using SDL window subsystem '"
-                  << platform_window_info.subsystem << "'.";
+      G3LOG(INFO) << "SDL window subsystem: " << platform_window_info.subsystem
+                  << ".";
     } else {
       G3LOG(WARNING) << "Can't get platform specific SDL window info, error: "
                      << rc;

@@ -87,12 +87,12 @@ int main(int argc, char* argv[]) {
 
 #ifdef WB_OS_LINUX
 #if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build using glibc "
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build with glibc "
               << __GLIBC__ << "." << __GLIBC_MINOR__ << ", glibc++ "
               << _GLIBCXX_RELEASE << ", ABI stamp " << __GLIBCXX__ << ".";
 #endif
 #ifdef _LIBCPP_VERSION
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build using libc++ "
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build with libc++ "
               << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
 #endif
 #endif

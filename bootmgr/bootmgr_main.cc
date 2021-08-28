@@ -64,7 +64,7 @@ void BootHeapMemoryAllocator() {
   // Ignore earlier allocations.
   mi_stats_reset();
 
-  G3DLOG(INFO) << "Using mi-malloc v." << mi_version();
+  G3DLOG(INFO) << "Using mi-malloc memory allocator v." << mi_version();
 #endif
 }
 
