@@ -23,6 +23,9 @@ endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS
   base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel)
+if (NOT WB_OS_WIN)
+  list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS SDL2::SDL2)
+endif ()
 
 wb_cxx_executable(
   PROJECT_NAME  "Half-Life 2" 
