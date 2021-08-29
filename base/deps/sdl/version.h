@@ -4,8 +4,8 @@
 //
 // SDL version wrapper.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_VERSION_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_VERSION_H_
+#ifndef WB_BASE_DEPS_SDL_VERSION_H_
+#define WB_BASE_DEPS_SDL_VERSION_H_
 
 #include <ostream>
 
@@ -31,7 +31,7 @@ namespace wb::sdl {
  * Get SDL version with which app is compiled (not runtime one!).
  * @return Compile time SDL version.
  */
-SDL_version GetCompileTimeVersion() noexcept {
+inline SDL_version GetCompileTimeVersion() noexcept {
   ::SDL_version version;
   base::std_ext::BitwiseMemset(version, 0);
 
@@ -47,7 +47,7 @@ SDL_version GetCompileTimeVersion() noexcept {
  * Get SDL version with which app is linked (runtime one!).
  * @return Link time SDL version.
  */
-SDL_version GetLinkTimeVersion() noexcept {
+inline SDL_version GetLinkTimeVersion() noexcept {
   ::SDL_version version;
   base::std_ext::BitwiseMemset(version, 0);
 
@@ -60,4 +60,4 @@ SDL_version GetLinkTimeVersion() noexcept {
 }
 }  // namespace wb::sdl
 
-#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_VERSION_H_
+#endif  // !WB_BASE_DEPS_SDL_VERSION_H_

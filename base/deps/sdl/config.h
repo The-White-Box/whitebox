@@ -4,8 +4,8 @@
 //
 // SDL configuration.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_CONFIG_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_CONFIG_H_
+#ifndef WB_BASE_DEPS_SDL_CONFIG_H_
+#define WB_BASE_DEPS_SDL_CONFIG_H_
 
 #include "build/compiler_config.h"
 
@@ -29,4 +29,4 @@
   WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE  \
   ()
 
-#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_CONFIG_H_
+#endif  // !WB_BASE_DEPS_SDL_CONFIG_H_

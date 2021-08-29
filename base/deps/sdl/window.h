@@ -4,13 +4,14 @@
 //
 // SDL window wrapper.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_WINDOW_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_WINDOW_H_
+#ifndef WB_BASE_DEPS_SDL_WINDOW_H_
+#define WB_BASE_DEPS_SDL_WINDOW_H_
 
 #include "base/base_macroses.h"
+#include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
-#include "base/deps/sdl/sdl_syswm.h"
-#include "base/deps/sdl/sdl_version.h"
+#include "base/deps/sdl/syswm.h"
+#include "base/deps/sdl/version.h"
 #include "base/std_ext/cstring_ext.h"
 
 namespace wb::sdl {
@@ -108,9 +109,9 @@ class SdlWindow {
   static SdlResult<SdlWindow> New(const char *title, int x, int y, int width,
                                   int height, SdlWindowFlags flags) noexcept {
     SdlWindow window{title, x, y, width, height, flags};
-    return window.init_result().IsSucceeded()
+    return window.error_code().IsSucceeded()
                ? SdlResult<SdlWindow>{std::move(window)}
-               : SdlResult<SdlWindow>{window.init_result()};
+               : SdlResult<SdlWindow>{window.error_code()};
   }
   SdlWindow(SdlWindow &&w) noexcept
       : window_{std::move(w.window_)},
@@ -165,18 +166,18 @@ class SdlWindow {
             SdlWindowFlags flags) noexcept
       : window_{::SDL_CreateWindow(title, x, y, width, height,
                                    wb::base::underlying_cast(flags))},
-        init_rc_{window_ ? SdlError::Success() : SdlError::FromReturnCode(-1)},
+        init_rc_{window_ ? SdlError::Success() : SdlError::Failure()},
         flags_{flags} {
     G3DCHECK(!!window_) << "SDL_CreateWindow failed with error: "
-                        << init_result();
+                        << error_code();
   }
 
   /**
    * @brief Init result.
    * @return SDL error.
    */
-  [[nodiscard]] SdlError init_result() const noexcept { return init_rc_; }
+  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
 };
 }  // namespace wb::sdl
 
-#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_WINDOW_H_
+#endif  // !WB_BASE_DEPS_SDL_WINDOW_H_

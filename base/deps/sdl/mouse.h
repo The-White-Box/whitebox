@@ -2,15 +2,15 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// SDL.h wrapper.
+// SDL_mouse.hh wrapper.
 
-#ifndef WB_BASE_DEPS_SDL_SDL_H_
-#define WB_BASE_DEPS_SDL_SDL_H_
+#ifndef WHB_BASE_DEPS_SDL_MOUSE_H_
+#define WHB_BASE_DEPS_SDL_MOUSE_H_
 
 #include "base/deps/sdl/config.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
-#include "deps/sdl/include/SDL.h"
+#include "deps/sdl/include/SDL_mouse.h"
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
-#endif  // !WB_BASE_DEPS_SDL_SDL_H_
+#endif  // !WHB_BASE_DEPS_SDL_MOUSE_H_

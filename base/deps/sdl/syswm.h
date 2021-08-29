@@ -4,14 +4,14 @@
 //
 // SDL_syswm.h wrapper.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_SYSWM_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_SYSWM_H_
+#ifndef WB_BASE_DEPS_SDL_SYSWM_H_
+#define WB_BASE_DEPS_SDL_SYSWM_H_
 
 #include <ostream>
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/deps/sdl/sdl_config.h"
+#include "base/deps/sdl/config.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
 #include "deps/sdl/include/SDL_syswm.h"
@@ -65,4 +65,4 @@ inline std::basic_ostream<char, std::char_traits<char>>& operator<<(
   }
 }
 
-#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_SYSWM_H_
+#endif  // !WB_BASE_DEPS_SDL_SYSWM_H_

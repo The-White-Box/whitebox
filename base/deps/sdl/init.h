@@ -4,12 +4,12 @@
 //
 // SDL init/quit wrapper.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_INIT_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_INIT_H_
+#ifndef WB_BASE_DEPS_SDL_INIT_H_
+#define WB_BASE_DEPS_SDL_INIT_H_
 
 #include "base/base_macroses.h"
+#include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
-#include "base/deps/sdl/sdl_base.h"
 #include "base/std_ext/cstring_ext.h"
 #include "base/std_ext/system_error_ext.h"
 
@@ -55,11 +55,15 @@ class SdlInitializer {
    */
   static SdlResult<SdlInitializer> New(SdlInitializerFlags flags) noexcept {
     SdlInitializer initializer{flags};
-    return initializer.init_result().IsSucceeded()
+    return initializer.error_code().IsSucceeded()
                ? SdlResult<SdlInitializer>{std::move(initializer)}
-               : SdlResult<SdlInitializer>{initializer.init_result()};
+               : SdlResult<SdlInitializer>{initializer.error_code()};
   }
-  SdlInitializer(SdlInitializer &&) noexcept = default;
+  SdlInitializer(SdlInitializer &&s) noexcept
+      : init_rc_{s.init_rc_}, flags_{s.flags_} {
+    s.init_rc_ = SdlError::Failure();
+    s.flags_ = SdlInitializerFlags::kNone;
+  }
   SdlInitializer &operator=(SdlInitializer &&) noexcept = delete;
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlInitializer);
@@ -88,8 +92,8 @@ class SdlInitializer {
    * Init result.
    * @return SDL error.
    */
-  [[nodiscard]] SdlError init_result() const noexcept { return init_rc_; }
+  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
 };
 }  // namespace wb::sdl
 
-#endif  // WHITEBOX_BASE_DEPS_SDL_SDL_INIT_H_
+#endif  // !WB_BASE_DEPS_SDL_INIT_H_

@@ -4,8 +4,8 @@
 //
 // SDL base defines.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_BASE_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_BASE_H_
+#ifndef WB_BASE_DEPS_SDL_BASE_H_
+#define WB_BASE_DEPS_SDL_BASE_H_
 
 #include <ostream>
 #include <variant>
@@ -34,13 +34,23 @@ struct SdlError {
    */
   [[nodiscard]] static SdlError FromReturnBool(SDL_bool rc) noexcept {
     return SdlError{.message = rc == SDL_TRUE ? nullptr : ::SDL_GetError()};
-  }  
+  }
 
   /**
    * @brief Creates successful SDL result.
    * @return SDL error.
    */
   static SdlError Success() noexcept { return SdlError{}; }
+
+  /**
+   * @brief Creates failed SDL result from last SDL error.  If no last error,
+   * synthetic one is returned.
+   * @return SDL error.
+   */
+  static SdlError Failure(const char* message = ::SDL_GetError()) noexcept {
+    return SdlError{
+        .message = message && message[0] ? message : "N/A <missed SDL error>"};
+  }
 
   /**
    * @brief Error message.
@@ -89,7 +99,7 @@ using SdlResult = std::variant<TResult, SdlError>;
  * @return error code pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr const SdlError* GetErrorCode(
+[[nodiscard]] constexpr const SdlError* GetError(
     const SdlResult<TResult>& rc) noexcept {
   return std::get_if<SdlError>(&rc);
 }
@@ -119,4 +129,4 @@ template <typename TResult>
 }
 }  // namespace wb::sdl
 
-#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_BASE_H_
+#endif  // !WB_BASE_DEPS_SDL_BASE_H_

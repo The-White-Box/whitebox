@@ -4,11 +4,11 @@
 //
 // SDL message box wrapper.
 
-#ifndef WHITEBOX_BASE_DEPS_SDL_SDL_MESSAGE_BOX_H_
-#define WHITEBOX_BASE_DEPS_SDL_SDL_MESSAGE_BOX_H_
+#ifndef WB_BASE_DEPS_SDL_MESSAGE_BOX_H_
+#define WB_BASE_DEPS_SDL_MESSAGE_BOX_H_
 
+#include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
-#include "base/deps/sdl/sdl_base.h"
 
 namespace wb::sdl {
 /**
@@ -48,4 +48,4 @@ inline SdlError ShowSimpleMessageBox(MessageBoxFlags flags, const char *title,
 }
 }  // namespace wb::sdl
 
-#endif  // !WHITEBOX_BASE_DEPS_SDL_SDL_MESSAGE_BOX_H_
+#endif  // !WB_BASE_DEPS_SDL_MESSAGE_BOX_H_

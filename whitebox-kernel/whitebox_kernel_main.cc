@@ -15,8 +15,12 @@
 #else
 #include <chrono>
 #include <thread>
+#include <utility>
 
-#include "base/deps/sdl/sdl.h"
+#include "base/deps/sdl/cursor.h"
+#include "base/deps/sdl/init.h"
+#include "base/deps/sdl/message_box.h"
+#include "base/deps/sdl/window.h"
 #include "build/static_settings_config.h"
 #endif
 
@@ -100,26 +104,53 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 
   return 0;
 }
+/**
+ * @brief Fatal error string stream.  Dumps error to log, shows UI and exit.
+ */
+class ScopedFatalErrorStringStream final : public std::stringstream {
+ public:
+  explicit ScopedFatalErrorStringStream(std::string title) noexcept
+      : std::stringstream{std::ios::out}, title_{std::move(title)} {}
+  ScopedFatalErrorStringStream(ScopedFatalErrorStringStream&& s) noexcept
+      : std::stringstream{std::move(s)}, title_{std::move(s.title_)} {}
+  ScopedFatalErrorStringStream& operator=(ScopedFatalErrorStringStream&&) =
+      delete;
+
+  [[noreturn]] ~ScopedFatalErrorStringStream() noexcept override {
+    const std::string error{str()};
+
+    G3LOG(WARNING) << error;
+
+    title_ += " Startup Error";
+
+    ShowSimpleMessageBox(
+        wb::sdl::MessageBoxFlags::Error | wb::sdl::MessageBoxFlags::LeftToRight,
+        title_.c_str(), error.c_str());
+
+    std::exit(1);
+  }
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedFatalErrorStringStream);
+
+ private:
+  std::string title_;
+};
 
 /**
- * Dump fata error to log, show UI messsage box and exit.
+ * Creates fatal error stream, which dumps error to log, shows UI message box
+ * and exits.
  * @param title Message box title.
- * @param error Message box error.
  */
-[[noreturn]] void FatalError(const char* title, const char* error) {
-  G3LOG(WARNING) << error;
+[[nodiscard]] ScopedFatalErrorStringStream Fatal(std::string title) {
+  return ScopedFatalErrorStringStream{std::move(title)};
+};
 
-  std::string error_title{title};
-  error_title += " Startup Error";
-
-  ShowSimpleMessageBox(
-      wb::sdl::MessageBoxFlags::Error | wb::sdl::MessageBoxFlags::LeftToRight,
-      error_title.c_str(), error);
-
-  std::exit(1);
-}
-
-[[nodiscard]] const char* GetWindowGraphicsContext(
+/**
+ * @brief Get used by window graphics context.
+ * @param flags SdlWindowFlags.
+ * @return Window graphics context.
+ */
+[[nodiscard]] constexpr const char* GetWindowGraphicsContext(
     wb::sdl::SdlWindowFlags flags) noexcept {
   if ((flags & wb::sdl::SdlWindowFlags::kUseOpengl) ==
       wb::sdl::SdlWindowFlags::kUseOpengl) {
@@ -137,7 +168,24 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
   }
 
   return "N/A";
-};
+}
+
+/**
+ * @brief Tries to change cursor to system one in scope.
+ * @param new_cursor_in_scope New system cursor.
+ * @return ScopedSdlCursor.
+ */
+[[nodiscard]] wb::base::un<wb::sdl::ScopedSdlCursor> CreateScopedCursor(
+    wb::sdl::SdlSystemCursor new_cursor_in_scope) noexcept {
+  using namespace wb::sdl;
+
+  auto new_cursor = SdlCursor::Empty();
+  auto system_cursor = SdlCursor::FromSystem(new_cursor_in_scope);
+  if (auto* cursor = GetSuccessResult(system_cursor)) [[likely]] {
+    new_cursor = std::move(*cursor);
+  }
+  return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));
+}
 #endif
 }  // namespace
 
@@ -178,69 +226,67 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 #else
   using namespace wb::sdl;
 
-  const ::SDL_version compiled_sdl_version{GetCompileTimeVersion()};
-  const ::SDL_version linked_sdl_version{GetLinkTimeVersion()};
-
+  const ::SDL_version compiled_sdl_version{GetCompileTimeVersion()},
+      linked_sdl_version{GetLinkTimeVersion()};
   const auto sdl_initializer = SdlInitializer::New(SdlInitializerFlags::kAudio |
                                                    SdlInitializerFlags::kVideo);
-  if (GetSuccessResult(sdl_initializer) != nullptr) [[likely]] {
-    G3LOG(INFO) << "SDL build v." << compiled_sdl_version << ", runtime v."
-                << linked_sdl_version;
-  } else {
-    std::stringstream error_stream{std::ios_base::out};
-    error_stream << "Unable to initialize SDL build/runtime v."
-                 << compiled_sdl_version << "/v." << linked_sdl_version
-                 << ", revision '" << ::SDL_GetRevision() << '\'' << ".\n\n"
-                 << *GetErrorCode(sdl_initializer)
-                 << ".\n\nPlease, fill the issue at "
-                 << wb::build::settings::ui::error_dialog::kIssuesLink;
-
-    FatalError(kernel_args.app_description, error_stream.str().c_str());
+  if (const auto* error = GetError(sdl_initializer)) [[unlikely]] {
+    Fatal(kernel_args.app_description)
+        << "SDL build/runtime v." << compiled_sdl_version << "/v."
+        << linked_sdl_version << ", revision '" << ::SDL_GetRevision() << '\''
+        << " initialization failed.\n\n"
+        << *error << ".\n\nPlease, fill the issue at "
+        << wb::build::settings::ui::error_dialog::kIssuesLink;
   }
 
-  // TODO(dimhotepus): kAllowHighDpi requires usage of SDL_GetWindowSize() to
-  // query the client area's size in screen coordinates, and
-  // SDL_GL_GetDrawableSize() or SDL_GetRendererOutputSize() to query the
-  // drawable size in pixels.
-  SdlWindowFlags window_flags{SdlWindowFlags::kResizable |
-                              SdlWindowFlags::kAllowHighDpi};
+  // Try to use wait cursor while window is created.  Should go after SDL init.
+  un<ScopedSdlCursor> set_wait_cursor_in_scope{
+      CreateScopedCursor(SdlSystemCursor::kWaitArrow)};
+  G3LOG(INFO) << "SDL versions: build " << compiled_sdl_version << ", runtime "
+              << linked_sdl_version;
 
+  // TODO(dimhotepus): kAllowHighDpi handling at least on Mac.
+  const SdlWindowFlags window_flags {
+    SdlWindowFlags::kResizable | SdlWindowFlags::kAllowHighDpi
 #if defined(WB_OS_LINUX)
-  window_flags = window_flags | SdlWindowFlags::kUseOpengl;
+        | SdlWindowFlags::kUseVulkan
 #elif defined(WB_OS_MACOSX)
-  window_flags = window_flags | SdlWindowFlags::kUseMetal;
+        | SdlWindowFlags::kUseMetal
 #else
 #error Unknown platform. Please, define SDL window flags for your platform in \
   whitebox-kernel/whitebox_kernel_main.cc
 #endif
+  };
 
   const auto sdl_window = SdlWindow::New(
       kernel_args.app_description, SDL_WINDOWPOS_CENTERED,
       SDL_WINDOWPOS_CENTERED, window_width, window_height, window_flags);
   const auto* window = GetSuccessResult(sdl_window);
   if (!window) [[unlikely]] {
-    std::stringstream error_stream{std::ios_base::out};
-    error_stream << "Unable to create SDL window with "
-                 << GetWindowGraphicsContext(window_flags) << " context."
-                 << "\n\n: " << *GetErrorCode(sdl_window)
-                 << ".\n\nMay be you forget to install "
-                 << GetWindowGraphicsContext(window_flags) << " drivers?"
-                 << "\n\nIf it is not the case, please, fill the issue at "
-                 << wb::build::settings::ui::error_dialog::kIssuesLink;
-
-    FatalError(kernel_args.app_description, error_stream.str().c_str());
+    Fatal(kernel_args.app_description)
+        << "SDL window create failed with "
+        << GetWindowGraphicsContext(window_flags) << " context."
+        << "\n\n: " << *GetError(sdl_window)
+        << ".\n\nMay be you forget to install "
+        << GetWindowGraphicsContext(window_flags) << " drivers?"
+        << "\n\nIf it is not the case, please, fill the issue at "
+        << wb::build::settings::ui::error_dialog::kIssuesLink;
   }
 
+  // Window is shown, restore default cursor.
+  set_wait_cursor_in_scope.reset();
+
   {
+    G3LOG(INFO) << "SDL graphics context: "
+                << GetWindowGraphicsContext(window_flags) << ".";
+
     SDL_SysWMinfo platform_window_info;
     const auto rc = window->GetPlatformInfo(platform_window_info);
-    if (rc.IsSucceeded()) [[likely]] {
-      G3LOG(INFO) << "SDL window subsystem: " << platform_window_info.subsystem
-                  << ".";
-    } else {
-      G3LOG(WARNING) << "Can't get platform specific SDL window info, error: "
-                     << rc;
-    }
+
+    G3LOG(INFO) << "SDL window subsystem: "
+                << (rc.IsSucceeded() ? platform_window_info.subsystem
+                                     : ::SDL_SYSWM_UNKNOWN)
+                << ".";
   }
 
   return DispatchMessages();
