@@ -70,7 +70,7 @@ WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
 
   return rc;
 #elif defined(WB_OS_POSIX)
-  thread_name.resize(32);
+  thread_name.resize(32); //-V112
 
   return std_ext::GetThreadPosixErrorCode(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));

@@ -9,8 +9,8 @@
 
 #include "base/base_macroses.h"
 #include "base/deps/sdl/sdl.h"
-#include "base/deps/sdl/sdl_version.h"
 #include "base/deps/sdl/sdl_syswm.h"
+#include "base/deps/sdl/sdl_version.h"
 #include "base/std_ext/cstring_ext.h"
 
 namespace wb::sdl {
@@ -131,13 +131,14 @@ class SdlWindow {
   ~SdlWindow() noexcept {
     if (window_) {
       ::SDL_DestroyWindow(window_);
+      window_ = nullptr;
     }
   }
 
   [[nodiscard]] SdlError GetPlatformInfo(
       ::SDL_SysWMinfo &platform_info) const noexcept {
     G3DCHECK(!!window_);
-    
+
     base::std_ext::BitwiseMemset(platform_info, 0);
     platform_info.version = GetLinkTimeVersion();
 
