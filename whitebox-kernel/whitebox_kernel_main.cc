@@ -13,6 +13,9 @@
 #include "base/win/windows_light.h"
 #include "whitebox-kernel/main_window_win.h"
 #else
+#include <chrono>
+#include <thread>
+
 #include "base/deps/sdl/sdl.h"
 #include "build/static_settings_config.h"
 #endif
@@ -90,7 +93,9 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
       }
     }
 
-    // Do smth when no events.
+    // TODO(dimhotepus): Do smth when no events.
+    using namespace std::chrono_literals;
+    std::this_thread::sleep_for(5ms);
   }
 
   return 0;
@@ -180,7 +185,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                                                    SdlInitializerFlags::kVideo);
   if (GetSuccessResult(sdl_initializer) != nullptr) [[likely]] {
     G3LOG(INFO) << "SDL build v." << compiled_sdl_version << ", runtime v."
-                << linked_sdl_version ;
+                << linked_sdl_version;
   } else {
     std::stringstream error_stream{std::ios_base::out};
     error_stream << "Unable to initialize SDL build/runtime v."
