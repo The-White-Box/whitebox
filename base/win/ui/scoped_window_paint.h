@@ -45,6 +45,17 @@ class WB_BASE_API ScopedWindowPaint {
   int TextDraw(const char* text, int size, RECT* rc, unsigned format) noexcept;
 
   /**
+   * @brief Paints the specified rectangle using the brush that is currently
+   * selected into the specified device context.  The brush color and the
+   * surface color or colors are combined by using the specified raster
+   * operation.
+   * @param rc Rectangle in logical units to fill.
+   * @param raster_operation Raster operation code.
+   * @return true on success, false otherwise.
+   */
+  bool BlitPattern(const RECT& rc, unsigned long raster_operation) noexcept;
+
+  /**
    * @brief Paint information.
    * @return PAINTSTRUCT.
    */
