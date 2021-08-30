@@ -23,9 +23,10 @@ enum class MouseStateFlags : unsigned short {
    */
   kMoveRelative = 0x8000U,
   /**
-   * @brief Mouse movement data is based on absolute position.
+   * @brief Original Mouse movement data is based on absolute position.  But
+   * our driver mapped it to relative move.
    */
-  kMoveAbsolute = 0x0001U,
+  kOriginalMoveWasAbsolute = 0x0001U | kMoveRelative,
   /**
    * @brief Mouse coordinates are mapped to the virtual desktop (for a multiple
    * monitor system).
@@ -79,9 +80,9 @@ enum class MouseStateFlags : unsigned short {
   if ((state_flags & MouseStateFlags::kMoveRelative) ==
       MouseStateFlags::kMoveRelative) {
     result += "Relative";
-  } else if ((state_flags & MouseStateFlags::kMoveAbsolute) ==
-             MouseStateFlags::kMoveAbsolute) {
-    result += "Absolute";
+  } else if ((state_flags & MouseStateFlags::kOriginalMoveWasAbsolute) ==
+             MouseStateFlags::kOriginalMoveWasAbsolute) {
+    result += "<Absolute>";
   }
 
   if ((state_flags & MouseStateFlags::kVirtualDesktop) ==
@@ -252,25 +253,27 @@ struct MouseInput {
   /**
    * @brief Mouse state flags.
    *
-   * If the mouse has moved, indicated by MouseStateFlags::kMoveRelative or
-   * MouseStateFlags::kMoveAbsolute, last_x and last_y specify information about
-   * that movement.  The information is specified as relative or absolute
-   * integer values.
+   * If the mouse has moved, indicated by MouseStateFlags::kMoveRelative, last_x
+   * and last_y specify information about that movement.  The information is
+   * specified as relative or absolute integer values.
    *
    * If MouseStateFlags::kMoveRelative value is specified, last_x and last_y
    * specify movement relative to the previous mouse event (the last reported
    * position).  Positive values mean the mouse moved right (or down); negative
    * values mean the mouse moved left (or up).
    *
-   * If MouseStateFlags::kMoveAbsolute value is specified, last_x and last_y
-   * contain normalized absolute coordinates between 0 and 65,535.  Coordinate
-   * (0,0) maps onto the upper-left corner of the display surface; coordinate
-   * (65535,65535) maps onto the lower-right corner.  In a multimonitor system,
-   * the coordinates map to the primary monitor.
+   * If MouseStateFlags::kOriginalMoveWasAbsolute value is specified, that means
+   * original input was in absolute coordinates.  But last_x and last_y still
+   * contains movement RELATIVE to the previous mouse event (as
+   * MouseStateFlags::kMoveRelative do), because mouse driver performs
+   * normalization to simplify API clients.
    *
    * If MouseStateFlags::kVirtualDesktop is specified in addition to
-   * MouseStateFlags::kMoveAbsolute, the coordinates map to the entire virtual
-   * desktop.
+   * MouseStateFlags::kOriginalMoveWasAbsolute, the ORIGINAL coordinates mapped
+   * to the entire virtual desktop.  But last_x and last_y still contains
+   * movement RELATIVE to the previous mouse event (as
+   * MouseStateFlags::kMoveRelative do), because mouse driver performs
+   * normalization to simplify API clients.
    *
    * In contrast to legacy WM_MOUSEMOVE window messages Raw Input mouse events
    * is not subject to the effects of the mouse speed set in the Control Panel's
@@ -293,12 +296,12 @@ struct MouseInput {
   float button_data;
 
   /*
-   * The signed relative or absolute motion in the X direction.
+   * The signed relative motion in the X direction.
    */
   long last_x;
 
   /*
-   * The signed relative or absolute motion in the Y direction.
+   * The signed relative motion in the Y direction.
    */
   long last_y;
 };

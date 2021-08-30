@@ -29,6 +29,10 @@ namespace {
 }  // namespace
 
 namespace wb::hal::hid {
+/**
+ * @brief Invalid mouse absolute coordinate.
+ */
+constexpr long kInvalidMouseAbsoluteCoordinate{-1L};
 
 /**
  * @brief Alias to simplify API.
@@ -54,7 +58,9 @@ using MouseNewResult = base::std_ext::os_res<base::un<Mouse>>;
 Mouse::Mouse(_In_ HWND window) noexcept
     : window_{window},
       error_code_{
-          RegisterRawInputDevices(CreateMouseDeviceDefinition(window, 0))} {
+          RegisterRawInputDevices(CreateMouseDeviceDefinition(window, 0))},
+      last_absolute_x_{kInvalidMouseAbsoluteCoordinate},
+      last_absolute_y_{kInvalidMouseAbsoluteCoordinate} {
   G3DCHECK(!error_code()) << "Unable to register raw mouse handler: "
                           << error_code().message();
 }
@@ -65,9 +71,13 @@ Mouse::Mouse(_In_ HWND window) noexcept
  * @return nothing.
  */
 Mouse::Mouse(Mouse&& m) noexcept
-    : window_{m.window_}, error_code_{std::move(m.error_code_)} {
+    : window_{m.window_},
+      error_code_{std::move(m.error_code_)},
+      last_absolute_x_{m.last_absolute_x_},
+      last_absolute_y_{m.last_absolute_y_} {
   m.window_ = nullptr;
   m.error_code_ = std::error_code{EINVAL, std::system_category()};
+  m.last_absolute_x_ = m.last_absolute_y_ = kInvalidMouseAbsoluteCoordinate;
 }
 
 /**
@@ -148,8 +158,53 @@ Mouse::~Mouse() noexcept {
       mouse_input.button_data = 0.0F;
     }
 
-    mouse_input.last_x = mouse.lLastX;
-    mouse_input.last_y = mouse.lLastY;
+    if ((mouse_input.mouse_state & MouseStateFlags::kMoveRelative) ==
+        MouseStateFlags::kMoveRelative) [[likely]] {
+      mouse_input.last_x = mouse.lLastX;
+      mouse_input.last_y = mouse.lLastY;
+    } else {
+      // lLastX and lLastY contain normalized absolute coordinates between 0
+      // and 65535.  Coordinate (0,0) maps onto the upper-left corner of the
+      // display surface; coordinate (65535,65535) maps onto the lower-right
+      // corner.  In a multimonitor system, the coordinates map to the primary
+      // monitor.
+      const bool is_virtual_desktop_coordinates{
+          !!(mouse.usFlags & MOUSE_VIRTUAL_DESKTOP)};
+
+      int screen_width_metric{SM_CXSCREEN}, screen_height_metric{SM_CYSCREEN};
+      if (is_virtual_desktop_coordinates) {
+        screen_width_metric = SM_CXVIRTUALSCREEN;
+        screen_height_metric = SM_CYVIRTUALSCREEN;
+      }
+
+      const int display_surface_width{::GetSystemMetrics(screen_width_metric)};
+      const int display_surface_height{
+          ::GetSystemMetrics(screen_height_metric)};
+
+      // mouse.lLastX in range [0, 65535], so * unlikely to overflow in near
+      // future.
+      const auto absolute_x = static_cast<long>(
+          static_cast<float>(mouse.lLastX * display_surface_width) / 65535.0f);
+      // mouse.lLastY in range [0, 65535], so * unlikely to overflow in near
+      // future.
+      const auto absolute_y = static_cast<long>(
+          static_cast<float>(mouse.lLastY * display_surface_height) / 65535.0f);
+
+      if (last_absolute_x_ != kInvalidMouseAbsoluteCoordinate &&
+          last_absolute_y_ != kInvalidMouseAbsoluteCoordinate) [[likely]] {
+        mouse_input.last_x = absolute_x - last_absolute_x_;
+        mouse_input.last_y = absolute_y - last_absolute_y_;
+      } else {
+        mouse_input.last_x = 0L;
+        mouse_input.last_y = 0L;
+      }
+      last_absolute_x_ = absolute_x;
+      last_absolute_y_ = absolute_y;
+
+      // Unify mouse state, as now coordinates are relative.
+      mouse_input.mouse_state =
+          mouse_input.mouse_state | MouseStateFlags::kMoveRelative;
+    }
 
     return true;
   }

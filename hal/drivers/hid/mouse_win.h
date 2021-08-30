@@ -70,6 +70,12 @@ class WB_HAL_HID_DRIVER_API Mouse {
   WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   /**
+   * @brief Last absolute mouse x, y.  May be invalid if no absolute mouse
+   * movement present.
+   */
+  long last_absolute_x_, last_absolute_y_;
+
+  /**
    * @brief Creates mouse device.
    * @param window Window to handle mouse input.
    * @return nothing.
