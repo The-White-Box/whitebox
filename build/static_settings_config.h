@@ -14,7 +14,7 @@ namespace wb::build::settings {
 /**
  * @brief Path to main log file.
  */
-constexpr char kPathToMainLogFile[]{"./logs/"};
+constexpr char kPathToMainLogFile[]{""};
 #elif defined(WB_OS_POSIX)
 /**
  * @brief Path to main log file.

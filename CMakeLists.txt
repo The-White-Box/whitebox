@@ -232,6 +232,12 @@ endif()
 # Dependencies.
 add_subdirectory("deps/g3log")
 
+if (WB_COMPILER_MSVC)
+  # Prevent MSVC warning C4530: C++ exception handler used, but unwind
+  # semantics are not enabled.  Specify /EHsc.
+  target_compile_options(g3log PRIVATE /EHsc)
+endif()
+
 if (WB_BUILD_TESTS)
   # Prevent overriding the parent project's compiler/linker settings.
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)

@@ -10,9 +10,15 @@
 #include <unistd.h>
 #endif
 
+#ifdef WB_OS_WIN
+#include "base/win/system_error_ext.h"
+#include "base/win/windows_light.h"
+#endif
+
 #include "base/std_ext/system_error_ext.h"
 
 namespace wb::base::std_ext {
+#ifdef WB_OS_POSIX
 /**
  * Gets path to invoking executable.
  * @tparam path_size Path size.
@@ -23,7 +29,6 @@ namespace wb::base::std_ext {
 template <size_t path_size = 128U, size_t max_path_size = 8192U>
 [[nodiscard]] inline std::filesystem::path GetExecutablePath(
     std::error_code& rc) noexcept {
-#ifdef WB_OS_POSIX
   char buffer[path_size];
   const ssize_t bytes_required{
       ::readlink("/proc/self/exe", buffer, std::size(buffer))};
@@ -40,12 +45,10 @@ template <size_t path_size = 128U, size_t max_path_size = 8192U>
   }
 
   // Error case.
-  rc = wb::base::std_ext::GetThreadErrorCode();
+  rc = GetThreadErrorCode();
   return std::filesystem::path{};
-#else
-#error Please add get executable path API for your OS.
-#endif
 }
+#endif
 
 /**
  * Gets path to invoking executable directory.
@@ -54,8 +57,37 @@ template <size_t path_size = 128U, size_t max_path_size = 8192U>
  */
 [[nodiscard]] WB_BASE_API std::filesystem::path GetExecutableDirectory(
     std::error_code& rc) noexcept {
+#ifdef WB_OS_POSIX
   std::filesystem::path exe_path{GetExecutablePath(rc)};
 
   return exe_path.parent_path();
+#elif defined(WB_OS_WIN)
+  std::string file_path;
+  file_path.resize(_MAX_PATH + 1);
+
+  const unsigned long file_name_path_size{
+      ::GetModuleFileNameA(::GetModuleHandleA(nullptr), file_path.data(),
+                           static_cast<unsigned long>(file_path.size()))};
+  if (file_name_path_size != 0) {
+    if (GetThreadNativeLastErrno() == ERROR_INSUFFICIENT_BUFFER) {
+      rc = std::error_code{implicit_cast<int>(ERROR_INSUFFICIENT_BUFFER),
+                           std::system_category()};
+    }
+
+    file_path.resize(file_name_path_size);
+
+    const size_t last_separator_pos{
+        file_path.rfind(std::filesystem::path::preferred_separator)};
+    return std::filesystem::path{
+        last_separator_pos != std::wstring::npos
+            ? file_path.substr(0, last_separator_pos + 1)
+            : file_path};
+  }
+
+  rc = GetThreadErrorCode();
+  return std::filesystem::path{};
+#else
+#error Please define GetExecutableDirectory for your OS.
+#endif
 }
 }  // namespace wb::base::std_ext

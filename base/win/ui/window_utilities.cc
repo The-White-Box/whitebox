@@ -15,12 +15,12 @@
 
 namespace wb::base::windows::ui {
 /**
- * @brief Moves window to the center of the primary monitor.
+ * @brief Moves window to the center of its monitor.
  * @param hwnd Window.
  * @param repaint_after Should repaint window after move?
  * @return true on success, false otherwise.
  */
-WB_BASE_API bool MoveWindowToPrimaryDisplayCenter(
+WB_BASE_API bool MoveWindowToItsDisplayCenter(
     _In_ HWND window, _In_ bool repaint_after) noexcept {
   G3DCHECK(!!window);
 
@@ -28,12 +28,21 @@ WB_BASE_API bool MoveWindowToPrimaryDisplayCenter(
   [[maybe_unused]] bool is_ok{!!::GetWindowRect(window, &window_rect)};
   G3DCHECK(is_ok);
 
-  const int screen_width{::GetSystemMetrics(SM_CXSCREEN)},
-      screen_height{::GetSystemMetrics(SM_CYSCREEN)};
-  const int window_width{std::min(wb::base::implicit_cast<long>(screen_width),
-                                  window_rect.right - window_rect.left)},
-      window_height{std::min(wb::base::implicit_cast<long>(screen_height),
-                             window_rect.bottom - window_rect.top)};
+  const HMONITOR monitor{::MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY)};
+  G3DCHECK(!!monitor);
+
+  MONITORINFO mi{.cbSize = static_cast<DWORD>(sizeof(mi))};
+  is_ok = !!::GetMonitorInfoA(monitor, &mi);
+  G3DCHECK(is_ok);
+
+  const RECT &work_area{mi.rcWork};
+  const long screen_width{work_area.right - work_area.left},
+      screen_height{work_area.bottom - work_area.top};
+
+  const int window_width{
+      std::min(screen_width, window_rect.right - window_rect.left)},
+      window_height{
+          std::min(screen_height, window_rect.bottom - window_rect.top)};
   const int x_pos{(screen_width - window_width) / 2},
       y_pos{(screen_height - window_height) / 2};
 

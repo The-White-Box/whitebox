@@ -47,7 +47,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
       ::LoadCursor(nullptr, IDC_APPSTARTING)};
 
   // For nice looking window.
-  ui::MoveWindowToPrimaryDisplayCenter(window, false);
+  ui::MoveWindowToItsDisplayCenter(window, false);
 
   // TODO(dimhotepus): What if only joystick?
 
@@ -220,9 +220,8 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
 
         {
           RECT paint_rc{scoped_window_paint.PaintInfo().rcPaint};
-          const int w{paint_rc.right - paint_rc.left};
-          const int h{paint_rc.bottom - paint_rc.top};
 
+          scoped_window_paint.BlitPattern(paint_rc, WHITENESS);
           scoped_window_paint.TextDraw(
               fps_text, -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);

@@ -37,26 +37,26 @@ namespace wb::base::windows {
  */
 [[nodiscard]] inline bool MustBeSignedDllLoadTarget(
     _In_ std::string_view command_line) noexcept {
-  const size_t unsafe_arg_idx{
+  const size_t insecure_arg_idx{
       command_line.find(switches::insecure::kAllowUnsignedModuleTargetFlag)};
   // No arg.
-  if (unsafe_arg_idx == std::string_view::npos) [[likely]] {
+  if (insecure_arg_idx == std::string_view::npos) [[likely]] {
     return true;
   }
 
   // Should start with arg or has space char before.
-  if (unsafe_arg_idx != 0U && !std::isspace(static_cast<unsigned char>(
-                                  command_line[unsafe_arg_idx - 1U]))) {
+  if (insecure_arg_idx != 0U && !std::isspace(static_cast<unsigned char>(
+                                    command_line[insecure_arg_idx - 1U]))) {
     return true;
   }
 
   // Should end with arg or has space char after.
-  const size_t next_char_after_unsafe_arg_idx{
-      unsafe_arg_idx +
+  const size_t next_char_after_insecure_arg_idx{
+      insecure_arg_idx +
       sizeof(switches::insecure::kAllowUnsignedModuleTargetFlag) - 1U};
-  return next_char_after_unsafe_arg_idx < command_line.size() &&
+  return next_char_after_insecure_arg_idx < command_line.size() &&
          !std::isspace(static_cast<unsigned char>(
-             command_line[next_char_after_unsafe_arg_idx]));
+             command_line[next_char_after_insecure_arg_idx]));
 }
 
 /**

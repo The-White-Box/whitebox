@@ -15,13 +15,13 @@ using HWND = struct HWND__ *;
 
 namespace wb::base::windows::ui {
 /**
- * @brief Moves window to the center of the primary monitor.
+ * @brief Moves window to the center of its monitor.
  * @param hwnd Window.
  * @param repaint_after Should repaint window after move?
  * @return true on success, false otherwise.
  */
-WB_BASE_API bool MoveWindowToPrimaryDisplayCenter(
-    _In_ HWND window, _In_ bool repaint_after) noexcept;
+WB_BASE_API bool MoveWindowToItsDisplayCenter(_In_ HWND window,
+                                              _In_ bool repaint_after) noexcept;
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_WINDOW_UTILITIES_H_
