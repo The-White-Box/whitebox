@@ -171,6 +171,23 @@ class ScopedSdlCursor {
   SdlResult<SdlCursor> old_cursor_;
   SdlCursor new_cursor_;
 };
+
+/**
+ * @brief Tries to change cursor to system one in scope.
+ * @param new_cursor_in_scope New system cursor.
+ * @return ScopedSdlCursor.
+ */
+[[nodiscard]] inline wb::base::un<wb::sdl::ScopedSdlCursor> CreateScopedCursor(
+    wb::sdl::SdlSystemCursor new_cursor_in_scope) noexcept {
+  using namespace wb::sdl;
+
+  auto new_cursor = SdlCursor::Empty();
+  auto system_cursor = SdlCursor::FromSystem(new_cursor_in_scope);
+  if (auto *cursor = GetSuccessResult(system_cursor)) [[likely]] {
+    new_cursor = std::move(*cursor);
+  }
+  return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));
+}
 }  // namespace wb::sdl
 
 #endif  // !WB_BASE_DEPS_SDL_CURSOR_H_

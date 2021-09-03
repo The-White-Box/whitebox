@@ -169,23 +169,6 @@ class ScopedFatalErrorStringStream final : public std::stringstream {
 
   return "N/A";
 }
-
-/**
- * @brief Tries to change cursor to system one in scope.
- * @param new_cursor_in_scope New system cursor.
- * @return ScopedSdlCursor.
- */
-[[nodiscard]] wb::base::un<wb::sdl::ScopedSdlCursor> CreateScopedCursor(
-    wb::sdl::SdlSystemCursor new_cursor_in_scope) noexcept {
-  using namespace wb::sdl;
-
-  auto new_cursor = SdlCursor::Empty();
-  auto system_cursor = SdlCursor::FromSystem(new_cursor_in_scope);
-  if (auto* cursor = GetSuccessResult(system_cursor)) [[likely]] {
-    new_cursor = std::move(*cursor);
-  }
-  return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));
-}
 #endif
 }  // namespace
 
