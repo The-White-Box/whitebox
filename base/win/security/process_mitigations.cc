@@ -54,9 +54,7 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
         ? ProcessFontDisablePolicy
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_IMAGE_LOAD_POLICY>
         ? ProcessImageLoadPolicy
-// At least such MSC compiler has SDK with
-// PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY.
-#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192930133)
+#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>
         ? ProcessUserShadowStackPolicy
 #endif
@@ -182,9 +180,7 @@ class ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl {
    */
   old_policy_2_new_errc<PROCESS_MITIGATION_IMAGE_LOAD_POLICY>
       old_sil_policy_to_new_errc_;
-// At least such MSC compiler has SDK with
-// PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY.
-#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192930133)
+#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
   /**
    * @brief Process mitigation policy settings for user-mode Hardware-enforced
    * Stack Protection (HSP).
@@ -205,9 +201,7 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       old_cfg_policy_to_new_errc_{},
       old_sfd_policy_to_new_errc_{},
       old_sil_policy_to_new_errc_ {}
-// At least such MSC compiler has SDK with
-// PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY.
-#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192930133)
+#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
 , old_uss_policy_to_new_errc_ {}
 #endif
 {
@@ -408,9 +402,7 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
     }
   }
 
-// At least such MSC compiler has SDK with
-// PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY.
-#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192930133)
+#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
   if (windows::GetVersion() < windows::Version::WIN10_20H1) [[unlikely]] {
     // Policies below require Windows 10, version 2004+ (Build 19041)
     std::get<std::error_code>(old_uss_policy_to_new_errc_) =
@@ -445,9 +437,7 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
 
 ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl ::
     ~ScopedProcessMitigationPoliciesImpl() noexcept {
-// At least such MSC compiler has SDK with
-// PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY.
-#if defined(_MSC_FULL_VER) && (_MSC_FULL_VER >= 192930133)
+#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
   {
     auto [old_policy, new_policy_result] = old_uss_policy_to_new_errc_;
 

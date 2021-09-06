@@ -13,8 +13,22 @@ set(WB_BASE_TARGET_NAME "base")
 set(WB_BASE_LINK_OPTIONS "")
 set(WB_BASE_LINK_DEPS g3log mimalloc)
 set(WB_BASE_RUNTIME_DEPS g3log mimalloc)
+set(WB_BASE_CXX_DEFINITIONS WB_BASE_DLL=1)
 
 if (WB_OS_WIN)
+  check_cxx_source_compiles("
+    #include <windows.h>
+    int main(int argc, char **argv) {
+      PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY new_policy;
+      new_policy.EnableUserShadowStack = 1UL;
+      return 0;
+    }"
+    WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
+  if (WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
+    list(APPEND WB_BASE_CXX_DEFINITIONS
+      WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY=1)
+  endif()
+
   # Delay load DLLs we use in rare call paths.
   list(APPEND WB_BASE_LINK_OPTIONS
     "/DELAYLOAD:Avrt.dll" "/DELAYLOAD:Comctl32.dll" "/DELAYLOAD:Shell32.dll")
@@ -31,7 +45,7 @@ wb_cxx_shared_library(
   DESCRIPTION   "Whitebox Base Abstractions and Definitions"
   SOURCE_DIR    ${WB_BASE_SOURCE_DIR}
   BINARY_DIR    ${WB_BASE_BINARY_DIR}
-  CXX_DEFS      WB_BASE_DLL=1
+  CXX_DEFS      ${WB_BASE_CXX_DEFINITIONS}
   LINK_OPTS     ${WB_BASE_LINK_OPTIONS}
   LINK_DEPS     ${WB_BASE_LINK_DEPS}
   RUNTIME_DEPS  ${WB_BASE_RUNTIME_DEPS}

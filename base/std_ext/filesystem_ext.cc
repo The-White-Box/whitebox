@@ -6,7 +6,9 @@
 
 #include "filesystem_ext.h"
 
+#ifdef WB_OS_POSIX
 #include <unistd.h>
+#endif
 
 #include "base/std_ext/system_error_ext.h"
 
