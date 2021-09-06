@@ -33,14 +33,55 @@
 #include "build/static_settings_config.h"
 #else
 #include "base/scoped_new_handler.h"
+#include "base/std_ext/clocale_ext.h"
 #include "base/std_ext/filesystem_ext.h"
 #endif
 
 namespace {
 /**
+ * Dump some system information.
+ * @param app_description Application description.
+ */
+void DumpSystemInformation(const char* app_description) noexcept {
+  G3DCHECK(!!app_description);
+
+#if defined(WB_OS_LINUX) || defined(WB_OS_MACOSX)
+#if defined(WB_COMPILER_CLANG)
+  constexpr char kCompilerVersion[]{"Clang " __clang_version__};
+#elif defined(WB_COMPILER_GCC)
+  const std::string kCompilerVersion{std::to_string(__GNUC__) + "." +
+                                     std::to_string(__GNUC_MINOR__) + "." +
+                                     std::to_string(__GNUC_PATCHLEVEL__)};
+#else
+  constexpr char kCompilerVersion[];
+#error Please, add your compiler build version here.
+#endif  // WB_COMPILER_GCC
+
+#if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
+  G3LOG(INFO) << app_description << " build with " << kCompilerVersion
+              << " on glibc " << __GLIBC__ << "." << __GLIBC_MINOR__
+              << ", glibc++ " << _GLIBCXX_RELEASE << ", ABI stamp "
+              << __GLIBCXX__ << ".";
+#endif
+#ifdef _LIBCPP_VERSION
+  G3LOG(INFO) << bootmgr_args.app_description << " build with "
+              << kCompilerVersion << " on libc++ " << _LIBCPP_VERSION
+              << "/ ABI " << _LIBCPP_ABI_VERSION;
+#endif
+#endif  // WB_OS_LINUX || WB_OS_MACOSX
+
+#ifdef WB_OS_WIN
+  const std::string kCompilerVersion{std::to_string(_MSC_FULL_VER) + "." +
+                                     std::to_string(_MSC_BUILD)};
+  G3LOG(INFO) << bootmgr_args.app_description << " build with "
+              << kCompilerVersion << ".";
+#endif
+}
+
+/**
  * @brief Setup heap allocator.
  */
-void BootHeapMemoryAllocator() {
+void BootHeapMemoryAllocator() noexcept {
 #ifdef WB_OS_WIN
   {
     // Terminate the app if system detected heap corruption.
@@ -65,7 +106,7 @@ void BootHeapMemoryAllocator() {
   // Ignore earlier allocations.
   mi_stats_reset();
 
-  G3DLOG(INFO) << "Using mi-malloc memory allocator v." << mi_version();
+  G3DLOG(INFO) << "Using mi-malloc memory allocator v." << mi_version() << ".";
 #endif
 }
 
@@ -159,6 +200,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     const wb::bootmgr::BootmgrArgs& bootmgr_args) {
   using namespace wb::base;
 
+  DumpSystemInformation(bootmgr_args.app_description);
+
 #ifdef WB_OS_WIN
   using namespace wb::base::windows;
 
@@ -221,6 +264,12 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   const memory::ScopedNewMode scoped_new_mode{
       memory::ScopedNewModeFlag::CallNew};
 #else
+  const std_ext::ScopedProcessLocale scoped_process_locale{
+      std_ext::ScopedProcessLocaleCategory::kAll, ""};
+  G3LOG(INFO) << bootmgr_args.app_description << " using "
+              << scoped_process_locale.GetCurrentLocale().value_or("Unknown")
+              << " locale.";
+
   // Handle new allocation failure.
   const ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler};
 #endif
@@ -232,39 +281,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   const ScopedProcessUnexpectedHandler scoped_process_unexpected_handler{
       DefaultProcessUnexpectedHandler};
 
-  {
-#if defined(WB_OS_LINUX) || defined(WB_OS_MACOSX)
-#if defined(WB_COMPILER_CLANG)
-    constexpr char kCompilerVersion[]{"Clang " __clang_version__};
-#elif defined(WB_COMPILER_GCC)
-    const std::string kCompilerVersion{std::to_string(__GNUC__) + "." +
-                                       std::to_string(__GNUC_MINOR__) + "." +
-                                       std::to_string(__GNUC_PATCHLEVEL__)};
-#else
-    constexpr char kCompilerVersion[];
-#error Please, add your compiler build version here.
-#endif  // WB_COMPILER_GCC
-
-#if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
-    G3LOG(INFO) << bootmgr_args.app_description << " build with "
-                << kCompilerVersion << " on glibc " << __GLIBC__ << "."
-                << __GLIBC_MINOR__ << ", glibc++ " << _GLIBCXX_RELEASE
-                << ", ABI stamp " << __GLIBCXX__ << ".";
-#endif
-#ifdef _LIBCPP_VERSION
-    G3LOG(INFO) << bootmgr_args.app_description << " build with "
-                << kCompilerVersion << " on libc++ " << _LIBCPP_VERSION
-                << "/ ABI " << _LIBCPP_ABI_VERSION;
-#endif
-#endif  // WB_OS_LINUX || WB_OS_MACOSX
-  }
-
 #ifdef WB_OS_WIN
-  const std::string kCompilerVersion{std::to_string(_MSC_FULL_VER) + "." +
-                                     std::to_string(_MSC_BUILD)};
-  G3LOG(INFO) << bootmgr_args.app_description << " build with "
-              << kCompilerVersion << ".";
-
   const threads::NativeThreadName new_thread_name{L"WhiteBoxMain"};
 #else
   const threads::NativeThreadName new_thread_name{"WhiteBoxMain"};
