@@ -25,7 +25,8 @@ set(WB_HALF_LIFE2_RUNTIME_DEPS
   base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel)
 if (NOT WB_OS_WIN)
   list(APPEND WB_HALF_LIFE2_LINK_DEPS base SDL2::SDL2)
-  list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS "base" "SDL2::SDL2" "SDL2::image")
+  list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS
+    "base" "png" "SDL2::SDL2" "SDL2::image")
 endif()
 
 wb_cxx_executable(

@@ -261,10 +261,12 @@ add_subdirectory("deps/mimalloc")
 if (NOT WB_OS_WIN)
   set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)
   set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
-
   add_subdirectory(deps/sdl)
 
   set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared SDL_image library" FORCE)
+  set(PNG_SHARED ON CACHE BOOL "Build shared lib" FORCE)
+  set(PNG_STATIC OFF CACHE BOOL "Build static lib" FORCE)
+  set(PNG_TESTS  OFF CACHE BOOL "Build libpng tests" FORCE)
   add_subdirectory(deps/sdl_image)
 
   if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
@@ -312,9 +314,9 @@ foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
 
     # Add new / delete allocator overrides.
     target_sources(${WB_TARGET_NAME}
-        PRIVATE
+      PRIVATE
         ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
-        )
+    )
 
     # Add mimalloc to handle allocators.
     target_link_libraries(${WB_TARGET_NAME} PRIVATE mimalloc)
