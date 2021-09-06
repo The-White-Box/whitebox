@@ -23,43 +23,23 @@
 #include <system_error>
 
 #include "app_version_config.h"
+#include "base/deps/sdl/message_box.h"
 #include "base/unique_module_ptr.h"
-#include "bootmgr/bootmgr_main.h"
-
-extern "C" {
-// abort_report_np() records the message in a special section that both the
-// system CrashReporter and Crashpad collect in crash reports. Using a Crashpad
-// Annotation would be preferable, but this executable cannot depend on
-// Crashpad directly.
-void abort_report_np(const char* fmt, ...);
-}
-
-namespace {
-[[noreturn]] void FatalError(const char* format, ...) {
-  va_list valist;
-  va_start(valist, format);
-
-  char message[4096];
-  if (vsnprintf(message, sizeof(message), format, valist) >= 0) {
-    abort_report_np("%s", message);
-  }
-
-  va_end(valist);
-  abort();
-}
-}  // namespace
+#include "bootmgr/boot_manager_main.h"
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   uint32_t exec_path_size{0};
   int rv{_NSGetExecutablePath(nullptr, &exec_path_size)};
   if (rv != -1) [[unlikely]] {
-    FatalError("_NSGetExecutablePath: get length failed.");
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
+        << "_NSGetExecutablePath: get length failed.  Unable to load the app.";
   }
 
   std::unique_ptr<char[]> exec_path{std::make_unique<char[]>(exec_path_size)};
   rv = _NSGetExecutablePath(exec_path.get(), &exec_path_size);
   if (rv != 0) [[unlikely]] {
-    FatalError("_NSGetExecutablePath: get path failed.");
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
+        << "_NSGetExecutablePath: get path failed.  Unable to load the app.";
   }
 
   constexpr char rel_path[]{
@@ -71,7 +51,8 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // version framework information.
   const char* parent_dir{dirname(exec_path.get())};
   if (!parent_dir) [[unlikely]] {
-    FatalError("dirname '%s': %s.", exec_path.get(), strerror(errno));
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{errno})
+        << "dirname '" << exec_path.get() << "'.";
   }
 
   const size_t parent_dir_len{strlen(parent_dir)};
@@ -83,34 +64,37 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   snprintf(framework_path.get(), framework_path_size, "%s/%s", parent_dir,
            rel_path);
 
-  const auto bootmgr_load_result =
-      wb::base::unique_module_ptr::FromLibraryOnPath(
-          framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
-  if (const auto* rc = wb::base::std_ext::GetErrorCode(bootmgr_load_result))
+  using namespace wb::base;
+
+  const auto boot_manager_load_result = unique_module_ptr::FromLibraryOnPath(
+      framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
+  if (const auto* rc = std_ext::GetErrorCode(boot_manager_load_result))
       [[unlikely]] {
-    FatalError("Can't load boot manager '%s': %s.", framework_path.get(),
-               rc->message());
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
+        << "Can't load boot manager '" << framework_path.get() << ".";
   }
 
-  const auto bootmgr_module =
-      std::get<wb::base::unique_module_ptr>(bootmgr_load_result);
-  constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
+  const auto boot_manager_module =
+      std::get<unique_module_ptr>(boot_manager_load_result);
+  constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
 
-  using BootmgrMainFunction = decltype(&BootmgrMain);
+  using BootManagerMainFunction = decltype(&BootmgrMain);
 
   // Good, try to find and launch boot manager.
-  const auto bootmgr_entry_result =
-      bootmgr_module->GetAddressAs<BootmgrMainFunction>(
+  const auto boot_manager_entry_result =
+      boot_manager_module->GetAddressAs<BootManagerMainFunction>(
           kBootmgrMainFunctionName);
-  if (const auto* rc = wb::base::std_ext::GetErrorCode(bootmgr_entry_result))
+  if (const auto* rc = std_ext::GetErrorCode(bootmgr_entry_result))
       [[unlikely]] {
-    FatalError("Can't get '%s' entry point from '%s': %s.",
-               kBootmgrMainFunctionName, framework_path.get(), rc->message());
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
+        << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
+        << framework_path.get() << "'.";
   }
 
-  const auto bootmgr_main = std::get<BootmgrMainFunction>(bootmgr_entry_result);
+  const auto boot_manager_main =
+      std::get<BootManagerMainFunction>(bootmgr_entry_result);
 
-  rv = bootmgr_main(argc, argv);
+  rv = boot_manager_main(argc, argv);
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.

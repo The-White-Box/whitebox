@@ -231,7 +231,39 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   const ScopedProcessUnexpectedHandler scoped_process_unexpected_handler{
       DefaultProcessUnexpectedHandler};
 
+  {
+#if defined(WB_OS_LINUX) || defined(WB_OS_MACOSX)
+#if defined(WB_COMPILER_CLANG)
+    constexpr char kCompilerVersion[]{"Clang " __clang_version__};
+#elif defined(WB_COMPILER_GCC)
+    const std::string kCompilerVersion{std::to_string(__GNUC__) + "." +
+                                       std::to_string(__GNUC_MINOR__) + "." +
+                                       std::to_string(__GNUC_PATCHLEVEL__)};
+#else
+    constexpr char kCompilerVersion[];
+#error Please, add your compiler build version here.
+#endif  // WB_COMPILER_GCC
+
+#if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
+    G3LOG(INFO) << bootmgr_args.app_description << " build with "
+                << kCompilerVersion << " on glibc " << __GLIBC__ << "."
+                << __GLIBC_MINOR__ << ", glibc++ " << _GLIBCXX_RELEASE
+                << ", ABI stamp " << __GLIBCXX__ << ".";
+#endif
+#ifdef _LIBCPP_VERSION
+    G3LOG(INFO) << bootmgr_args.app_description << " build with "
+                << kCompilerVersion << " on libc++ " << _LIBCPP_VERSION
+                << "/ ABI " << _LIBCPP_ABI_VERSION;
+#endif
+#endif  // WB_OS_LINUX || WB_OS_MACOSX
+  }
+
 #ifdef WB_OS_WIN
+  const std::string kCompilerVersion{std::to_string(_MSC_FULL_VER) + "." +
+                                     std::to_string(_MSC_BUILD)};
+  G3LOG(INFO) << bootmgr_args.app_description << " build with "
+              << kCompilerVersion << ".";
+
   const threads::NativeThreadName new_thread_name{L"WhiteBoxMain"};
 #else
   const threads::NativeThreadName new_thread_name{"WhiteBoxMain"};

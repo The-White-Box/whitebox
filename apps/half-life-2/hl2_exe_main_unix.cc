@@ -8,6 +8,7 @@
 
 #include "app_version_config.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
+#include "base/deps/sdl/message_box.h"
 #include "base/unique_module_ptr.h"
 #include "bootmgr/bootmgr_main.h"
 #include "build/static_settings_config.h"
@@ -24,43 +25,44 @@ int BootmgrStartup(int argc, char** argv) noexcept {
 
   std::error_code rc;
   auto app_path = std::filesystem::current_path(rc);
-  // TODO(dimhotepus): Show fancy UI box.
-  G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
-                                 "the app.  Please, contact authors.";
+  if (rc) {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, rc)
+        << "Can't get current directory.  Unable to load the app.";
+  }
 
   app_path /= "libbootmgr.so." WB_PRODUCT_VERSION_INFO_STRING;
 
-  const std::string bootmgr_path{app_path.string()};
-  const int bootmgr_load_flags{RTLD_LAZY | RTLD_LOCAL};
+  const std::string boot_manager_path{app_path.string()};
+  const int boot_manager_load_flags{RTLD_LAZY | RTLD_LOCAL};
 
-  const auto bootmgr_load_result =
-      unique_module_ptr::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
-  if (const auto* bootmgr_module =
-          std_ext::GetSuccessResult(bootmgr_load_result)) {
+  const auto boot_manager_load_result = unique_module_ptr::FromLibraryOnPath(
+      boot_manager_path, boot_manager_load_flags);
+  if (const auto* boot_manager_module =
+          std_ext::GetSuccessResult(boot_manager_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
 
-    constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
+    constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
 
     // Good, try to find and launch bootmgr.
-    const auto bootmgr_entry_result =
-        bootmgr_module->GetAddressAs<BootmgrMainFunction>(
-            kBootmgrMainFunctionName);
-    if (const auto* bootmgr_main =
-            std_ext::GetSuccessResult(bootmgr_entry_result)) {
-      return (*bootmgr_main)({WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
+    const auto boot_manager_entry_result =
+        boot_manager_module->GetAddressAs<BootmgrMainFunction>(
+            kBootManagerMainFunctionName);
+    if (const auto* boot_manager_main =
+            std_ext::GetSuccessResult(boot_manager_entry_result)) {
+      return (*boot_manager_main)(
+          {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
     }
 
-    // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(bootmgr_entry_result);
-    G3PLOG_E(WARNING, rc)
-        << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
-        << bootmgr_path
+    rc = std::get<std::error_code>(boot_manager_entry_result);
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, rc)
+        << "Can't get '" << kBootManagerMainFunctionName
+        << "' entry point from '" << boot_manager_path
         << "'.  Looks like app is broken, please, reinstall the one.";
   } else {
-    // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(bootmgr_load_result);
-    G3PLOG_E(WARNING, rc) << "Can't load boot manager '" << bootmgr_path
-                          << "'.  Please, reinstall the app.";
+    rc = std::get<std::error_code>(boot_manager_load_result);
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, rc)
+        << "Can't load boot manager '" << boot_manager_path
+        << "'.  Please, reinstall the app.";
   }
 
   return rc.value();
@@ -84,18 +86,6 @@ int main(int argc, char* argv[]) {
   // Initialize g3log logging library first as logs are used extensively.
   const deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       argv[0], wb::build::settings::kPathToMainLogFile};
-
-#ifdef WB_OS_LINUX
-#if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build with glibc "
-              << __GLIBC__ << "." << __GLIBC_MINOR__ << ", glibc++ "
-              << _GLIBCXX_RELEASE << ", ABI stamp " << __GLIBCXX__ << ".";
-#endif
-#ifdef _LIBCPP_VERSION
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " build with libc++ "
-              << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
-#endif
-#endif
 
   return BootmgrStartup(argc, argv);
 }

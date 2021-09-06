@@ -104,46 +104,6 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 
   return 0;
 }
-/**
- * @brief Fatal error string stream.  Dumps error to log, shows UI and exit.
- */
-class ScopedFatalErrorStringStream final : public std::stringstream {
- public:
-  explicit ScopedFatalErrorStringStream(std::string title) noexcept
-      : std::stringstream{std::ios::out}, title_{std::move(title)} {}
-  ScopedFatalErrorStringStream(ScopedFatalErrorStringStream&& s) noexcept
-      : std::stringstream{std::move(s)}, title_{std::move(s.title_)} {}
-  ScopedFatalErrorStringStream& operator=(ScopedFatalErrorStringStream&&) =
-      delete;
-
-  [[noreturn]] ~ScopedFatalErrorStringStream() noexcept override {
-    const std::string error{str()};
-
-    G3LOG(WARNING) << error;
-
-    title_ += " Startup Error";
-
-    ShowSimpleMessageBox(
-        wb::sdl::MessageBoxFlags::Error | wb::sdl::MessageBoxFlags::LeftToRight,
-        title_.c_str(), error.c_str());
-
-    std::exit(1);
-  }
-
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedFatalErrorStringStream);
-
- private:
-  std::string title_;
-};
-
-/**
- * Creates fatal error stream, which dumps error to log, shows UI message box
- * and exits.
- * @param title Message box title.
- */
-[[nodiscard]] ScopedFatalErrorStringStream Fatal(std::string title) {
-  return ScopedFatalErrorStringStream{std::move(title)};
-};
 
 /**
  * @brief Get used by window graphics context.

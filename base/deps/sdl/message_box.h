@@ -41,10 +41,77 @@ enum class MessageBoxFlags : Uint32 {
  * @param message Message.
  * @return SDL error.
  */
-inline SdlError ShowSimpleMessageBox(MessageBoxFlags flags, const char *title,
-                                     const char *message) noexcept {
+inline SdlError ShowSimpleMessageBox(MessageBoxFlags flags, const char* title,
+                                     const char* message) noexcept {
   return SdlError::FromReturnCode(::SDL_ShowSimpleMessageBox(
       base::underlying_cast(flags), title, message, nullptr));
+}
+
+/**
+ * @brief Fatal error string stream.  Dumps error to log, shows UI and exit.
+ */
+class FatalErrorStringStream final : public std::stringstream {
+ public:
+  /**
+   * Creates fatal error string stream.
+   * @param title Title of error message box.
+   * @param rc Error code.
+   */
+  FatalErrorStringStream(std::string title, std::error_code rc) noexcept
+      : std::stringstream{std::ios::out}, title_{std::move(title)}, rc_{rc} {}
+  /**
+   * Creates fatal error string stream.
+   * @param title Title of error message box.
+   */
+  explicit FatalErrorStringStream(std::string title) noexcept
+      : FatalErrorStringStream{std::move(title), std::error_code{}} {}
+
+  FatalErrorStringStream(FatalErrorStringStream&& s) noexcept
+      : std::stringstream{std::move(s)}, title_{std::move(s.title_)} {}
+  FatalErrorStringStream& operator=(FatalErrorStringStream&&) = delete;
+
+  [[noreturn]] ~FatalErrorStringStream() noexcept override {
+    const std::string error{str()};
+
+    if (rc_) {
+      G3PLOG_E(WARNING, rc_) << error;
+    } else {
+      G3LOG(WARNING) << error;
+    }
+
+    ShowSimpleMessageBox(MessageBoxFlags::Error | MessageBoxFlags::LeftToRight,
+                         title_.c_str(), error.c_str());
+
+    std::exit(rc_ ? rc_.value() : 1);
+  }
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(FatalErrorStringStream);
+
+ private:
+  std::string title_;
+  std::error_code rc_;
+};
+
+/**
+ * Creates fatal error stream, which dumps error to log, shows UI message box
+ * and exits.
+ * @param title Message box title.
+ * @return FatalErrorStringStream.
+ */
+[[nodiscard]] inline FatalErrorStringStream Fatal(std::string title) {
+  return FatalErrorStringStream{std::move(title)};
+}
+
+/**
+ * Creates fatal error stream, which dumps error + error code to log, shows UI
+ * message box and exits.
+ * @param title Message box title.
+ * @param rc Error code.
+ * @return FatalErrorStringStream.
+ */
+[[nodiscard]] inline FatalErrorStringStream Fatal(std::string title,
+                                                  std::error_code rc) {
+  return FatalErrorStringStream{std::move(title), rc};
 }
 }  // namespace wb::sdl
 
