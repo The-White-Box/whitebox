@@ -15,12 +15,12 @@ set(WB_WHITEBOX_KERNEL_LINK_DEPS base g3log mimalloc whitebox-hid-driver)
 if (WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
 else ()
-  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS SDL2::SDL2)
+  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS "SDL2::SDL2" "SDL2::image")
 endif ()
 
 set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS base g3log mimalloc whitebox-hid-driver)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS SDL2::SDL2)
+  list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS "SDL2::SDL2" "SDL2::image")
 endif ()
 
 wb_cxx_shared_library(

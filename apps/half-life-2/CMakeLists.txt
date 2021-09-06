@@ -25,7 +25,7 @@ set(WB_HALF_LIFE2_RUNTIME_DEPS
   base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel)
 if (NOT WB_OS_WIN)
   list(APPEND WB_HALF_LIFE2_LINK_DEPS SDL2::SDL2)
-  list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS SDL2::SDL2)
+  list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS "SDL2::SDL2" "SDL2::image")
 endif ()
 
 wb_cxx_executable(
@@ -39,3 +39,8 @@ wb_cxx_executable(
   LINK_DEPS     ${WB_HALF_LIFE2_LINK_DEPS}
   RUNTIME_DEPS  ${WB_HALF_LIFE2_RUNTIME_DEPS}
 )
+
+if (NOT WB_OS_WIN)
+wb_copy_target_asset_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}
+  "images/half-life-2_icon.png")
+endif()

@@ -10,6 +10,7 @@
 #include "base/base_macroses.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
+#include "base/deps/sdl/surface.h"
 #include "base/deps/sdl/syswm.h"
 #include "base/deps/sdl/version.h"
 #include "base/std_ext/cstring_ext.h"
@@ -147,6 +148,18 @@ class SdlWindow {
         ::SDL_GetWindowWMInfo(window_, &platform_info));
   }
 
+  void SetIcon(const SdlSurface &icon) const noexcept {
+    G3DCHECK(!!window_);
+
+    ::SDL_SetWindowIcon(window_, icon.surface_);
+  }
+
+  void SetMinimumSizes(int min_width, int min_height) const noexcept {
+    G3DCHECK(!!window_);
+
+    ::SDL_SetWindowMinimumSize(window_, min_width, min_height);
+  }
+
  private:
   SDL_Window *window_;
   SdlError init_rc_;
@@ -165,7 +178,7 @@ class SdlWindow {
   SdlWindow(const char *title, int x, int y, int width, int height,
             SdlWindowFlags flags) noexcept
       : window_{::SDL_CreateWindow(title, x, y, width, height,
-                                   wb::base::underlying_cast(flags))},
+                                   base::underlying_cast(flags))},
         init_rc_{window_ ? SdlError::Success() : SdlError::Failure()},
         flags_{flags} {
     G3DCHECK(!!window_) << "SDL_CreateWindow failed with error: "

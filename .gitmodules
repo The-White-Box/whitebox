@@ -10,3 +10,6 @@
 [submodule "deps/sdl"]
 	path = deps/sdl
 	url = git@github.com:The-White-Box/SDL.git
+[submodule "deps/sdl_image"]
+	path = deps/sdl_image
+	url = git@github.com:The-White-Box/SDL_image.git

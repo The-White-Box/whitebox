@@ -1,4 +1,4 @@
-# ![Logo](apps/half-life-2/resources/half-life-2_product-64.png) The WhiteBox
+# ![Logo](assets/half-life-2/images/half-life-2_product-64.png) The WhiteBox
 
 [![License](https://img.shields.io/github/license/The-White-Box/whitebox.svg)](./LICENSE)
 [![Build and Test](https://github.com/The-White-Box/whitebox/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/The-White-Box/whitebox/actions/workflows/cmake.yml)

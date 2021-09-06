@@ -199,6 +199,18 @@ function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_DESC
   #  COMMAND echo "${THE_TARGET} built with the ${TARGET_PROPERTY_DESCRIPTION}: ${TARGET_PROPERTY_VALUE}")
 endfunction(wb_dump_target_property)
 
+# Copies target assets to target binary directory.  Use like this:
+# wb_copy_target_asset_to_target_bin_dir("My target" "My asset")
+function(wb_copy_target_asset_to_target_bin_dir THE_TARGET THE_ASSET_RELATIVE_PATH)
+  set(full_asset_path "${WB_ROOT_DIR}/assets/${THE_TARGET}/${THE_ASSET_RELATIVE_PATH}")
+  add_custom_command(
+      TARGET ${THE_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${full_asset_path} $<TARGET_FILE_DIR:${THE_TARGET}>
+      WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
+      COMMENT "Copy ${full_asset_path} to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+  )
+endfunction()
+
 # Copies target dependency to target binary dir.  Use like this:
 # wb_copy_target_dependency_to_target_bin_dir("My target" "My dependency")
 function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)

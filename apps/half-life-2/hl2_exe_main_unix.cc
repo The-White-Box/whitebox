@@ -39,13 +39,13 @@ int BootmgrStartup(int argc, char** argv) noexcept {
       boot_manager_path, boot_manager_load_flags);
   if (const auto* boot_manager_module =
           std_ext::GetSuccessResult(boot_manager_load_result)) {
-    using BootmgrMainFunction = decltype(&BootmgrMain);
+    using BootManagerMainFunction = decltype(&BootmgrMain);
 
     constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
 
     // Good, try to find and launch bootmgr.
     const auto boot_manager_entry_result =
-        boot_manager_module->GetAddressAs<BootmgrMainFunction>(
+        boot_manager_module->GetAddressAs<BootManagerMainFunction>(
             kBootManagerMainFunctionName);
     if (const auto* boot_manager_main =
             std_ext::GetSuccessResult(boot_manager_entry_result)) {

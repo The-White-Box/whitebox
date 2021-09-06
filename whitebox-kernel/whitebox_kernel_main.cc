@@ -21,6 +21,7 @@
 #include "base/deps/sdl/init.h"
 #include "base/deps/sdl/message_box.h"
 #include "base/deps/sdl/window.h"
+#include "base/deps/sdl_image/init.h"
 #include "build/static_settings_config.h"
 #endif
 
@@ -168,6 +169,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   return error_code.value();
 #else
   using namespace wb::sdl;
+  using namespace wb::sdl_image;
 
   const ::SDL_version compiled_sdl_version{GetCompileTimeVersion()},
       linked_sdl_version{GetLinkTimeVersion()};
@@ -183,10 +185,22 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   }
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
-  un<ScopedSdlCursor> set_wait_cursor_in_scope{
+  un<ScopedSdlCursor> set_wait_cursor_while_app_starts{
       CreateScopedCursor(SdlSystemCursor::kWaitArrow)};
   G3LOG(INFO) << "SDL versions: build " << compiled_sdl_version << ", runtime "
-              << linked_sdl_version;
+              << linked_sdl_version << '.';
+
+  constexpr SdlImageInitializerFlags sdl_image_initializer_flags{
+      SdlImageInitializerFlags::kJpg | SdlImageInitializerFlags::kPng};
+  const auto sdl_image_initializer =
+      SdlImageInitializer::New(sdl_image_initializer_flags);
+  if (const auto* error = GetError(sdl_image_initializer)) [[unlikely]] {
+    Fatal(kernel_args.app_description)
+        << "SDL image parser initialization failed for types "
+        << sdl_image_initializer_flags << ".\n\n"
+        << *error << ".\n\nPlease, fill the issue at "
+        << wb::build::settings::ui::error_dialog::kIssuesLink;
+  }
 
   // TODO(dimhotepus): kAllowHighDpi handling at least on Mac.
   const SdlWindowFlags window_flags {
@@ -211,13 +225,24 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
         << GetWindowGraphicsContext(window_flags) << " context."
         << "\n\n: " << *GetError(sdl_window)
         << ".\n\nMay be you forget to install "
-        << GetWindowGraphicsContext(window_flags) << " drivers?"
+        << GetWindowGraphicsContext(window_flags) << " libraries/drivers?"
         << "\n\nIf it is not the case, please, fill the issue at "
         << wb::build::settings::ui::error_dialog::kIssuesLink;
   }
 
-  // Window is shown, restore default cursor.
-  set_wait_cursor_in_scope.reset();
+  const auto window_icon_result = SdlSurface::FromImage("half-life-2_icon.png");
+  if (const auto* window_icon = GetSuccessResult(window_icon_result))
+      [[likely]] {
+    window->SetIcon(*window_icon);
+  } else {
+    const auto* error = GetError(window_icon_result);
+    G3LOG(WARNING) << "SDL unable to set window icon, run with default one: "
+                   << *error << ".";
+  }
+
+  window->SetMinimumSizes(
+      wb::build::settings::ui::window::dimensions::kMinWidth,
+      wb::build::settings::ui::window::dimensions::kMinHeight);
 
   {
     G3LOG(INFO) << "SDL graphics context: "
@@ -231,6 +256,9 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                                      : ::SDL_SYSWM_UNKNOWN)
                 << ".";
   }
+
+  // Startup sequence finished, window is already shown, restore default cursor.
+  set_wait_cursor_while_app_starts.reset();
 
   return DispatchMessages();
 #endif

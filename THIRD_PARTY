@@ -199,8 +199,8 @@ where Apache License, Version 2.0 is:
     END OF TERMS AND CONDITIONS
   """
 
-- g3log <https://github.com/KjellKod/g3log> asynchronous logger located at
-  deps/g3log is licensed as follows:
+- g3log <https://github.com/KjellKod/g3log> is asynchronous logger located at
+  deps/g3log and licensed as follows:
   """
     This is free and unencumbered software released into the public domain.
 
@@ -229,7 +229,7 @@ where Apache License, Version 2.0 is:
   """
 
 - gtest <https://github.com/google/googletest> Google's C++ test framework
-  located at deps/googletest/googletest is licensed as follows:
+  is located at deps/googletest/googletest and licensed as follows:
   """
     Copyright 2008, Google Inc.
     All rights reserved.
@@ -262,7 +262,7 @@ where Apache License, Version 2.0 is:
   """
 
 - mimalloc <https://github.com/microsoft/mimalloc> general purpose allocator
-  located at deps/mimalloc is licensed as follows:
+  is located at deps/mimalloc and licensed as follows:
   """
     MIT License
 
@@ -289,7 +289,31 @@ where Apache License, Version 2.0 is:
 
 - sdl <https://github.com/libsdl-org/SDL> cross-platform development library
   designed to provide low level access to audio, keyboard, mouse, joystick,
-  and graphics hardware located at deps/sdl is licensed as follows:
+  and graphics hardware is located at deps/sdl and licensed as follows:
+  """
+    Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
+
+    This software is provided 'as-is', without any express or implied
+    warranty.  In no event will the authors be held liable for any damages
+    arising from the use of this software.
+
+    Permission is granted to anyone to use this software for any purpose,
+    including commercial applications, and to alter it and redistribute it
+    freely, subject to the following restrictions:
+
+    1. The origin of this software must not be misrepresented; you must not
+       claim that you wrote the original software. If you use this software
+       in a product, an acknowledgment in the product documentation would be
+       appreciated but is not required.
+    2. Altered source versions must be plainly marked as such, and must not be
+       misrepresented as being the original software.
+    3. This notice may not be removed or altered from any source distribution.
+  """
+
+- sdl_image <https://github.com/libsdl-org/SDL_image> simple library to load
+  images of various formats as SDL surfaces.  This library supports BMP, PNM
+  (PPM/PGM/PBM), XPM, LBM, PCX, GIF, JPEG, PNG, TGA, TIFF,
+  and simple SVG formats, located at deps/sdl_image and licensed as follows:
   """
     Copyright (C) 1997-2021 Sam Lantinga <slouken@libsdl.org>
 

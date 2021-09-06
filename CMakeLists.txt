@@ -207,7 +207,7 @@ elseif (WB_COMPILER_MSVC)
   include(compilers/wb_msvc)
 else()
   # Add compilers if needed.
-  message(FATAL_ERROR 
+  message(FATAL_ERROR
     "[common]: '${WB_CXX_COMPILER_ID}' cxx compiler is not supported. "
     "Please, define compiler/linker options for it.")
 endif()
@@ -261,8 +261,18 @@ add_subdirectory("deps/mimalloc")
 if (NOT WB_OS_WIN)
   set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)
   set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
+
   add_subdirectory(deps/sdl)
-endif ()
+
+  set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared SDL_image library" FORCE)
+  add_subdirectory(deps/sdl_image)
+
+  if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+    # Prevent linker error can't create dynamic relocation R_X86_64_64 against
+    # symbol: XXX in readonly segment (-fPIC).
+    target_compile_options(jpeg PRIVATE -fPIC)
+  endif()
+endif()
 
 # Libraries.
 add_subdirectory("base")
@@ -289,7 +299,12 @@ foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
   if (NOT ${WB_TARGET_NAME} MATCHES "clean-cmake" AND
+      NOT ${WB_TARGET_NAME} MATCHES "genfiles" AND
+      NOT ${WB_TARGET_NAME} MATCHES "genprebuilt" AND
+      NOT ${WB_TARGET_NAME} MATCHES "gensym" AND
+      NOT ${WB_TARGET_NAME} MATCHES "genvers" AND
       NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
+      NOT ${WB_TARGET_NAME} MATCHES "symbol-check" AND
       NOT ${WB_TARGET_NAME} MATCHES "uninstall")
     # Include the directories with the new files.
     target_include_directories(${WB_TARGET_NAME}
