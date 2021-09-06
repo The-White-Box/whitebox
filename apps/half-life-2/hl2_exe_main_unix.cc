@@ -4,11 +4,10 @@
 //
 // The entry point for *nix Half-Life 2 process.
 
-#include <filesystem>
-
 #include "app_version_config.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
+#include "base/std_ext/filesystem_ext.h"
 #include "base/unique_module_ptr.h"
 #include "bootmgr/bootmgr_main.h"
 #include "build/static_settings_config.h"
@@ -24,7 +23,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
-  auto app_path = std::filesystem::current_path(rc);
+  auto app_path = std_ext::GetExecutableDirectory(rc);
   if (rc) {
     wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, rc)
         << "Can't get current directory.  Unable to load the app.";

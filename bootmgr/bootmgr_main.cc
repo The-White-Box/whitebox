@@ -17,6 +17,7 @@
 #include "base/threads/thread_utils.h"
 #include "base/unique_module_ptr.h"
 #include "build/build_config.h"
+#include "whitebox-kernel/whitebox_kernel_main.h"
 #ifdef WB_OS_WIN
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_pure_call_handler.h"
@@ -32,8 +33,8 @@
 #include "build/static_settings_config.h"
 #else
 #include "base/scoped_new_handler.h"
+#include "base/std_ext/filesystem_ext.h"
 #endif
-#include "whitebox-kernel/whitebox_kernel_main.h"
 
 namespace {
 /**
@@ -89,7 +90,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   const std::string kernel_path{std::get<std::string>(app_path) +
                                 "whitebox-kernel.dll"};
 #else
-  auto app_path = std::filesystem::current_path(rc);
+  auto app_path = std_ext::GetExecutableDirectory(rc);
   // TODO(dimhotepus): Show fancy UI box.
   G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
                                  "the kernel.  Please, contact authors.";
