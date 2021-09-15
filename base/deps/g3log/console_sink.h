@@ -60,6 +60,7 @@ struct ConsoleSink {
               << logEntry.get().toString() << "\033[m" << std::endl;
 #elif defined(WB_OS_WIN)
     const auto message = logEntry.get().toString();
+
     ::OutputDebugStringA(message.c_str());
 #else
 #error Please define console output sink for your platform.
