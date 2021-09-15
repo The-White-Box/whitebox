@@ -46,8 +46,11 @@ namespace wb::base::std_ext {
     std::string_view s, const char* WB_COMPILER_MSVC_RESTRICT_VAR v) noexcept {
   G3DCHECK(!!v) << "v is nullptr";
 #if WB_COMPILER_HAS_CXX20
-  return s.ends_with(v);
+  return v && s.ends_with(v);
 #else
+  if (!v) [[unlikely]] {
+    return false;
+  }
   const auto idx = s.rfind(v);
   return idx != std::string_view::npos && idx == (s.size() - std::strlen(v));
 #endif
