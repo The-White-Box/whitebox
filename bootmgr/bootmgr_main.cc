@@ -59,20 +59,20 @@ void DumpSystemInformation(const char* app_description) noexcept {
 #endif  // WB_COMPILER_GCC
 
 #if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
-  G3LOG(INFO) << app_description << ' ' << WB_PRODUCT_FILEVERSION_INFO_STRING
+  G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with " << kCompilerVersion << " on glibc " << __GLIBC__
               << "." << __GLIBC_MINOR__ << ", glibc++ " << _GLIBCXX_RELEASE
               << ", ABI stamp " << __GLIBCXX__ << ".";
 #endif
 #ifdef _LIBCPP_VERSION
-  G3LOG(INFO) << app_description << ' ' << WB_PRODUCT_FILEVERSION_INFO_STRING
+  G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with " << kCompilerVersion << " on libc++ "
               << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
 #endif
 #endif  // WB_OS_LINUX || WB_OS_MACOSX
 
 #ifdef WB_OS_WIN
-  G3LOG(INFO) << app_description << ' ' << WB_PRODUCT_FILEVERSION_INFO_STRING
+  G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with MSVC " << _MSC_FULL_VER << '.' << _MSC_BUILD
               << ".";
 #endif
