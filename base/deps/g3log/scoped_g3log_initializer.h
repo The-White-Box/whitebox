@@ -7,6 +7,7 @@
 #ifndef WB_BASE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
 #define WB_BASE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
 
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -125,7 +126,8 @@ class ScopedG3LogInitializer {
     if (std_ext::starts_with(log_prefix, '"')) {
       const size_t end_exe_double_quote_idx{log_prefix.find('"', 1U)};
       const size_t backslash_before_name_idx{
-          log_prefix.rfind('\\', end_exe_double_quote_idx)};
+          log_prefix.rfind(std::filesystem::path::preferred_separator,
+                           end_exe_double_quote_idx)};
 
       if (end_exe_double_quote_idx != std::string_view::npos &&
           backslash_before_name_idx != std::string_view::npos) {
@@ -133,6 +135,14 @@ class ScopedG3LogInitializer {
             backslash_before_name_idx + 1,
             end_exe_double_quote_idx - backslash_before_name_idx - 1);
       }
+    }
+    // Has path separator.
+    if (const size_t backslash_before_name_idx{
+            log_prefix.rfind(std::filesystem::path::preferred_separator)};
+        backslash_before_name_idx != std::string_view::npos) {
+      return log_prefix.substr(
+          backslash_before_name_idx + 1,
+          log_prefix.size() - backslash_before_name_idx - 1);
     }
     return {};
   }
