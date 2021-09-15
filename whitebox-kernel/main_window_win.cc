@@ -12,6 +12,7 @@
 #include <chrono>
 
 #include "base/deps/g3log/g3log.h"
+#include "base/deps/mimalloc/mimalloc.h"
 #include "base/win/ui/scoped_change_cursor.h"
 #include "base/win/ui/scoped_window_paint.h"
 #include "base/win/ui/task_dialog.h"
@@ -117,6 +118,8 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   return true;
 }
 
+static std::string input_data;
+
 LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
                             _In_ HRAWINPUT source_input) noexcept {
   G3DCHECK(input_code == RIM_INPUT || input_code == RIM_INPUTSINK);
@@ -135,6 +138,10 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
         if (mouse_->Handle(read_input, mouse_input)) {
           // TODO(dimhotepus): Do smth with mouse.
           is_raw_input_handled = true;
+
+          using std::to_string;
+
+          input_data = std::move(to_string(mouse_input));
         } else {
           hal::hid::KeyboardInput keyboard_input;
 
@@ -143,6 +150,10 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
                   hal::hid::KeyboardInput::kOverrunMakeCode) {
             // TODO(dimhotepus): Do smth with keyboard.
             is_raw_input_handled = true;
+
+            using std::to_string;
+
+            input_data = std::move(to_string(keyboard_input));
 
             if (keyboard_input.make_code == 0x57 &&
                 (keyboard_input.key_flags &
@@ -201,7 +212,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
       // TODO(dimhotepus): Repaint.
 
       {
-        const auto get_fps_as_float = [](auto time_between_samples) noexcept {
+        /*const auto get_fps_as_float = [](auto time_between_samples) noexcept {
           const auto elapsed_since_last_frame_mks =
               std::chrono::duration_cast<std::chrono::microseconds>(
                   time_between_samples)
@@ -216,14 +227,14 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
             render_sampling_profiler_.GetTimeBetweenLastSamples())};
 
         char fps_text[128];
-        sprintf_s(fps_text, "%.2f FPS", fps);
+        sprintf_s(fps_text, "%.2f FPS", fps);*/
 
         {
           RECT paint_rc{scoped_window_paint.PaintInfo().rcPaint};
 
-          scoped_window_paint.BlitPattern(paint_rc, WHITENESS);
+          scoped_window_paint.BlitPattern(paint_rc, BLACKNESS);
           scoped_window_paint.TextDraw(
-              fps_text, -1, &paint_rc,
+              input_data.c_str(), -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
         }
       }
