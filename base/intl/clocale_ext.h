@@ -1,0 +1,204 @@
+// Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+// Use of this source code is governed by a 3-Clause BSD license that can be
+// found in the LICENSE file.
+//
+// <clocale> extensions.
+
+#ifndef WB_BASE_INTL_CLOCALE_EXT_H_
+#define WB_BASE_INTL_CLOCALE_EXT_H_
+
+#include <clocale>
+#include <cstddef>
+#include <optional>
+#include <string>
+
+#include "base/base_macroses.h"
+#include "base/deps/g3log/g3log.h"
+
+namespace wb::base::intl {
+enum class ScopedProcessLocaleCategory : int;
+
+namespace locales {
+#ifdef WB_OS_WIN
+/**
+ * @brief Starting in Windows 10 build 17134 (April 2018 Update), the Universal
+ * C Runtime supports using a UTF-8 code page.  This means that char strings
+ * passed to C runtime functions will expect strings in the UTF-8 encoding.  For
+ * example, setlocale(LC_ALL, ".UTF8") will use the current default Windows ANSI
+ * code page (ACP) for the locale and UTF-8 for the code page.
+ */
+constexpr char kUtf8Locale[]{".UTF8"};
+#endif
+
+/**
+ * @brief Fallback locale.
+ */
+constexpr char kFallbackLocale[]{".Fallback"};
+}  // namespace locales
+}  // namespace wb::base::intl
+
+#ifdef LC_MESSAGES
+/**
+ * @brief Locale categories contain message one.
+ */
+#define WB_LOCALE_HAS_MESSAGES_CATEGORY 1
+#endif
+
+/**
+ * operator << for ScopedProcessLocaleCategory.
+ * @param s Stream.
+ * @param category Category.
+ * @return Stream with dumped category.
+ */
+inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
+    std::basic_ostream<char, std::char_traits<char>> &s,
+    wb::base::intl::ScopedProcessLocaleCategory category);
+
+namespace wb::base::intl {
+/**
+ * Locale category.
+ */
+enum class ScopedProcessLocaleCategory : int {
+  kAll = LC_ALL,
+  kCollate = LC_COLLATE,
+  kCharacterType = LC_CTYPE,
+#ifdef WB_LOCALE_HAS_MESSAGES_CATEGORY
+  kMessages = LC_MESSAGES,
+#endif
+  kMonetary = LC_MONETARY,
+  kNumeric = LC_NUMERIC,
+  kTime = LC_TIME
+};
+
+/**
+ * Scoped process locale.
+ */
+class ScopedProcessLocale {
+ public:
+  /**
+   * Creates scoped process locale.
+   * @param category Locale category.
+   * @param new_locale New locale.
+   */
+  ScopedProcessLocale(ScopedProcessLocaleCategory category,
+                      const char *new_locale) noexcept
+      : old_locale_{SetLocale(category, nullptr)},
+        new_locale_{SetLocale(category, new_locale)},
+        category_{category} {
+    G3DCHECK(!new_locale_.empty())
+        << "Locale " << new_locale << " was not set for category " << category;
+  }
+  ~ScopedProcessLocale() noexcept {
+    // For example, the sequence of calls
+    // Set all categories and return "en-US"
+    //   setlocale(LC_ALL, "en-US");
+    // Set only the LC_MONETARY category and return "fr-FR"
+    //   setlocale(LC_MONETARY, "fr-FR");
+    //   printf("%s\n", setlocale(LC_ALL, NULL));
+    // returns
+    //   LC_COLLATE=en-US;LC_CTYPE=en-US;LC_MONETARY=fr-FR;LC_NUMERIC=en-US;LC_TIME=en-US
+    //
+    // See
+    // https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2013/x99tb11d
+    G3DCHECK(old_locale_.find(";") == std::string::npos)
+        << "Old locale uses multiple locales per category, need to implemnt "
+           "locale restore.";
+
+    if (!new_locale_.empty()) {
+      G3CHECK(!!std::setlocale(underlying_cast(category_), old_locale_.c_str()))
+          << "Unable to restore old locale " << old_locale_ << " for category "
+          << category_;
+      new_locale_.clear();
+    }
+  }
+
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedProcessLocale);
+
+  /**
+   * Is new locale applied?
+   * @return true if it is, false otherwise.
+   */
+  [[nodiscard]] bool IsSucceeded() const noexcept {
+    return !new_locale_.empty();
+  }
+
+  /**
+   * Gets current locale.
+   * @return optional with current locale, nullopt when no current locale found.
+   */
+  [[nodiscard]] std::optional<std::string> GetCurrentLocale() const noexcept {
+    return !new_locale_.empty()
+               ? std::optional{new_locale_}
+               : (!old_locale_.empty() ? std::optional{old_locale_}
+                                       : std::nullopt);
+  }
+
+ private:
+  /**
+   * Old and new locale string.
+   */
+  std::string old_locale_, new_locale_;
+  /**
+   * Locale category.
+   */
+  ScopedProcessLocaleCategory category_;
+  [[maybe_unused]] std::byte pad_[sizeof(new_locale_) - sizeof(category_)];
+
+  /**
+   * Sets locale.
+   * @return New locale string.  Empty if locale not set.
+   */
+  [[nodiscard]] std::string SetLocale(ScopedProcessLocaleCategory category,
+                                      const char *new_locale) noexcept {
+    const char *locale{std::setlocale(underlying_cast(category), new_locale)};
+    G3DCHECK(locale == nullptr || locale[0] != '\0')
+        << "std::setlocale returned empty string, can't distinguish it and "
+           "error case.  Please, use some other error marker.";
+    return locale ? locale : "";
+  }
+};
+}  // namespace wb::base::intl
+
+/**
+ * operator << for ScopedProcessLocaleCategory.
+ * @param s Stream.
+ * @param category Category.
+ * @return Stream with dumped category.
+ */
+inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
+    std::basic_ostream<char, std::char_traits<char>> &s,
+    wb::base::intl::ScopedProcessLocaleCategory category) {
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kAll) {
+    return s << "All";
+  }
+
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kCollate) {
+    return s << "Collate";
+  }
+
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kCharacterType) {
+    return s << "Character Type";
+  }
+
+#ifdef WB_LOCALE_HAS_MESSAGES_CATEGORY
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kMessages) {
+    return s << "Messages";
+  }
+#endif
+
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kMonetary) {
+    return s << "Monetary";
+  }
+
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kNumeric) {
+    return s << "Numeric";
+  }
+
+  if (category == wb::base::intl::ScopedProcessLocaleCategory::kTime) {
+    return s << "Time";
+  }
+
+  return s;
+}
+
+#endif  // !WB_BASE_INTL_CLOCALE_EXT_H_

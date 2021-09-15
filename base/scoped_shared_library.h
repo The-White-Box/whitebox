@@ -2,15 +2,14 @@
 // Use of this wb code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Unique pointer for system module.
+// Wrapper for shared library.
 
-#ifndef WB_BASE_UNIQUE_MODULE_PTR_H_
-#define WB_BASE_UNIQUE_MODULE_PTR_H_
+#ifndef WB_BASE_SCOPED_SHARED_LIBRARY_H_
+#define WB_BASE_SCOPED_SHARED_LIBRARY_H_
 
 #include <cstdint>
 #include <memory>
 #include <string>
-#include <tuple>
 
 #include "base/deps/g3log/g3log.h"
 #include "base/std_ext/system_error_ext.h"
@@ -58,7 +57,7 @@ struct alignas(void *) MODULE_ {
  */
 using module_descriptor = MODULE_;
 #else  // WB_OS_POSIX
-#error Please add module descriptor support for your platform in base/unique_module_ptr.h
+#error Please add shared library descriptor support for your platform.
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
 }  // namespace wb::base
 
@@ -86,7 +85,7 @@ struct default_delete<wb::base::module_descriptor> {
   }
 };
 #else  // WB_OS_POSIX
-#error Please add module default_delete support for your platform in base/unique_module_ptr.h
+#error Please add shared library default_delete support for your platform.
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
 }  // namespace std
 
@@ -104,7 +103,7 @@ using function_pointer_concept =
  * @brief Smart pointer with std::unique_ptr semantic for module lifecycle
  * handling.
  */
-class unique_module_ptr : private std::unique_ptr<module_descriptor> {
+class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
   // Define std::unique_ptr members to simplify usage.
   using std::unique_ptr<module_descriptor,
                         std::default_delete<module_descriptor>>::unique_ptr;
@@ -114,25 +113,25 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
   using std::unique_ptr<module_descriptor,
                         std::default_delete<module_descriptor>>::operator bool;
 
-  unique_module_ptr(unique_module_ptr &&p) = default;
-  unique_module_ptr &operator=(unique_module_ptr &&p) = default;
+  ScopedSharedLibrary(ScopedSharedLibrary &&p) = default;
+  ScopedSharedLibrary &operator=(ScopedSharedLibrary &&p) = default;
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(unique_module_ptr);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedSharedLibrary);
 
 #ifdef WB_OS_WIN
   /**
-   * @brief Loads library with flags and gets (unique_module_ptr, error_code).
+   * @brief Loads library with flags and gets (ScopedSharedLibrary, error_code).
    * @param library_name Library path.
    * @param load_flags Library load flags.
-   * @return (unique_module_ptr, error_code).
+   * @return (ScopedSharedLibrary, error_code).
    */
-  [[nodiscard]] static std_ext::os_res<unique_module_ptr> FromLibraryOnPath(
+  [[nodiscard]] static std_ext::os_res<ScopedSharedLibrary> FromLibraryOnPath(
       _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
-    return library != nullptr ? std_ext::os_res<unique_module_ptr>(
-                                    std::move(unique_module_ptr{library}))
-                              : std_ext::os_res<unique_module_ptr>(
+    return library != nullptr ? std_ext::os_res<ScopedSharedLibrary>(
+                                    std::move(ScopedSharedLibrary{library}))
+                              : std_ext::os_res<ScopedSharedLibrary>(
                                     wb::base::windows::GetErrorCode(library));
   }
 
@@ -158,19 +157,19 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
   }
 #elif defined(WB_OS_POSIX)
   /**
-   * @brief Loads library with flags and gets (unique_module_ptr, error_code).
+   * @brief Loads library with flags and gets (ScopedSharedLibrary, error_code).
    * @param library_path Library path.
    * @param load_flags Library load flags.
-   * @return (unique_module_ptr, error_code).
+   * @return (ScopedSharedLibrary, error_code).
    */
-  [[nodiscard]] static std_ext::os_res<unique_module_ptr> FromLibraryOnPath(
+  [[nodiscard]] static std_ext::os_res<ScopedSharedLibrary> FromLibraryOnPath(
       const std::string &library_path, int load_flags) noexcept {
     void *library{::dlopen(library_path.c_str(), load_flags)};
     return library != nullptr
-               ? std_ext::os_res<unique_module_ptr>(
-                     unique_module_ptr{reinterpret_cast<MODULE_ *>(library)})
+               ? std_ext::os_res<ScopedSharedLibrary>(
+                     ScopedSharedLibrary{reinterpret_cast<MODULE_ *>(library)})
                // Decided to use EINVAL here as likely args invalid or no DLL.
-               : std_ext::os_res<unique_module_ptr>(
+               : std_ext::os_res<ScopedSharedLibrary>(
                      std_ext::GetThreadErrorCode(EINVAL));
   }
 
@@ -185,9 +184,9 @@ class unique_module_ptr : private std::unique_ptr<module_descriptor> {
                : std_ext::os_res<T>(std_ext::GetThreadErrorCode());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
-#error Please add module default_delete support for your platform in base/unique_module_ptr.h
+#error Please add shared library support for your platform.
 #endif  // WB_OS_WIN
 };
 }  // namespace wb::base
 
-#endif  // WB_BASE_UNIQUE_MODULE_PTR_H_
+#endif  // WB_BASE_SCOPED_SHARED_LIBRARY_H_

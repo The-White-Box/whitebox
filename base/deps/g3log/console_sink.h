@@ -36,6 +36,11 @@ struct ConsoleSink {
     kDefault = 39
   };
 
+  /**
+   * @brief Gets terminal foreground color by level.
+   * @param level Log level.
+   * @return Terminal foreground color.
+   */
   ForegroundColor GetColor(const LEVELS level) const {
     if (level.value == WARNING.value) {
       return ForegroundColor::kYellow;
@@ -51,6 +56,10 @@ struct ConsoleSink {
   }
 #endif
 
+  /**
+   * @brief Receives and processes log message.
+   * @param logEntry Log message.
+   */
   void ReceiveLogMessage(g3::LogMessageMover logEntry) const {
 #ifdef WB_OS_POSIX
     const auto level = logEntry.get()._level;

@@ -230,8 +230,16 @@ endif()
 
 ## Include sub-projects.
 # Dependencies.
-add_subdirectory("deps/g3log")
+add_subdirectory("deps/fmt")
+if (WB_COMPILER_MSVC)
+  # Prevent MSVC warning C4530: C++ exception handler used, but unwind
+  # semantics are not enabled.  Specify /EHsc.
+  target_compile_options(fmt PRIVATE /EHsc)
+  # Prevent MSVC linker warning as error for __except + /guard:ehcont.
+  target_compile_options(fmt PRIVATE /guard:ehcont)
+endif()
 
+add_subdirectory("deps/g3log")
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
   # semantics are not enabled.  Specify /EHsc.
@@ -307,6 +315,7 @@ foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
   if (NOT ${WB_TARGET_NAME} MATCHES "clean-cmake" AND
+      NOT ${WB_TARGET_NAME} MATCHES "fmt" AND
       NOT ${WB_TARGET_NAME} MATCHES "genfiles" AND
       NOT ${WB_TARGET_NAME} MATCHES "genprebuilt" AND
       NOT ${WB_TARGET_NAME} MATCHES "gensym" AND

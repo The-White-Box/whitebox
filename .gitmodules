@@ -13,3 +13,6 @@
 [submodule "deps/sdl_image"]
 	path = deps/sdl_image
 	url = git@github.com:The-White-Box/SDL_image.git
+[submodule "deps/fmt"]
+	path = deps/fmt
+	url = git@github.com:The-White-Box/fmt.git

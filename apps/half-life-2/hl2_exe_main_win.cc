@@ -9,7 +9,7 @@
 
 #include "base/base_switches.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
-#include "base/unique_module_ptr.h"
+#include "base/scoped_shared_library.h"
 #include "base/win/com/scoped_com_fatal_exception_handler.h"
 #include "base/win/com/scoped_com_initializer.h"
 #include "base/win/com/scoped_com_strong_unmarshalling_policy.h"
@@ -74,11 +74,10 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
            : 0U)};
 
   const auto bootmgr_load_result =
-      unique_module_ptr::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
+      ScopedSharedLibrary::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
   if (const auto* bootmgr_module =
           std_ext::GetSuccessResult(bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
-
     constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
 
     // Good, try to find and launch bootmgr.

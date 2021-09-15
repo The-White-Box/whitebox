@@ -115,22 +115,23 @@ struct DialogBoxSettings {
    * @param is_cancellable_ Is cancel button available?
    * @return nothing.
    */
-  DialogBoxSettings(_In_opt_ HWND parent_window_, std::string title_,
-                    std::string main_instruction_, std::string content_,
-                    std::string expanded_control_text_,
-                    std::string collapsed_control_text_,
-                    std::string expand_collapse_content_,
-                    std::string footer_text_, DialogBoxButton buttons_,
+  DialogBoxSettings(_In_opt_ HWND parent_window_, const std::string &title_,
+                    const std::string &main_instruction_,
+                    const std::string &content_,
+                    const std::string &expanded_control_text_,
+                    const std::string &collapsed_control_text_,
+                    const std::string &expand_collapse_content_,
+                    const std::string &footer_text_, DialogBoxButton buttons_,
                     int main_icon_id_, int small_icon_id_,
                     bool rtl_layout_) noexcept
       : parent_window{parent_window_},
-        title{std::move(title_)},
-        main_instruction{std::move(main_instruction_)},
-        content{std::move(content_)},
-        expanded_control_text{std::move(expanded_control_text_)},
-        collapsed_control_text{std::move(collapsed_control_text_)},
-        expand_collapse_content{std::move(expand_collapse_content_)},
-        footer_text{std::move(footer_text_)},
+        title{title_},
+        main_instruction{main_instruction_},
+        content{content_},
+        expanded_control_text{expanded_control_text_},
+        collapsed_control_text{collapsed_control_text_},
+        expand_collapse_content{expand_collapse_content_},
+        footer_text{footer_text_},
         buttons{buttons_},
         main_icon_id{main_icon_id_},
         small_icon_id{small_icon_id_},
@@ -143,31 +144,31 @@ struct DialogBoxSettings {
   /**
    * @brief Title.
    */
-  const std::string title;
+  const std::string &title;
   /**
    * @brief Main instruction.
    */
-  const std::string main_instruction;
+  const std::string &main_instruction;
   /**
    * @brief Content.
    */
-  const std::string content;
+  const std::string &content;
   /**
    * @brief Expanded toggle control text.
    */
-  const std::string expanded_control_text;
+  const std::string &expanded_control_text;
   /**
    * @brief Collapsed toggle control text.
    */
-  const std::string collapsed_control_text;
+  const std::string &collapsed_control_text;
   /**
    * @brief Expand control content when toggle expanded.
    */
-  const std::string expand_collapse_content;
+  const std::string &expand_collapse_content;
   /**
    * @brief Footer text.
    */
-  const std::string footer_text;
+  const std::string &footer_text;
   /**
    * @brief Buttons.
    */

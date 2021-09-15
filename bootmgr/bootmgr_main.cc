@@ -11,11 +11,14 @@
 #include "app_version_config.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
+#include "base/intl/clocale_ext.h"
+#include "base/intl/lookup.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_process_unexpected_handler.h"
+#include "base/scoped_shared_library.h"
+#include "base/std_ext/filesystem_ext.h"
 #include "base/threads/thread_utils.h"
-#include "base/unique_module_ptr.h"
 #include "build/build_config.h"
 #include "whitebox-kernel/whitebox_kernel_main.h"
 #ifdef WB_OS_WIN
@@ -33,8 +36,6 @@
 #include "build/static_settings_config.h"
 #else
 #include "base/scoped_new_handler.h"
-#include "base/std_ext/clocale_ext.h"
-#include "base/std_ext/filesystem_ext.h"
 #endif
 
 namespace {
@@ -58,24 +59,75 @@ void DumpSystemInformation(const char* app_description) noexcept {
 #endif  // WB_COMPILER_GCC
 
 #if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
-  G3LOG(INFO) << app_description << " build with " << kCompilerVersion
-              << " on glibc " << __GLIBC__ << "." << __GLIBC_MINOR__
-              << ", glibc++ " << _GLIBCXX_RELEASE << ", ABI stamp "
-              << __GLIBCXX__ << ".";
+  G3LOG(INFO) << app_description << ' ' << WB_PRODUCT_FILEVERSION_INFO_STRING
+              << " build with " << kCompilerVersion << " on glibc " << __GLIBC__
+              << "." << __GLIBC_MINOR__ << ", glibc++ " << _GLIBCXX_RELEASE
+              << ", ABI stamp " << __GLIBCXX__ << ".";
 #endif
 #ifdef _LIBCPP_VERSION
-  G3LOG(INFO) << bootmgr_args.app_description << " build with "
-              << kCompilerVersion << " on libc++ " << _LIBCPP_VERSION
-              << "/ ABI " << _LIBCPP_ABI_VERSION;
+  G3LOG(INFO) << app_description << ' ' << WB_PRODUCT_FILEVERSION_INFO_STRING
+              << " build with " << kCompilerVersion << " on libc++ "
+              << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
 #endif
 #endif  // WB_OS_LINUX || WB_OS_MACOSX
 
 #ifdef WB_OS_WIN
-  const std::string kCompilerVersion{std::to_string(_MSC_FULL_VER) + "." +
-                                     std::to_string(_MSC_BUILD)};
-  G3LOG(INFO) << bootmgr_args.app_description << " build with "
-              << kCompilerVersion << ".";
+  G3LOG(INFO) << app_description << ' ' << WB_PRODUCT_FILEVERSION_INFO_STRING
+              << " build with MSVC " << _MSC_FULL_VER << '.' << _MSC_BUILD
+              << ".";
 #endif
+}
+
+/**
+ * @brief Creates internationalization lookup.
+ * @param user_locale User locale.
+ * @return Internationalization lookup.
+ */
+[[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
+    const std::string& user_locale) noexcept {
+  auto intl_lookup_result{
+      wb::base::intl::LookupWithFallback::New({user_locale})};
+  auto intl_lookup =
+      std::get_if<wb::base::intl::LookupWithFallback>(&intl_lookup_result);
+
+  G3LOG_IF(FATAL, !intl_lookup)
+      << "Unable to create localization strings lookup for locale "
+      << user_locale << ".";
+  return std::move(*intl_lookup);
+}
+
+/**
+ * @brief Shows fatal error box and exits.
+ * @param rc Error code for technical details.
+ * @param intl Localization lookup.
+ * @param main_instruction_message Main instruction message.
+ * @param content_message Content message.
+ * @param main_icon_id Main icon id for error box.
+ * @param small_icon_id Small icon id for error box.
+ * @return
+ */
+[[noreturn]] void FatalErrorBox(std::error_code rc,
+                                wb::base::intl::LookupWithFallback& intl,
+                                const std::string& main_instruction_message,
+                                const std::string& content_message,
+                                int main_icon_id, int small_icon_id) noexcept {
+  using namespace wb::base;
+  using namespace wb::base::windows;
+
+  const std::string technical_details{rc.message()};
+  const bool rtl_layout{intl.Layout() ==
+                        intl::Lookup::StringLayout::RightToLeft};
+
+  ui::DialogBoxSettings dialog_settings(
+      nullptr, intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+      main_instruction_message, content_message,
+      intl.String(intl::message_ids::kHideTechnicalDetails),
+      intl.String(intl::message_ids::kSeeTechnicalDetails), technical_details,
+      intl.String(intl::message_ids::kNudgeAuthorsLink),
+      ui::DialogBoxButton::kOk, main_icon_id, small_icon_id, rtl_layout);
+  ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
+
+  G3PLOG_E(FATAL, rc) << main_instruction_message;
 }
 
 /**
@@ -113,28 +165,27 @@ void BootHeapMemoryAllocator() noexcept {
 /**
  * @brief Load and run kernel.
  * @param bootmgr_args Boot manager args.
+ * @param intl Localization lookup.
  * @return App exit code.
  */
-int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args,
+                  wb::base::intl::LookupWithFallback& intl) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
+  auto app_path = std_ext::GetExecutableDirectory(rc);
+  if (rc) [[unlikely]] {
+    FatalErrorBox(
+        rc, intl,
+        intl.String(
+            intl::message_ids::kCantGetExecutableDirectoryForBootManager),
+        intl.String(intl::message_ids::kPleaseNudgeAuthors),
+        bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
+  }
 
 #ifdef WB_OS_WIN
-  const auto app_path = windows::GetApplicationDirectory(bootmgr_args.instance);
-  // TODO(dimhotepus): Show fancy UI box.
-  G3PLOGE_IF(FATAL, !!std_ext::GetErrorCode(app_path),
-             *std_ext::GetErrorCode(app_path))
-      << "Can't get current directory.  Unable to load "
-         "the kernel.  Please, contact authors.";
-
-  const std::string kernel_path{std::get<std::string>(app_path) +
-                                "whitebox-kernel.dll"};
+  const std::string kernel_path{(app_path /= "whitebox-kernel.dll").string()};
 #else
-  auto app_path = std_ext::GetExecutableDirectory(rc);
-  // TODO(dimhotepus): Show fancy UI box.
-  G3PLOGE_IF(FATAL, !!rc, rc) << "Can't get current directory.  Unable to load "
-                                 "the kernel.  Please, contact authors.";
   app_path /= "libwhitebox-kernel.so." WB_PRODUCT_VERSION_INFO_STRING;
 
   const std::string kernel_path{app_path.string()};
@@ -151,9 +202,9 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
 #endif
 
   const auto kernel_load_result =
-      unique_module_ptr::FromLibraryOnPath(kernel_path, kernel_load_flags);
-  if (const auto* kernel_module =
-          std_ext::GetSuccessResult(kernel_load_result)) {
+      ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
+  if (const auto* kernel_module = std_ext::GetSuccessResult(kernel_load_result))
+      [[likely]] {
     using KernelMainFunction = decltype(&KernelMain);
     constexpr char kKernelMainFunctionName[]{"KernelMain"};
 
@@ -161,8 +212,8 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
     const auto kernel_main_result =
         kernel_module->GetAddressAs<KernelMainFunction>(
             kKernelMainFunctionName);
-    if (const auto* kernel_main =
-            std_ext::GetSuccessResult(kernel_main_result)) {
+    if (const auto* kernel_main = std_ext::GetSuccessResult(kernel_main_result))
+        [[likely]] {
 #ifdef WB_OS_WIN
       return (*kernel_main)(
           {bootmgr_args.instance, bootmgr_args.app_description,
@@ -174,20 +225,19 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
 #endif
     }
 
-    // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(kernel_main_result);
-    G3PLOG_E(WARNING, rc)
-        << "Can't get '" << kKernelMainFunctionName << "' entry point from '"
-        << kernel_path
-        << "'.  Looks like app is broken, please, reinstall the one.";
+    FatalErrorBox(std::get<std::error_code>(kernel_main_result), intl,
+                  intl.String(intl::message_ids::kPleaseReinstallTheGame),
+                  intl.StringFormat(intl::message_ids::kCantGetKernelEntryPoint,
+                                    fmt::make_format_args(
+                                        kKernelMainFunctionName, kernel_path)),
+                  bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
   } else {
-    // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(kernel_load_result);
-    G3PLOG_E(WARNING, rc) << "Can't load whitebox kernel '" << kernel_path
-                          << "'.  Please, reinstall the app.";
+    FatalErrorBox(std::get<std::error_code>(kernel_load_result), intl,
+                  intl.String(intl::message_ids::kPleaseReinstallTheGame),
+                  intl.StringFormat(intl::message_ids::kCantLoadKernelFrom,
+                                    fmt::make_format_args(kernel_path)),
+                  bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
   }
-
-  return rc.value();
 }
 }  // namespace
 
@@ -202,13 +252,19 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
 
   DumpSystemInformation(bootmgr_args.app_description);
 
+  // Start with specifying UTF-8 locale for all data.
+  const intl::ScopedProcessLocale scoped_process_locale{
+      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
+  const std::string& user_locale{
+      scoped_process_locale.GetCurrentLocale().value_or(
+          intl::locales::kFallbackLocale)};
+  G3LOG(INFO) << bootmgr_args.app_description << " using " << user_locale
+              << " locale for UI.";
+
+  auto intl = CreateIntl(user_locale);
+
 #ifdef WB_OS_WIN
   using namespace wb::base::windows;
-
-  // TODO(dimhotepus): Localize.
-  constexpr char kBootmgrDialogTitle[]{"Boot Manager - Error"};
-  constexpr char kSeeTechDetails[]{"See techical details"};
-  constexpr char kHideTechDetails[]{"Hide techical details"};
 
   // Requires Windows Version 1903+ for UTF-8 process code page.
   //
@@ -219,26 +275,10 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
   if (windows::GetVersion() < windows::Version::WIN10_19H1) [[unlikely]] {
-    constexpr char kOldWindowsVersionError[]{
-        "Windows version is too old.  Version 1903 (May 2019 Update) or "
-        "greater is required."};
-    constexpr DWORD kOldWindowsVersionErrorCode{ERROR_OLD_WIN_VERSION};
-
-    ui::DialogBoxSettings dialog_settings(
-        nullptr, kBootmgrDialogTitle,
-        "Update Windows to \"Version 1903 (May 2019 Update)\" or greater",
-        kOldWindowsVersionError, kHideTechDetails, kSeeTechDetails,
-        std_ext::GetThreadErrorCode(kOldWindowsVersionErrorCode).message(),
-        wb::build::settings::ui::error_dialog::kFooterLink,
-        ui::DialogBoxButton::kOk, bootmgr_args.main_icon_id,
-        bootmgr_args.small_icon_id, false);
-    ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
-
-    G3PLOG_E(FATAL, std::error_code(kOldWindowsVersionErrorCode,
-                                    std::system_category()))
-        << kOldWindowsVersionError;
-
-    return kOldWindowsVersionErrorCode;
+    FatalErrorBox(std_ext::GetThreadErrorCode(ERROR_OLD_WIN_VERSION), intl,
+                  intl.String(intl::message_ids::kPleaseUpdateWindowsVersion),
+                  intl.String(intl::message_ids::kWindowsVersionIsTooOld),
+                  bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
   }
 
   // Enable process attacks mitigation policies in scope.
@@ -264,12 +304,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   const memory::ScopedNewMode scoped_new_mode{
       memory::ScopedNewModeFlag::CallNew};
 #else
-  const std_ext::ScopedProcessLocale scoped_process_locale{
-      std_ext::ScopedProcessLocaleCategory::kAll, ""};
-  G3LOG(INFO) << bootmgr_args.app_description << " using "
-              << scoped_process_locale.GetCurrentLocale().value_or("Unknown")
-              << " locale.";
-
   // Handle new allocation failure.
   const ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler};
 #endif
@@ -321,11 +355,13 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     // Signal Multimedia Class Scheduler Service we have game thread here, so
     // utilize as much of the CPU as possible without denying CPU resources to
     // lower-priority applications.
-    // TODO(dimhotepus): Add more tasks when we add more possibilities?
     const windows::mmcss::ScopedMmcssThreadTask game_task{
         windows::mmcss::KnownScopedMmcssThreadTaskName::kGames};
+    const windows::mmcss::ScopedMmcssThreadTask playback_task{
+        windows::mmcss::KnownScopedMmcssThreadTaskName::kPlayback};
     const auto scoped_mmcss_thread_controller =
-        windows::mmcss::ScopedMmcssThreadController::New(game_task, game_task);
+        windows::mmcss::ScopedMmcssThreadController::New(game_task,
+                                                         playback_task);
     if (const auto* controller = std_ext::GetSuccessResult(
             scoped_mmcss_thread_controller)) [[likely]] {
       const auto responsiveness_percent =
@@ -342,8 +378,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
                "Class Scheduler Service for the main app thread.";
       }
 
-      // TODO(dimhotepus): Main thread still does a lot of work.  Need to split
-      // it.
       const auto bump_thread_priority_rc = controller->SetPriority(
           windows::mmcss::ScopedMmcssThreadPriority::kHigh);
       G3PLOGE_IF(WARNING, !!bump_thread_priority_rc, bump_thread_priority_rc)
@@ -359,5 +393,5 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   }
 #endif
 
-  return KernelStartup(bootmgr_args);
+  return KernelStartup(bootmgr_args, intl);
 }
