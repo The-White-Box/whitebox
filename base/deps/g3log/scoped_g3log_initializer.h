@@ -22,6 +22,7 @@
 #include <intrin.h>  // __debugbreak
 #endif
 
+#include "console_sink.h"
 #include "g3log.h"
 #include "logworker.h"
 
@@ -40,7 +41,9 @@ class ScopedG3LogInitializer {
                          const std::string& path_to_log_file)
       : log_worker_{g3::LogWorker::createLogWorker()},
         file_sink_handle_{log_worker_->addDefaultLogger(
-            GetExecutableNameFromLogPrefix(log_prefix), path_to_log_file, "")} {
+            GetExecutableNameFromLogPrefix(log_prefix), path_to_log_file, "")},
+        console_sink_handle_{log_worker_->addSink(
+            std::make_unique<ConsoleSink>(), &ConsoleSink::ReceiveLogMessage)} {
     /** Should be called at very first startup of the software with \ref
      * g3LogWorker pointer. Ownership of the \ref g3LogWorker is the
      * responsibility of the caller */
@@ -106,6 +109,10 @@ class ScopedG3LogInitializer {
    * @brief File sink handle.
    */
   wb::base::un<g3::FileSinkHandle> file_sink_handle_;
+  /**
+   * @brief Console sink handle.
+   */
+  wb::base::un<g3::SinkHandle<ConsoleSink>> console_sink_handle_;
 
   /**
    * @brief Extracts full executable name from log prefix.
