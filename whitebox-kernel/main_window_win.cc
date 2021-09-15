@@ -41,6 +41,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
     _In_ HWND window, _In_ CREATESTRUCT *create_struct) noexcept {
   G3DCHECK(!!window);
 
+  using namespace wb::base;
   using namespace wb::base::windows;
 
   // We are loading.
@@ -60,7 +61,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Mouse is ready.
     auto mouse_result = hal::hid::Mouse::New(window);
-    if (auto *mouse = wb::base::std_ext::GetSuccessResult(mouse_result)) {
+    if (auto *mouse = std_ext::GetSuccessResult(mouse_result)) {
       mouse_.swap(*mouse);
     } else {
       const auto rc = std::get<std::error_code>(mouse_result);
@@ -83,7 +84,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Keyboard is ready.
     auto keyboard_result = hal::hid::Keyboard::New(window);
-    if (auto *keyboard = wb::base::std_ext::GetSuccessResult(keyboard_result)) {
+    if (auto *keyboard = std_ext::GetSuccessResult(keyboard_result)) {
       keyboard_.swap(*keyboard);
     } else {
       const auto rc = std::get<std::error_code>(keyboard_result);
@@ -201,14 +202,19 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
 void MainWindow::OnPaint(_In_ HWND window) noexcept {
   G3DCHECK(!!window);
 
+  using namespace wb::base;
+
   render_sampling_profiler_.Sample();
 
   {
-    wb::base::windows::ui::ScopedWindowPaint scoped_window_paint{window};
+    auto scoped_window_paint_result =
+        windows::ui::ScopedWindowPaint::New(window);
 
     using namespace std::chrono_literals;
 
-    if (is_window_active_ && !::IsIconic(window)) {
+    if (const auto *scoped_window_paint =
+            std_ext::GetSuccessResult(scoped_window_paint_result);
+        scoped_window_paint && is_window_active_ && !::IsIconic(window)) {
       // TODO(dimhotepus): Repaint.
 
       {
@@ -230,10 +236,10 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
         sprintf_s(fps_text, "%.2f FPS", fps);*/
 
         {
-          RECT paint_rc{scoped_window_paint.PaintInfo().rcPaint};
+          RECT paint_rc{scoped_window_paint->PaintInfo().rcPaint};
 
-          scoped_window_paint.BlitPattern(paint_rc, BLACKNESS);
-          scoped_window_paint.TextDraw(
+          scoped_window_paint->BlitPattern(paint_rc, BLACKNESS);
+          scoped_window_paint->TextDraw(
               input_data.c_str(), -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
         }

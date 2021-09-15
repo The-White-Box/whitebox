@@ -30,6 +30,7 @@ WB_BASE_API bool MoveWindowToItsDisplayCenter(
 
   const HMONITOR monitor{::MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY)};
   G3DCHECK(!!monitor);
+  if (!monitor) return false;
 
   MONITORINFO mi{.cbSize = static_cast<DWORD>(sizeof(mi))};
   is_ok = !!::GetMonitorInfoA(monitor, &mi);

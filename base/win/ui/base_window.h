@@ -76,7 +76,7 @@ class WB_BASE_API BaseWindow {
   /**
    * @brief Show window with flags.
    * @param flags Flags.
-   * @return true if window was visible, 0 otherwise.
+   * @return true if window was visible, false otherwise.
    */
   bool Show(int flags) const noexcept;
 

@@ -50,7 +50,7 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
    * @param format Text format flags.
    * @return Height of the drawn text in logical units.
    */
-  int TextDraw(LPCSTR text, int size, RECT* rc, UINT format) noexcept {
+  int TextDraw(LPCSTR text, int size, RECT* rc, UINT format) const noexcept {
     G3DCHECK(!!device_context_);
     G3DCHECK(!!rc);
 
@@ -70,7 +70,8 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
    * @param raster_operation Raster operation code.
    * @return true on success, false otherwise.
    */
-  bool BlitPattern(const RECT& rc, unsigned long raster_operation) noexcept {
+  bool BlitPattern(const RECT& rc,
+                   unsigned long raster_operation) const noexcept {
     G3DCHECK(!!device_context_);
 
     const bool is_succeeded{::PatBlt(device_context_, rc.left, rc.bottom,
@@ -89,6 +90,14 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
     return paint_struct_;
   }
 
+  /**
+   * @brief Is window device context creation succeeded?
+   * @return true if succeeded, false otherwise.
+   */
+  [[nodiscard]] bool IsSucceeded() const noexcept {
+    return device_context_ != nullptr;
+  }
+
  private:
   /**
    * @brief Window.
@@ -104,18 +113,30 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
   PAINTSTRUCT paint_struct_;
 };
 
+[[nodiscard]] std_ext::os_res<ScopedWindowPaint> ScopedWindowPaint::New(
+    _In_ HWND window) noexcept {
+  ScopedWindowPaint scoped_window_paint{window};
+  return scoped_window_paint.impl_->IsSucceeded()
+             ? std_ext::os_res<ScopedWindowPaint>{std::move(
+                   scoped_window_paint)}
+             : std_ext::os_res<ScopedWindowPaint>{std::error_code{
+                   (int)ERROR_DC_NOT_FOUND, std::system_category()}};
+}
+
 ScopedWindowPaint::ScopedWindowPaint(_In_ HWND window) noexcept
     : impl_{std::make_unique<ScopedWindowPaintImpl>(window)} {}
+
+ScopedWindowPaint::ScopedWindowPaint(ScopedWindowPaint&& p) noexcept
+    : impl_{std::move(p.impl_)} {}
 
 ScopedWindowPaint::~ScopedWindowPaint() = default;
 
 int ScopedWindowPaint::TextDraw(const char* text, int size, RECT* rc,
-                                unsigned format) noexcept {
+                                unsigned format) const noexcept {
   return impl_->TextDraw(text, size, rc, format);
 }
 
-bool ScopedWindowPaint::BlitPattern(const RECT& rc,
-                                    unsigned long raster_operation) noexcept {
+bool ScopedWindowPaint::BlitPattern(const RECT& rc, unsigned long raster_operation) const noexcept {
   return impl_->BlitPattern(rc, raster_operation);
 }
 

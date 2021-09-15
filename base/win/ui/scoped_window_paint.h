@@ -9,6 +9,7 @@
 
 #include "base/base_api.h"
 #include "base/base_macroses.h"
+#include "base/std_ext/system_error_ext.h"
 #include "build/compiler_config.h"
 
 using HWND = struct HWND__*;
@@ -22,12 +23,17 @@ namespace wb::base::windows::ui {
 class WB_BASE_API ScopedWindowPaint {
  public:
   /**
-   * @brief Creates scoped paint window context.
-   * @param window Window to paint on.
-   * @return nothing.
+   * @brief Creates scoped window painter.
+   * @param window Window.
+   * @return ScopedWindowPaint.
    */
-  explicit ScopedWindowPaint(_In_ HWND window) noexcept;
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);
+  [[nodiscard]] static std_ext::os_res<ScopedWindowPaint> New(
+      _In_ HWND window) noexcept;
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);
+
+  ScopedWindowPaint(ScopedWindowPaint&&) noexcept;
+  ScopedWindowPaint& operator=(ScopedWindowPaint&&) noexcept = delete;
 
   /**
    * @brief Closes painting device.
@@ -42,7 +48,8 @@ class WB_BASE_API ScopedWindowPaint {
    * @param format Text format flags.
    * @return Height of the drawn text in logical units.
    */
-  int TextDraw(const char* text, int size, RECT* rc, unsigned format) noexcept;
+  int TextDraw(const char* text, int size, RECT* rc,
+               unsigned format) const noexcept;
 
   /**
    * @brief Paints the specified rectangle using the brush that is currently
@@ -53,7 +60,8 @@ class WB_BASE_API ScopedWindowPaint {
    * @param raster_operation Raster operation code.
    * @return true on success, false otherwise.
    */
-  bool BlitPattern(const RECT& rc, unsigned long raster_operation) noexcept;
+  bool BlitPattern(const RECT& rc,
+                   unsigned long raster_operation) const noexcept;
 
   /**
    * @brief Paint information.
@@ -73,6 +81,13 @@ class WB_BASE_API ScopedWindowPaint {
      */
     wb::base::un<ScopedWindowPaintImpl> impl_;
   WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+
+  /**
+   * @brief Creates scoped paint window context.
+   * @param window Window to paint on.
+   * @return nothing.
+   */
+  explicit ScopedWindowPaint(_In_ HWND window) noexcept;
 };
 }  // namespace wb::base::windows::ui
 
