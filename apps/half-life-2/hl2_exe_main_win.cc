@@ -4,7 +4,6 @@
 //
 // The entry point for windows Half-Life 2 process.
 
-#include <filesystem>
 #include <system_error>
 
 #include "base/base_switches.h"
