@@ -8,7 +8,7 @@
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
 #include "base/std_ext/filesystem_ext.h"
-#include "base/unique_module_ptr.h"
+#include "base/scoped_shared_library.h"
 #include "bootmgr/bootmgr_main.h"
 #include "build/static_settings_config.h"
 
@@ -34,7 +34,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   const std::string boot_manager_path{app_path.string()};
   const int boot_manager_load_flags{RTLD_LAZY | RTLD_LOCAL};
 
-  const auto boot_manager_load_result = unique_module_ptr::FromLibraryOnPath(
+  const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_load_flags);
   if (const auto* boot_manager_module =
           std_ext::GetSuccessResult(boot_manager_load_result)) {

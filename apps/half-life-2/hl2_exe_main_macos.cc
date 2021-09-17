@@ -24,7 +24,7 @@
 
 #include "app_version_config.h"
 #include "base/deps/sdl/message_box.h"
-#include "base/unique_module_ptr.h"
+#include "base/scoped_shared_library.h"
 #include "bootmgr/boot_manager_main.h"
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
@@ -66,7 +66,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   using namespace wb::base;
 
-  const auto boot_manager_load_result = unique_module_ptr::FromLibraryOnPath(
+  const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
       framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
   if (const auto* rc = std_ext::GetErrorCode(boot_manager_load_result))
       [[unlikely]] {
@@ -75,7 +75,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   }
 
   const auto boot_manager_module =
-      std::get<unique_module_ptr>(boot_manager_load_result);
+      std::get<ScopedSharedLibrary>(boot_manager_load_result);
   constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
 
   using BootManagerMainFunction = decltype(&BootmgrMain);
