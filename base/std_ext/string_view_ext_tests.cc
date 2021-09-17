@@ -7,7 +7,7 @@
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
 #else
-#include <signal.h>  // SIGABRT
+#include <signal.h>  // SIGTRAP
 #endif
 
 #include "base/deps/googletest/gtest/gtest.h"
@@ -96,9 +96,9 @@ GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 #ifdef WB_OS_WIN
   EXPECT_EXIT((void)!!ends_with("", nullptr),
-              testing::ExitedWithCode(STATUS_BREAKPOINT), "");
+              testing::ExitedWithCode(STATUS_ACCESS_VIOLATION), "");
   EXPECT_EXIT((void)!!ends_with("a", nullptr),
-              testing::ExitedWithCode(STATUS_BREAKPOINT), "");
+              testing::ExitedWithCode(STATUS_ACCESS_VIOLATION), "");
 #else
   [[maybe_unused]] volatile bool ensure_result_used;
 
