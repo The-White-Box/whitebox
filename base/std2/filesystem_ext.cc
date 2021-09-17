@@ -15,9 +15,9 @@
 #include "base/win/windows_light.h"
 #endif
 
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 
-namespace wb::base::std_ext {
+namespace wb::base::std2 {
 #ifdef WB_OS_POSIX
 /**
  * Gets path to invoking executable.

@@ -4,8 +4,8 @@
 //
 // <string_view> extensions.
 
-#ifndef WB_BASE_STD_EXT_STRING_VIEW_EXT_H_
-#define WB_BASE_STD_EXT_STRING_VIEW_EXT_H_
+#ifndef WB_BASE_STD2_STRING_VIEW_EXT_H_
+#define WB_BASE_STD2_STRING_VIEW_EXT_H_
 
 #include <cstring>  // std::strlen
 #include <string_view>
@@ -13,7 +13,7 @@
 #include "base/deps/g3log/g3log.h"
 #include "build/compiler_config.h"
 
-namespace wb::base::std_ext {
+namespace wb::base::std2 {
 /**
  * Is string_view starts with character.
  * @param s string_view.
@@ -55,6 +55,6 @@ namespace wb::base::std_ext {
   return idx != std::string_view::npos && idx == (s.size() - std::strlen(v));
 #endif
 }
-}  // namespace wb::base::std_ext
+}  // namespace wb::base::std2
 
-#endif  // !WB_BASE_STD_EXT_STRING_VIEW_EXT_H_
+#endif  // !WB_BASE_STD2_STRING_VIEW_EXT_H_

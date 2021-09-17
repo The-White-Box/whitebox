@@ -68,13 +68,13 @@ class ScopedThreadErrorMode {
    * @param error_mode_flags Error mode flags.
    * @return ScopedThreadErrorMode
    */
-  static std_ext::os_res<ScopedThreadErrorMode> New(
+  static std2::result<ScopedThreadErrorMode> New(
       const ScopedThreadErrorModeFlags error_mode_flags) noexcept {
     auto mode = ScopedThreadErrorMode{error_mode_flags};
 
     return !mode.error_code()
-               ? std_ext::os_res<ScopedThreadErrorMode>{std::move(mode)}
-               : std_ext::os_res<ScopedThreadErrorMode>{mode.error_code()};
+               ? std2::result<ScopedThreadErrorMode>{std::move(mode)}
+               : std2::result<ScopedThreadErrorMode>{mode.error_code()};
   }
 
   ScopedThreadErrorMode(ScopedThreadErrorMode&& m) noexcept

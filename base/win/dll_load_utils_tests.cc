@@ -10,7 +10,7 @@
 
 #include <filesystem>
 
-#include "base/std_ext/string_ext.h"
+#include "base/std2/string_ext.h"
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
@@ -68,7 +68,7 @@ GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
 
   const std::string expected_application_directory{
       current_directory.string() +
-      wb::base::std_ext::WideToUTF8(
+      wb::base::std2::WideToUTF8(
           std::wstring{std::filesystem::path::preferred_separator})};
   EXPECT_EQ(expected_application_directory,
             std::get<std::string>(

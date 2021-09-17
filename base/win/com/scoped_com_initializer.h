@@ -69,13 +69,13 @@ class ScopedComInitializer {
    * @param flags Flags.
    * @return ScopedComInitializer
    */
-  static std_ext::os_res<ScopedComInitializer> New(
+  static std2::result<ScopedComInitializer> New(
       const ScopedComInitializerFlags flags) noexcept {
     auto init = ScopedComInitializer{flags};
 
     return !init.error_code()
-               ? std_ext::os_res<ScopedComInitializer>{std::move(init)}
-               : std_ext::os_res<ScopedComInitializer>{init.error_code()};
+               ? std2::result<ScopedComInitializer>{std::move(init)}
+               : std2::result<ScopedComInitializer>{init.error_code()};
   }
 
   ScopedComInitializer(ScopedComInitializer&& i) noexcept : error_code_ {

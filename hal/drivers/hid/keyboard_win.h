@@ -10,7 +10,7 @@
 #include <system_error>
 
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 #include "hid_api.h"
 #include "keyboard_input.h"
@@ -33,7 +33,7 @@ class WB_HAL_HID_DRIVER_API Keyboard {
    * @param window Window to handle keyboard input.
    * @return Keyboard.
    */
-  [[nodiscard]] static base::std_ext::os_res<base::un<Keyboard>> New(
+  [[nodiscard]] static base::std2::result<base::un<Keyboard>> New(
       _In_ HWND window) noexcept;
 
   Keyboard(Keyboard &&) noexcept;

@@ -53,7 +53,7 @@ class WB_BASE_API BaseWindow {
    * @return TDerivedWindow window.
    */
   template <typename TDerivedWindow>
-  [[nodiscard]] static std_ext::os_res<un<TDerivedWindow>> New(
+  [[nodiscard]] static std2::result<un<TDerivedWindow>> New(
       _In_ const WindowDefinition &definition,
       _In_ unsigned long class_style) noexcept {
     static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
@@ -69,8 +69,8 @@ class WB_BASE_API BaseWindow {
           definition.width, definition.height, definition.parent_window,
           definition.menu, definition.instance, window.get()));
     }
-    return !rc ? std_ext::os_res<un<TDerivedWindow>>{std::move(window)}
-               : std_ext::os_res<un<TDerivedWindow>>{rc};
+    return !rc ? std2::result<un<TDerivedWindow>>{std::move(window)}
+               : std2::result<un<TDerivedWindow>>{rc};
   }
 
   /**
@@ -157,10 +157,10 @@ class WB_BASE_API BaseWindow {
         // calling SetLastError with 0, then call SetWindowLongPtr.  Function
         // failure will be indicated by a return value of zero and a
         // GetLastError result that is nonzero.
-        std_ext::SetThreadErrorCode({});
+        std2::SetThreadErrorCode({});
         const auto rc = ::SetWindowLongPtr(hwnd, GWLP_USERDATA,
                                            reinterpret_cast<LONG_PTR>(window));
-        G3CHECK(rc != 0 || !std_ext::GetThreadErrorCode());
+        G3CHECK(rc != 0 || !std2::GetThreadErrorCode());
       }
 
       G3DCHECK(!!hwnd);

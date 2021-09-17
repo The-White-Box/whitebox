@@ -113,13 +113,13 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
   PAINTSTRUCT paint_struct_;
 };
 
-[[nodiscard]] std_ext::os_res<ScopedWindowPaint> ScopedWindowPaint::New(
+[[nodiscard]] std2::result<ScopedWindowPaint> ScopedWindowPaint::New(
     _In_ HWND window) noexcept {
   ScopedWindowPaint scoped_window_paint{window};
   return scoped_window_paint.impl_->IsSucceeded()
-             ? std_ext::os_res<ScopedWindowPaint>{std::move(
+             ? std2::result<ScopedWindowPaint>{std::move(
                    scoped_window_paint)}
-             : std_ext::os_res<ScopedWindowPaint>{std::error_code{
+             : std2::result<ScopedWindowPaint>{std::error_code{
                    (int)ERROR_DC_NOT_FOUND, std::system_category()}};
 }
 

@@ -37,7 +37,7 @@ constexpr long kInvalidMouseAbsoluteCoordinate{-1L};
 /**
  * @brief Alias to simplify API.
  */
-using MouseNewResult = base::std_ext::os_res<base::un<Mouse>>;
+using MouseNewResult = base::std2::result<base::un<Mouse>>;
 
 /**
  * @brief Creates mouse device.

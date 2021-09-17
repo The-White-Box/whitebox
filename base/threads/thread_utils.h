@@ -13,7 +13,7 @@
 #include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
 #ifdef WB_OS_WIN
@@ -71,13 +71,13 @@ class ScopedThreadName {
    * @param new_thread_name Scoped thread name.
    * @return ScopedThreadName.
    */
-  [[nodiscard]] static std_ext::os_res<ScopedThreadName> New(
+  [[nodiscard]] static std2::result<ScopedThreadName> New(
       NativeThreadHandle thread, const NativeThreadName &new_thread_name) {
     ScopedThreadName name{thread, new_thread_name};
 
     return !name.error_code()
-               ? std_ext::os_res<ScopedThreadName>{std::move(name)}
-               : std_ext::os_res<ScopedThreadName>{name.error_code()};
+               ? std2::result<ScopedThreadName>{std::move(name)}
+               : std2::result<ScopedThreadName>{name.error_code()};
   }
 
   ScopedThreadName(ScopedThreadName &&n) noexcept

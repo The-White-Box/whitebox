@@ -10,7 +10,7 @@
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/string_ext.h"
+#include "base/std2/string_ext.h"
 #include "base/win/system_error_ext.h"
 #include "base/win/ui/window_message_handlers.h"
 #include "base/win/windows_light.h"
@@ -174,19 +174,19 @@ namespace wb::base::windows::ui {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
+WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings& settings) noexcept {
-  const std::wstring title{std_ext::UTF8ToWide(settings.title)};
+  const std::wstring title{std2::UTF8ToWide(settings.title)};
   const std::wstring main_instruction{
-      std_ext::UTF8ToWide(settings.main_instruction)};
-  const std::wstring content{std_ext::UTF8ToWide(settings.content)};
+      std2::UTF8ToWide(settings.main_instruction)};
+  const std::wstring content{std2::UTF8ToWide(settings.content)};
   const std::wstring expanded_control_text{
-      std_ext::UTF8ToWide(settings.expanded_control_text)};
+      std2::UTF8ToWide(settings.expanded_control_text)};
   const std::wstring collapsed_control_text{
-      std_ext::UTF8ToWide(settings.collapsed_control_text)};
+      std2::UTF8ToWide(settings.collapsed_control_text)};
   const std::wstring expanded_content{
-      std_ext::UTF8ToWide(settings.expand_collapse_content)};
-  const std::wstring footer{std_ext::UTF8ToWide(settings.footer_text)};
+      std2::UTF8ToWide(settings.expand_collapse_content)};
+  const std::wstring footer{std2::UTF8ToWide(settings.footer_text)};
   const TaskDialogContext context{.main_icon_id = settings.main_icon_id,
                                   .small_icon_id = settings.small_icon_id};
 
@@ -221,8 +221,8 @@ WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
   G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";
-  return !rc ? std_ext::os_res<DialogBoxButton>{GetButtonById(
+  return !rc ? std2::result<DialogBoxButton>{GetButtonById(
                    pressed_button_id)}
-             : std_ext::os_res<DialogBoxButton>{rc};
+             : std2::result<DialogBoxButton>{rc};
 }
 }  // namespace wb::base::windows::ui

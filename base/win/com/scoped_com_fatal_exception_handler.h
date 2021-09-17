@@ -24,13 +24,13 @@ class ScopedComFatalExceptionHandler {
    * @brief Change COM fatal exception handling in scope.
    * @return ScopedComFatalExceptionHandler.
    */
-  static std_ext::os_res<ScopedComFatalExceptionHandler> New() noexcept {
+  static std2::result<ScopedComFatalExceptionHandler> New() noexcept {
     ScopedComFatalExceptionHandler handler;
 
     return !handler.error_code()
-               ? std_ext::os_res<ScopedComFatalExceptionHandler>{std::move(
+               ? std2::result<ScopedComFatalExceptionHandler>{std::move(
                      handler)}
-               : std_ext::os_res<ScopedComFatalExceptionHandler>{
+               : std2::result<ScopedComFatalExceptionHandler>{
                      handler.error_code()};
   }
 

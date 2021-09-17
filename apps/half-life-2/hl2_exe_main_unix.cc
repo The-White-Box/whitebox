@@ -7,7 +7,7 @@
 #include "app_version_config.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
-#include "base/std_ext/filesystem_ext.h"
+#include "base/std2/filesystem_ext.h"
 #include "base/scoped_shared_library.h"
 #include "bootmgr/bootmgr_main.h"
 #include "build/static_settings_config.h"
@@ -23,7 +23,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
-  auto app_path = std_ext::GetExecutableDirectory(rc);
+  auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) {
     wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, rc)
         << "Can't get current directory.  Unable to load the app.";
@@ -37,7 +37,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_load_flags);
   if (const auto* boot_manager_module =
-          std_ext::GetSuccessResult(boot_manager_load_result)) {
+          std2::GetSuccessResult(boot_manager_load_result)) {
     using BootManagerMainFunction = decltype(&BootmgrMain);
 
     constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
@@ -47,7 +47,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
         boot_manager_module->GetAddressAs<BootManagerMainFunction>(
             kBootManagerMainFunctionName);
     if (const auto* boot_manager_main =
-            std_ext::GetSuccessResult(boot_manager_entry_result)) {
+            std2::GetSuccessResult(boot_manager_entry_result)) {
       return (*boot_manager_main)(
           {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc});
     }

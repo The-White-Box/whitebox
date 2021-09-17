@@ -16,7 +16,7 @@ WB_END_G3LOG_WARNING_OVERRIDE_SCOPE()
 #include <system_error>
 
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 
 #undef LOG
 #undef LOG_IF
@@ -86,7 +86,7 @@ class ScopedEndError {
         .stream()
 
 // G3PLOG(level) is the API for the stream log + last system error code.
-#define G3PLOG(level) G3PLOG_E(level, std_ext::GetThreadErrorCode())
+#define G3PLOG(level) G3PLOG_E(level, std2::GetThreadErrorCode())
 
 // 'Conditional' stream log
 #define G3LOG_IF(level, boolean_expression)                               \

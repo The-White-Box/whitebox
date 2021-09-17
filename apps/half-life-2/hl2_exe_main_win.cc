@@ -59,7 +59,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
          "malicious code.";
 
   const auto app_path = windows::GetApplicationDirectory(instance);
-  G3PLOGE_IF(FATAL, !!wb::base::std_ext::GetErrorCode(app_path),
+  G3PLOGE_IF(FATAL, !!wb::base::std2::GetErrorCode(app_path),
              std::get<std::error_code>(app_path))
       << "Can't get current directory.  Unable to load "
          "the app.  Please, contact authors.";
@@ -75,7 +75,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
   const auto bootmgr_load_result =
       ScopedSharedLibrary::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
   if (const auto* bootmgr_module =
-          std_ext::GetSuccessResult(bootmgr_load_result)) {
+          std2::GetSuccessResult(bootmgr_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
     constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
 
@@ -84,7 +84,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
         bootmgr_module->GetAddressAs<BootmgrMainFunction>(
             kBootmgrMainFunctionName);
     if (const auto* bootmgr_main =
-            std_ext::GetSuccessResult(bootmgr_entry_result)) {
+            std2::GetSuccessResult(bootmgr_entry_result)) {
       return (*bootmgr_main)({instance, command_line,
                               WB_PRODUCT_FILE_DESCRIPTION_STRING,
                               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
@@ -144,8 +144,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
 #endif
           error_handling::ScopedThreadErrorModeFlags::kNoGpFaultErrorBox |
           error_handling::ScopedThreadErrorModeFlags::kNoOpenFileErrorBox);
-  G3PLOGE_IF(WARNING, !!std_ext::GetErrorCode(scoped_thread_error_mode),
-             *std_ext::GetErrorCode(scoped_thread_error_mode))
+  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_thread_error_mode),
+             *std2::GetErrorCode(scoped_thread_error_mode))
       << "Can't set thread reaction to serious system errors, continue with "
          "default reaction.";
 
@@ -155,16 +155,16 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       com::ScopedComInitializerFlags::kApartmentThreaded |
       com::ScopedComInitializerFlags::kDisableOle1Dde |
       com::ScopedComInitializerFlags::kSpeedOverMemory);
-  G3PLOGE_IF(WARNING, !!std_ext::GetErrorCode(scoped_com_initializer),
-             *std_ext::GetErrorCode(scoped_com_initializer))
+  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_com_initializer),
+             *std2::GetErrorCode(scoped_com_initializer))
       << "Component Object Model initialization failed, continue without COM.";
 
   // Disable default COM exception swallowing, report all COM exceptions to us.
   const auto scoped_com_fatal_exception_handler =
       com::ScopedComFatalExceptionHandler::New();
   G3PLOGE_IF(WARNING,
-             !!std_ext::GetErrorCode(scoped_com_fatal_exception_handler),
-             *std_ext::GetErrorCode(scoped_com_fatal_exception_handler))
+             !!std2::GetErrorCode(scoped_com_fatal_exception_handler),
+             *std2::GetErrorCode(scoped_com_fatal_exception_handler))
       << "Can't disable COM exceptions swallowing, some exceptions may not be "
          "passed to the app.";
 
@@ -173,8 +173,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   const auto scoped_com_strong_unmarshalling_policy =
       com::ScopedComStrongUnmarshallingPolicy::New();
   G3PLOGE_IF(WARNING,
-             !!std_ext::GetErrorCode(scoped_com_strong_unmarshalling_policy),
-             *std_ext::GetErrorCode(scoped_com_strong_unmarshalling_policy))
+             !!std2::GetErrorCode(scoped_com_strong_unmarshalling_policy),
+             *std2::GetErrorCode(scoped_com_strong_unmarshalling_policy))
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 

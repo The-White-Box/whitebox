@@ -18,7 +18,7 @@
 #include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
 namespace wb::base::windows::mmcss {
@@ -115,7 +115,7 @@ class WB_BASE_API ScopedMmcssThreadController {
    * NT\CurrentVersion\Multimedia\SystemProfile\Tasks.
    * @return ScopedMmcssThreadController.
    */
-  static std_ext::os_res<ScopedMmcssThreadController> New(
+  static std2::result<ScopedMmcssThreadController> New(
       const ScopedMmcssThreadTask& first_task,
       const ScopedMmcssThreadTask& last_task) noexcept;
 
@@ -133,7 +133,7 @@ class WB_BASE_API ScopedMmcssThreadController {
    * @return The system responsiveness value.  This value can range from 10 to
    * 100 percent.
    */
-  std_ext::os_res<unsigned char> GetResponsivenessPercent() const noexcept;
+  std2::result<unsigned char> GetResponsivenessPercent() const noexcept;
 
   /**
    * @brief Adjusts the thread priority of the calling thread relative to other

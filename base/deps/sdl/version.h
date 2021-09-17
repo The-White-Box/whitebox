@@ -10,7 +10,7 @@
 #include <ostream>
 
 #include "base/deps/sdl/sdl.h"
-#include "base/std_ext/cstring_ext.h"
+#include "base/std2/cstring_ext.h"
 
 /**
  * @brief Streams SDL_version via <<.
@@ -33,7 +33,7 @@ namespace wb::sdl {
  */
 inline SDL_version GetCompileTimeVersion() noexcept {
   ::SDL_version version;
-  base::std_ext::BitwiseMemset(version, 0);
+  base::std2::BitwiseMemset(version, 0);
 
   SDL_VERSION(&version);
 
@@ -49,7 +49,7 @@ inline SDL_version GetCompileTimeVersion() noexcept {
  */
 inline SDL_version GetLinkTimeVersion() noexcept {
   ::SDL_version version;
-  base::std_ext::BitwiseMemset(version, 0);
+  base::std2::BitwiseMemset(version, 0);
 
   ::SDL_GetVersion(&version);
 

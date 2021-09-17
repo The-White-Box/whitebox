@@ -16,7 +16,7 @@
 #include <string_view>
 
 #include "base/base_switches.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
 using HINSTANCE = struct HINSTANCE__*;
@@ -64,7 +64,7 @@ namespace wb::base::windows {
  * @param instance App instance.
  * @return App directory with trailing path separator.
  */
-wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
+wb::base::std2::result<std::string> GetApplicationDirectory(
     _In_ HINSTANCE instance) {
   std::string file_path;
   file_path.resize(_MAX_PATH + 1);
@@ -73,7 +73,7 @@ wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
       ::GetModuleFileNameA(instance, file_path.data(),
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
-    if (wb::base::std_ext::GetThreadNativeLastErrno() ==
+    if (wb::base::std2::GetThreadNativeLastErrno() ==
         ERROR_INSUFFICIENT_BUFFER) {
       return std::error_code{ERROR_INSUFFICIENT_BUFFER, std::system_category()};
     }
@@ -87,7 +87,7 @@ wb::base::std_ext::os_res<std::string> GetApplicationDirectory(
                : file_path;
   }
 
-  return wb::base::std_ext::GetThreadErrorCode();
+  return wb::base::std2::GetThreadErrorCode();
 }
 }  // namespace wb::base::windows
 

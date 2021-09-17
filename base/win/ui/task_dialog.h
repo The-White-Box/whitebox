@@ -15,7 +15,7 @@
 
 #include "base/base_api.h"
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 
 using HWND = struct HWND__ *;
 
@@ -198,7 +198,7 @@ struct DialogBoxSettings {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std_ext::os_res<DialogBoxButton> ShowDialogBox(
+WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings &settings) noexcept;
 }  // namespace wb::base::windows::ui
 

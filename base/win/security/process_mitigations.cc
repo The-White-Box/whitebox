@@ -7,7 +7,7 @@
 #include <tuple>
 
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/cstring_ext.h"
+#include "base/std2/cstring_ext.h"
 #include "base/win/system_error_ext.h"
 #include "base/win/windows_light.h"
 #include "base/win/windows_version.h"
@@ -79,7 +79,7 @@ using mitigation_policy_concept = std::enable_if_t<
 template <typename TPolicy>
 [[nodiscard]] mitigation_policy_concept<TPolicy, std::error_code>
 GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
-  std_ext::BitwiseMemset(policy, 0);
+  std2::BitwiseMemset(policy, 0);
 
   return GetErrorCode(::GetProcessMitigationPolicy(
       process, mitigation_policy_flag<TPolicy>, &policy, sizeof(policy)));
@@ -512,14 +512,14 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl ::
   }
 }
 
-std_ext::os_res<ScopedProcessMitigationPolicies>
+std2::result<ScopedProcessMitigationPolicies>
 ScopedProcessMitigationPolicies::New() noexcept {
   ScopedProcessMitigationPolicies policies;
 
   return !policies.error_code()
-             ? std_ext::os_res<ScopedProcessMitigationPolicies>{std::move(
+             ? std2::result<ScopedProcessMitigationPolicies>{std::move(
                    policies)}
-             : std_ext::os_res<ScopedProcessMitigationPolicies>{
+             : std2::result<ScopedProcessMitigationPolicies>{
                    policies.error_code()};
 }
 

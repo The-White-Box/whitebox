@@ -13,7 +13,7 @@
 #include "base/deps/sdl/surface.h"
 #include "base/deps/sdl/syswm.h"
 #include "base/deps/sdl/version.h"
-#include "base/std_ext/cstring_ext.h"
+#include "base/std2/cstring_ext.h"
 
 namespace wb::sdl {
 /**
@@ -141,7 +141,7 @@ class SdlWindow {
       ::SDL_SysWMinfo &platform_info) const noexcept {
     G3DCHECK(!!window_);
 
-    base::std_ext::BitwiseMemset(platform_info, 0);
+    base::std2::BitwiseMemset(platform_info, 0);
     platform_info.version = GetLinkTimeVersion();
 
     return SdlError::FromReturnBool(

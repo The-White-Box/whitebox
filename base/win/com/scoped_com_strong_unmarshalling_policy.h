@@ -27,13 +27,13 @@ class ScopedComStrongUnmarshallingPolicy {
    * @brief Set strict COM unmarshalling policy for scope.
    * @return ScopedComStrongUnmarshallingPolicy.
    */
-  static std_ext::os_res<ScopedComStrongUnmarshallingPolicy> New() noexcept {
+  static std2::result<ScopedComStrongUnmarshallingPolicy> New() noexcept {
     ScopedComStrongUnmarshallingPolicy policy;
 
     return !policy.error_code()
-               ? std_ext::os_res<ScopedComStrongUnmarshallingPolicy>{std::move(
+               ? std2::result<ScopedComStrongUnmarshallingPolicy>{std::move(
                      policy)}
-               : std_ext::os_res<ScopedComStrongUnmarshallingPolicy>{
+               : std2::result<ScopedComStrongUnmarshallingPolicy>{
                      policy.error_code()};
   }
 

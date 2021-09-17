@@ -11,7 +11,7 @@
 
 #include "base/base_api.h"
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
 namespace wb::base::windows::security {
@@ -33,7 +33,7 @@ class WB_BASE_API ScopedProcessMitigationPolicies {
    * @brief Enables process mitigation policies in scope.
    * @return ScopedProcessMitigationPolicies.
    */
-  static std_ext::os_res<ScopedProcessMitigationPolicies> New() noexcept;
+  static std2::result<ScopedProcessMitigationPolicies> New() noexcept;
 
   ScopedProcessMitigationPolicies(ScopedProcessMitigationPolicies&& p) noexcept;
   ScopedProcessMitigationPolicies& operator=(

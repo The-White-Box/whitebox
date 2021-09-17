@@ -9,7 +9,7 @@
 
 #include "base/base_api.h"
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
 using HWND = struct HWND__*;
@@ -27,7 +27,7 @@ class WB_BASE_API ScopedWindowPaint {
    * @param window Window.
    * @return ScopedWindowPaint.
    */
-  [[nodiscard]] static std_ext::os_res<ScopedWindowPaint> New(
+  [[nodiscard]] static std2::result<ScopedWindowPaint> New(
       _In_ HWND window) noexcept;
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);

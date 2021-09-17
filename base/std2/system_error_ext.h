@@ -4,8 +4,8 @@
 //
 // <system_error> extensions.
 
-#ifndef WB_BASE_STD_EXT_SYSTEM_ERROR_EXT_H_
-#define WB_BASE_STD_EXT_SYSTEM_ERROR_EXT_H_
+#ifndef WB_BASE_STD2_SYSTEM_ERROR_EXT_H_
+#define WB_BASE_STD2_SYSTEM_ERROR_EXT_H_
 
 #include <system_error>
 #include <variant>
@@ -25,7 +25,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT void __stdcall SetLastError(
 #include <cerrno>
 #endif
 
-namespace wb::base::std_ext {
+namespace wb::base::std2 {
 /**
  * @brief Get last native system errno.
  * @return Last native system errno.
@@ -75,7 +75,7 @@ inline void SetThreadErrorCode(const std::error_code rc) noexcept { //-V801
  * @tparam TResult Result.
  */
 template <typename TResult>
-using os_res = std::variant<TResult, std::error_code>;
+using result = std::variant<TResult, std::error_code>;
 
 /**
  * @brief Get error code from system result.
@@ -85,7 +85,7 @@ using os_res = std::variant<TResult, std::error_code>;
  */
 template <typename TResult>
 [[nodiscard]] constexpr const std::error_code* GetErrorCode(
-    const os_res<TResult>& rc) noexcept {
+    const result<TResult>& rc) noexcept {
   return std::get_if<std::error_code>(&rc);
 }
 
@@ -97,7 +97,7 @@ template <typename TResult>
  */
 template <typename TResult>
 [[nodiscard]] constexpr TResult* GetSuccessResult(
-    os_res<TResult>& rc) noexcept {
+    result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
 
@@ -109,9 +109,9 @@ template <typename TResult>
  */
 template <typename TResult>
 [[nodiscard]] constexpr const TResult* GetSuccessResult(
-    const os_res<TResult>& rc) noexcept {
+    const result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
-}  // namespace wb::base::std_ext
+}  // namespace wb::base::std2
 
-#endif  // !WB_BASE_STD_EXT_SYSTEM_ERROR_EXT_H_
+#endif  // !WB_BASE_STD2_SYSTEM_ERROR_EXT_H_

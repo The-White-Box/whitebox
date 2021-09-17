@@ -8,7 +8,7 @@
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
-using namespace wb::base::std_ext;
+using namespace wb::base::std2;
 
 #ifdef WB_OS_WIN
 // NOLINTNEXTLINE(cert-err58-cpp)

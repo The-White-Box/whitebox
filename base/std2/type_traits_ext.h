@@ -9,7 +9,7 @@
 
 #include <type_traits>
 
-namespace wb::base::std_ext {
+namespace wb::base::std2 {
 /**
  * @brief Is argument pointer to a function?
  * @tparam T Argument.
@@ -51,6 +51,6 @@ struct is_char {
  */
 template <typename T>
 constexpr bool is_char_v{is_char<T>::value};
-}  // namespace wb::base::std_ext
+}  // namespace wb::base::std2
 
 #endif  // !WB_BASE_STD_TYPE_TRAITS_EXT_H_

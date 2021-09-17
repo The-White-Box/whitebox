@@ -17,7 +17,7 @@
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_process_unexpected_handler.h"
 #include "base/scoped_shared_library.h"
-#include "base/std_ext/filesystem_ext.h"
+#include "base/std2/filesystem_ext.h"
 #include "base/threads/thread_utils.h"
 #include "build/build_config.h"
 #include "whitebox-kernel/whitebox_kernel_main.h"
@@ -173,7 +173,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args,
   using namespace wb::base;
 
   std::error_code rc;
-  auto app_path = std_ext::GetExecutableDirectory(rc);
+  auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) [[unlikely]] {
     FatalErrorBox(
         rc, intl,
@@ -203,7 +203,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args,
 
   const auto kernel_load_result =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
-  if (const auto* kernel_module = std_ext::GetSuccessResult(kernel_load_result))
+  if (const auto* kernel_module = std2::GetSuccessResult(kernel_load_result))
       [[likely]] {
     using KernelMainFunction = decltype(&KernelMain);
     constexpr char kKernelMainFunctionName[]{"KernelMain"};
@@ -212,7 +212,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args,
     const auto kernel_main_result =
         kernel_module->GetAddressAs<KernelMainFunction>(
             kKernelMainFunctionName);
-    if (const auto* kernel_main = std_ext::GetSuccessResult(kernel_main_result))
+    if (const auto* kernel_main = std2::GetSuccessResult(kernel_main_result))
         [[likely]] {
 #ifdef WB_OS_WIN
       return (*kernel_main)(
@@ -275,7 +275,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
   if (windows::GetVersion() < windows::Version::WIN10_19H1) [[unlikely]] {
-    FatalErrorBox(std_ext::GetThreadErrorCode(ERROR_OLD_WIN_VERSION), intl,
+    FatalErrorBox(std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION), intl,
                   intl.String(intl::message_ids::kPleaseUpdateWindowsVersion),
                   intl.String(intl::message_ids::kWindowsVersionIsTooOld),
                   bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
@@ -285,8 +285,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
   G3PLOGE_IF(WARNING,
-             !!std_ext::GetErrorCode(scoped_process_mitigation_policies),
-             *std_ext::GetErrorCode(scoped_process_mitigation_policies))
+             !!std2::GetErrorCode(scoped_process_mitigation_policies),
+             *std2::GetErrorCode(scoped_process_mitigation_policies))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 
@@ -324,8 +324,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name = threads::ScopedThreadName::New(
       threads::GetCurrentThreadHandle(), new_thread_name);
-  G3PLOGE_IF(WARNING, !!std_ext::GetErrorCode(scoped_thread_name),
-             *std_ext::GetErrorCode(scoped_thread_name))
+  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_thread_name),
+             *std2::GetErrorCode(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 
   // Setup heap memory allocator.
@@ -362,18 +362,18 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     const auto scoped_mmcss_thread_controller =
         windows::mmcss::ScopedMmcssThreadController::New(game_task,
                                                          playback_task);
-    if (const auto* controller = std_ext::GetSuccessResult(
+    if (const auto* controller = std2::GetSuccessResult(
             scoped_mmcss_thread_controller)) [[likely]] {
       const auto responsiveness_percent =
           controller->GetResponsivenessPercent();
 
       if (const auto* percent =
-              std_ext::GetSuccessResult(responsiveness_percent)) [[likely]] {
+              std2::GetSuccessResult(responsiveness_percent)) [[likely]] {
         G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
                      << implicit_cast<unsigned>(*percent)
                      << "% system responsiveness value.";
       } else {
-        G3PLOG_E(WARNING, *std_ext::GetErrorCode(responsiveness_percent))
+        G3PLOG_E(WARNING, *std2::GetErrorCode(responsiveness_percent))
             << "Can't get system responsiveness setting used by Multimedia "
                "Class Scheduler Service for the main app thread.";
       }
@@ -384,7 +384,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
           << "Can't get system responsiveness setting used by Multimedia "
              "Class Scheduler Service for the thread.";
     } else {
-      G3PLOG_E(WARNING, *std_ext::GetErrorCode(scoped_mmcss_thread_controller))
+      G3PLOG_E(WARNING, *std2::GetErrorCode(scoped_mmcss_thread_controller))
           << "Can't enable Multimedia Class Scheduler Service for the app, "
              "some CPU resources may be underutilized.  See "
              "https://docs.microsoft.com/en-us/windows/win32/procthread/"

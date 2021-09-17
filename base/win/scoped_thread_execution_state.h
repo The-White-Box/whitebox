@@ -13,7 +13,7 @@
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 
 using EXECUTION_STATE = unsigned long;
 
@@ -98,12 +98,12 @@ class ScopedThreadExecutionState {
    * @param flags ScopedThreadExecutionStateFlags.
    * @return ScopedThreadExecutionState.
    */
-  static std_ext::os_res<ScopedThreadExecutionState> New(
+  static std2::result<ScopedThreadExecutionState> New(
       _In_ ScopedThreadExecutionStateFlags flags) noexcept {
     ScopedThreadExecutionState state{flags};
     return !state.error_code()
-               ? std_ext::os_res<ScopedThreadExecutionState>{std::move(state)}
-               : std_ext::os_res<ScopedThreadExecutionState>{
+               ? std2::result<ScopedThreadExecutionState>{std::move(state)}
+               : std2::result<ScopedThreadExecutionState>{
                      state.error_code()};
   }
 
@@ -147,7 +147,7 @@ class ScopedThreadExecutionState {
             ::SetThreadExecutionState(underlying_cast(flags)))},
         error_code_{(old_flags_ != ScopedThreadExecutionStateFlags::kError
                          ? std::error_code{}
-                         : wb::base::std_ext::GetThreadErrorCode())} {}
+                         : wb::base::std2::GetThreadErrorCode())} {}
 
   /**
    * @brief Get initialization error code.

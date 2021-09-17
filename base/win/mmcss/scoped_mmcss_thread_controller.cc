@@ -37,7 +37,7 @@ class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
     return error_code_;
   }
 
-  std_ext::os_res<unsigned char> GetResponsivenessPercent() const noexcept;
+  std2::result<unsigned char> GetResponsivenessPercent() const noexcept;
 
   std::error_code SetPriority(
       ScopedMmcssThreadPriority priority) const noexcept;
@@ -69,7 +69,7 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
       task_handle_{::AvSetMmMaxThreadCharacteristicsA(
           first_task.name(), last_task.name(), &task_index_)},
       error_code_{task_handle_ ? std::error_code{}
-                               : std_ext::GetThreadErrorCode()} {
+                               : std2::GetThreadErrorCode()} {
   // Well, if smb removed task from registry or no privileges it is ok.
   G3DCHECK(!error_code_ || error_code_.value() == ERROR_INVALID_TASK_NAME ||
            error_code_.value() == ERROR_PRIVILEGE_NOT_HELD);
@@ -84,7 +84,7 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
   }
 }  // namespace wb::base::windows::mmcss
 
-std_ext::os_res<unsigned char> ScopedMmcssThreadController::
+std2::result<unsigned char> ScopedMmcssThreadController::
     ScopedMmcssThreadControllerImpl::GetResponsivenessPercent() const noexcept {
   G3DCHECK(!!task_handle_);
 
@@ -106,11 +106,11 @@ std_ext::os_res<unsigned char> ScopedMmcssThreadController::
     if (!is_valid_responsiveness) [[unlikely]] {
       responsiveness_percent = std::clamp(responsiveness_percent, 10UL, 100UL);
     }
-    return std_ext::os_res<unsigned char>{
+    return std2::result<unsigned char>{
         static_cast<unsigned char>(responsiveness_percent)};
   }
 
-  return std_ext::os_res<unsigned char>{rc};
+  return std2::result<unsigned char>{rc};
 }
 
 std::error_code
@@ -127,14 +127,14 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::SetPriority(
   return rc;
 }
 
-std_ext::os_res<ScopedMmcssThreadController> ScopedMmcssThreadController::New(
+std2::result<ScopedMmcssThreadController> ScopedMmcssThreadController::New(
     const ScopedMmcssThreadTask& first_task,
     const ScopedMmcssThreadTask& last_task) noexcept {
   ScopedMmcssThreadController controller{first_task, last_task};
   return !controller.error_code()
-             ? std_ext::os_res<ScopedMmcssThreadController>{std::move(
+             ? std2::result<ScopedMmcssThreadController>{std::move(
                    controller)}
-             : std_ext::os_res<ScopedMmcssThreadController>{
+             : std2::result<ScopedMmcssThreadController>{
                    controller.error_code()};
 }
 
@@ -154,7 +154,7 @@ ScopedMmcssThreadController::ScopedMmcssThreadController(
 
 ScopedMmcssThreadController::~ScopedMmcssThreadController() noexcept = default;
 
-std_ext::os_res<unsigned char>
+std2::result<unsigned char>
 ScopedMmcssThreadController::GetResponsivenessPercent() const noexcept {
   return impl_->GetResponsivenessPercent();
 }

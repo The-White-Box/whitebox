@@ -66,10 +66,10 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
     // calling SetLastError with 0, then call SetWindowLongPtr.  Function
     // failure will be indicated by a return value of zero and a
     // GetLastError result that is nonzero.
-    std_ext::SetThreadErrorCode({});
+    std2::SetThreadErrorCode({});
 
     const LONG_PTR rc{::SetWindowLongPtr(window_, GWL_STYLE, window_style)};
-    const bool ok{rc != 0 || !std_ext::GetThreadErrorCode()};
+    const bool ok{rc != 0 || !std2::GetThreadErrorCode()};
 
     G3DCHECK(ok);
 

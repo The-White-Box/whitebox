@@ -72,7 +72,7 @@ WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
 #elif defined(WB_OS_POSIX)
   thread_name.resize(32); //-V112
 
-  return std_ext::GetThreadPosixErrorCode(
+  return std2::GetThreadPosixErrorCode(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));
 #else
 #error Please, define GetThreadName for your os in base/threads/thread_utils.cc
@@ -91,7 +91,7 @@ WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
   return windows::GetErrorCode(
       ::SetThreadDescription(handle, thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
-  return std_ext::GetThreadPosixErrorCode(
+  return std2::GetThreadPosixErrorCode(
       ::pthread_setname_np(handle, thread_name.data()));
 #else
 #error Please, define SetThreadName for your os in base/threads/thread_utils.cc

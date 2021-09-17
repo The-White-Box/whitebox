@@ -32,7 +32,7 @@ namespace wb::hal::hid {
 /**
  * @brief Alias to simplify API.
  */
-using KeyboardNewResult = base::std_ext::os_res<base::un<Keyboard>>;
+using KeyboardNewResult = base::std2::result<base::un<Keyboard>>;
 
 /**
  * @brief Creates keyboard device.

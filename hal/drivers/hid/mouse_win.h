@@ -10,7 +10,7 @@
 #include <system_error>
 
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "hid_api.h"
 #include "mouse_input.h"
 
@@ -32,7 +32,7 @@ class WB_HAL_HID_DRIVER_API Mouse {
    * @param window Window to handle mouse input.
    * @return Mouse.
    */
-  [[nodiscard]] static base::std_ext::os_res<base::un<Mouse>> New(
+  [[nodiscard]] static base::std2::result<base::un<Mouse>> New(
       _In_ HWND window) noexcept;
 
   Mouse(Mouse &&) noexcept;

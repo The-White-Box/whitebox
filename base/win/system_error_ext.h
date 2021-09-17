@@ -24,7 +24,7 @@ WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
 #include <system_error>
 
 #include "base/base_macroses.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/system_error_ext.h"
 
 /**
  * @brief HWND type.
@@ -90,7 +90,7 @@ template <typename R>
 template <>
 [[nodiscard]] inline std::error_code GetErrorCode(
     _In_ unsigned short result) noexcept {
-  return result ? std::error_code{} : std_ext::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::GetThreadErrorCode();
 }
 
 /**
@@ -99,7 +99,7 @@ template <>
 template <>
 [[nodiscard]] inline std::error_code GetErrorCode(
     _In_opt_ HWND result) noexcept {
-  return result ? std::error_code{} : std_ext::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::GetThreadErrorCode();
 }
 
 /**
@@ -107,7 +107,7 @@ template <>
  */
 template <>
 [[nodiscard]] inline std::error_code GetErrorCode(_In_ BOOL result) noexcept {
-  return result ? std::error_code{} : std_ext::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::GetThreadErrorCode();
 }
 
 /**
@@ -116,7 +116,7 @@ template <>
 template <>
 [[nodiscard]] inline std::error_code GetErrorCode(
     _In_opt_ HHOOK result) noexcept {
-  return result ? std::error_code{} : std_ext::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::GetThreadErrorCode();
 }
 
 /**
@@ -125,7 +125,7 @@ template <>
 template <>
 [[nodiscard]] inline std::error_code GetErrorCode(
     _In_opt_ HINSTANCE result) noexcept {
-  return result ? std::error_code{} : std_ext::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::GetThreadErrorCode();
 }
 
 /**

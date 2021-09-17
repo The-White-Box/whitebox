@@ -61,7 +61,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Mouse is ready.
     auto mouse_result = hal::hid::Mouse::New(window);
-    if (auto *mouse = std_ext::GetSuccessResult(mouse_result)) {
+    if (auto *mouse = std2::GetSuccessResult(mouse_result)) {
       mouse_.swap(*mouse);
     } else {
       const auto rc = std::get<std::error_code>(mouse_result);
@@ -84,7 +84,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Keyboard is ready.
     auto keyboard_result = hal::hid::Keyboard::New(window);
-    if (auto *keyboard = std_ext::GetSuccessResult(keyboard_result)) {
+    if (auto *keyboard = std2::GetSuccessResult(keyboard_result)) {
       keyboard_.swap(*keyboard);
     } else {
       const auto rc = std::get<std::error_code>(keyboard_result);
@@ -213,7 +213,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     using namespace std::chrono_literals;
 
     if (const auto *scoped_window_paint =
-            std_ext::GetSuccessResult(scoped_window_paint_result);
+            std2::GetSuccessResult(scoped_window_paint_result);
         scoped_window_paint && is_window_active_ && !::IsIconic(window)) {
       // TODO(dimhotepus): Repaint.
 
@@ -285,7 +285,7 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     // Change window to normal size, should enable DWM MMCSS to
     // speed up window composition.
     auto scoped_toggle_dwm_mmcs_result = mmcss::ScopedMmcssToggleDwm::New(true);
-    if (auto *scheduler = wb::base::std_ext::GetSuccessResult(
+    if (auto *scheduler = wb::base::std2::GetSuccessResult(
             scoped_toggle_dwm_mmcs_result)) {
       auto *memory = new unsigned char[sizeof(mmcss::ScopedMmcssToggleDwm)];
 

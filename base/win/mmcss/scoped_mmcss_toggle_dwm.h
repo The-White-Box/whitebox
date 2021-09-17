@@ -35,11 +35,11 @@ class ScopedMmcssToggleDwm {
    * @param enable Enable MMCSS for DWM.
    * @return ScopedToggleDwmMultimediaClassScheduler.
    */
-  static std_ext::os_res<ScopedMmcssToggleDwm> New(_In_ bool enable) noexcept {
+  static std2::result<ScopedMmcssToggleDwm> New(_In_ bool enable) noexcept {
     ScopedMmcssToggleDwm scheduler{enable};
     return !scheduler.error_code()
-               ? std_ext::os_res<ScopedMmcssToggleDwm>{std::move(scheduler)}
-               : std_ext::os_res<ScopedMmcssToggleDwm>{scheduler.error_code()};
+               ? std2::result<ScopedMmcssToggleDwm>{std::move(scheduler)}
+               : std2::result<ScopedMmcssToggleDwm>{scheduler.error_code()};
   }
 
   ScopedMmcssToggleDwm(ScopedMmcssToggleDwm&& s) noexcept

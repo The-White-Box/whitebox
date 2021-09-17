@@ -10,8 +10,8 @@
 #include "base/base_macroses.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
-#include "base/std_ext/cstring_ext.h"
-#include "base/std_ext/system_error_ext.h"
+#include "base/std2/cstring_ext.h"
+#include "base/std2/system_error_ext.h"
 
 namespace wb::sdl {
 /**

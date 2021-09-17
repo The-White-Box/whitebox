@@ -4,15 +4,15 @@
 //
 // <string> extensions.
 
-#ifndef WB_BASE_STD_EXT_STRING_EXT_H_
-#define WB_BASE_STD_EXT_STRING_EXT_H_
+#ifndef WB_BASE_STD2_STRING_EXT_H_
+#define WB_BASE_STD2_STRING_EXT_H_
 
 #include <string>
 
 #include "base/base_api.h"
 #include "build/build_config.h"
 
-namespace wb::base::std_ext {
+namespace wb::base::std2 {
 #ifdef WB_OS_WIN
 /**
  * @brief Wide string to ANSI one.
@@ -28,6 +28,6 @@ namespace wb::base::std_ext {
  */
 [[nodiscard]] WB_BASE_API std::wstring UTF8ToWide(const std::string &in);
 #endif
-}  // namespace wb::base::std_ext
+}  // namespace wb::base::std2
 
-#endif  // !WB_BASE_STD_EXT_STRING_EXT_H_
+#endif  // !WB_BASE_STD2_STRING_EXT_H_

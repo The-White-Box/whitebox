@@ -15,7 +15,7 @@
 #include <WinNls.h>
 #endif
 
-namespace wb::base::std_ext {
+namespace wb::base::std2 {
 #ifdef WB_OS_WIN
 [[nodiscard]] WB_BASE_API std::string WideToUTF8(const std::wstring &source) {
   if (source.empty() ||

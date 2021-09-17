@@ -68,7 +68,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
       framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
-  if (const auto* rc = std_ext::GetErrorCode(boot_manager_load_result))
+  if (const auto* rc = std2::GetErrorCode(boot_manager_load_result))
       [[unlikely]] {
     wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
         << "Can't load boot manager '" << framework_path.get() << ".";
@@ -84,7 +84,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto boot_manager_entry_result =
       boot_manager_module->GetAddressAs<BootManagerMainFunction>(
           kBootmgrMainFunctionName);
-  if (const auto* rc = std_ext::GetErrorCode(bootmgr_entry_result))
+  if (const auto* rc = std2::GetErrorCode(bootmgr_entry_result))
       [[unlikely]] {
     wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
         << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"

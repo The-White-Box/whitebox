@@ -12,8 +12,8 @@
 #include <string>
 
 #include "base/deps/g3log/g3log.h"
-#include "base/std_ext/system_error_ext.h"
-#include "base/std_ext/type_traits_ext.h"
+#include "base/std2/system_error_ext.h"
+#include "base/std2/type_traits_ext.h"
 #include "build/build_config.h"
 #include "build/compiler_config.h"
 
@@ -97,7 +97,7 @@ namespace wb::base {
  */
 template <typename TPointer, typename R>
 using function_pointer_concept =
-    std::enable_if_t<wb::base::std_ext::is_function_pointer_v<TPointer>, R>;
+    std::enable_if_t<wb::base::std2::is_function_pointer_v<TPointer>, R>;
 
 /**
  * @brief Smart pointer with std::unique_ptr semantic for module lifecycle
@@ -125,13 +125,13 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
    * @param load_flags Library load flags.
    * @return (ScopedSharedLibrary, error_code).
    */
-  [[nodiscard]] static std_ext::os_res<ScopedSharedLibrary> FromLibraryOnPath(
+  [[nodiscard]] static std2::result<ScopedSharedLibrary> FromLibraryOnPath(
       _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
-    return library != nullptr ? std_ext::os_res<ScopedSharedLibrary>(
+    return library != nullptr ? std2::result<ScopedSharedLibrary>(
                                     std::move(ScopedSharedLibrary{library}))
-                              : std_ext::os_res<ScopedSharedLibrary>(
+                              : std2::result<ScopedSharedLibrary>(
                                     wb::base::windows::GetErrorCode(library));
   }
 
@@ -142,7 +142,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
    * @return (address, error_code).
    */
   template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> GetAddressAs(
+  [[nodiscard]] function_pointer_concept<T, std2::result<T>> GetAddressAs(
       _In_z_ const char *function_name) const noexcept {
     WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
       // C4191 'reinterpret_cast': unsafe conversion from 'FARPROC' to 'T'
@@ -152,8 +152,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
           reinterpret_cast<T>(::GetProcAddress(get(), function_name));
     WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
     return address != nullptr
-               ? std_ext::os_res<T>(address)
-               : std_ext::os_res<T>(std_ext::GetThreadErrorCode());
+               ? std2::result<T>(address)
+               : std2::result<T>(std2::GetThreadErrorCode());
   }
 #elif defined(WB_OS_POSIX)
   /**
@@ -162,26 +162,26 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
    * @param load_flags Library load flags.
    * @return (ScopedSharedLibrary, error_code).
    */
-  [[nodiscard]] static std_ext::os_res<ScopedSharedLibrary> FromLibraryOnPath(
+  [[nodiscard]] static std2::result<ScopedSharedLibrary> FromLibraryOnPath(
       const std::string &library_path, int load_flags) noexcept {
     void *library{::dlopen(library_path.c_str(), load_flags)};
     return library != nullptr
-               ? std_ext::os_res<ScopedSharedLibrary>(
+               ? std2::result<ScopedSharedLibrary>(
                      ScopedSharedLibrary{reinterpret_cast<MODULE_ *>(library)})
                // Decided to use EINVAL here as likely args invalid or no DLL.
-               : std_ext::os_res<ScopedSharedLibrary>(
-                     std_ext::GetThreadErrorCode(EINVAL));
+               : std2::result<ScopedSharedLibrary>(
+                     std2::GetThreadErrorCode(EINVAL));
   }
 
   // Gets (address, error_code) of function |function_name| in loaded shared
   // library.
   template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std_ext::os_res<T>> GetAddressAs(
+  [[nodiscard]] function_pointer_concept<T, std2::result<T>> GetAddressAs(
       const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
     return address != nullptr
-               ? std_ext::os_res<T>(address)
-               : std_ext::os_res<T>(std_ext::GetThreadErrorCode());
+               ? std2::result<T>(address)
+               : std2::result<T>(std2::GetThreadErrorCode());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add shared library support for your platform.
