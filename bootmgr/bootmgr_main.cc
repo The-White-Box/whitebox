@@ -284,8 +284,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
-  G3PLOGE_IF(WARNING,
-             !!std2::GetErrorCode(scoped_process_mitigation_policies),
+  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_process_mitigation_policies),
              *std2::GetErrorCode(scoped_process_mitigation_policies))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
@@ -362,13 +361,13 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
     const auto scoped_mmcss_thread_controller =
         windows::mmcss::ScopedMmcssThreadController::New(game_task,
                                                          playback_task);
-    if (const auto* controller = std2::GetSuccessResult(
-            scoped_mmcss_thread_controller)) [[likely]] {
+    if (const auto* controller =
+            std2::GetSuccessResult(scoped_mmcss_thread_controller)) [[likely]] {
       const auto responsiveness_percent =
           controller->GetResponsivenessPercent();
 
-      if (const auto* percent =
-              std2::GetSuccessResult(responsiveness_percent)) [[likely]] {
+      if (const auto* percent = std2::GetSuccessResult(responsiveness_percent))
+          [[likely]] {
         G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
                      << implicit_cast<unsigned>(*percent)
                      << "% system responsiveness value.";

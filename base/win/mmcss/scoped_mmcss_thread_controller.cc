@@ -132,8 +132,7 @@ std2::result<ScopedMmcssThreadController> ScopedMmcssThreadController::New(
     const ScopedMmcssThreadTask& last_task) noexcept {
   ScopedMmcssThreadController controller{first_task, last_task};
   return !controller.error_code()
-             ? std2::result<ScopedMmcssThreadController>{std::move(
-                   controller)}
+             ? std2::result<ScopedMmcssThreadController>{std::move(controller)}
              : std2::result<ScopedMmcssThreadController>{
                    controller.error_code()};
 }

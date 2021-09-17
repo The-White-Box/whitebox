@@ -21,7 +21,7 @@ constexpr char kPathToMainLogFile[]{""};
  */
 constexpr char kPathToMainLogFile[]{"/tmp/"};
 #else
-#error Please define path to main log file for your platform in build/static_settings_config.h.
+#error Please define path to main log file for your platform.
 #endif
 
 /**

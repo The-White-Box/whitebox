@@ -97,7 +97,7 @@ namespace wb::base {
  */
 template <typename TPointer, typename R>
 using function_pointer_concept =
-    std::enable_if_t<wb::base::std2::is_function_pointer_v<TPointer>, R>;
+    std::enable_if_t<std2::is_function_pointer_v<TPointer>, R>;
 
 /**
  * @brief Smart pointer with std::unique_ptr semantic for module lifecycle
@@ -132,7 +132,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
     return library != nullptr ? std2::result<ScopedSharedLibrary>(
                                     std::move(ScopedSharedLibrary{library}))
                               : std2::result<ScopedSharedLibrary>(
-                                    wb::base::windows::GetErrorCode(library));
+                                    windows::GetErrorCode(library));
   }
 
   /**
@@ -151,9 +151,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
       const auto *address =
           reinterpret_cast<T>(::GetProcAddress(get(), function_name));
     WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
-    return address != nullptr
-               ? std2::result<T>(address)
-               : std2::result<T>(std2::GetThreadErrorCode());
+    return address != nullptr ? std2::result<T>(address)
+                              : std2::result<T>(std2::GetThreadErrorCode());
   }
 #elif defined(WB_OS_POSIX)
   /**
@@ -179,9 +178,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
   [[nodiscard]] function_pointer_concept<T, std2::result<T>> GetAddressAs(
       const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
-    return address != nullptr
-               ? std2::result<T>(address)
-               : std2::result<T>(std2::GetThreadErrorCode());
+    return address != nullptr ? std2::result<T>(address)
+                              : std2::result<T>(std2::GetThreadErrorCode());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add shared library support for your platform.

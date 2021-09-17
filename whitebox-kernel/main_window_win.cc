@@ -285,8 +285,8 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     // Change window to normal size, should enable DWM MMCSS to
     // speed up window composition.
     auto scoped_toggle_dwm_mmcs_result = mmcss::ScopedMmcssToggleDwm::New(true);
-    if (auto *scheduler = wb::base::std2::GetSuccessResult(
-            scoped_toggle_dwm_mmcs_result)) {
+    if (auto *scheduler =
+            wb::base::std2::GetSuccessResult(scoped_toggle_dwm_mmcs_result)) {
       auto *memory = new unsigned char[sizeof(mmcss::ScopedMmcssToggleDwm)];
 
       // Trick with placement new + move.

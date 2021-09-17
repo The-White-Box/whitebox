@@ -96,7 +96,7 @@ class ScopedFloatingPointMode {
   const unsigned previous_mxcsr_register_value_;
 };
 #else
-#error Define floating point behavior in base/scoped_floating_point_mode.h
+#error Please define floating point behavior for your platform.
 #endif
 }  // namespace wb::base
 

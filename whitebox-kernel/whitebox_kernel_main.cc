@@ -210,8 +210,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 #elif defined(WB_OS_MACOSX)
         | SdlWindowFlags::kUseMetal
 #else
-#error Unknown platform. Please, define SDL window flags for your platform in \
-  whitebox-kernel/whitebox_kernel_main.cc
+#error Please, define SDL window flags for your platform.
 #endif
   };
 

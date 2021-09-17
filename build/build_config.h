@@ -54,7 +54,7 @@
 // Solaris OS.
 #define WB_OS_SOLARIS 1
 #else
-#error Please add support for your platform in build/build_config.h
+#error Please add support for your platform.
 #endif
 // NOTE: Adding a new port?  Please follow
 // https://github.com/The-White-Box/whitebox/blob/master/REVIEW_OWNERS.md
@@ -90,7 +90,7 @@
 // MSVC.
 #define WB_COMPILER_MSVC 1
 #else
-#error Please add support for your compiler in build/build_config.h
+#error Please add support for your platform.
 #endif
 
 // Processor architecture detection.  For more info on what's defined, see:
@@ -128,7 +128,7 @@
 #define WB_ARCH_CPU_64_BITS 1
 #define WB_ARCH_CPU_BIG_ENDIAN 1
 #else
-#error Please add support for your CPU architecture in build/build_config.h
+#error Please add support for your CPU architecture.
 #endif
 
 // Type detection for wchar_t.
@@ -149,7 +149,7 @@
 // short wchar works for them.
 #define WB_WCHAR_T_IS_UTF16
 #else
-#error Please add support for your wchar_t in build/build_config.h
+#error Please add support for your wchar_t type.
 #endif
 
 #endif  // !WB_BUILD_BUILD_CONFIG_H_
