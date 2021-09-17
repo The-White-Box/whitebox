@@ -10,7 +10,6 @@
 
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
-#include "build/compiler_config.h"
 //
 #include <WinNls.h>
 #endif
@@ -20,6 +19,7 @@ namespace wb::base::std2 {
 [[nodiscard]] WB_BASE_API std::string WideToUTF8(const std::wstring &source) {
   if (source.empty() ||
       source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+    G3DLOG(FATAL) << "WideToUTF8 source size is too large.";
     return std::string{};
   }
   const int size{::WideCharToMultiByte(CP_UTF8, 0, &source[0],
@@ -30,11 +30,7 @@ namespace wb::base::std2 {
   if (::WideCharToMultiByte(CP_UTF8, 0, &source[0],
                             static_cast<int>(source.size()), &result[0], size,
                             nullptr, nullptr) != size) {
-    WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-      // conditional expression is constant
-      WB_COMPILER_MSVC_DISABLE_WARNING(4127)
-      G3DCHECK(false);
-    WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+    G3DLOG(FATAL) << "WideCharToMultiByte failed.";
     return std::string{};
   }
   return result;
@@ -43,6 +39,7 @@ namespace wb::base::std2 {
 [[nodiscard]] WB_BASE_API std::wstring UTF8ToWide(const std::string &source) {
   if (source.empty() ||
       source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+    G3DLOG(FATAL) << "UTF8ToWide source size is too large.";
     return std::wstring{};
   }
   const int size{::MultiByteToWideChar(
@@ -52,14 +49,10 @@ namespace wb::base::std2 {
   if (::MultiByteToWideChar(CP_UTF8, 0, &source[0],
                             static_cast<int>(source.size()), &result[0],
                             size) != size) {
-    WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-      // conditional expression is constant
-      WB_COMPILER_MSVC_DISABLE_WARNING(4127)
-      G3DCHECK(false);
-    WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+    G3DLOG(FATAL) << "MultiByteToWideChar failed.";
     return std::wstring{};
   }
   return result;
 }
 #endif
-}  // namespace wb::base::std_ext
+}  // namespace wb::base::std2
