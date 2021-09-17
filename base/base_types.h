@@ -33,31 +33,28 @@ using u64 = std::uint64_t;
 // int64_t.
 using i64 = std::int64_t;
 
-// Unsigned pointer size type.
+// Max array index size type.
 using usize = std::size_t;
-// Signed pointer size type.
+// Signed pointer difference size type.
 using isize = std::ptrdiff_t;
 
 // 4 bytes float.
 using f32 = float;
 static_assert(sizeof(f32) == 4,  //-V112
               "f32 should be 4 bytes length. "
-              "Please, define 4 bytes float for your platform in "
-              "base/base_types.h.");
+              "Please, define 4 bytes float for your platform.");
 
 // 8 bytes double.
 using f64 = double;
 static_assert(sizeof(f64) == 8,
               "f64 should be 8 bytes length. "
-              "Please, define 8 bytes double for your platform in "
-              "base/base_types.h.");
+              "Please, define 8 bytes double for your platform.");
 
 // char.
 using ch = char;
 static_assert(sizeof(ch) == 1,
               "char should be 1 byte length. "
-              "Please, define 1 byte char for your platform in "
-              "base/base_types.h.");
+              "Please, define 1 byte char for your platform.");
 
 // char16_t.
 using ch16 = char16_t;
