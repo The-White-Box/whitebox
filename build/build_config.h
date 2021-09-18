@@ -57,7 +57,7 @@
 #error Please add support for your platform.
 #endif
 // NOTE: Adding a new port?  Please follow
-// https://github.com/The-White-Box/whitebox/blob/master/REVIEW_OWNERS.md
+// https://github.com/The-White-Box/whitebox/blob/master/docs/new_port_policy.md
 
 // For access to standard BSD features, use WB_OS_BSD instead of a
 // more specific macro.
