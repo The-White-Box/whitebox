@@ -109,6 +109,337 @@
 #define WB_COMPILER_HAS_DEBUG 1
 #endif
 
+// Common attributes.
+#ifdef WB_COMPILER_MSVC
+
+/*
+ * @brief Exports functions, data, and objects from a DLL.
+ *
+ * "If a class is marked declspec(dllexport), any specializations of class
+ * templates in the class hierarchy are implicitly marked as
+ * declspec(dllexport).  This means that class templates are explicitly
+ * instantiated and the class's members must be defined."
+ *
+ * See https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport
+ */
+#define WB_ATTRIBUTE_DLL_EXPORT __declspec(dllexport)
+
+/*
+ * @brief Imports functions, data, and objects from a DLL.
+ *
+ * See https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport
+ */
+#define WB_ATTRIBUTE_DLL_IMPORT __declspec(dllimport)
+
+/*
+ * @brief The WB_ATTRIBUTE_FORCEINLINE overrides the cost-benefit analysis and
+ * relies on the judgment of the programmer instead.
+ *
+ * Please, follow suggestions from profiler before putting
+ * WB_ATTRIBUTE_FORCEINLINE!
+ *
+ * Indiscriminate use of WB_ATTRIBUTE_FORCEINLINE can result in larger code or,
+ * in some cases, even performance losses (because of the increased paging of a
+ * larger executable, for example).
+ */
+#define WB_ATTRIBUTE_FORCEINLINE __forceinline
+
+/*
+ * @brief When applied to a function declaration or definition that returns a
+ * pointer type, restrict tells the compiler that the function returns an object
+ * that is not aliased, that is, referenced by any other pointers.  This allows
+ * the compiler to perform additional optimizations.
+ *
+ * The compiler propagates __declspec(restrict).  For example, the CRT malloc
+ * function has a __declspec(restrict) decoration, and therefore, the compiler
+ * assumes that pointers initialized to memory locations by malloc are also not
+ * aliased by previously existing pointers.
+
+ * The compiler does not check that the returned pointer is not actually
+ * aliased.  It is the developer's responsibility to ensure the program does not
+ * alias a pointer marked with the restrict __declspec modifier.
+ *
+ * WB_ATTRIBUTE_MALLOC_LIKE pointer_return_type function();
+ *
+ * See https://docs.microsoft.com/en-us/cpp/cpp/restrict
+ */
+#define WB_ATTRIBUTE_MALLOC_LIKE(deallocator, ptr_index) __declspec(restrict)
+
+/*
+ * @brief Compiler generates code without prolog and epilog code.  You can use
+ * this feature to write your own prolog/epilog code sequences using inline
+ * assembler code:
+ *
+ * WB_ATTRIBUTE_NAKED int func( formal_parameters ) {}
+ *
+ * See https://docs.microsoft.com/en-us/cpp/cpp/naked-cpp
+ */
+#define WB_ATTRIBUTE_NAKED __declspec(naked)
+
+/*
+ * @brief Never inline a particular member function (function in a class).
+ *
+ * "It may be worthwhile to not inline a function if it is small and not
+ * critical to the performance of your code.  That is, if the function is small
+ * and not likely to be called often, such as a function that handles an error
+ * condition.  Keep in mind that if a function is marked noinline, the calling
+ * function will be smaller and thus, itself a candidate for compiler inlining."
+ *
+ * WB_ATTRIBUTE_NOINLINE int mbrfunc() { return 0; }  // will not inline
+ *
+ * See https://docs.microsoft.com/en-us/cpp/cpp/noinline
+ */
+#define WB_ATTRIBUTE_NOINLINE __declspec(noinline)
+
+/**
+ * Does nothing for now.
+ */
+#define WB_ATTRIBUTE_PURE
+
+#elif defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief Exports functions, data, and objects from a shared library.
+ */
+#define WB_ATTRIBUTE_DLL_EXPORT __attribute__((visibility("default")))
+
+/*
+ * @brief Imports functions, data, and objects from a shared library.
+ */
+#define WB_ATTRIBUTE_DLL_IMPORT
+
+/*
+ * @brief Generally, functions are not inlined unless optimization is specified.
+ * For functions declared inline, this attribute inlines the function
+ * independent of any restrictions that otherwise apply to inlining.  Failure to
+ * inline such a function is diagnosed as an error.  Note that if such a
+ * function is called indirectly the compiler may or may not inline it depending
+ * on optimization level and a failure to inline an indirect call may or may not
+ * be diagnosed.
+ */
+#define WB_ATTRIBUTE_FORCEINLINE __attribute__((always_inline))
+
+/*
+ * @brief Attribute malloc indicates that a function is malloc-like, i.e., that
+ * the pointer P returned by the function cannot alias any other pointer valid
+ * when the function returns, and moreover no pointers to valid objects occur in
+ * any storage addressed by P.  In addition, the GCC predicts that a function
+ * with the attribute returns non-null in most cases.
+ *
+ * Associates deallocator as a suitable deallocation function for pointers
+ * returned from the malloc-like function.  ptr-index denotes the positional
+ * argument to which when the pointer is passed in calls to deallocator has the
+ * effect of deallocating it.
+ *
+ * The analyzer assumes that deallocators can gracefully handle the nullptr
+ * pointer.  If this is not the case, the deallocator can be marked with
+ * __attribute__((nonnull)) so that -fanalyzer can emit a
+ * -Wanalyzer-possible-null-argument diagnostic for code paths in which the
+ * deallocator is called with nullptr.
+ */
+#define WB_ATTRIBUTE_MALLOC_LIKE(deallocator, ptr_index) \
+  __attribute__((malloc, malloc(deallocator, ptr_index)))
+
+/*
+ * @brief This attribute allows the compiler to construct the requisite function
+ * declaration, while allowing the body of the function to be assembly code. The
+ * specified function will not have prologue/epilogue sequences generated by the
+ * compiler.
+ *
+ * Only basic asm statements can safely be included in naked functions (see
+ * Basic Asm).  While using extended asm or a mixture of basic asm and C code
+ * may appear to work, they cannot be depended upon to work reliably and are not
+ * supported.
+ */
+#define WB_ATTRIBUTE_NAKED __attribute__((naked))
+
+/*
+ * @brief This function attribute prevents a function from being considered for
+ * inlining.  If the function does not have side effects, there are
+ * optimizations other than inlining that cause function calls to be optimized
+ * away, although the function call is live.  To keep such calls from being
+ * optimized away, put
+ *
+ * asm ("");
+ *
+ * in the called function, to serve as a special side effect.
+ */
+#define WB_ATTRIBUTE_NOINLINE __attribute__((noinline))
+
+/**
+ * @brief The pure attribute prohibits a function from modifying the state of
+ * the program that is observable by means other than inspecting the function’s
+ * return value.  However, functions declared with the pure attribute can safely
+ * read any non-volatile objects, and modify the value of objects in a way that
+ * does not affect their return value or the observable state of the program.
+ */
+#define WB_ATTRIBUTE_PURE __attribute__((pure))
+
+#else  // defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_DLL_EXPORT
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_DLL_IMPORT
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_FORCEINLINE
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_MALLOC_LIKE(deallocator, ptr_index)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOINLINE
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_PURE
+
+#endif  // !defined(WB_COMPILER_MSVC) && !defined(WB_COMPILER_GCC) &&
+        // !defined(WB_COMPILER_CLANG)
+
+// Sanitizers.
+#ifdef WB_COMPILER_MSVC
+
+/*
+ * @brief Tells the compiler to disable the address sanitizer on functions,
+ * local variables, or global variables.  This specifier is used in conjunction
+ * with AddressSanitizer.
+ *
+ * WB_MSVC_NOSANITIZE_ADDRESS disables compiler behavior, not runtime
+ * behavior.
+ *
+ * See https://docs.microsoft.com/en-us/cpp/cpp/no-sanitize-address
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_ADDRESS __declspec(no_sanitize_address)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_COVERAGE
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_THREAD
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_UNDEFINED
+
+#elif defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief The no_sanitize_address attribute on functions is used to inform the
+ * compiler that it should not instrument memory accesses in the function when
+ * compiling with the -fsanitize=address option.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_ADDRESS __attribute__((no_sanitize_address))
+
+/*
+ * @brief The no_sanitize_coverage attribute on functions is used to inform the
+ * compiler that it should not do coverage-guided fuzzing code instrumentation
+ * (-fsanitize-coverage).
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_COVERAGE __attribute__((no_sanitize_coverage))
+
+/*
+ * @brief The no_sanitize_thread attribute on functions is used to inform the
+ * compiler that it should not instrument memory accesses in the function when
+ * compiling with the -fsanitize=thread option.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_THREAD __attribute__((no_sanitize_thread))
+
+/*
+ * @brief The no_sanitize_undefined attribute on functions is used to inform the
+ * compiler that it should not check for undefined behavior in the function when
+ * compiling with the -fsanitize=undefined option.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_UNDEFINED __attribute__((no_sanitize_undefined))
+
+#else  // !defined(WB_COMPILER_GCC) && !defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_MSVC_NOSANITIZE_ADDRESS
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_COVERAGE
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_THREAD
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NOSANITIZE_UNDEFINED
+
+#endif  // !defined(WB_COMPILER_MSVC) && !defined(WB_COMPILER_GCC) &&
+        // !defined(WB_COMPILER_CLANG)
+
+// Source annotations.
+#ifdef WB_COMPILER_MSVC
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NONNULL(...)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_RETURNS_NONNULL
+
+#elif defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief The no_sanitize_address attribute on functions is used to inform the
+ * compiler that it should not instrument memory accesses in the function when
+ * compiling with the -fsanitize=address option.
+ */
+#define WB_ATTRIBUTE_NONNULL(...) __attribute__((nonnull(__VA_ARGS__)))
+
+/*
+ * @brief The returns_nonnull attribute specifies that the function return value
+ * should be a non-null pointer.  Lets the compiler optimize callers based on
+ * the knowledge that the return value will never be null.
+ */
+#define WB_ATTRIBUTE_RETURNS_NONNULL __attribute__((returns_nonnull))
+
+#else  // !defined(WB_COMPILER_GCC) && !defined(WB_COMPILER_CLANG)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_NONNULL(...)
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_RETURNS_NONNULL
+
+#endif  // !defined(WB_COMPILER_MSVC) && !defined(WB_COMPILER_GCC) &&
+        // !defined(WB_COMPILER_CLANG)
+
+// MSVC specific.
 #ifdef WB_COMPILER_MSVC
 
 /*
@@ -147,36 +478,6 @@
 #define WB_MSVC_HEAP_ALLOCATOR __declspec(allocator)
 
 /*
- * @brief Exports functions, data, and objects from a DLL.
- *
- * "If a class is marked declspec(dllexport), any specializations of class
- * templates in the class hierarchy are implicitly marked as
- * declspec(dllexport).  This means that class templates are explicitly
- * instantiated and the class's members must be defined."
- *
- * See https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport
- */
-#define WB_ATTRIBUTE_DLL_EXPORT __declspec(dllexport)
-
-/*
- * @brief Imports functions, data, and objects from a DLL.
- *
- * See https://docs.microsoft.com/en-us/cpp/cpp/dllexport-dllimport
- */
-#define WB_ATTRIBUTE_DLL_IMPORT __declspec(dllimport)
-
-/*
- * @brief Compiler generates code without prolog and epilog code.  You can use
- * this feature to write your own prolog/epilog code sequences using inline
- * assembler code:
- *
- * WB_MSVC_NAKED int func( formal_parameters ) {}
- *
- * See https://docs.microsoft.com/en-us/cpp/cpp/naked-cpp
- */
-#define WB_MSVC_NAKED __declspec(naked)
-
-/*
  * @brief Function call doesn't modify or reference visible global state and
  * only modifies the memory pointed to directly by pointer parameters
  * (first-level indirections).
@@ -189,33 +490,6 @@
  * See https://docs.microsoft.com/en-us/cpp/cpp/noalias
  */
 #define WB_MSVC_NOALIAS __declspec(noalias)
-
-/*
- * Never inline a particular member function (function in a class).
- *
- * "It may be worthwhile to not inline a function if it is small and not
- * critical to the performance of your code.  That is, if the function is small
- * and not likely to be called often, such as a function that handles an error
- * condition.  Keep in mind that if a function is marked noinline, the calling
- * function will be smaller and thus, itself a candidate for compiler inlining."
- *
- * WB_MSVC_NOALIAS int mbrfunc() { return 0; }  // will not inline
- *
- * See https://docs.microsoft.com/en-us/cpp/cpp/noinline
- */
-#define WB_MSVC_NOINLINE __declspec(noinline)
-
-/*
- * @brief Tells the compiler to disable the address sanitizer on functions,
- * local variables, or global variables.  This specifier is used in conjunction
- * with AddressSanitizer.
- *
- * WB_MSVC_NOSANITIZE_ADDRESS disables compiler behavior, not runtime
- * behavior.
- *
- * See https://docs.microsoft.com/en-us/cpp/cpp/no-sanitize-address
- */
-#define WB_MSVC_NOSANITIZE_ADDRESS __declspec(no_sanitize_address)
 
 /*
  * @brief Should only be applied to pure interface classes, that is, classes
@@ -236,27 +510,6 @@
  * See https://docs.microsoft.com/en-us/cpp/cpp/novtable
  */
 #define WB_MSVC_NOVTABLE __declspec(novtable)
-
-/*
- * @brief When applied to a function declaration or definition that returns a
- * pointer type, restrict tells the compiler that the function returns an object
- * that is not aliased, that is, referenced by any other pointers.  This allows
- * the compiler to perform additional optimizations.
- *
- * The compiler propagates __declspec(restrict).  For example, the CRT malloc
- * function has a __declspec(restrict) decoration, and therefore, the compiler
- * assumes that pointers initialized to memory locations by malloc are also not
- * aliased by previously existing pointers.
-
- * The compiler does not check that the returned pointer is not actually
- * aliased.  It is the developer's responsibility to ensure the program does not
- * alias a pointer marked with the restrict __declspec modifier.
- *
- * WB_MSVC_RESTRICT_FUNCTION pointer_return_type function();
- *
- * See https://docs.microsoft.com/en-us/cpp/cpp/restrict
- */
-#define WB_MSVC_RESTRICT_FUNCTION __declspec(restrict)
 
 /*
  * @brief Indicates that a symbol isn't aliased in the current scope.  The
@@ -294,39 +547,109 @@
 
 #else  // WB_COMPILER_MSVC
 
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_DISABLE_WARNING(warning_level)
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_SCOPED_DISABLE_WARNING(warning_level, code) code
 
-// TODO: Add these at least for GCC / Clang.
-
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_HEAP_ALLOCATOR
 
-#define WB_MSVC_NAKED
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_NOALIAS
-#define WB_MSVC_NOINLINE
-#define WB_MSVC_NOSANITIZE_ADDRESS
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_NOVTABLE
-#define WB_MSVC_RESTRICT_FUNCTION
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_RESTRICT_VAR
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_MSVC_SELECTANY
 
 #endif  // !WB_COMPILER_MSVC
 
+// GCC / Clang specific.
 #if defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
 
-#define WB_ATTRIBUTE_DLL_EXPORT __attribute__((visibility("default")))
-#define WB_ATTRIBUTE_DLL_IMPORT
-
-/**
- * The pure attribute prohibits a function from modifying the state of the
- * program that is observable by means other than inspecting the function’s
- * return value.  However, functions declared with the pure attribute can safely
- * read any non-volatile objects, and modify the value of objects in a way that
- * does not affect their return value or the observable state of the program.
+/*
+ * @brief The cold attribute on functions is used to inform the compiler that
+ * the function is unlikely to be executed.  The function is optimized for size
+ * rather than speed.  The paths leading to calls of cold functions within code
+ * are marked as unlikely by the branch prediction mechanism.  It is thus useful
+ * to mark functions used to handle unlikely conditions, such as perror, as cold
+ * to improve optimization of hot functions that do call marked functions in
+ * rare occasions.
  */
-#define WB_GCC_PURE __attribute__((pure))
+#define WB_ATTRIBUTE_COLD __attribute__((cold))
+
+/*
+ * @brief Calls to functions whose return value is not affected by changes to
+ * the observable state of the program and that have no observable effects on
+ * such state other than to return a value may lend themselves to optimizations
+ * such as common subexpression elimination.  Declaring such functions with the
+ * const attribute allows GCC to avoid emitting some calls in repeated
+ * invocations of the function with the same argument.
+ *
+ * The const attribute prohibits a function from reading objects that affect its
+ * return value between successive invocations.  However, functions declared
+ * with the attribute can safely read objects that do not change their return
+ * value, such as non-volatile constants.
+ *
+ * Note that a function that has pointer arguments and examines the data pointed
+ * to must not be declared const if the pointed-to data might change between
+ * successive invocations of the function.  In general, since a function cannot
+ * distinguish data that might change from data that cannot, const functions
+ * should never take pointer or, in C++, reference arguments.
+ */
+#define WB_ATTRIBUTE_CONST __attribute__((const))
+
+/*
+ * @brief The hot attribute on a function is used to inform the compiler that
+ * the function is a hot spot of the compiled program.  The function is
+ * optimized more aggressively and on many targets it is placed into a special
+ * subsection of the text section so all hot functions appear close together,
+ * improving locality.
+ */
+#define WB_ATTRIBUTE_HOT __attribute__((hot))
+
+/*
+ * @brief The weak attribute causes a declaration of an external symbol to be
+ * emitted as a weak symbol rather than a global.  This is primarily useful in
+ * defining library functions that can be overridden in user code, though it can
+ * also be used with non-function declarations.
+ *
+ * The overriding symbol must have the same type as the weak symbol.  In
+ * addition, if it designates a variable it must also have the same size and
+ * alignment as the weak symbol.  Weak symbols are supported for ELF targets,
+ * and also for a.out targets when using the GNU assembler and linker.
+ */
+#define WB_ATTRIBUTE_WEAK __attribute__((weak))
 
 /*
  * @brief Begins GCC / Clang warning override scope.
@@ -389,7 +712,22 @@
 /*
  * @brief Do nothing.
  */
-#define WB_GCC_PURE
+#define WB_ATTRIBUTE_COLD
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_CONST
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_HOT
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_WEAK
 
 /*
  * @brief Do nothing.
@@ -426,6 +764,6 @@
  */
 #define WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
-#endif  // !(defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG))
+#endif  // !defined(WB_COMPILER_GCC) && !defined(WB_COMPILER_CLANG)
 
 #endif  // !WB_BUILD_COMPILER_CONFIG_H_
