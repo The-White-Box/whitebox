@@ -39,15 +39,15 @@ class WB_BASE_API AccessibilityShortcutKeysToggler {
  private:
   class AccessibilityShortcutKeysTogglerImpl;
 
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // Private member is not accessible to the DLL's client, including inline
     // functions.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    WB_MSVC_DISABLE_WARNING(4251)
     /**
      * @brief Actual implementation.
      */
     wb::base::un<AccessibilityShortcutKeysTogglerImpl> impl_;
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
 }  // namespace wb::base::windows::ui
 

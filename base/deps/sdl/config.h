@@ -13,20 +13,20 @@
  * @brief Open SDL compiler warnings suppression scope.
  */
 #define WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()          \
-  WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()       \
-    WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()    \
-      WB_COMPILER_MSVC_DISABLE_WARNING(4668)           \
-      WB_COMPILER_MSVC_DISABLE_WARNING(4820)           \
-      WB_COMPILER_GCC_DISABLE_OLD_STYLE_CAST_WARNING() \
-      WB_COMPILER_GCC_DISABLE_PADDED_WARNING()
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()       \
+    WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()             \
+      WB_MSVC_DISABLE_WARNING(4668)                    \
+      WB_MSVC_DISABLE_WARNING(4820)                    \
+      WB_GCC_DISABLE_OLD_STYLE_CAST_WARNING() \
+      WB_GCC_DISABLE_PADDED_WARNING()
 
 /**
  * @brief Close SDL compiler warnings suppression scope.
  */
-#define WB_END_SDL_WARNING_OVERRIDE_SCOPE()   \
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE \
-  ()                                          \
-  WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE  \
+#define WB_END_SDL_WARNING_OVERRIDE_SCOPE()  \
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE         \
+  ()                                         \
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE \
   ()
 
 #endif  // !WB_BASE_DEPS_SDL_CONFIG_H_

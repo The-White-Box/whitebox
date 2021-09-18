@@ -31,8 +31,8 @@ namespace wb::base::threads {
  * Gets current thread handle.
  * @return Native thread handle.
  */
-WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
-  WB_COMPILER_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
   [[nodiscard]] WB_BASE_API NativeThreadHandle
   GetCurrentThreadHandle() noexcept {
 #ifdef WB_OS_WIN
@@ -43,7 +43,7 @@ WB_COMPILER_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
 #error Please define GetCurrentThreadHandle for your platform.
 #endif
   }
-WB_COMPILER_GCC_END_WARNING_OVERRIDE_SCOPE()
+WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 /**
  * @brief Gets thread name.

@@ -66,7 +66,7 @@ class ScopedMmcssThreadTask {
    * @brief Creates ScopedMmcssThreadTask
    * @param name Task name.
    * @return nothing.
-  */
+   */
   explicit ScopedMmcssThreadTask(_In_z_ const char* name) noexcept
       : name_{name} {
     G3DCHECK(!!name);
@@ -75,13 +75,13 @@ class ScopedMmcssThreadTask {
   /**
    * @brief Task name.
    * @return Task name.
-  */
+   */
   const char* name() const noexcept { return name_; }
 
  private:
   /**
    * @brief Task name.
-  */
+   */
   const char* name_;
 };
 
@@ -144,15 +144,15 @@ class WB_BASE_API ScopedMmcssThreadController {
  private:
   class ScopedMmcssThreadControllerImpl;
 
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // Private member is not accessible to the DLL's client, including inline
     // functions.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    WB_MSVC_DISABLE_WARNING(4251)
     /**
      * @brief Actual implementation.
      */
     wb::base::un<ScopedMmcssThreadControllerImpl> impl_;
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   /**
    * @brief Creates ScopedMmcssThreadController.

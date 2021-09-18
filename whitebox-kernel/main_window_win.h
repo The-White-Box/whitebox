@@ -34,12 +34,12 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
   friend class BaseWindow;
 
  public:
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // C4355: We do not call this members here, just bind to it, so safe.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4355)
+    WB_MSVC_DISABLE_WARNING(4355)
     // C4868: compiler may not enforce left-to-right evaluation order in braced
     // initializer list
-    WB_COMPILER_MSVC_DISABLE_WARNING(4868)
+    WB_MSVC_DISABLE_WARNING(4868)
     /**
      * @brief Main window ctor.
      * @param instance App instance.
@@ -56,7 +56,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
           accessibility_shortcut_keys_toggler_{},
           scoped_mmcss_toggle_dwm_{},
           is_window_active_{false} {}
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(MainWindow);
 

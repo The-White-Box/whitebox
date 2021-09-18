@@ -62,13 +62,13 @@ namespace wb::base::windows {
 
   if (version != Version::WIN_LAST) return version;
 
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // C4996 'GetVersionExA': was declared deprecated.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4996)
+    WB_MSVC_DISABLE_WARNING(4996)
     OSVERSIONINFOEX version_info = {sizeof(version_info)};
     const std::error_code rc{GetErrorCode(
         ::GetVersionEx(reinterpret_cast<OSVERSIONINFO*>(&version_info)))};
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   G3PCHECK_E(!rc, rc) << "Can't get Windows OS version";
   if (!rc) {

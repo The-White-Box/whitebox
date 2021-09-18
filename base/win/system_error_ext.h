@@ -9,16 +9,16 @@
 
 #include "build/compiler_config.h"
 
-WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
   // 'AAA': conversion from 'BBB' to 'CCC', signed/unsigned mismatch
-  WB_COMPILER_MSVC_DISABLE_WARNING(4365)
+  WB_MSVC_DISABLE_WARNING(4365)
   // 'XXX': '4' bytes padding added after data member 'ZZZ'
-  WB_COMPILER_MSVC_DISABLE_WARNING(4820)
+  WB_MSVC_DISABLE_WARNING(4820)
   // 'SSS': class has virtual functions, but its trivial destructor
   // is not virtual
-  WB_COMPILER_MSVC_DISABLE_WARNING(5204)
+  WB_MSVC_DISABLE_WARNING(5204)
 #include <comdef.h>
-WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
 #include <string>
 #include <system_error>

@@ -112,12 +112,12 @@ class WB_BASE_API Lookup {
  private:
   class LookupImpl;
 
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // Private member is not accessible to the DLL's client, including inline
     // functions.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    WB_MSVC_DISABLE_WARNING(4251)
     un<LookupImpl> impl_;
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   /**
    * @brief Creates lookup.
@@ -178,12 +178,12 @@ class WB_BASE_API LookupWithFallback {
 
  private:
   Lookup lookup_;
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // Private member is not accessible to the DLL's client, including inline
     // functions.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    WB_MSVC_DISABLE_WARNING(4251)
     std::string fallback_string_;
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   /**
    * @brief Creates lookup with fallback.

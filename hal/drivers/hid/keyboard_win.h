@@ -60,15 +60,15 @@ class WB_HAL_HID_DRIVER_API Keyboard {
    */
   HWND window_;
 
-  WB_COMPILER_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // Private member is not accessible to the DLL's client, including inline
     // functions.
-    WB_COMPILER_MSVC_DISABLE_WARNING(4251)
+    WB_MSVC_DISABLE_WARNING(4251)
     /**
      * @brief Keyboard initialization error code.
      */
     std::error_code error_code_;
-  WB_COMPILER_MSVC_END_WARNING_OVERRIDE_SCOPE()
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   /**
    * @brief Creates keyboard device.
