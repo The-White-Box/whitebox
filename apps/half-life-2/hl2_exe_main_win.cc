@@ -54,53 +54,52 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
   // Search for DLLs in the secure order to prevent DLL plant attacks.
   std::error_code rc{windows::GetErrorCode(::SetDefaultDllDirectories(
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS))};
-  G3PLOGE_IF(WARNING, !!rc, rc)
+  G3PLOGE_IF(WARNING, rc ? &rc : nullptr)
       << "Can't enable secure DLL search order, attacker can plant DLLs with "
          "malicious code.";
 
   const auto app_path = windows::GetApplicationDirectory(instance);
-  G3PLOGE_IF(FATAL, !!wb::base::std2::GetErrorCode(app_path),
-             std::get<std::error_code>(app_path))
+  G3PLOGE_IF(FATAL, wb::base::std2::GetErrorCode(app_path))
       << "Can't get current directory.  Unable to load "
          "the app.  Please, contact authors.";
 
-  const std::string bootmgr_path{std::get<std::string>(app_path) +
-                                 "bootmgr.dll"};
-  const unsigned bootmgr_load_flags{
+  const std::string boot_manager_path{std::get<std::string>(app_path) +
+                                      "bootmgr.dll"};
+  const unsigned boot_manager_load_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
       (windows::MustBeSignedDllLoadTarget(command_line)
            ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
            : 0U)};
 
-  const auto bootmgr_load_result =
-      ScopedSharedLibrary::FromLibraryOnPath(bootmgr_path, bootmgr_load_flags);
-  if (const auto* bootmgr_module =
-          std2::GetSuccessResult(bootmgr_load_result)) {
+  const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
+      boot_manager_path, boot_manager_load_flags);
+  if (const auto* boot_manager_module =
+          std2::GetSuccessResult(boot_manager_load_result)) {
     using BootmgrMainFunction = decltype(&BootmgrMain);
-    constexpr char kBootmgrMainFunctionName[]{"BootmgrMain"};
+    constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
 
     // Good, try to find and launch bootmgr.
-    const auto bootmgr_entry_result =
-        bootmgr_module->GetAddressAs<BootmgrMainFunction>(
-            kBootmgrMainFunctionName);
-    if (const auto* bootmgr_main =
-            std2::GetSuccessResult(bootmgr_entry_result)) {
-      return (*bootmgr_main)({instance, command_line,
-                              WB_PRODUCT_FILE_DESCRIPTION_STRING,
-                              show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
-                              WB_HALF_LIFE_2_IDI_SMALL_ICON});
+    const auto boot_manager_entry_result =
+        boot_manager_module->GetAddressAs<BootmgrMainFunction>(
+            kBootManagerMainFunctionName);
+    if (const auto* boot_manager_main =
+            std2::GetSuccessResult(boot_manager_entry_result)) {
+      return (*boot_manager_main)(
+          {instance, command_line, WB_PRODUCT_FILE_DESCRIPTION_STRING,
+           show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
+           WB_HALF_LIFE_2_IDI_SMALL_ICON});
     }
 
     // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(bootmgr_entry_result);
+    rc = std::get<std::error_code>(boot_manager_entry_result);
     G3PLOG_E(WARNING, rc)
-        << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
-        << bootmgr_path
+        << "Can't get '" << kBootManagerMainFunctionName
+        << "' entry point from '" << boot_manager_path
         << "'.  Looks like app is broken, please, reinstall the one.";
   } else {
     // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(bootmgr_load_result);
-    G3PLOG_E(WARNING, rc) << "Can't load boot manager '" << bootmgr_path
+    rc = std::get<std::error_code>(boot_manager_load_result);
+    G3PLOG_E(WARNING, rc) << "Can't load boot manager '" << boot_manager_path
                           << "'.  Please, reinstall the app.";
   }
 
@@ -144,8 +143,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
 #endif
           error_handling::ScopedThreadErrorModeFlags::kNoGpFaultErrorBox |
           error_handling::ScopedThreadErrorModeFlags::kNoOpenFileErrorBox);
-  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_thread_error_mode),
-             *std2::GetErrorCode(scoped_thread_error_mode))
+  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_thread_error_mode))
       << "Can't set thread reaction to serious system errors, continue with "
          "default reaction.";
 
@@ -155,16 +153,13 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       com::ScopedComInitializerFlags::kApartmentThreaded |
       com::ScopedComInitializerFlags::kDisableOle1Dde |
       com::ScopedComInitializerFlags::kSpeedOverMemory);
-  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_com_initializer),
-             *std2::GetErrorCode(scoped_com_initializer))
+  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_com_initializer))
       << "Component Object Model initialization failed, continue without COM.";
 
   // Disable default COM exception swallowing, report all COM exceptions to us.
   const auto scoped_com_fatal_exception_handler =
       com::ScopedComFatalExceptionHandler::New();
-  G3PLOGE_IF(WARNING,
-             !!std2::GetErrorCode(scoped_com_fatal_exception_handler),
-             *std2::GetErrorCode(scoped_com_fatal_exception_handler))
+  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_com_fatal_exception_handler))
       << "Can't disable COM exceptions swallowing, some exceptions may not be "
          "passed to the app.";
 
@@ -173,8 +168,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   const auto scoped_com_strong_unmarshalling_policy =
       com::ScopedComStrongUnmarshallingPolicy::New();
   G3PLOGE_IF(WARNING,
-             !!std2::GetErrorCode(scoped_com_strong_unmarshalling_policy),
-             *std2::GetErrorCode(scoped_com_strong_unmarshalling_policy))
+             std2::GetErrorCode(scoped_com_strong_unmarshalling_policy))
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 

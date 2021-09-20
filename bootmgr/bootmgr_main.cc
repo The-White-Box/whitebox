@@ -87,7 +87,7 @@ void BootHeapMemoryAllocator() noexcept {
     // Terminate the app if system detected heap corruption.
     const auto error_code =
         wb::base::windows::memory::EnableTerminationOnHeapCorruption();
-    G3PLOGE_IF(FATAL, !!error_code, error_code)
+    G3PLOGE_IF(FATAL, error_code ? &error_code : nullptr)
         << "Can't enable 'Terminate on Heap corruption' os feature, continue "
            "without it.";
   }
@@ -96,7 +96,7 @@ void BootHeapMemoryAllocator() noexcept {
     // Optimize heap caches now.
     const auto error_code =
         wb::base::windows::memory::OptimizeHeapResourcesNow();
-    G3PLOGE_IF(WARNING, !!error_code, error_code)
+    G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
         << "Can't optimize heap resources caches, some memory will not be "
            "freed.";
   }
@@ -241,8 +241,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
-  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_process_mitigation_policies),
-             *std2::GetErrorCode(scoped_process_mitigation_policies))
+  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_process_mitigation_policies))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 
@@ -277,8 +276,7 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name = threads::ScopedThreadName::New(
       threads::GetCurrentThreadHandle(), new_thread_name);
-  G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_thread_name),
-             *std2::GetErrorCode(scoped_thread_name))
+  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 #else
   // Well, we can't just use this one, as it is shown in top and monitors, so
@@ -338,7 +336,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
 
       const auto bump_thread_priority_rc = controller->SetPriority(
           windows::mmcss::ScopedMmcssThreadPriority::kHigh);
-      G3PLOGE_IF(WARNING, !!bump_thread_priority_rc, bump_thread_priority_rc)
+      G3PLOGE_IF(WARNING,
+                 bump_thread_priority_rc ? &bump_thread_priority_rc : nullptr)
           << "Can't get system responsiveness setting used by Multimedia "
              "Class Scheduler Service for the thread.";
     } else {

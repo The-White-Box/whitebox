@@ -95,11 +95,12 @@ class ScopedEndError {
     INTERNAL_LOG_MESSAGE(level).stream()
 
 // 'Conditional' stream log + system error code.
-#define G3PLOGE_IF(level, boolean_expression, error_code)                 \
-  if (!g3::logLevel(level) || false == (boolean_expression)) [[likely]] { \
-  } else                                                                  \
-    wb::base::deps::g3log::ScopedEndError{                                \
-        error_code, INTERNAL_LOG_MESSAGE(level).stream()}                 \
+#define G3PLOGE_IF(level, error_code_ptr_expression)                        \
+  if (!g3::logLevel(level) || false == (!!(error_code_ptr_expression)))     \
+      [[likely]] {                                                          \
+  } else                                                                    \
+    wb::base::deps::g3log::ScopedEndError{                                  \
+        *(error_code_ptr_expression), INTERNAL_LOG_MESSAGE(level).stream()} \
         .stream()
 
 // 'Design By Contract' stream API. Broken Contracts will exit the application
@@ -226,9 +227,9 @@ And here is possible output
   } else                                     \
     G3LOG_IF(level, boolean_expression)
 // Does nothing.
-#define G3DPLOGE_IF                                              \
-  (level, boolean_expression, error_code) if constexpr (true) {} \
-  else G3PLOGE_IF(level, boolean_expression, error_code)
+#define G3DPLOGE_IF                                         \
+  (level, error_code_ptr_expression) if constexpr (true) {} \
+  else G3PLOGE_IF(level, error_code_ptr_expression)
 // Does nothing.
 #define G3DLOGF(level, printf_like_message, ...) \
   if constexpr (true) {                          \
@@ -271,8 +272,8 @@ And here is possible output
 #define G3DLOG_IF(level, boolean_expression) G3LOG_IF(level, boolean_expression)
 
 // 'Conditional' stream log + system error code.
-#define G3DPLOGE_IF(level, boolean_expression, error_code) \
-  G3PLOGE_IF(level, boolean_expression, error_code)
+#define G3DPLOGE_IF(level, error_code_ptr_expression) \
+  G3PLOGE_IF(level, error_code_ptr_expression)
 
 /** For details please see this
  * REFERENCE: http://www.cppreference.com/wiki/io/c/printf_format
