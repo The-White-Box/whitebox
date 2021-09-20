@@ -513,13 +513,15 @@
 
 /*
  * @brief Indicates that a symbol isn't aliased in the current scope.  The
- * __restrict keyword differs from the __declspec (restrict) modifier in the
+ * __restrict keyword differs from the __declspec(restrict) modifier in the
  * following ways:
- * * The __restrict keyword is valid only on variables, and __declspec
+ * The __restrict keyword is valid only on variables, and __declspec
  * (restrict) is only valid on function declarations and definitions.
- * * __restrict is similar to restrict for C starting in C99, but __restrict can
+ *
+ * __restrict is similar to restrict for C starting in C99, but __restrict can
  * be used in both C++ and C programs.
- * * When __restrict is used, the compiler won't propagate the no-alias property
+ *
+ * When __restrict is used, the compiler won't propagate the no-alias property
  * of a variable.  That is, if you assign a __restrict variable to a
  * non-__restrict variable, the compiler will still allow the non-__restrict
  * variable to be aliased.

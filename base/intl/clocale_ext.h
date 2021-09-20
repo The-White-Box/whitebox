@@ -112,7 +112,7 @@ class ScopedProcessLocale {
     // See
     // https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2013/x99tb11d
     G3DCHECK(old_locale_.find(';') == std::string::npos)
-        << "Old locale uses multiple locales per category, need to implemnt "
+        << "Old locale uses multiple locales per category, need to implement "
            "locale restore.";
 
     if (!new_locale_.empty()) {

@@ -64,8 +64,7 @@ namespace wb::base::windows {
  * @param instance App instance.
  * @return App directory with trailing path separator.
  */
-wb::base::std2::result<std::string> GetApplicationDirectory(
-    _In_ HINSTANCE instance) {
+std2::result<std::string> GetApplicationDirectory(_In_ HINSTANCE instance) {
   std::string file_path;
   file_path.resize(_MAX_PATH + 1);
 
@@ -73,8 +72,7 @@ wb::base::std2::result<std::string> GetApplicationDirectory(
       ::GetModuleFileNameA(instance, file_path.data(),
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
-    if (wb::base::std2::GetThreadNativeLastErrno() ==
-        ERROR_INSUFFICIENT_BUFFER) {
+    if (std2::GetThreadNativeLastErrno() == ERROR_INSUFFICIENT_BUFFER) {
       return std::error_code{ERROR_INSUFFICIENT_BUFFER, std::system_category()};
     }
 
@@ -87,7 +85,7 @@ wb::base::std2::result<std::string> GetApplicationDirectory(
                : file_path;
   }
 
-  return wb::base::std2::GetThreadErrorCode();
+  return std2::GetThreadErrorCode();
 }
 }  // namespace wb::base::windows
 

@@ -108,4 +108,9 @@ GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
               testing::KilledBySignal(SIGTRAP), "");
 #endif
 }
+#else
+// NOLINTNEXTLINE(cert-err58-cpp)
+GTEST_TEST(StringViewExtTest, EndsWithStringWhenNullptr) {
+  EXPECT_FALSE(ends_with(std::string{"abc"}, nullptr));
+}
 #endif
