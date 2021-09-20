@@ -162,7 +162,10 @@ struct KeyboardInput {
 
   using std::to_string;
 
-  result += "Make Code: " + to_string(keyboard_input.make_code);
+  result += "Make Code: " +
+            (keyboard_input.make_code != KeyboardInput::kOverrunMakeCode
+                 ? to_string(keyboard_input.make_code)
+                 : "Overrun");
   result += " | Key Flags: " + to_string(keyboard_input.key_flags);
   result += " | Virtual Key: " + to_string(keyboard_input.virtual_key);
   result += " | Message: " + to_string(keyboard_input.message);

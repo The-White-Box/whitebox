@@ -32,7 +32,8 @@ template <typename T>
 constexpr bool is_function_pointer_v{is_function_pointer<T>::value};
 
 /**
- * @brief Checks argument is char type (char, wchar_t, char16_t, char32_t).
+ * @brief Checks argument is char type (char, wchar_t, char8_t, char16_t,
+ * char32_t).
  * @tparam T Argument.
  */
 template <typename T>

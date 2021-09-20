@@ -145,6 +145,7 @@ class WB_BASE_API LookupWithFallback {
 
   /**
    * @brief Creates new lookup by locale ids.  If no string found
+   * |fallback_string| is used as fallback.
    * @param locale_ids Set of locale ids, order by descending preference.
    * @param fallback_string String to return if requested one not found.
    * @return Lookup.
