@@ -7,6 +7,7 @@
 #ifndef WB_BASE_STD2_SYSTEM_ERROR_EXT_H_
 #define WB_BASE_STD2_SYSTEM_ERROR_EXT_H_
 
+#include <cerrno>
 #include <system_error>
 #include <variant>
 
@@ -21,8 +22,6 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _Check_return_
     _Post_equals_last_error_ unsigned long __stdcall GetLastError(void);
 extern "C" WB_ATTRIBUTE_DLL_IMPORT void __stdcall SetLastError(
     _In_ unsigned long dwErrCode);
-#else
-#include <cerrno>
 #endif
 
 namespace wb::base::std2 {
@@ -39,6 +38,16 @@ namespace wb::base::std2 {
 }
 
 /**
+ * @brief Get generic POSIX errno error code.
+ * @param rc Native POSIX errno error code.
+ * @return POSIX errno error code.
+ */
+[[nodiscard]] inline std::error_code GetThreadPosixErrorCode(
+    const int rc = errno) noexcept {
+  return std::error_code{rc, std::generic_category()};
+}
+
+/**
  * @brief Get system error code.
  * @param rc Native system error code.
  * @return System error code.
@@ -52,22 +61,12 @@ namespace wb::base::std2 {
  * @brief Set system error code.
  * @param rc Native system error code.
  */
-inline void SetThreadErrorCode(const std::error_code rc) noexcept { //-V801
+inline void SetThreadErrorCode(const std::error_code rc) noexcept {  //-V801
 #ifdef WB_OS_WIN
   ::SetLastError(static_cast<unsigned long>(rc.value()));
 #else
   errno = rc.value();
 #endif
-}
-
-/**
- * @brief Get generic POSIX errno error code.
- * @param rc Native POSIX errno error code.
- * @return POSIX errno error code.
- */
-[[nodiscard]] inline std::error_code GetThreadPosixErrorCode(
-    const int rc = GetThreadNativeLastErrno()) noexcept {
-  return std::error_code{rc, std::generic_category()};
 }
 
 /**
