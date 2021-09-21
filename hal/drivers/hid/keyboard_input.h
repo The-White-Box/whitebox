@@ -97,12 +97,12 @@ enum class KeyboardKeyFlags : unsigned short {
 
   if ((key_flags & KeyboardKeyFlags::kTerminalServerSetLed) ==
       KeyboardKeyFlags::kTerminalServerSetLed) {
-    result += "Terminal On LED ";
+    result += "Terminal On LED";
   }
 
   if ((key_flags & KeyboardKeyFlags::kTerminalServerShadow) ==
       KeyboardKeyFlags::kTerminalServerShadow) {
-    result += "Terminal Off LED ";
+    result += "Terminal Off LED";
   }
 
   return result;
