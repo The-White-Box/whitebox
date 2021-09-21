@@ -7,6 +7,9 @@
 #ifndef WB_BASE_DEPS_SDL_MESSAGE_BOX_H_
 #define WB_BASE_DEPS_SDL_MESSAGE_BOX_H_
 
+#include <sstream>
+
+#include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
 

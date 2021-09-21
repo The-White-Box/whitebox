@@ -159,8 +159,17 @@ class SdlWindow {
   }
 
  private:
+  /**
+   * @brief SDL window.
+   */
   SDL_Window *window_;
+  /**
+   * @brief SDL window initialization code.
+   */
   SdlError init_rc_;
+  /**
+   * @brief SDL window flags.
+   */
   SdlWindowFlags flags_;
   WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(flags_)];
 

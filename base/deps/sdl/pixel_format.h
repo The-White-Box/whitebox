@@ -44,6 +44,8 @@ class SdlPixelFormat {
                : SdlResult<SdlPixelFormat>{format.error_code()};
   }
 
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(SdlPixelFormat);
+
   ~SdlPixelFormat() noexcept {
     if (format_) {
       ::SDL_FreeFormat(format_);
