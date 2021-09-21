@@ -23,9 +23,11 @@ class Lookup::LookupImpl {
   [[nodiscard]] static Lookup::LookupResult<un<Lookup::LookupImpl>> New(
       const std::set<std::string>& locale_ids) noexcept {
     // TODO(dimhotepus): Load locales.
-    if (locale_ids.find("English_United States.utf8") != locale_ids.end()) {
+    if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
+        locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
       return Lookup::LookupResult<un<Lookup::LookupImpl>>{un<
           Lookup::LookupImpl>{new Lookup::LookupImpl{MessagesById{
+#ifdef WB_OS_WIN
           {message_ids::kWindowsVersionIsTooOld,
            "Windows is too old.  At least Windows 10, version 1903 (May 19, "
            "2019)+ required."},
@@ -35,6 +37,7 @@ class Lookup::LookupImpl {
           {message_ids::kBootmgrErrorDialogTitle, "Boot Manager - Error"},
           {message_ids::kSeeTechnicalDetails, "See techical details"},
           {message_ids::kHideTechnicalDetails, "Hide techical details"},
+#endif
           {message_ids::kNudgeAuthorsLink,
            "<A "
            "HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</"
@@ -117,7 +120,7 @@ Lookup::String(uint64_t message_id) noexcept {
 
 Lookup::Lookup(un<LookupImpl> impl) noexcept : impl_{std::move(impl)} {}
 
-Lookup::~Lookup() noexcept {}
+Lookup::~Lookup() noexcept = default;
 
 Lookup::Lookup(Lookup&& l) noexcept : impl_{std::move(l.impl_)} {}
 

@@ -26,10 +26,10 @@ constexpr std::uint64_t kBootmgrErrorDialogTitle{3};
 constexpr std::uint64_t kSeeTechnicalDetails{4};
 // Hide techical details
 constexpr std::uint64_t kHideTechnicalDetails{5};
+#endif
 // <A HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</A>
 // authors
 constexpr std::uint64_t kNudgeAuthorsLink{6};
-#endif
 // Can't get current directory.  Unable to load the kernel.
 constexpr std::uint64_t kCantGetExecutableDirectoryForBootManager{7};
 // Please, nudge authors.

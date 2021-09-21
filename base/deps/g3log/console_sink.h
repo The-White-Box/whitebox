@@ -66,7 +66,7 @@ struct ConsoleSink {
     const auto color = GetColor(level);
 
     std::cerr << "\033[" << wb::base::underlying_cast(color) << "m"
-              << logEntry.get().toString() << "\033[m" << std::endl;
+              << logEntry.get().toString() << "\033[m";
 #elif defined(WB_OS_WIN)
     const auto message = logEntry.get().toString();
 

@@ -11,7 +11,7 @@ set(WB_BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(WB_BASE_TARGET_NAME "base")
 
 set(WB_BASE_LINK_OPTIONS "")
-set(WB_BASE_LINK_DEPS g3log mimalloc)
+set(WB_BASE_LINK_DEPS fmt g3log mimalloc)
 set(WB_BASE_RUNTIME_DEPS g3log mimalloc)
 set(WB_BASE_CXX_DEFINITIONS WB_BASE_DLL=1)
 
@@ -36,7 +36,7 @@ if (WB_OS_WIN)
   # Comctl32 for TaskDialogIndirect.
   # Delayimp for DLL dealy load support.
   # Shell32 for ShellExecuteW.
-  list(APPEND WB_BASE_LINK_DEPS Avrt Comctl32 Delayimp fmt Shell32)
+  list(APPEND WB_BASE_LINK_DEPS Avrt Comctl32 Delayimp Shell32)
 endif()
 
 wb_cxx_shared_library(

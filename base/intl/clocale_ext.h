@@ -28,6 +28,13 @@ namespace locales {
  * code page (ACP) for the locale and UTF-8 for the code page.
  */
 constexpr char kUtf8Locale[]{".UTF8"};
+#elif defined(WB_OS_POSIX)
+/*
+ * @brief Modern Linux distributions use UTF-8 as default locale.
+ */
+constexpr char kUtf8Locale[]{""};
+#else
+#error Please define utf8 locale for your os.
 #endif
 
 /**
@@ -78,7 +85,11 @@ class ScopedProcessLocale {
   /**
    * Creates scoped process locale.
    * @param category Locale category.
-   * @param new_locale New locale.
+   * @param new_locale New locale.  On Linux distros locale name is typically of
+   * the form "language[_territory][.codeset][\@modifier]", where language is an
+   * ISO 639 language code, territory is an ISO 3166 country code, and codeset
+   * is a character set or encoding identifier like ISO-8859-1 or UTF-8.  For a
+   * list of all supported locales, try "locale -a".
    */
   ScopedProcessLocale(ScopedProcessLocaleCategory category,
                       const char *new_locale) noexcept
@@ -100,7 +111,7 @@ class ScopedProcessLocale {
     //
     // See
     // https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2013/x99tb11d
-    G3DCHECK(old_locale_.find(";") == std::string::npos)
+    G3DCHECK(old_locale_.find(';') == std::string::npos)
         << "Old locale uses multiple locales per category, need to implemnt "
            "locale restore.";
 
@@ -148,8 +159,8 @@ class ScopedProcessLocale {
    * Sets locale.
    * @return New locale string.  Empty if locale not set.
    */
-  [[nodiscard]] std::string SetLocale(ScopedProcessLocaleCategory category,
-                                      const char *new_locale) noexcept {
+  [[nodiscard]] static std::string SetLocale(
+      ScopedProcessLocaleCategory category, const char *new_locale) noexcept {
     const char *locale{std::setlocale(underlying_cast(category), new_locale)};
     G3DCHECK(locale == nullptr || locale[0] != '\0')
         << "std::setlocale returned empty string, can't distinguish it and "

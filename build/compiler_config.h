@@ -669,6 +669,12 @@
   _Pragma("GCC diagnostic ignored \"-Wpadded\"")
 
 /*
+ * @brief Disables GCC / Clang missing [[noreturn]] warning.
+ */
+#define WB_GCC_DISABLE_MISSING_NORETURN_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wmissing-noreturn\"")
+
+/*
  * @brief Disables GCC / Clang undef warning.
  */
 #define WB_GCC_DISABLE_UNDEF_WARNING() \
@@ -743,6 +749,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_PADDED_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_MISSING_NORETURN_WARNING()
 
 /*
  * @brief Do nothing.
