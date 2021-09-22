@@ -6,16 +6,13 @@
 
 #include "scoped_new_handler.h"
 //
-#include <array>
 #include <limits>
+#include <vector>
 
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
-#else
-#include <signal.h>  // SIGABRT
 #endif
 
-#include "base/deps/g3log/g3log.h"
 #include "base/deps/googletest/gtest/gtest.h"
 
 // NOLINTNEXTLINE(cert-err58-cpp)
@@ -33,6 +30,8 @@ GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
   EXPECT_NE(&DefaultNewFailureHandler, std::get_new_handler());
 }
 
+// On POSIX just receive SIGKILL on OOM and we have no way to handle it.
+#ifdef WB_OS_WIN
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
@@ -41,19 +40,50 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
       wb::base::DefaultNewFailureHandler};
 
   const auto triggerOom = []() noexcept {
-    constexpr size_t kOomAllocSize{std::numeric_limits<unsigned>::max() >> 2U};
-    std::array<int *, 1024> memory{};
+    const size_t doubled_total_ram_bytes{GetTotalRamKiBs() * 2048};
+    std::cerr << "Total RAM size: " << doubled_total_ram_bytes / 1024 / 1024
+              << "MiBs.\n";
 
-    for (auto &block : memory) {
-      block = new int[kOomAllocSize];
-      block[kOomAllocSize - 1] = 0;
+    constexpr size_t kBlockAllocSize{std::numeric_limits<unsigned>::max() >>
+                                     1U};
+    std::cerr << "Allocate RAM in blocks of " << kBlockAllocSize / 1024 / 1024
+              << " MiBs\n";
+
+    std::vector<int *> memory;
+
+    size_t allocated_bytes{0};
+    while (allocated_bytes < doubled_total_ram_bytes) {
+      auto *block = new int[kBlockAllocSize];
+
+      constexpr size_t kStepSize{65536}, kFillAreaSize{16};
+      for (size_t i{0}; i < kBlockAllocSize - kFillAreaSize; i += kStepSize) {
+        memset(&block[i], std::rand() % 255 + 1, kFillAreaSize);
+      }
+
+      memory.push_back(block);
+
+      for (const auto *const it : memory) {
+        for (size_t i{0}; i < kBlockAllocSize - kFillAreaSize; i += kStepSize) {
+          G3CHECK((static_cast<unsigned>(it[i]) >> 24) >= 1U);
+        }
+      }
+
+      allocated_bytes += kBlockAllocSize;
+
+      std::cerr << "Allocated RAM " << allocated_bytes / 1024 / 1024
+                << "MiB.\n";
     }
+
+    // Memory is freed automatically as dead test is running in distinct
+    // process.
+    // Makes test run faster.
   };
 
-#ifdef WB_OS_WIN
 #ifdef NDEBUG
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
+// Windows handle SIGABRT and exit with code 3.  See
+//
+https
+    :  // docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
   constexpr int kExitCodeForSigAbrt{3};
   constexpr char kMessage[]{
       "Failed to allocate memory bytes via new.  Please, ensure you "
@@ -64,13 +94,10 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   // In debug mode message is not printed.
   constexpr char kMessage[]{""};
 #endif
-#elif defined(WB_OS_POSIX)
-  constexpr int kExitCodeForSigAbrt{SIGABRT};
-  constexpr char kMessage[]{
-      "Failed to allocate memory bytes via new.  Please, ensure you "
-      "have enough RAM to run the app.  Stopping the app."};
-#endif
+
+  triggerOom();
 
   EXPECT_EXIT(triggerOom(), testing::ExitedWithCode(kExitCodeForSigAbrt),
               kMessage);
 }
+#endif
