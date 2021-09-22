@@ -34,7 +34,7 @@ if (WB_OS_WIN)
     "/DELAYLOAD:Avrt.dll" "/DELAYLOAD:Comctl32.dll" "/DELAYLOAD:Shell32.dll")
   # Avrt for MMCSS support.
   # Comctl32 for TaskDialogIndirect.
-  # Delayimp for DLL dealy load support.
+  # Delayimp for DLL delay load support.
   # Shell32 for ShellExecuteW.
   list(APPEND WB_BASE_LINK_DEPS Avrt Comctl32 Delayimp Shell32)
 endif()
@@ -60,8 +60,8 @@ if (WB_BUILD_TESTS)
   endif()
 
   wb_cxx_test_exe_for_target(
-      TARGET ${WB_BASE_TARGET_NAME}
-      SOURCE_DIR ${WB_BASE_SOURCE_DIR}
-      LINK_DEPS ${WB_BASE_TESTS_LINK_DEPS}
+    TARGET ${WB_BASE_TARGET_NAME}
+    SOURCE_DIR ${WB_BASE_SOURCE_DIR}
+    LINK_DEPS ${WB_BASE_TESTS_LINK_DEPS}
   )
 endif()

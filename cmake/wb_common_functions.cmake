@@ -186,6 +186,59 @@ function(wb_remove_matches_from_lists)
   endforeach()
 endfunction()
 
+# Removes OS specific files from target.
+#
+# Usage example:
+# wb_remove_os_specific_files(
+#   "target_source_dir"
+#   "${header_files}"
+#   "${source_files}"
+#   ON | OFF
+# )
+function(wb_remove_os_specific_files target_source_dir header_files source_files
+    should_exclude_tests)
+  # Exclude OS specific files.
+  if (NOT WB_OS_WIN)
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        "^${target_source_dir}/win/"
+        "^${target_source_dir}(.*)_win.h"
+        "^${target_source_dir}(.*)_win.cc"
+    )
+  endif()
+
+  if (NOT WB_OS_LINUX)
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        # Technically Linux is not Unix, but more or less similar.
+        "^${target_source_dir}/unix/"
+        "^${target_source_dir}(.*)_unix.h"
+        "^${target_source_dir}(.*)_unix.cc"
+    )
+  endif()
+
+  if (NOT WB_OS_MACOSX)
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        "^${target_source_dir}/macos/"
+        "^${target_source_dir}(.*)_macos.h"
+        "^${target_source_dir}(.*)_macos.cc"
+    )
+  endif()
+
+  # Remove tests.
+  if (should_exclude_tests)
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.h$"
+        "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.cc$"
+    )
+  endif()
+
+  set(header_files ${header_files} PARENT_SCOPE)
+  set(source_files ${source_files} PARENT_SCOPE)
+endfunction()
+
 # Dumps target property as message.  Use like this:
 # wb_dump_target_property("My target" "My property" "My property description")
 function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_DESCRIPTION)

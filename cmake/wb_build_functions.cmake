@@ -67,39 +67,8 @@ function(wb_cxx_executable)
   # First find all test sources and header files.
   wb_auto_sources(header_files "*.h" "RECURSE" "${target_source_dir}")
   wb_auto_sources(source_files "*.cc" "RECURSE" "${target_source_dir}")
-
-  # Exclude OS specific files.
-  if (NOT WB_OS_WIN)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${target_source_dir}/win/"
-        "^${target_source_dir}(.*)_win.cc"
-    )
-  endif()
-
-  if (NOT WB_OS_LINUX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        # Technically Linux is not Unix, but more or less similar.
-        "^${target_source_dir}/unix/"
-        "^${target_source_dir}(.*)_unix.cc"
-    )
-  endif()
-
-  if (NOT WB_OS_MACOSX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${target_source_dir}/macos/"
-        "^${target_source_dir}(.*)_macos.cc"
-    )
-  endif()
-
-  # Remove tests.
-  wb_remove_matches_from_lists(header_files source_files
-    MATCHES
-      "^${target_source_dir}(.*)?_tests.h$"
-      "^${target_source_dir}(.*)?_tests.cc$"
-  )
+  wb_remove_os_specific_files(${target_source_dir}
+    "${header_files}" "${source_files}" ON)
 
   # Generate project info.
   configure_file(
@@ -142,6 +111,17 @@ function(wb_cxx_executable)
         ${manifests_dir}/utf-8-code-page.manifest
     )
   endif()
+
+  # To see what is actually included.
+  message(STATUS "${target_name} has header files:")
+  foreach (header_file ${header_files})
+    message(STATUS "${header_file}")
+  endforeach()
+
+  message(STATUS "${target_name} has source files:")
+  foreach (source_file ${source_files})
+    message(STATUS "${source_file}")
+  endforeach()
 
   # Specify project compile / link options.
   wb_apply_compile_options_to_target(${target_name})
@@ -228,39 +208,19 @@ function(wb_cxx_shared_library)
   # First find all test sources and header files.
   wb_auto_sources(header_files "*.h" "RECURSE" "${target_source_dir}")
   wb_auto_sources(source_files "*.cc" "RECURSE" "${target_source_dir}")
+  wb_remove_os_specific_files(${target_source_dir}
+    "${header_files}" "${source_files}" ON)
 
-  # Exclude OS specific files.
-  if (NOT WB_OS_MACOSX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${target_source_dir}/macos/"
-        "^${target_source_dir}(.*)_macos.cc"
-    )
-  endif()
+  # To see what is actually included.
+  message(STATUS "${target_name} has header files:")
+  foreach (header_file ${header_files})
+    message(STATUS "${header_file}")
+  endforeach()
 
-  if (NOT WB_OS_LINUX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        # Technically Linux is not Unix, but more or less similar.
-        "^${target_source_dir}/unix/"
-        "^${target_source_dir}(.*)_unix.cc"
-    )
-  endif()
-
-  if (NOT WB_OS_WIN)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${target_source_dir}/win/"
-        "^${target_source_dir}(.*)_win.cc"
-    )
-  endif()
-
-  # Remove tests.
-  wb_remove_matches_from_lists(header_files source_files
-    MATCHES
-      "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.h$"
-      "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.cc$"
-  )
+  message(STATUS "${target_name} has source files:")
+  foreach (source_file ${source_files})
+    message(STATUS "${source_file}")
+  endforeach()
 
   # Generate project info.
   configure_file(
@@ -338,42 +298,29 @@ function(wb_cxx_test_exe_for_target)
   # First find all test sources and header files.
   wb_auto_sources(header_files "*_tests*.h" "RECURSE" "${target_source_dir}")
   wb_auto_sources(source_files "*_tests*.cc" "RECURSE" "${target_source_dir}")
-
-  # Exclude OS specific files.
-  if (NOT WB_OS_MACOSX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        "^${target_source_dir}/macos/"
-        "^${target_source_dir}(.*)_macos.cc"
-    )
-  endif()
-
-  if (NOT WB_OS_LINUX)
-    wb_remove_matches_from_lists(header_files source_files
-      MATCHES
-        # Technically Linux is not Unix, but more or less similar.
-        "^${target_source_dir}/unix/"
-        "^${target_source_dir}(.*)_unix.cc"
-    )
-  endif()
-
-  if (NOT WB_OS_WIN)
-    wb_remove_matches_from_lists(header_files source_files
-        MATCHES
-        "^${target_source_dir}/win/"
-        "^${target_source_dir}(.*)_win.cc"
-        )
-  endif ()
+  wb_remove_os_specific_files(${target_source_dir}
+    "${header_files}" "${source_files}" OFF)
 
   set(tests_target_name "${target_name}_tests")
   add_executable(${tests_target_name} ${header_files} ${source_files})
 
+  # To see what is actually included.
+  message(STATUS "${tests_target_name} has header files:")
+  foreach (header_file ${header_files})
+    message(STATUS "${header_file}")
+  endforeach()
+
+  message(STATUS "${tests_target_name} has source files:")
+  foreach (source_file ${source_files})
+    message(STATUS "${source_file}")
+  endforeach()
+
   # Include the root and with generated info directories.
   target_include_directories(${tests_target_name}
-      PRIVATE
+    PRIVATE
       ${WB_ROOT_DIR}
       ${target_binary_dir}/gen
-      )
+  )
 
   # Specify tests compile / link options.
   wb_apply_compile_options_to_target(${tests_target_name})
