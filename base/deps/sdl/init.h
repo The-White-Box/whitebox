@@ -77,7 +77,7 @@ class SdlInitializer {
  private:
   SdlError init_rc_;
   SdlInitializerFlags flags_;
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(flags_)];
+  std::byte pad_[sizeof(char *) - sizeof(flags_)];
 
   /**
    * @brief Creates SDL initializer.

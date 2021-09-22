@@ -675,6 +675,12 @@
   _Pragma("GCC diagnostic ignored \"-Wmissing-noreturn\"")
 
 /*
+ * @brief Disables GCC / Clang switch-default warning.
+ */
+#define WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wswitch-default\"")
+
+/*
  * @brief Disables GCC / Clang undef warning.
  */
 #define WB_GCC_DISABLE_UNDEF_WARNING() \
@@ -743,6 +749,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_MISSING_NORETURN_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
 
 /*
  * @brief Do nothing.

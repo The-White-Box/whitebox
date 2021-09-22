@@ -19,6 +19,9 @@ on:
       - '**.md'
       - 'assets/**'
 
+env:
+  GCC_VERSION: 11
+
 jobs:
   build:
     name: Build and Test
@@ -42,7 +45,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           sudo apt-get update
-          sudo apt-get install wayland-protocols \
+          sudo apt-get install -y wayland-protocols \
           pkg-config \
           ninja-build \
           libasound2-dev \
@@ -75,6 +78,21 @@ jobs:
           libgbm-dev \
           libpulse-dev \
           libpango1.0-dev
+          sudo apt-get install -y gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
+          sudo update-alternatives \
+          --install /usr/bin/gcc   gcc   /usr/bin/gcc-${{ env.GCC_VERSION }}     100 \
+          --slave   /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcov gcov /usr/bin/gcov-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-${{ env.GCC_VERSION }}  \
+          --slave   /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-${{ env.GCC_VERSION }}
+          sudo update-alternatives \
+          --install /usr/bin/cc   cc   /usr/bin/gcc     100 \
+          --slave   /usr/bin/ld ld /usr/bin/x86_64-linux-gnu-ld
+          sudo update-alternatives \
+          --install /usr/bin/c++ c++ /usr/bin/g++     100
 
       - name: Configure (MacOS)
         if: ${{ matrix.os == 'macos-latest' }}

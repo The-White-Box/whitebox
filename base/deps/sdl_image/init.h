@@ -101,7 +101,7 @@ class SdlImageInitializer {
    * Actual returned by SDl flags.
    */
   int actual_flags_;
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(actual_flags_)];
+  std::byte pad_[sizeof(char *) - sizeof(actual_flags_)];
   /**
    * Init error code.
    */

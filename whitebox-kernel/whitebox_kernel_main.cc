@@ -95,6 +95,9 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
         case SDL_QUIT:
           is_done = true;
           break;
+
+        default:
+          continue;
       }
     }
 
