@@ -16,7 +16,6 @@ option(WB_CLANG_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_V
 option(WB_CLANG_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the Clang compiler.  See https://clang.llvm.org/docs/UsersManual.html#enabling-all-diagnostics" ON)
 option(WB_CLANG_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
 option(WB_CLANG_ENABLE_FAST_MATH                     "Enable fast-math mode.  This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
-option(WB_CLANG_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
 option(WB_CLANG_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
 option(WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the Clang compiler." ON)
 
@@ -35,6 +34,10 @@ wb_define_strings_option(WB_CLANG_DEFINE__POSIX_C_SOURCE
 wb_define_strings_option(WB_CLANG_ENABLE_CET_PROTECTION
   "Enables Control-flow Enforcement Technology (CET) protection, which defends your program from certain attacks that exploit vulnerabilities. This option offers preliminary support for CET."
   "none" "full" "branch" "return")
+
+wb_define_strings_option(WB_CLANG_LINKER_TYPE
+    "Replaces default ld linker with one from predefined set."
+    "lld" "gold" "ld")
 
 wb_define_strings_option(WB_CLANG_ENABLE_LTO
   "If enabled, use Link Time Optimization for Release builds."
@@ -400,7 +403,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       >
       # -Wl,-z,cet-report=error
       # Use faster than default linker.
-      $<$<BOOL:${WB_CLANG_ENABLE_GOLD_LINKER}>:-fuse-ld=gold>
+      -fuse-ld=${WB_CLANG_LINKER_TYPE}
   )
 
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")

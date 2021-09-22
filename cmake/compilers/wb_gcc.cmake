@@ -16,7 +16,6 @@ option(WB_GCC_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VEC
 option(WB_GCC_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the GCC compiler." ON)
 option(WB_GCC_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
 option(WB_GCC_ENABLE_FAST_MATH                     "Enable fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
-option(WB_GCC_ENABLE_GOLD_LINKER                   "If enabled, use gold linker which is faster than default." ON)
 option(WB_GCC_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
 option(WB_GCC_ENABLE_WARNING_WUNDEF                "If enabled, use -Wundef." ON)
 option(WB_GCC_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the GCC compiler." ON)
@@ -36,6 +35,10 @@ wb_define_strings_option(WB_GCC_ENABLE_CET_PROTECTION
 wb_define_strings_option(WB_GCC_ENABLE_LTO
   "If enabled, use Link Time Optimization for Release builds."
   "" "-flto" "-fwhopr")
+
+wb_define_strings_option(WB_GCC_LINKER_TYPE
+    "Replaces default ld linker with one from predefined set. Note lld can cause LTO doesn't work."
+    "gold" "ld" "lld")
 
 wb_define_strings_option(WB_GCC_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via GCC."
@@ -399,7 +402,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       >
       # -Wl,-z,cet-report=error
       # Use faster than default linker.
-      $<$<BOOL:${WB_GCC_ENABLE_GOLD_LINKER}>:-fuse-ld=gold>
+      -fuse-ld=${WB_GCC_LINKER_TYPE}
   )
 
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")
