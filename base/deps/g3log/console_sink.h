@@ -41,7 +41,7 @@ struct ConsoleSink {
    * @param level Log level.
    * @return Terminal foreground color.
    */
-  ForegroundColor GetColor(const LEVELS level) const {
+  [[nodiscard]] static ForegroundColor GetColor(const LEVELS& level) {
     if (level.value == WARNING.value) {
       return ForegroundColor::kYellow;
     }
