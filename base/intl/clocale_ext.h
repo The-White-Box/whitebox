@@ -153,7 +153,8 @@ class ScopedProcessLocale {
    * Locale category.
    */
   ScopedProcessLocaleCategory category_;
-  [[maybe_unused]] std::byte pad_[sizeof(new_locale_) - sizeof(category_)];
+  [[maybe_unused]] std::byte
+      pad_[sizeof(new_locale_) - sizeof(category_)];  //-V1055
 
   /**
    * Sets locale.

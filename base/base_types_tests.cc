@@ -18,8 +18,8 @@ GTEST_TEST(BaseTypesTest, FixedWidthTypes) {
   static_assert(sizeof(wb::i8) == 1);
   static_assert(sizeof(wb::u16) == 2);
   static_assert(sizeof(wb::i16) == 2);
-  static_assert(sizeof(wb::u32) == 4);
-  static_assert(sizeof(wb::i32) == 4);
+  static_assert(sizeof(wb::u32) == 4); //-V112
+  static_assert(sizeof(wb::i32) == 4); //-V112
   static_assert(sizeof(wb::u64) == 8);
   static_assert(sizeof(wb::i64) == 8);
   static_assert(sizeof(wb::usize) == sizeof(char*));
