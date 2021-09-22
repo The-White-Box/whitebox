@@ -77,11 +77,11 @@ function(wb_cxx_executable)
   )
 
   if (WB_OS_WIN)
-    add_executable(${target_name} WIN32 ${header_files} ${source_files})
+    add_executable(${target_name} WIN32 ${source_files} ${header_files})
   elseif (WB_OS_LINUX)
-    add_executable(${target_name} ${header_files} ${source_files})
+    add_executable(${target_name} ${source_files} ${header_files})
   elseif (WB_OS_MACOSX)
-    add_executable(${target_name} MACOSX_BUNDLE ${header_files} ${source_files})
+    add_executable(${target_name} MACOSX_BUNDLE ${source_files} ${header_files})
   endif()
 
   # Include the root and with generated info directories.
@@ -228,7 +228,7 @@ function(wb_cxx_shared_library)
     ${target_binary_dir}/gen/app_version_config.h
   )
 
-  add_library(${target_name} SHARED ${header_files} ${source_files})
+  add_library(${target_name} SHARED ${source_files} ${header_files})
 
   # Include the root and with generated info directories.
   target_include_directories(${target_name}
@@ -302,7 +302,7 @@ function(wb_cxx_test_exe_for_target)
     "${header_files}" "${source_files}" OFF)
 
   set(tests_target_name "${target_name}_tests")
-  add_executable(${tests_target_name} ${header_files} ${source_files})
+  add_executable(${tests_target_name} ${source_files} ${header_files})
 
   # To see what is actually included.
   message(STATUS "${tests_target_name} has header files:")
