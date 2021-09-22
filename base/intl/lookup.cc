@@ -113,7 +113,8 @@ Lookup::String(uint64_t message_id) noexcept {
   return Lookup::LookupResult<std::string>{std::get<Lookup::Status>(result)};
 }
 
-[[nodiscard]] Lookup::StringLayout Lookup::Layout() const noexcept {
+[[nodiscard]] WB_ATTRIBUTE_CONST Lookup::StringLayout Lookup::Layout()
+    const noexcept {
   // TODO(dimhotepus): Handle Right to Left messages.
   return Lookup::StringLayout::LeftToRight;
 }
@@ -166,7 +167,8 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
   return fallback_string_;
 }
 
-[[nodiscard]] Lookup::StringLayout LookupWithFallback::Layout() const noexcept {
+[[nodiscard]] WB_ATTRIBUTE_CONST Lookup::StringLayout
+LookupWithFallback::Layout() const noexcept {
   return lookup_.Layout();
 }
 

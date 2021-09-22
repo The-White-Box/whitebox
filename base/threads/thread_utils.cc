@@ -31,19 +31,16 @@ namespace wb::base::threads {
  * Gets current thread handle.
  * @return Native thread handle.
  */
-WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
-  WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
-  [[nodiscard]] WB_BASE_API NativeThreadHandle
-  GetCurrentThreadHandle() noexcept {
+[[nodiscard]] WB_ATTRIBUTE_CONST WB_BASE_API NativeThreadHandle
+GetCurrentThreadHandle() noexcept {
 #ifdef WB_OS_WIN
-    return NativeThreadHandle{::GetCurrentThread()};
+  return NativeThreadHandle{::GetCurrentThread()};
 #elif defined(WB_OS_POSIX)
-    return NativeThreadHandle{pthread_self()};
+  return NativeThreadHandle{pthread_self()};
 #else
 #error Please define GetCurrentThreadHandle for your platform.
 #endif
-  }
-WB_GCC_END_WARNING_OVERRIDE_SCOPE()
+}
 
 /**
  * @brief Gets thread name.
@@ -70,7 +67,7 @@ WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
   return rc;
 #elif defined(WB_OS_POSIX)
-  thread_name.resize(32); //-V112
+  thread_name.resize(32);  //-V112
 
   return std2::GetThreadPosixErrorCode(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));

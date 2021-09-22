@@ -40,7 +40,8 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
       wb::base::DefaultNewFailureHandler};
 
   const auto triggerOom = []() noexcept {
-    const size_t doubled_total_ram_bytes{GetTotalRamKiBs() * 2048};
+    constexpr size_t doubled_total_ram_bytes{static_cast<size_t>(32) * 1028 *
+                                             1028 * 1028};
     std::cerr << "Total RAM size: " << doubled_total_ram_bytes / 1024 / 1024
               << "MiBs.\n";
 
@@ -80,16 +81,14 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   };
 
 #ifdef NDEBUG
-// Windows handle SIGABRT and exit with code 3.  See
-//
-https
-    :  // docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
+  // Windows handle SIGABRT and exit with code 3.  See
+  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
   constexpr int kExitCodeForSigAbrt{3};
   constexpr char kMessage[]{
       "Failed to allocate memory bytes via new.  Please, ensure you "
       "have enough RAM to run the app.  Stopping the app."};
 #else
-  // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION ?
+  // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
   constexpr int kExitCodeForSigAbrt{static_cast<int>(STATUS_ACCESS_VIOLATION)};
   // In debug mode message is not printed.
   constexpr char kMessage[]{""};

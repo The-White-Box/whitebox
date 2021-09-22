@@ -107,7 +107,7 @@ class WB_BASE_API Lookup {
    * @brief Gets string layout.
    * @return StringLayout.
    */
-  [[nodiscard]] StringLayout Layout() const noexcept;
+  [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Layout() const noexcept;
 
  private:
   class LookupImpl;
@@ -174,7 +174,7 @@ class WB_BASE_API LookupWithFallback {
    * @brief Gets string layout.
    * @return StringLayout.
    */
-  [[nodiscard]] Lookup::StringLayout Layout() const noexcept;
+  [[nodiscard]] WB_ATTRIBUTE_CONST Lookup::StringLayout Layout() const noexcept;
 
  private:
   Lookup lookup_;

@@ -683,23 +683,12 @@
 #if defined(WB_COMPILER_GCC)
 
 /*
- * @brief Disables GCC / Clang suggest-attribute=const warning.
- */
-#define WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING() \
-  _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=const\"")
-
-/*
  * @brief Disables GCC suggest-attribute=malloc warning.
  */
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=malloc\"")
 
 #else  // !WB_COMPILER_GCC
-
-/*
- * @brief Do nothing.
- */
-#define WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
 
 /*
  * @brief Do nothing.
@@ -759,11 +748,6 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_UNDEF_WARNING()
-
-/*
- * @brief Do nothing.
- */
-#define WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
 
 /*
  * @brief Do nothing.

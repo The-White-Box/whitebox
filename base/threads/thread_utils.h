@@ -36,11 +36,8 @@ using NativeThreadName = std::string;
  * Gets current thread handle.
  * @return Native thread handle.
  */
-WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
-  WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
-  [[nodiscard]] WB_BASE_API NativeThreadHandle
-  GetCurrentThreadHandle() noexcept;
-WB_GCC_END_WARNING_OVERRIDE_SCOPE()
+[[nodiscard]] WB_ATTRIBUTE_CONST WB_BASE_API NativeThreadHandle
+GetCurrentThreadHandle() noexcept;
 
 /**
  * @brief Gets thread name.
