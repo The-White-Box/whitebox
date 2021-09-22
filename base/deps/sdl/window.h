@@ -115,9 +115,7 @@ class SdlWindow {
                : SdlResult<SdlWindow>{window.error_code()};
   }
   SdlWindow(SdlWindow &&w) noexcept
-      : window_{std::move(w.window_)},
-        init_rc_{std::move(w.init_rc_)},
-        flags_{std::move(w.flags_)} {
+      : window_{w.window_}, init_rc_{w.init_rc_}, flags_{w.flags_} {
     w.window_ = nullptr;
     w.init_rc_ = SdlError::Success();
   }

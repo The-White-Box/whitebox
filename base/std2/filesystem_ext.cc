@@ -26,7 +26,7 @@ namespace wb::base::std2 {
  * @param rc Error code.
  * @return Path to invoking executable.
  */
-template <size_t path_size = 128U, size_t max_path_size = 8192U>
+template <size_t path_size = 128U, size_t max_path_size = 1024U>
 [[nodiscard]] inline std::filesystem::path GetExecutablePath(
     std::error_code& rc) noexcept {
   char buffer[path_size];

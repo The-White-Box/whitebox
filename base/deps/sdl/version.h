@@ -35,7 +35,7 @@ inline SDL_version GetCompileTimeVersion() noexcept {
   ::SDL_version version;
   base::std2::BitwiseMemset(version, 0);
 
-  SDL_VERSION(&version);
+  SDL_VERSION(&version)
 
   static_assert(sizeof(SDL_version) <= 8U,
                 "SDL_version becomes too huge to ensure pass by value, use "
