@@ -237,6 +237,9 @@ if (WB_COMPILER_MSVC)
   target_compile_options(fmt PRIVATE /EHsc)
   # Prevent MSVC linker warning as error for __except + /guard:ehcont.
   target_compile_options(fmt PRIVATE /guard:ehcont)
+elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+  # Prevent linker warning "reloc which may overflow at runtime" (-fPIC).
+  target_compile_options(fmt PRIVATE -fPIC)
 endif()
 
 add_subdirectory("deps/g3log")
