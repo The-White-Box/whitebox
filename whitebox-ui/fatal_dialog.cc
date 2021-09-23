@@ -6,6 +6,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdlib>
 
 #ifdef WB_OS_POSIX
 #include "base/deps/sdl/message_box.h"
@@ -26,7 +27,7 @@ namespace {
  * @return Error message with end sentence mark.
  */
 [[nodiscard]] WB_ATTRIBUTE_CONST std::string HumanizeMessageSentence(
-    std::string error_message) noexcept {
+    std::string&& error_message) noexcept {
   constexpr std::array<char[3], 6> end_sentence_marks{
       {".", "?", "!", "\r", "\n", "\r\n"}};
 
@@ -68,9 +69,10 @@ namespace wb::ui {
     error_message += HumanizeMessageSentence(errc.message());
 #endif
 
-    G3PLOG_E(WARNING, errc) << main_instruction_message;
+    G3PLOG_E(WARNING, errc)
+        << main_instruction_message << "  " << content_message;
   } else {
-    G3LOG(WARNING) << error_message;
+    G3LOG(WARNING) << main_instruction_message << "  " << content_message;
   }
 
 #ifdef WB_OS_POSIX
@@ -89,19 +91,18 @@ namespace wb::ui {
   using namespace wb::base::windows;
 
   auto& intl = context.intl;
-  const std::string technical_details{rc.message()};
+  const std::string technical_details{rc.value_or(std::error_code{}).message()};
   const bool rtl_layout{context.text_layout == intl::StringLayout::RightToLeft};
 
   windows::ui::DialogBoxSettings dialog_settings(
-      nullptr, intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-      main_instruction_message, content_message,
+      nullptr, title, main_instruction_message, content_message,
       intl.String(intl::message_ids::kHideTechnicalDetails),
       intl.String(intl::message_ids::kSeeTechnicalDetails), technical_details,
       intl.String(intl::message_ids::kNudgeAuthorsLink),
       windows::ui::DialogBoxButton::kOk, context.main_icon_id,
       context.small_icon_id, rtl_layout);
-  [[maybe_unused]] const auto result =
-      windows::ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
+  [[maybe_unused]] const auto result = windows::ui::ShowDialogBox(
+      windows::ui::DialogBoxKind::kError, dialog_settings);
   // Well, dialog may not be shown (too low RAM, etc.).  So just ignore result
   // in Release.
   G3DCHECK(!std2::GetErrorCode(result))
@@ -111,6 +112,6 @@ namespace wb::ui {
 #error Please define FatalDialog UI for your platform.
 #endif
 
-  std::exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
+  exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
 }
 }  // namespace wb::ui

@@ -83,6 +83,10 @@ endif()
 set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING
   "Name of the product.")
 
+# Minimum standard level.
+set(CMAKE_CXX_STANDARD 20)
+# On g++ this ensures: -std=c++20 and not -std=gnu++20
+set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(wb_common_functions)

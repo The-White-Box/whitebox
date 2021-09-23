@@ -10,6 +10,7 @@
 #include <system_error>
 
 #include "base/intl/lookup.h"
+#include "base/base_macroses.h"
 #include "whitebox-ui/api.h"
 
 namespace wb::ui {
@@ -38,6 +39,8 @@ struct FatalDialogContext {
    */
   const int small_icon_id;
 #endif
+
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FatalDialogContext);
 };
 
 /**

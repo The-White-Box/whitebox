@@ -96,7 +96,8 @@ jobs:
 
       - name: Configure (MacOS)
         if: ${{ matrix.os == 'macos-latest' }}
-        run: cmake -B ${{ github.workspace }}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -Dgtest_hide_internal_symbols=ON -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=ON -DMI_BUILD_TESTS=ON -DMI_SECURE=ON -DWB_BUILD_TESTS=ON -DWB_CLANG_LANGUAGE_VERSION="c++20"
+        # Apple Clang can't accept c++20 for now.
+        run: cmake -B ${{ github.workspace }}/out -Wdev -Werror=dev -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -Dgtest_hide_internal_symbols=ON -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=ON -DMI_BUILD_TESTS=ON -DMI_SECURE=ON -DWB_BUILD_TESTS=ON -DWB_CLANG_LANGUAGE_VERSION="c++17"
 
       - name: Configure (Ubuntu)
         if: ${{ matrix.os == 'ubuntu-latest' }}

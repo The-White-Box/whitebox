@@ -273,9 +273,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
 
 #ifdef WB_OS_WIN
   const threads::NativeThreadName new_thread_name{L"WhiteBoxMain"};
-#else
-  const threads::NativeThreadName new_thread_name{"WhiteBoxMain"};
-#endif
 
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name = threads::ScopedThreadName::New(
@@ -283,6 +280,11 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   G3PLOGE_IF(WARNING, !!std2::GetErrorCode(scoped_thread_name),
              *std2::GetErrorCode(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
+#else
+  // Well, we can't just use this one, as it is shown in top and monitors, so
+  // should be the same as app name.  Decided to use default app name for now.
+  // const threads::NativeThreadName new_thread_name{"WhiteBoxMain"};
+#endif
 
   // Setup heap memory allocator.
   BootHeapMemoryAllocator();
