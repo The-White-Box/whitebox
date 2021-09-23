@@ -20,26 +20,33 @@ namespace wb::base::intl::message_ids {
 constexpr std::uint64_t kWindowsVersionIsTooOld{1};
 // Please, update Windows to Windows 10, version 1903 (May 19, 2019) or greater.
 constexpr std::uint64_t kPleaseUpdateWindowsVersion{2};
-// Boot Manager - Error
-constexpr std::uint64_t kBootmgrErrorDialogTitle{3};
 // See techical details
 constexpr std::uint64_t kSeeTechnicalDetails{4};
 // Hide techical details
 constexpr std::uint64_t kHideTechnicalDetails{5};
 #endif
+// Boot Manager - Error
+constexpr std::uint64_t kBootmgrErrorDialogTitle{3};
 // <A HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</A>
 // authors
 constexpr std::uint64_t kNudgeAuthorsLink{6};
 // Can't get current directory.  Unable to load the kernel.
 constexpr std::uint64_t kCantGetExecutableDirectoryForBootManager{7};
-// Please, nudge authors.
-constexpr std::uint64_t kPleaseNudgeAuthors{8};
-// Can't get '{0}' entry point from '{1}' kernel.
-constexpr std::uint64_t kCantGetKernelEntryPoint{9};
+// Can't get '{0}' entry point from '{1}'.
+constexpr std::uint64_t kCantGetLibraryEntryPoint{9};
 // Looks like app is broken, please, reinstall the one.
 constexpr std::uint64_t kPleaseReinstallTheGame{11};
 // Can't load whitebox kernel '{0}'.
 constexpr std::uint64_t kCantLoadKernelFrom{12};
+// {0} - Error
+constexpr std::uint64_t kAppErrorDialogTitle{13};
+// Please, check app is installed correctly and you have enough permissions to
+// run it.
+constexpr std::uint64_t kPleaseCheckAppInstalledCorrectly{14};
+// Can't get current directory.  Unable to load the app.
+constexpr std::uint64_t kCantGetCurrentDirectoryUnableToLoadTheApp{15};
+// Can't load boot manager '{0}'.
+constexpr std::uint64_t kCantLoadBootManager{16};
 }  // namespace wb::base::intl::message_ids
 
 #endif  // !WB_BASE_INTL_MESSAGE_IDS_H_

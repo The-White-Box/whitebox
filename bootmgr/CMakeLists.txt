@@ -12,14 +12,14 @@ set(WB_BOOTMGR_TARGET_NAME  "bootmgr")
 
 set(WB_BOOTMGR_LINK_OPTIONS "")
 
-set(WB_BOOTMGR_LINK_DEPS base g3log mimalloc)
+set(WB_BOOTMGR_LINK_DEPS base g3log mimalloc whitebox-ui)
 if (WB_OS_WIN)
   list(APPEND WB_BOOTMGR_LINK_DEPS "Winmm")
 else()
   list(APPEND WB_BOOTMGR_LINK_DEPS "dl;stdc++fs")
 endif()
 
-set(WB_BOOTMGR_RUNTIME_DEPS base g3log mimalloc whitebox-kernel)
+set(WB_BOOTMGR_RUNTIME_DEPS base g3log mimalloc whitebox-kernel whitebox-ui)
 
 wb_cxx_shared_library(
   TARGET        ${WB_BOOTMGR_TARGET_NAME}

@@ -11,14 +11,16 @@ set(WB_WHITEBOX_KERNEL_BINARY_DIR   ${CMAKE_CURRENT_BINARY_DIR})
 set(WB_WHITEBOX_KERNEL_TARGET_NAME  "whitebox-kernel")
 
 set(WB_WHITEBOX_KERNEL_LINK_OPTIONS "")
-set(WB_WHITEBOX_KERNEL_LINK_DEPS base g3log mimalloc whitebox-hid-driver)
+set(WB_WHITEBOX_KERNEL_LINK_DEPS
+  base fmt g3log mimalloc whitebox-hid-driver whitebox-ui)
 if (WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
 else ()
   list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS "SDL2::SDL2" "SDL2::image")
 endif ()
 
-set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS base g3log mimalloc whitebox-hid-driver)
+set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS
+  base g3log mimalloc whitebox-hid-driver whitebox-ui)
 if (NOT WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS "SDL2::SDL2" "SDL2::image")
 endif ()

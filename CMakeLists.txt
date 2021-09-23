@@ -302,6 +302,7 @@ add_subdirectory("hal/drivers/hid")
 
 # Kernel.
 add_subdirectory("whitebox-kernel")
+add_subdirectory("whitebox-ui")
 
 # Apps.
 add_subdirectory("apps/half-life-2")

@@ -681,12 +681,23 @@
   _Pragma("GCC diagnostic ignored \"-Wswitch-default\"")
 
 /*
+ * @brief Disables GCC / Clang switch-enum warning.
+ */
+#define WB_GCC_DISABLE_SWITCH_ENUM_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wswitch-enum\"")
+
+/*
  * @brief Disables GCC / Clang undef warning.
  */
 #define WB_GCC_DISABLE_UNDEF_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wundef\"")
 
 #if defined(WB_COMPILER_GCC)
+
+/**
+ * @brief Nothing.  GCC-11 somehow doesn't like unused on object fields.
+ */
+#define WB_ATTRIBUTE_UNUSED_FIELD [[maybe_unused]]
 
 /*
  * @brief Disables GCC suggest-attribute=malloc warning.
@@ -696,12 +707,17 @@
 
 #else  // !WB_COMPILER_GCC
 
+/**
+ * @brief Unused attribute.  Prevents Wunused-private-field.
+ */
+#define WB_ATTRIBUTE_UNUSED_FIELD [[maybe_unused]]
+
 /*
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
 
-#endif  // WB_COMPILER_GCC
+#endif  // WB_COMPILER_GCC || WB_COMPILER_CLANG
 
 /*
  * @brief Ends GCC / Clang warning override scope.
@@ -730,6 +746,11 @@
  */
 #define WB_ATTRIBUTE_WEAK
 
+/**
+ * @brief Do nothing.
+ */
+#define WB_ATTRIBUTE_UNUSED_FIELD [[maybe_unused]]
+
 /*
  * @brief Do nothing.
  */
@@ -754,6 +775,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_SWITCH_ENUM_WARNING()
 
 /*
  * @brief Do nothing.

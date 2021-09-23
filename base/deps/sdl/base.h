@@ -8,9 +8,12 @@
 #define WB_BASE_DEPS_SDL_BASE_H_
 
 #include <ostream>
+#include <sstream>
+#include <string>
 #include <variant>
 
 #include "base/base_macroses.h"
+#include "base/deps/fmt/format.h"
 #include "base/deps/sdl/sdl.h"
 
 namespace wb::sdl {
@@ -80,9 +83,8 @@ struct SdlError {
  * @param error SdlError.
  * @return Stream.
  */
-inline std::basic_ostream<char, std::char_traits<char>>& operator<<(
-    std::basic_ostream<char, std::char_traits<char>>& s,
-    const SdlError& error) {
+inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
+                        const SdlError& error) {
   return s << (error.IsFailed() ? error.message : "");
 }
 
@@ -128,5 +130,17 @@ template <typename TResult>
   return std::get_if<TResult>(&rc);
 }
 }  // namespace wb::sdl
+
+FMT_BEGIN_NAMESPACE
+template <>
+struct formatter<wb::sdl::SdlError> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(const wb::sdl::SdlError& error, FormatContext& ctx) {
+    std::stringstream s{std::ios_base::out};
+    s << error;
+    return fmt::formatter<std::string>::format(s.str(), ctx);
+  }
+};
+FMT_END_NAMESPACE
 
 #endif  // !WB_BASE_DEPS_SDL_BASE_H_

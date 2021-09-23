@@ -11,8 +11,7 @@
 #include "app_version_config.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
-#include "base/intl/clocale_ext.h"
-#include "base/intl/lookup.h"
+#include "base/intl/message_ids.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_process_unexpected_handler.h"
@@ -20,7 +19,9 @@
 #include "base/std2/filesystem_ext.h"
 #include "base/threads/thread_utils.h"
 #include "build/build_config.h"
-#include "whitebox-kernel/whitebox_kernel_main.h"
+#include "whitebox-kernel/main.h"
+#include "whitebox-ui/fatal_dialog.h"
+
 #ifdef WB_OS_WIN
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_pure_call_handler.h"
@@ -31,7 +32,6 @@
 #include "base/win/mmcss/scoped_mmcss_thread_controller.h"
 #include "base/win/scoped_minimum_timer_resolution.h"
 #include "base/win/security/process_mitigations.h"
-#include "base/win/ui/task_dialog.h"
 #include "base/win/windows_version.h"
 #include "build/static_settings_config.h"
 #else
@@ -79,58 +79,6 @@ void DumpSystemInformation(const char* app_description) noexcept {
 }
 
 /**
- * @brief Creates internationalization lookup.
- * @param user_locale User locale.
- * @return Internationalization lookup.
- */
-[[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
-    const std::string& user_locale) noexcept {
-  auto intl_lookup_result{
-      wb::base::intl::LookupWithFallback::New({user_locale})};
-  auto intl_lookup =
-      std::get_if<wb::base::intl::LookupWithFallback>(&intl_lookup_result);
-
-  G3LOG_IF(FATAL, !intl_lookup)
-      << "Unable to create localization strings lookup for locale "
-      << user_locale << ".";
-  return std::move(*intl_lookup);
-}
-
-/**
- * @brief Shows fatal error box and exits.
- * @param rc Error code for technical details.
- * @param intl Localization lookup.
- * @param main_instruction_message Main instruction message.
- * @param content_message Content message.
- * @param main_icon_id Main icon id for error box.
- * @param small_icon_id Small icon id for error box.
- * @return
- */
-[[noreturn]] void FatalErrorBox(std::error_code rc,
-                                wb::base::intl::LookupWithFallback& intl,
-                                const std::string& main_instruction_message,
-                                const std::string& content_message,
-                                int main_icon_id, int small_icon_id) noexcept {
-  using namespace wb::base;
-  using namespace wb::base::windows;
-
-  const std::string technical_details{rc.message()};
-  const bool rtl_layout{intl.Layout() ==
-                        intl::Lookup::StringLayout::RightToLeft};
-
-  ui::DialogBoxSettings dialog_settings(
-      nullptr, intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-      main_instruction_message, content_message,
-      intl.String(intl::message_ids::kHideTechnicalDetails),
-      intl.String(intl::message_ids::kSeeTechnicalDetails), technical_details,
-      intl.String(intl::message_ids::kNudgeAuthorsLink),
-      ui::DialogBoxButton::kOk, main_icon_id, small_icon_id, rtl_layout);
-  ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
-
-  G3PLOG_E(FATAL, rc) << main_instruction_message;
-}
-
-/**
  * @brief Setup heap allocator.
  */
 void BootHeapMemoryAllocator() noexcept {
@@ -163,32 +111,48 @@ void BootHeapMemoryAllocator() noexcept {
 }
 
 /**
- * @brief Load and run kernel.
- * @param bootmgr_args Boot manager args.
- * @param intl Localization lookup.
- * @return App exit code.
+ * Gets executable directory.
+ * @param intl Localization service.
+ * @return Executable directory.
  */
-int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args,
-                  wb::base::intl::LookupWithFallback& intl) noexcept {
+[[nodiscard]] std::filesystem::path GetExecutableDirectoryPath(
+    const wb::base::intl::LookupWithFallback& intl) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
   auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) [[unlikely]] {
-    FatalErrorBox(
-        rc, intl,
+    wb::ui::FatalDialog(
+        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
         intl.String(
             intl::message_ids::kCantGetExecutableDirectoryForBootManager),
-        intl.String(intl::message_ids::kPleaseNudgeAuthors),
-        bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
+        rc, {.text_layout = intl.Layout()});
   }
 
-#ifdef WB_OS_WIN
-  const std::string kernel_path{(app_path /= "whitebox-kernel.dll").string()};
-#else
-  app_path /= "libwhitebox-kernel.so." WB_PRODUCT_VERSION_INFO_STRING;
+  return app_path;
+}
 
-  const std::string kernel_path{app_path.string()};
+/**
+ * @brief Load and run kernel.
+ * @param bootmgr_args Boot manager args.
+ * @param intl Localization lookup.
+ * @return App exit code.
+ */
+int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+  using namespace wb::base;
+
+  const auto& intl = bootmgr_args.intl;
+  const auto app_directory_path = GetExecutableDirectoryPath(intl);
+
+#ifdef WB_OS_WIN
+  const std::string kernel_path{
+      (app_directory_path / "whitebox-kernel.dll").string()};
+#else
+  const std::string kernel_path{
+      (app_directory_path /
+       "libwhitebox-kernel.so." WB_PRODUCT_VERSION_INFO_STRING)
+          .string()};
 #endif
 
 #ifdef WB_OS_WIN
@@ -201,42 +165,44 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args,
   const int kernel_load_flags{RTLD_LAZY | RTLD_LOCAL};
 #endif
 
-  const auto kernel_load_result =
+  const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
-  if (const auto* kernel_module = std2::GetSuccessResult(kernel_load_result))
+  if (const auto* kernel_module = std2::GetSuccessResult(kernel_library))
       [[likely]] {
-    using KernelMainFunction = decltype(&KernelMain);
-    constexpr char kKernelMainFunctionName[]{"KernelMain"};
+    using WhiteBoxKernelMain = decltype(&KernelMain);
+    constexpr char kKernelMainName[]{"KernelMain"};
 
     // Good, try to find and launch whitebox-kernel.
-    const auto kernel_main_result =
-        kernel_module->GetAddressAs<KernelMainFunction>(
-            kKernelMainFunctionName);
-    if (const auto* kernel_main = std2::GetSuccessResult(kernel_main_result))
+    const auto kernel_main_entry =
+        kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
+    if (const auto* kernel_main = std2::GetSuccessResult(kernel_main_entry))
         [[likely]] {
 #ifdef WB_OS_WIN
       return (*kernel_main)(
-          {bootmgr_args.instance, bootmgr_args.app_description,
+          {bootmgr_args.app_description, bootmgr_args.instance,
            bootmgr_args.show_window_flags, bootmgr_args.main_icon_id,
-           bootmgr_args.small_icon_id});
+           bootmgr_args.small_icon_id, bootmgr_args.intl});
 #else
-      return (*kernel_main)(
-          {bootmgr_args.app_description, bootmgr_args.argv, bootmgr_args.argc});
+      return (*kernel_main)({bootmgr_args.app_description, bootmgr_args.argv,
+                             bootmgr_args.argc, bootmgr_args.intl});
 #endif
     }
 
-    FatalErrorBox(std::get<std::error_code>(kernel_main_result), intl,
-                  intl.String(intl::message_ids::kPleaseReinstallTheGame),
-                  intl.StringFormat(intl::message_ids::kCantGetKernelEntryPoint,
-                                    fmt::make_format_args(
-                                        kKernelMainFunctionName, kernel_path)),
-                  bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
+    wb::ui::FatalDialog(
+        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+        intl.StringFormat(intl::message_ids::kCantGetLibraryEntryPoint,
+                          fmt::make_format_args(kKernelMainName, kernel_path)),
+        std::get<std::error_code>(kernel_main_entry),
+        {.text_layout = intl.Layout()});
   } else {
-    FatalErrorBox(std::get<std::error_code>(kernel_load_result), intl,
-                  intl.String(intl::message_ids::kPleaseReinstallTheGame),
-                  intl.StringFormat(intl::message_ids::kCantLoadKernelFrom,
-                                    fmt::make_format_args(kernel_path)),
-                  bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
+    wb::ui::FatalDialog(
+        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+        intl.StringFormat(intl::message_ids::kCantLoadKernelFrom,
+                          fmt::make_format_args(kernel_path)),
+        std::get<std::error_code>(kernel_library),
+        {.text_layout = intl.Layout()});
   }
 }
 }  // namespace
@@ -252,17 +218,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
 
   DumpSystemInformation(bootmgr_args.app_description);
 
-  // Start with specifying UTF-8 locale for all data.
-  const intl::ScopedProcessLocale scoped_process_locale{
-      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const std::string& user_locale{
-      scoped_process_locale.GetCurrentLocale().value_or(
-          intl::locales::kFallbackLocale)};
-  G3LOG(INFO) << bootmgr_args.app_description << " using " << user_locale
-              << " locale for UI.";
-
-  auto intl = CreateIntl(user_locale);
-
 #ifdef WB_OS_WIN
   using namespace wb::base::windows;
 
@@ -275,10 +230,12 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
   if (windows::GetVersion() < windows::Version::WIN10_19H1) [[unlikely]] {
-    FatalErrorBox(std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION), intl,
-                  intl.String(intl::message_ids::kPleaseUpdateWindowsVersion),
-                  intl.String(intl::message_ids::kWindowsVersionIsTooOld),
-                  bootmgr_args.main_icon_id, bootmgr_args.small_icon_id);
+    wb::ui::FatalDialog(
+        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+        intl.String(intl::message_ids::kPleaseUpdateWindowsVersion),
+        intl.String(intl::message_ids::kWindowsVersionIsTooOld),
+        std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION),
+        {.text_layout = intl.Layout()});
   }
 
   // Enable process attacks mitigation policies in scope.
@@ -392,5 +349,5 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   }
 #endif
 
-  return KernelStartup(bootmgr_args, intl);
+  return KernelStartup(bootmgr_args);
 }

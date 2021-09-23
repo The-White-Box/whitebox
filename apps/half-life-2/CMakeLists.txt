@@ -12,17 +12,17 @@ set(WB_HALF_LIFE2_TARGET_NAME  "half-life-2")
 
 set(WB_HALF_LIFE2_LINK_OPTIONS "")
 
-set(WB_HALF_LIFE2_LINK_DEPS g3log mimalloc)
+set(WB_HALF_LIFE2_LINK_DEPS fmt g3log mimalloc)
 if (WB_OS_WIN)
   # _com_ptr_t support.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "comsuppw")
 elseif (WB_OS_LINUX)
   # dlopen, filesystem.
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs")
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs;whitebox-ui")
 endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS
-  base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel)
+  base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel whitebox-ui)
 if (NOT WB_OS_WIN)
   list(APPEND WB_HALF_LIFE2_LINK_DEPS base SDL2::SDL2)
   list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS

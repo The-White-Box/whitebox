@@ -25,6 +25,20 @@
 
 namespace wb::base::intl {
 /**
+ * @brief Gets string layout for used locale.
+ */
+enum class StringLayout {
+  /**
+   * @brief Left to right.
+   */
+  LeftToRight = 0,
+  /**
+   * @brief Right to left.
+   */
+  RightToLeft = 1
+};
+
+/**
  * @brief The API used to look up localized messages by their unique message ID.
  */
 class WB_BASE_API Lookup {
@@ -46,23 +60,9 @@ class WB_BASE_API Lookup {
      */
     kArgumentError = 2,
     /**
-     * @brief Internal error occured.
+     * @brief Internal error occurred.
      */
     kInternal = 3
-  };
-
-  /**
-   * @brief Gets string layout for used locale.
-   */
-  enum class StringLayout {
-    /**
-     * @brief Left to right.
-     */
-    LeftToRight = 0,
-    /**
-     * @brief Right to left.
-     */
-    RightToLeft = 1
   };
 
   template <typename T>
@@ -92,7 +92,7 @@ class WB_BASE_API Lookup {
    * @return Localized string.
    */
   [[nodiscard]] LookupResult<ref<const std::string>> String(
-      uint64_t message_id) noexcept;
+      uint64_t message_id) const noexcept;
 
   /**
    * @brief Gets localized formatted string by message id.
@@ -101,7 +101,7 @@ class WB_BASE_API Lookup {
    * @return Localized string.
    */
   [[nodiscard]] LookupResult<std::string> StringFormat(
-      uint64_t message_id, fmt::format_args format_args) noexcept;
+      uint64_t message_id, fmt::format_args format_args) const noexcept;
 
   /**
    * @brief Gets string layout.
@@ -159,7 +159,7 @@ class WB_BASE_API LookupWithFallback {
    * @param message_id Message id.
    * @return Localized string.
    */
-  [[nodiscard]] const std::string& String(uint64_t message_id) noexcept;
+  [[nodiscard]] const std::string& String(uint64_t message_id) const noexcept;
 
   /**
    * @brief Gets localized formatted string by message id.
@@ -167,14 +167,14 @@ class WB_BASE_API LookupWithFallback {
    * @param format_args Message format args.
    * @return Localized string.
    */
-  [[nodiscard]] std::string StringFormat(uint64_t message_id,
-                                         fmt::format_args format_args) noexcept;
+  [[nodiscard]] std::string StringFormat(
+      uint64_t message_id, fmt::format_args format_args) const noexcept;
 
   /**
    * @brief Gets string layout.
    * @return StringLayout.
    */
-  [[nodiscard]] WB_ATTRIBUTE_CONST Lookup::StringLayout Layout() const noexcept;
+  [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Layout() const noexcept;
 
  private:
   Lookup lookup_;

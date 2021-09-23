@@ -221,8 +221,7 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
   G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";
-  return !rc ? std2::result<DialogBoxButton>{GetButtonById(
-                   pressed_button_id)}
+  return !rc ? std2::result<DialogBoxButton>{GetButtonById(pressed_button_id)}
              : std2::result<DialogBoxButton>{rc};
 }
 }  // namespace wb::base::windows::ui

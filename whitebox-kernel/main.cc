@@ -4,9 +4,12 @@
 //
 // Whitebox kernel main entry point.
 
-#include "whitebox_kernel_main.h"
+#include "main.h"
 
+#include "base/deps/fmt/core.h"
 #include "base/deps/g3log/g3log.h"
+#include "whitebox-ui/fatal_dialog.h"
+
 #ifdef WB_OS_WIN
 #include "base/win/ui/base_window.h"
 #include "base/win/ui/peek_message_dispatcher.h"
@@ -15,11 +18,10 @@
 #else
 #include <chrono>
 #include <thread>
-#include <utility>
 
 #include "base/deps/sdl/cursor.h"
 #include "base/deps/sdl/init.h"
-#include "base/deps/sdl/message_box.h"
+#include "base/deps/sdl/version.h"
 #include "base/deps/sdl/window.h"
 #include "base/deps/sdl_image/init.h"
 #include "build/static_settings_config.h"
@@ -179,12 +181,14 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto sdl_initializer = SdlInitializer::New(SdlInitializerFlags::kAudio |
                                                    SdlInitializerFlags::kVideo);
   if (const auto* error = GetError(sdl_initializer)) [[unlikely]] {
-    Fatal(kernel_args.app_description)
-        << "SDL build/runtime v." << compiled_sdl_version << "/v."
-        << linked_sdl_version << ", revision '" << ::SDL_GetRevision() << '\''
-        << " initialization failed.\n\n"
-        << *error << ".\n\nPlease, fill the issue at "
-        << wb::build::settings::ui::error_dialog::kIssuesLink;
+    wb::ui::FatalDialog(
+        kernel_args.app_description,
+        "Please, check your SDL library installed and working.",
+        fmt::format("SDL build/runtime v.{0}/v.{1}, revision '{2}' "
+                    "initialization failed.\n\n{3}.",
+                    compiled_sdl_version, linked_sdl_version,
+                    ::SDL_GetRevision(), *error),
+        {}, {.text_layout = kernel_args.intl.Layout()});
   }
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
@@ -198,11 +202,12 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto sdl_image_initializer =
       SdlImageInitializer::New(sdl_image_initializer_flags);
   if (const auto* error = GetError(sdl_image_initializer)) [[unlikely]] {
-    Fatal(kernel_args.app_description)
-        << "SDL image parser initialization failed for types "
-        << sdl_image_initializer_flags << ".\n\n"
-        << *error << ".\n\nPlease, fill the issue at "
-        << wb::build::settings::ui::error_dialog::kIssuesLink;
+    wb::ui::FatalDialog(kernel_args.app_description,
+                        "Please, check your SDL library installed and working.",
+                        fmt::format("SDL image parser initialization failed "
+                                    "for image types {0}.\n\n{1}.",
+                                    sdl_image_initializer_flags, *error),
+                        {}, {.text_layout = kernel_args.intl.Layout()});
   }
 
   // TODO(dimhotepus): kAllowHighDpi handling at least on Mac.
@@ -222,14 +227,14 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       SDL_WINDOWPOS_CENTERED, window_width, window_height, window_flags);
   const auto* window = GetSuccessResult(sdl_window);
   if (!window) [[unlikely]] {
-    Fatal(kernel_args.app_description)
-        << "SDL window create failed with "
-        << GetWindowGraphicsContext(window_flags) << " context."
-        << "\n\n: " << *GetError(sdl_window)
-        << ".\n\nMay be you forget to install "
-        << GetWindowGraphicsContext(window_flags) << " libraries/drivers?"
-        << "\n\nIf it is not the case, please, fill the issue at "
-        << wb::build::settings::ui::error_dialog::kIssuesLink;
+    wb::ui::FatalDialog(
+        kernel_args.app_description,
+        fmt::format("Please, check you installed '{0}' libraries/drivers.",
+                    GetWindowGraphicsContext(window_flags)),
+        fmt::format("SDL window create failed with '{0}' context.\n\n{1}.",
+                    GetWindowGraphicsContext(window_flags),
+                    *GetError(sdl_window)),
+        {}, {.text_layout = kernel_args.intl.Layout()});
   }
 
   const auto window_icon_result = SdlSurface::FromImage("half-life-2_icon.png");

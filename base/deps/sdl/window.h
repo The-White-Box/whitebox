@@ -162,7 +162,7 @@ class SdlWindow {
   SDL_Window *window_;
   SdlError init_rc_;
   SdlWindowFlags flags_;
-  std::byte pad_[sizeof(char *) - sizeof(flags_)];
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(flags_)];
 
   /**
    * Creates SDL window.

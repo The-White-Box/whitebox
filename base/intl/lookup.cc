@@ -34,10 +34,10 @@ class Lookup::LookupImpl {
           {message_ids::kPleaseUpdateWindowsVersion,
            "Please, update Windows to Windows 10, version 1903 (May 19, 2019) "
            "or greater."},
-          {message_ids::kBootmgrErrorDialogTitle, "Boot Manager - Error"},
           {message_ids::kSeeTechnicalDetails, "See techical details"},
           {message_ids::kHideTechnicalDetails, "Hide techical details"},
 #endif
+          {message_ids::kBootmgrErrorDialogTitle, "Boot Manager - Error"},
           {message_ids::kNudgeAuthorsLink,
            "<A "
            "HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</"
@@ -45,13 +45,26 @@ class Lookup::LookupImpl {
            "authors"},
           {message_ids::kCantGetExecutableDirectoryForBootManager,
            "Can't get executable directory.  Unable to load the kernel."},
-          {message_ids::kPleaseNudgeAuthors, "Please, nudge authors."},
-          {message_ids::kCantGetKernelEntryPoint,
-           "Can't get '{0}' entry point from '{1}' kernel."},
+          {message_ids::kCantGetLibraryEntryPoint,
+           "Can't get '{0}' entry point from '{1}'."},
           {message_ids::kPleaseReinstallTheGame,
            "Looks like app is broken, please, reinstall the one."},
           {message_ids::kCantLoadKernelFrom,
            "Can't load whitebox kernel '{0}'."},
+          {message_ids::kAppErrorDialogTitle, "{0} - Error"},
+          {
+              message_ids::kPleaseCheckAppInstalledCorrectly,
+              "Please, check app is installed correctly and you have enough "
+              "permissions to run it.",
+          },
+          {
+              message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp,
+              "Can't get current directory.  Unable to load the app.",
+          },
+          {
+              message_ids::kCantLoadBootManager,
+              "Can't load boot manager '{0}'.",
+          },
       }}}};
     }
 
@@ -60,7 +73,7 @@ class Lookup::LookupImpl {
   }
 
   [[nodiscard]] Lookup::LookupResult<Lookup::ref<const std::string>> String(
-      uint64_t message_id) noexcept {
+      uint64_t message_id) const noexcept {
     if (const auto& message = messages_by_id_.find(message_id);
         message != messages_by_id_.end()) [[likely]] {
       return Lookup::LookupResult<Lookup::ref<const std::string>>{
@@ -98,13 +111,13 @@ class Lookup::LookupImpl {
 }
 
 [[nodiscard]] Lookup::LookupResult<Lookup::ref<const std::string>>
-Lookup::String(uint64_t message_id) noexcept {
+Lookup::String(uint64_t message_id) const noexcept {
   G3DCHECK(!!impl_);
   return impl_->String(message_id);
 }
 
 [[nodiscard]] Lookup::LookupResult<std::string> Lookup::StringFormat(
-    uint64_t message_id, fmt::format_args format_args) noexcept {
+    uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = String(message_id);
   if (const auto* string = std::get_if<Lookup::ref<const std::string>>(&result))
       [[likely]] {
@@ -113,10 +126,9 @@ Lookup::String(uint64_t message_id) noexcept {
   return Lookup::LookupResult<std::string>{std::get<Lookup::Status>(result)};
 }
 
-[[nodiscard]] WB_ATTRIBUTE_CONST Lookup::StringLayout Lookup::Layout()
-    const noexcept {
+[[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Lookup::Layout() const noexcept {
   // TODO(dimhotepus): Handle Right to Left messages.
-  return Lookup::StringLayout::LeftToRight;
+  return StringLayout::LeftToRight;
 }
 
 Lookup::Lookup(un<LookupImpl> impl) noexcept : impl_{std::move(impl)} {}
@@ -142,7 +154,7 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
 }
 
 [[nodiscard]] const std::string& LookupWithFallback::String(
-    uint64_t message_id) noexcept {
+    uint64_t message_id) const noexcept {
   auto result = lookup_.String(message_id);
   if (const auto* string = std::get_if<Lookup::ref<const std::string>>(&result))
       [[likely]] {
@@ -155,7 +167,7 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
 }
 
 [[nodiscard]] std::string LookupWithFallback::StringFormat(
-    uint64_t message_id, fmt::format_args format_args) noexcept {
+    uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = lookup_.String(message_id);
   if (const auto* string = std::get_if<Lookup::ref<const std::string>>(&result))
       [[likely]] {
@@ -167,7 +179,7 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
   return fallback_string_;
 }
 
-[[nodiscard]] WB_ATTRIBUTE_CONST Lookup::StringLayout
+[[nodiscard]] WB_ATTRIBUTE_CONST StringLayout
 LookupWithFallback::Layout() const noexcept {
   return lookup_.Layout();
 }

@@ -7,6 +7,7 @@
 #include <cstddef>  // std::byte
 
 #include "base/deps/g3log/g3log.h"
+#include "base/intl/lookup.h"
 #include "bootmgr/bootmgr_api.h"
 #include "build/build_config.h"
 
@@ -25,20 +26,26 @@ struct BootmgrArgs {
 #ifdef WB_OS_WIN
   BootmgrArgs(HINSTANCE instance_, const char *command_line_,
               const char *app_description_, int show_window_flags_,
-              int main_icon_id_, int small_icon_id_)
+              int main_icon_id_, int small_icon_id_,
+              const wb::base::intl::LookupWithFallback &intl_)
       : instance{instance_},
         command_line{command_line_},
         app_description{app_description_},
         show_window_flags{show_window_flags_},
         main_icon_id{main_icon_id_},
-        small_icon_id{small_icon_id_} {
+        small_icon_id{small_icon_id_},
+        intl{intl_} {
     G3DCHECK(!!instance);
     G3DCHECK(!!command_line);
     G3DCHECK(!!app_description);
   }
 #else
-  BootmgrArgs(const char *app_description_, char **const argv_, const int argc_)
-      : app_description{app_description_}, argv{argv_}, argc{argc_} {
+  BootmgrArgs(const char *app_description_, char **const argv_, const int argc_,
+              const wb::base::intl::LookupWithFallback &intl_)
+      : app_description{app_description_},
+        argv{argv_},
+        argc{argc_},
+        intl{intl_} {
     G3DCHECK(!!app_description_);
     G3DCHECK(!!argc_);
     G3DCHECK(!!argv_);
@@ -77,11 +84,11 @@ struct BootmgrArgs {
   int small_icon_id;
 #else
   /**
-   * App arguments.
+   * @brief App arguments.
    */
   char **const argv;
   /**
-   * App arguments count.
+   * @brief App arguments count.
    */
   const int argc;
 #endif
@@ -90,6 +97,11 @@ struct BootmgrArgs {
    * @brief Align to machine word boundary.
    */
   std::byte pad[4];
+
+  /**
+   * @brief Localization service.
+   */
+  const wb::base::intl::LookupWithFallback &intl;
 };
 }  // namespace wb::bootmgr
 

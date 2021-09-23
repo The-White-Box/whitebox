@@ -8,7 +8,9 @@
 #define WB_BASE_DEPS_SDL_VERSION_H_
 
 #include <ostream>
+#include <string>
 
+#include "base/deps/fmt/format.h"
 #include "base/deps/sdl/sdl.h"
 #include "base/std2/cstring_ext.h"
 
@@ -18,13 +20,24 @@
  * @param version SDL_version.
  * @return Stream.
  */
-inline std::basic_ostream<char, std::char_traits<char>>& operator<<(
-    std::basic_ostream<char, std::char_traits<char>>& s,
-    const SDL_version& version) {
+inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
+                        const SDL_version& version) {
   return s << wb::base::implicit_cast<unsigned>(version.major) << '.'
            << wb::base::implicit_cast<unsigned>(version.minor) << '.'
            << wb::base::implicit_cast<unsigned>(version.patch);
 }
+
+FMT_BEGIN_NAMESPACE
+template <>
+struct formatter<SDL_version> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(const SDL_version version, FormatContext& ctx) {
+    std::stringstream s{std::ios_base::out};
+    s << version;
+    return fmt::formatter<std::string>::format(s.str(), ctx);
+  }
+};
+FMT_END_NAMESPACE
 
 namespace wb::sdl {
 /**
