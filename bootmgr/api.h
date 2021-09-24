@@ -4,8 +4,8 @@
 //
 // Bootmgr API macroses & utilities.
 
-#ifndef WB_BOOTMGR_BOOTMGR_API_H_
-#define WB_BOOTMGR_BOOTMGR_API_H_
+#ifndef WB_BOOTMGR_API_H_
+#define WB_BOOTMGR_API_H_
 
 #include "build/compiler_config.h"
 
@@ -17,4 +17,4 @@
 #define WB_BOOTMGR_API WB_ATTRIBUTE_DLL_IMPORT
 #endif
 
-#endif  // !WB_BOOTMGR_BOOTMGR_API_H_
+#endif  // !WB_BOOTMGR_API_H_

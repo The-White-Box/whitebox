@@ -8,7 +8,7 @@
 
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/lookup.h"
-#include "bootmgr/bootmgr_api.h"
+#include "bootmgr/api.h"
 #include "build/build_config.h"
 
 #ifdef WB_OS_WIN
