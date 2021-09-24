@@ -87,7 +87,7 @@ void BootHeapMemoryAllocator() noexcept {
     // Terminate the app if system detected heap corruption.
     const auto error_code =
         wb::base::windows::memory::EnableTerminationOnHeapCorruption();
-    G3PLOGE_IF(FATAL, error_code ? &error_code : nullptr)
+    G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
         << "Can't enable 'Terminate on Heap corruption' os feature, continue "
            "without it.";
   }

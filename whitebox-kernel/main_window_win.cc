@@ -55,7 +55,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
 
   {
     // Mouse is ready.
-    auto mouse_result = hal::hid::Mouse::New((HWND)-1);
+    auto mouse_result = hal::hid::Mouse::New(window);
     if (auto *mouse = std2::GetSuccessResult(mouse_result)) {
       mouse_.swap(*mouse);
     } else {

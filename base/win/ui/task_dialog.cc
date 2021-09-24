@@ -36,8 +36,8 @@ constexpr wchar_t* GetIconByKind(
     case wb::base::windows::ui::DialogBoxKind::kShield:
       return TD_SHIELD_ICON;
     default:
-      G3LOG(FATAL) << "Unknown dialog box kind: "
-                   << wb::base::underlying_cast(kind);
+      G3DLOG(FATAL) << "Unknown dialog box kind: "
+                    << wb::base::underlying_cast(kind);
       return TD_INFORMATION_ICON;
   }
 }
@@ -63,7 +63,7 @@ constexpr wb::base::windows::ui::DialogBoxButton GetButtonById(
     case IDCLOSE:
       return wb::base::windows::ui::DialogBoxButton::kClose;
     default:
-      G3LOG(FATAL) << "Unknown dialog box button id: " << button_id;
+      G3DLOG(FATAL) << "Unknown dialog box button id: " << button_id;
       return wb::base::windows::ui::DialogBoxButton::kCancel;
   }
 }
