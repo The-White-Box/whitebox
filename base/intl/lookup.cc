@@ -65,6 +65,30 @@ class Lookup::LookupImpl {
               message_ids::kCantLoadBootManager,
               "Can't load boot manager '{0}'.",
           },
+          {
+              message_ids::kKernelErrorDialogTitle,
+              "Whitebox Kernel - Error",
+          },
+          {
+              message_ids::kPleaseCheckMouseOnYourDevice,
+              "Please, check mouse is connected and working.",
+          },
+          {
+              message_ids::kUnableToRegisterMouseDevice,
+              "Unable to register mouse as <A "
+              "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
+              "about-raw-input\">Raw Input</A> device.",
+          },
+          {
+              message_ids::kPleaseCheckKeyboardOnYourDevice,
+              "Please, check keyboard is connected and working.",
+          },
+          {
+              message_ids::kUnableToRegisterKeyboardDevice,
+              "Unable to register keyboard as <A "
+              "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
+              "about-raw-input\">Raw Input</A> device.",
+          },
       }}}};
     }
 

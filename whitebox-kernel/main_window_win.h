@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "base/base_macroses.h"
+#include "base/intl/lookup.h"
 #include "base/sampling_profiler.h"
 #include "base/win/mmcss/scoped_mmcss_toggle_dwm.h"
 #include "base/win/ui/accessibility_shortcut_keys_toggler.h"
@@ -20,6 +21,7 @@
 #include "base/win/ui/full_screen_window_toggler.h"
 #include "hal/drivers/hid/keyboard_win.h"
 #include "hal/drivers/hid/mouse_win.h"
+#include "whitebox-ui/fatal_dialog.h"
 
 /**
  * @brief Raw input handle.
@@ -45,8 +47,9 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
      * @param instance App instance.
      * @return nothing.
      */
-    explicit MainWindow(_In_ HINSTANCE instance, _In_ int icon_id,
-                        _In_ int icon_small_id) noexcept
+    explicit MainWindow(
+        _In_ HINSTANCE instance, _In_ int icon_id, _In_ int icon_small_id,
+        _In_ const wb::base::intl::LookupWithFallback &i18n) noexcept
         : BaseWindow{instance, icon_id, icon_small_id},
           mouse_{},
           keyboard_{},
@@ -55,6 +58,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
           full_screen_window_toggler_{},
           accessibility_shortcut_keys_toggler_{},
           scoped_mmcss_toggle_dwm_{},
+          i18n_{i18n},
           is_window_active_{false} {}
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
@@ -74,6 +78,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
         accessibility_shortcut_keys_toggler_{
             std::move(w.accessibility_shortcut_keys_toggler_)},
         scoped_mmcss_toggle_dwm_{std::move(w.scoped_mmcss_toggle_dwm_)},
+        i18n_{w.i18n_},
         is_window_active_{std::move(w.is_window_active_)} {}
   /**
    * @brief Move window assigment.
@@ -89,6 +94,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
     std::swap(accessibility_shortcut_keys_toggler_,
               w.accessibility_shortcut_keys_toggler_);
     std::swap(scoped_mmcss_toggle_dwm_, w.scoped_mmcss_toggle_dwm_);
+    // i18n_ = w.i18n_;
     std::swap(is_window_active_, w.is_window_active_);
     return *this;
   }
@@ -122,6 +128,10 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    */
   wb::base::un<wb::base::windows::mmcss::ScopedMmcssToggleDwm>
       scoped_mmcss_toggle_dwm_;
+  /**
+   * @brief Localization service.
+   */
+  const wb::base::intl::LookupWithFallback &i18n_;
   /**
    * @brief Is window active or not?
    */
@@ -203,6 +213,12 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    * @return void.
    */
   void ToggleDwmMmcss(_In_ bool enable) noexcept;
+
+  /**
+   * @brief Create fatal dialog context.
+   * @return Fatal dialog context.
+   */
+  [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext() noexcept;
 };
 }  // namespace wb::kernel
 

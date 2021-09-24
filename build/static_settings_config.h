@@ -37,13 +37,6 @@ constexpr int kMinWidth{640};
 constexpr int kMinHeight{480};
 }  // namespace dimensions
 }  // namespace window
-
-namespace error_dialog {
-// TODO(dimhotepus): Localize.
-constexpr char kFooterLink[]{
-    "<A HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</A> "
-    "authors"};
-}  // namespace error_dialog
 }  // namespace ui
 }  // namespace wb::build::settings
 

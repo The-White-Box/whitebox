@@ -52,14 +52,15 @@ class WB_BASE_API BaseWindow {
    * @param class_style Window class style.
    * @return TDerivedWindow window.
    */
-  template <typename TDerivedWindow>
+  template <typename TDerivedWindow, typename... Args>
   [[nodiscard]] static std2::result<un<TDerivedWindow>> New(
-      _In_ const WindowDefinition &definition,
-      _In_ unsigned long class_style) noexcept {
+      _In_ const WindowDefinition &definition, _In_ unsigned long class_style,
+      Args &&...args) noexcept {
     static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
 
     auto window = std::make_unique<TDerivedWindow>(
-        definition.instance, definition.icon_id, definition.icon_small_id);
+        definition.instance, definition.icon_id, definition.icon_small_id,
+        std::forward<Args>(args)...);
     std::error_code rc{
         RegisterWindowClass<TDerivedWindow>(definition, class_style, window)};
     if (!rc) {

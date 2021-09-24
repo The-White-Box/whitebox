@@ -47,6 +47,20 @@ constexpr std::uint64_t kPleaseCheckAppInstalledCorrectly{14};
 constexpr std::uint64_t kCantGetCurrentDirectoryUnableToLoadTheApp{15};
 // Can't load boot manager '{0}'.
 constexpr std::uint64_t kCantLoadBootManager{16};
+// Whitebox Kernel - Error
+constexpr std::uint64_t kKernelErrorDialogTitle{17};
+// Please, check mouse is connected and working.
+constexpr std::uint64_t kPleaseCheckMouseOnYourDevice{18};
+// Unable to register mouse as <A
+// HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/about-raw-input\">Raw
+// Input</A> device.
+constexpr std::uint64_t kUnableToRegisterMouseDevice{19};
+// Please, check keybaord is connected and working.
+constexpr std::uint64_t kPleaseCheckKeyboardOnYourDevice{20};
+// Unable to register keyboard as <A
+// HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/about-raw-input\">Raw
+// Input</A> device.
+constexpr std::uint64_t kUnableToRegisterKeyboardDevice{21};
 }  // namespace wb::base::intl::message_ids
 
 #endif  // !WB_BASE_INTL_MESSAGE_IDS_H_

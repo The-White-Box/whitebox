@@ -23,8 +23,8 @@ WB_END_SDL_WARNING_OVERRIDE_SCOPE()
  * @param error SdlError.
  * @return Stream.
  */
-inline std::basic_ostream<char, std::char_traits<char>>& operator<<(
-    std::basic_ostream<char, std::char_traits<char>>& s, SDL_SYSWM_TYPE type) {
+inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
+                        SDL_SYSWM_TYPE type) {
   switch (type) {
     case SDL_SYSWM_UNKNOWN:
       return s << "Unknown";
@@ -58,7 +58,7 @@ inline std::basic_ostream<char, std::char_traits<char>>& operator<<(
     default:
       // type != 0 is always true,  This is used to prevent compiler from
       // complaining about constant in if condition.
-      G3DCHECK(type != 0) << "Unknown window subsystem (" //-V547
+      G3DCHECK(type != 0) << "Unknown window subsystem ("  //-V547
                           << wb::base::underlying_cast(type)
                           << "), assume Unknown.";
       return s << "Unknown";

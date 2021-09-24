@@ -15,11 +15,11 @@
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/win/ui/scoped_change_cursor.h"
 #include "base/win/ui/scoped_window_paint.h"
-#include "base/win/ui/task_dialog.h"
 #include "base/win/ui/window_message_handlers.h"
 #include "base/win/ui/window_utilities.h"
 #include "build/static_settings_config.h"
 #include "hal/drivers/hid/raw_input_win.h"
+#include "whitebox-ui/fatal_dialog.h"
 
 namespace wb::kernel {
 LRESULT MainWindow::HandleMessage(_In_ UINT message,
@@ -45,39 +45,25 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   using namespace wb::base::windows;
 
   // We are loading.
-  ui::ScopedChangeCursor scoped_app_starting_cursor{
+  windows::ui::ScopedChangeCursor scoped_app_starting_cursor{
       ::LoadCursor(nullptr, IDC_APPSTARTING)};
 
   // For nice looking window.
-  ui::MoveWindowToItsDisplayCenter(window, false);
+  windows::ui::MoveWindowToItsDisplayCenter(window, false);
 
   // TODO(dimhotepus): What if only joystick?
 
-  // TODO(dimhotepus): Localize.
-  constexpr char kKernelDialogTitle[]{"Whitebox Kernel - Error"};
-  constexpr char kSeeTechDetails[]{"See techical details"};
-  constexpr char kHideTechDetails[]{"Hide techical details"};
-
   {
     // Mouse is ready.
-    auto mouse_result = hal::hid::Mouse::New(window);
+    auto mouse_result = hal::hid::Mouse::New((HWND)-1);
     if (auto *mouse = std2::GetSuccessResult(mouse_result)) {
       mouse_.swap(*mouse);
     } else {
-      const auto rc = std::get<std::error_code>(mouse_result);
-      const ui::DialogBoxSettings dialog_settings(
-          nullptr, kKernelDialogTitle, "Unable to initialize mouse device",
-          "Unfortunately we unable to register mouse device for <A "
-          "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
-          "about-raw-input\">Raw Input</A> data supply.  "
-          "Please, contact authors.",
-          kHideTechDetails, kSeeTechDetails, rc.message(),
-          wb::build::settings::ui::error_dialog::kFooterLink,
-          ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
-
-      ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
-
-      G3PLOG_E(FATAL, rc) << "Unable to initialize mouse device.";
+      wb::ui::FatalDialog(
+          i18n_.String(intl::message_ids::kKernelErrorDialogTitle),
+          i18n_.String(intl::message_ids::kPleaseCheckMouseOnYourDevice),
+          i18n_.String(intl::message_ids::kUnableToRegisterMouseDevice),
+          std::get<std::error_code>(mouse_result), MakeFatalContext());
     }
   }
 
@@ -87,26 +73,17 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
     if (auto *keyboard = std2::GetSuccessResult(keyboard_result)) {
       keyboard_.swap(*keyboard);
     } else {
-      const auto rc = std::get<std::error_code>(keyboard_result);
-      const ui::DialogBoxSettings dialog_settings(
-          nullptr, kKernelDialogTitle, "Unable to initialize keyboard device",
-          "Unfortunately we unable to register keyboard device for <A "
-          "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
-          "about-raw-input\">Raw Input</A> data supply.  "
-          "Please, contact authors.",
-          kHideTechDetails, kSeeTechDetails, rc.message(),
-          wb::build::settings::ui::error_dialog::kFooterLink,
-          ui::DialogBoxButton::kOk, icon_id_, icon_small_id_, false);
-
-      ui::ShowDialogBox(ui::DialogBoxKind::kError, dialog_settings);
-
-      G3PLOG_E(FATAL, rc) << "Unable to initialize keyboard device.";
+      wb::ui::FatalDialog(
+          i18n_.String(intl::message_ids::kKernelErrorDialogTitle),
+          i18n_.String(intl::message_ids::kPleaseCheckKeyboardOnYourDevice),
+          i18n_.String(intl::message_ids::kUnableToRegisterKeyboardDevice),
+          std::get<std::error_code>(keyboard_result), MakeFatalContext());
     }
   }
 
   // Now can go full screen.
   full_screen_window_toggler_.reset(
-      new ui::FullScreenWindowToggler{window, create_struct->style});
+      new windows::ui::FullScreenWindowToggler{window, create_struct->style});
 
   // When window is of normal size, should enable DWM MMCSS to speed up window
   // composition.
@@ -304,5 +281,10 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     // Full screen, disable DWM MMCSS.
     scoped_mmcss_toggle_dwm_.reset();
   }
+}
+
+[[nodiscard]] wb::ui::FatalDialogContext
+MainWindow::MakeFatalContext() noexcept {
+  return {i18n_, i18n_.Layout(), icon_id_, icon_small_id_};
 }
 }  // namespace wb::kernel

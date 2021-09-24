@@ -173,7 +173,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
   auto window_result = windows::ui::BaseWindow::New<MainWindow>(
-      window_definition, window_class_style);
+      window_definition, window_class_style, kernel_args.intl);
   if (auto* window_ptr = std2::GetSuccessResult(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If

@@ -57,8 +57,8 @@ Keyboard::Keyboard(_In_ HWND window) noexcept
           // need (or Win keys will invoke standart Windows behavior and
           // interrupt gameplay).
           CreateKeyboardDeviceDefinition(window, RIDEV_NOHOTKEYS))} {
-  G3DCHECK(!error_code()) << "Unable to register raw keyboard handler: "
-                          << error_code().message();
+  G3DPCHECK_E(!error_code(), error_code())
+      << "Unable to register raw keyboard handler.";
 }
 
 /**
@@ -74,8 +74,7 @@ Keyboard::~Keyboard() noexcept {
     // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerrawinputdevices#remarks
     [[maybe_unused]] const auto rc = RegisterRawInputDevices(
         CreateKeyboardDeviceDefinition(nullptr, RIDEV_REMOVE));
-    G3CHECK(!rc) << "Unable to unregister raw keyboard handler: "
-                 << rc.message();
+    G3DPCHECK_E(!rc, rc) << "Unable to unregister raw keyboard handler.";
   }
 }
 
