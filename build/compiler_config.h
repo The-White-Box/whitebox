@@ -109,6 +109,26 @@
 #define WB_COMPILER_HAS_DEBUG 1
 #endif
 
+#ifdef WB_CPP_HAS_LIKELY_UNLIKELY_ATTRIBUTES
+/*
+ * @brief [[likely]]
+ */
+#define WB_ATTRIBUTE_LIKELY [[likely]]
+/*
+ * @brief [[unlikely]]
+ */
+#define WB_ATTRIBUTE_UNLIKELY [[unlikely]]
+#else
+/*
+ * @brief Do nothing,
+ */
+#define WB_ATTRIBUTE_LIKELY
+/*
+ * @brief Do nothing,
+ */
+#define WB_ATTRIBUTE_UNLIKELY
+#endif
+
 // Common attributes.
 #ifdef WB_COMPILER_MSVC
 

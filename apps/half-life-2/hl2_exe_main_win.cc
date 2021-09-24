@@ -102,15 +102,17 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
          "malicious code.";
 
   const auto app_path = windows::GetApplicationDirectory(instance);
-  if (const auto* error = wb::base::std2::GetErrorCode(app_path)) [[unlikely]] {
-    wb::ui::FatalDialog(
-        intl.Format(intl::message_ids::kAppErrorDialogTitle,
-                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.String(
-            intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
-        *error, MakeFatalContext(intl));
-  }
+  if (const auto* error = wb::base::std2::GetErrorCode(app_path))
+    WB_ATTRIBUTE_UNLIKELY {
+      wb::ui::FatalDialog(
+          intl.Format(
+              intl::message_ids::kAppErrorDialogTitle,
+              fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+          intl.String(
+              intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
+          *error, MakeFatalContext(intl));
+    }
 
   const std::string boot_manager_path{std::get<std::string>(app_path) +
                                       "bootmgr.dll"};
@@ -123,30 +125,34 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_flags);
   if (const auto* boot_manager = std2::GetSuccessResult(boot_manager_library))
-      [[likely]] {
-    using BootmgrMain = decltype(&BootmgrMain);
-    constexpr char kBootManagerMainName[]{"BootmgrMain"};
+    WB_ATTRIBUTE_LIKELY {
+      using BootmgrMain = decltype(&BootmgrMain);
+      constexpr char kBootManagerMainName[]{"BootmgrMain"};
 
-    // Good, try to find and launch bootmgr.
-    const auto boot_manager_entry =
-        boot_manager->GetAddressAs<BootmgrMain>(kBootManagerMainName);
-    if (const auto* boot_manager_main =
-            std2::GetSuccessResult(boot_manager_entry)) [[likely]] {
-      return (*boot_manager_main)(
-          {instance, command_line, WB_PRODUCT_FILE_DESCRIPTION_STRING,
-           show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
-           WB_HALF_LIFE_2_IDI_SMALL_ICON, intl});
+      // Good, try to find and launch bootmgr.
+      const auto boot_manager_entry =
+          boot_manager->GetAddressAs<BootmgrMain>(kBootManagerMainName);
+      if (const auto* boot_manager_main =
+              std2::GetSuccessResult(boot_manager_entry))
+        WB_ATTRIBUTE_LIKELY {
+          return (*boot_manager_main)(
+              {instance, command_line, WB_PRODUCT_FILE_DESCRIPTION_STRING,
+               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
+               WB_HALF_LIFE_2_IDI_SMALL_ICON, intl});
+        }
+
+      wb::ui::FatalDialog(
+          intl.Format(
+              intl::message_ids::kAppErrorDialogTitle,
+              fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+          intl.Format(
+              intl::message_ids::kCantGetLibraryEntryPoint,
+              fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
+          std::get<std::error_code>(boot_manager_entry),
+          MakeFatalContext(intl));
     }
-
-    wb::ui::FatalDialog(
-        intl.Format(intl::message_ids::kAppErrorDialogTitle,
-                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.Format(
-            intl::message_ids::kCantGetLibraryEntryPoint,
-            fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
-        std::get<std::error_code>(boot_manager_entry), MakeFatalContext(intl));
-  } else {
+  else {
     wb::ui::FatalDialog(
         intl.Format(intl::message_ids::kAppErrorDialogTitle,
                     fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),

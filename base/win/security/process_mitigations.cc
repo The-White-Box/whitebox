@@ -403,12 +403,13 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
   }
 
 #if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-  if (windows::GetVersion() < windows::Version::WIN10_20H1) [[unlikely]] {
-    // Policies below require Windows 10, version 2004+ (Build 19041)
-    std::get<std::error_code>(old_uss_policy_to_new_errc_) =
-        std::error_code(ERROR_NOT_SUPPORTED, std::system_category());
-    return;
-  }
+  if (windows::GetVersion() < windows::Version::WIN10_20H1)
+    WB_ATTRIBUTE_UNLIKELY {
+      // Policies below require Windows 10, version 2004+ (Build 19041)
+      std::get<std::error_code>(old_uss_policy_to_new_errc_) =
+          std::error_code(ERROR_NOT_SUPPORTED, std::system_category());
+      return;
+    }
   if (!GetProcessMitigationPolicy(
           current_process,
           std::get<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>(

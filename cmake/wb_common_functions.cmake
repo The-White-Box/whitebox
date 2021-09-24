@@ -318,3 +318,24 @@ function(wb_get_all_targets RESULT ROOT_DIR)
   get_directory_property(SUB_TARGETS DIRECTORY "${ROOT_DIR}" BUILDSYSTEM_TARGETS)
   set(${RESULT} ${${RESULT}} ${SUB_TARGETS} PARENT_SCOPE)
 endfunction()
+
+# Prints bool option value.
+function(wb_bool_option name value)
+  if(${value})
+    message(STATUS "  ${name}:\tON")
+  else()
+    message(STATUS "  ${name}:\tOFF")
+  endif()
+endfunction()
+
+# Checks cxx source compiles.  Defines |define_name| to 1 when source compiles.
+function(wb_check_cxx_compiles source_code define_name source_description)
+  check_cxx_source_compiles(source_code define_name)
+
+  if (define_name)
+    add_compile_definitions(${define_name}=1)
+  endif()
+
+  wb_bool_option(
+    "[cpp features]: cxx compiler ${WB_CXX_COMPILER_ID} ${source_description} support" define_name)
+endfunction()

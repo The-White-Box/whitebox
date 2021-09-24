@@ -59,15 +59,16 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   // Prevents DLL / SO planting attacks.
   std::error_code rc;
   auto app_path = std2::GetExecutableDirectory(rc);
-  if (rc) [[unlikely]] {
-    wb::ui::FatalDialog(
-        intl.Format(intl::message_ids::kAppErrorDialogTitle,
-                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.String(
-            intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
-        rc, {.text_layout = intl.Layout()});
-  }
+  if (rc) WB_ATTRIBUTE_UNLIKELY {
+      wb::ui::FatalDialog(
+          intl.Format(
+              intl::message_ids::kAppErrorDialogTitle,
+              fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+          intl.String(
+              intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
+          rc, {.text_layout = intl.Layout()});
+    }
 
   app_path /= "libbootmgr.so." WB_PRODUCT_VERSION_INFO_STRING;
 
@@ -75,29 +76,32 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, RTLD_LAZY | RTLD_LOCAL);
   if (const auto* boot_manager = std2::GetSuccessResult(boot_manager_library))
-      [[likely]] {
-    using BootManagerMain = decltype(&BootmgrMain);
-    constexpr char kBootManagerMainName[]{"BootmgrMain"};
+    WB_ATTRIBUTE_LIKELY {
+      using BootManagerMain = decltype(&BootmgrMain);
+      constexpr char kBootManagerMainName[]{"BootmgrMain"};
 
-    // Good, try to find and launch bootmgr.
-    const auto boot_manager_entry =
-        boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
-    if (const auto* boot_manager_main =
-            std2::GetSuccessResult(boot_manager_entry)) [[likely]] {
-      return (*boot_manager_main)(
-          {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc, intl});
+      // Good, try to find and launch bootmgr.
+      const auto boot_manager_entry =
+          boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
+      if (const auto* boot_manager_main =
+              std2::GetSuccessResult(boot_manager_entry))
+        WB_ATTRIBUTE_LIKELY {
+          return (*boot_manager_main)(
+              {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc, intl});
+        }
+
+      wb::ui::FatalDialog(
+          intl.Format(
+              intl::message_ids::kAppErrorDialogTitle,
+              fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+          intl.Format(
+              intl::message_ids::kCantGetLibraryEntryPoint,
+              fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
+          std::get<std::error_code>(boot_manager_entry),
+          {.text_layout = intl.Layout()});
     }
-
-    wb::ui::FatalDialog(
-        intl.Format(intl::message_ids::kAppErrorDialogTitle,
-                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.Format(
-            intl::message_ids::kCantGetLibraryEntryPoint,
-            fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
-        std::get<std::error_code>(boot_manager_entry),
-        {.text_layout = intl.Layout()});
-  } else {
+  else {
     wb::ui::FatalDialog(
         intl.Format(intl::message_ids::kAppErrorDialogTitle,
                     fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),

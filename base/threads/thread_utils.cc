@@ -59,9 +59,10 @@ GetCurrentThreadHandle() noexcept {
   const windows::memory::ScopedLocalMemory scoped_local_memory{
       wide_thread_name};
 
-  if (!rc) [[likely]] {
-    thread_name = wide_thread_name;
-  } else {
+  if (!rc) WB_ATTRIBUTE_LIKELY {
+      thread_name = wide_thread_name;
+    }
+  else {
     thread_name = L"";
   }
 

@@ -48,9 +48,9 @@ namespace wb::base::std2 {
 #if WB_COMPILER_HAS_CXX20
   return v && s.ends_with(v);
 #else
-  if (!v) [[unlikely]] {
-    return false;
-  }
+  if (!v) WB_ATTRIBUTE_UNLIKELY {
+      return false;
+    }
   const auto idx = s.rfind(v);
   return idx != std::string_view::npos && idx == (s.size() - std::strlen(v));
 #endif

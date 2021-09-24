@@ -101,7 +101,8 @@ class SdlImageInitializer {
    * Actual returned by SDl flags.
    */
   int actual_flags_;
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(actual_flags_)];
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte
+      pad_[sizeof(char *) - sizeof(actual_flags_)];
   /**
    * Init error code.
    */
@@ -153,9 +154,8 @@ class SdlImageInitializer {
 inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     std::basic_ostream<char, std::char_traits<char>> &s,
     wb::sdl_image::SdlImageInitializerFlags flags) {
-  if (flags == wb::sdl_image::SdlImageInitializerFlags::kNone) [[unlikely]] {
-    return s << "None";
-  }
+  if (flags == wb::sdl_image::SdlImageInitializerFlags::kNone)
+    WB_ATTRIBUTE_UNLIKELY { return s << "None"; }
 
   if ((flags & wb::sdl_image::SdlImageInitializerFlags::kJpg) ==
       wb::sdl_image::SdlImageInitializerFlags::kJpg) {

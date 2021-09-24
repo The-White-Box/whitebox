@@ -40,9 +40,9 @@ namespace wb::base::windows {
   const size_t insecure_arg_idx{
       command_line.find(switches::insecure::kAllowUnsignedModuleTargetFlag)};
   // No arg.
-  if (insecure_arg_idx == std::string_view::npos) [[likely]] {
-    return true;
-  }
+  if (insecure_arg_idx == std::string_view::npos) WB_ATTRIBUTE_LIKELY {
+      return true;
+    }
 
   // Should start with arg or has space char before.
   if (insecure_arg_idx != 0U && !std::isspace(static_cast<unsigned char>(

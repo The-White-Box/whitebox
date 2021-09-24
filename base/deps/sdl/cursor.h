@@ -162,9 +162,9 @@ class ScopedSdlCursor {
   ScopedSdlCursor &operator=(ScopedSdlCursor &&c) noexcept = delete;
 
   ~ScopedSdlCursor() noexcept {
-    if (auto *old_cursor = GetSuccessResult(old_cursor_)) [[likely]] {
-      old_cursor->MakeActive();
-    }
+    if (auto *old_cursor = GetSuccessResult(old_cursor_)) WB_ATTRIBUTE_LIKELY {
+        old_cursor->MakeActive();
+      }
   }
 
  private:
@@ -183,9 +183,9 @@ class ScopedSdlCursor {
 
   auto new_cursor = SdlCursor::Empty();
   auto system_cursor = SdlCursor::FromSystem(new_cursor_in_scope);
-  if (auto *cursor = GetSuccessResult(system_cursor)) [[likely]] {
-    new_cursor = std::move(*cursor);
-  }
+  if (auto *cursor = GetSuccessResult(system_cursor)) WB_ATTRIBUTE_LIKELY {
+      new_cursor = std::move(*cursor);
+    }
   return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));
 }
 }  // namespace wb::sdl

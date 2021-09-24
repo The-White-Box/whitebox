@@ -138,15 +138,15 @@ void BootHeapMemoryAllocator() noexcept {
 
   std::error_code rc;
   auto app_path = std2::GetExecutableDirectory(rc);
-  if (rc) [[unlikely]] {
-    const auto& intl = bootmgr_args.intl;
-    wb::ui::FatalDialog(
-        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.String(
-            intl::message_ids::kCantGetExecutableDirectoryForBootManager),
-        rc, MakeFatalContext(bootmgr_args));
-  }
+  if (rc) WB_ATTRIBUTE_UNLIKELY {
+      const auto& intl = bootmgr_args.intl;
+      wb::ui::FatalDialog(
+          intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+          intl.String(
+              intl::message_ids::kCantGetExecutableDirectoryForBootManager),
+          rc, MakeFatalContext(bootmgr_args));
+    }
 
   return app_path;
 }
@@ -186,39 +186,41 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
   if (const auto* kernel_module = std2::GetSuccessResult(kernel_library))
-      [[likely]] {
-    using WhiteBoxKernelMain = decltype(&KernelMain);
-    constexpr char kKernelMainName[]{"KernelMain"};
+    WB_ATTRIBUTE_LIKELY {
+      using WhiteBoxKernelMain = decltype(&KernelMain);
+      constexpr char kKernelMainName[]{"KernelMain"};
 
-    // Good, try to find and launch whitebox-kernel.
-    const auto kernel_main_entry =
-        kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
-    if (const auto* kernel_main = std2::GetSuccessResult(kernel_main_entry))
-        [[likely]] {
+      // Good, try to find and launch whitebox-kernel.
+      const auto kernel_main_entry =
+          kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
+      if (const auto* kernel_main = std2::GetSuccessResult(kernel_main_entry))
+        WB_ATTRIBUTE_LIKELY {
 #ifdef WB_OS_WIN
-      return (*kernel_main)(
-          {bootmgr_args.app_description, bootmgr_args.instance,
-           bootmgr_args.show_window_flags, bootmgr_args.main_icon_id,
-           bootmgr_args.small_icon_id, bootmgr_args.intl});
+          return (*kernel_main)(
+              {bootmgr_args.app_description, bootmgr_args.instance,
+               bootmgr_args.show_window_flags, bootmgr_args.main_icon_id,
+               bootmgr_args.small_icon_id, bootmgr_args.intl});
 #else
-      return (*kernel_main)({bootmgr_args.app_description, bootmgr_args.argv,
-                             bootmgr_args.argc, bootmgr_args.intl});
+          return (*kernel_main)({bootmgr_args.app_description,
+                                 bootmgr_args.argv, bootmgr_args.argc,
+                                 bootmgr_args.intl});
 #endif
-    }
+        }
 
-    wb::ui::FatalDialog(
-        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.Format(intl::message_ids::kCantGetLibraryEntryPoint,
-                          fmt::make_format_args(kKernelMainName, kernel_path)),
-        std::get<std::error_code>(kernel_main_entry),
-        MakeFatalContext(bootmgr_args));
-  } else {
+      wb::ui::FatalDialog(
+          intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+          intl.Format(intl::message_ids::kCantGetLibraryEntryPoint,
+                      fmt::make_format_args(kKernelMainName, kernel_path)),
+          std::get<std::error_code>(kernel_main_entry),
+          MakeFatalContext(bootmgr_args));
+    }
+  else {
     wb::ui::FatalDialog(
         intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
         intl.Format(intl::message_ids::kCantLoadKernelFrom,
-                          fmt::make_format_args(kernel_path)),
+                    fmt::make_format_args(kernel_path)),
         std::get<std::error_code>(kernel_library),
         MakeFatalContext(bootmgr_args));
   }
@@ -247,15 +249,16 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   //
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
-  if (windows::GetVersion() < windows::Version::WIN10_19H1) [[unlikely]] {
-    wb::ui::FatalDialog(
-        bootmgr_args.intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-        bootmgr_args.intl.String(
-            intl::message_ids::kPleaseUpdateWindowsVersion),
-        bootmgr_args.intl.String(intl::message_ids::kWindowsVersionIsTooOld),
-        std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION),
-        MakeFatalContext(bootmgr_args));
-  }
+  if (windows::GetVersion() < windows::Version::WIN10_19H1)
+    WB_ATTRIBUTE_UNLIKELY {
+      wb::ui::FatalDialog(
+          bootmgr_args.intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+          bootmgr_args.intl.String(
+              intl::message_ids::kPleaseUpdateWindowsVersion),
+          bootmgr_args.intl.String(intl::message_ids::kWindowsVersionIsTooOld),
+          std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION),
+          MakeFatalContext(bootmgr_args));
+    }
 
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
@@ -338,28 +341,32 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
         windows::mmcss::ScopedMmcssThreadController::New(game_task,
                                                          playback_task);
     if (const auto* controller =
-            std2::GetSuccessResult(scoped_mmcss_thread_controller)) [[likely]] {
-      const auto responsiveness_percent =
-          controller->GetResponsivenessPercent();
+            std2::GetSuccessResult(scoped_mmcss_thread_controller))
+      WB_ATTRIBUTE_LIKELY {
+        const auto responsiveness_percent =
+            controller->GetResponsivenessPercent();
 
-      if (const auto* percent = std2::GetSuccessResult(responsiveness_percent))
-          [[likely]] {
-        G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
-                     << implicit_cast<unsigned>(*percent)
-                     << "% system responsiveness value.";
-      } else {
-        G3PLOG_E(WARNING, *std2::GetErrorCode(responsiveness_percent))
+        if (const auto* percent =
+                std2::GetSuccessResult(responsiveness_percent))
+          WB_ATTRIBUTE_LIKELY {
+            G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
+                         << implicit_cast<unsigned>(*percent)
+                         << "% system responsiveness value.";
+          }
+        else {
+          G3PLOG_E(WARNING, *std2::GetErrorCode(responsiveness_percent))
+              << "Can't get system responsiveness setting used by Multimedia "
+                 "Class Scheduler Service for the main app thread.";
+        }
+
+        const auto bump_thread_priority_rc = controller->SetPriority(
+            windows::mmcss::ScopedMmcssThreadPriority::kHigh);
+        G3PLOGE_IF(WARNING,
+                   bump_thread_priority_rc ? &bump_thread_priority_rc : nullptr)
             << "Can't get system responsiveness setting used by Multimedia "
-               "Class Scheduler Service for the main app thread.";
+               "Class Scheduler Service for the thread.";
       }
-
-      const auto bump_thread_priority_rc = controller->SetPriority(
-          windows::mmcss::ScopedMmcssThreadPriority::kHigh);
-      G3PLOGE_IF(WARNING,
-                 bump_thread_priority_rc ? &bump_thread_priority_rc : nullptr)
-          << "Can't get system responsiveness setting used by Multimedia "
-             "Class Scheduler Service for the thread.";
-    } else {
+    else {
       G3PLOG_E(WARNING, *std2::GetErrorCode(scoped_mmcss_thread_controller))
           << "Can't enable Multimedia Class Scheduler Service for the app, "
              "some CPU resources may be underutilized.  See "

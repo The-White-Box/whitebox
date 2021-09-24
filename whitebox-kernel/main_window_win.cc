@@ -103,73 +103,74 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
   G3DCHECK(input_code == RIM_INPUT || input_code == RIM_INPUTSINK);
 
   // If app is in foreground and query raw input data succeeded.
-  if (input_code == RIM_INPUT) [[likely]] {
-    using namespace wb::base::windows;
+  if (input_code == RIM_INPUT) WB_ATTRIBUTE_LIKELY {
+      using namespace wb::base::windows;
 
-    RAWINPUT read_input;
-    if (hal::hid::ReadRawInput(source_input, read_input)) [[likely]] {
-      bool is_raw_input_handled{false};
+      RAWINPUT read_input;
+      if (hal::hid::ReadRawInput(source_input, read_input))
+        WB_ATTRIBUTE_LIKELY {
+          bool is_raw_input_handled{false};
 
-      if (mouse_ && keyboard_) [[likely]] {
-        hal::hid::MouseInput mouse_input;
+          if (mouse_ && keyboard_) WB_ATTRIBUTE_LIKELY {
+              hal::hid::MouseInput mouse_input;
 
-        if (mouse_->Handle(read_input, mouse_input)) {
-          // TODO(dimhotepus): Do smth with mouse.
-          is_raw_input_handled = true;
+              if (mouse_->Handle(read_input, mouse_input)) {
+                // TODO(dimhotepus): Do smth with mouse.
+                is_raw_input_handled = true;
 
-          using std::to_string;
+                using std::to_string;
 
-          input_data = std::move(to_string(mouse_input));
-        } else {
-          hal::hid::KeyboardInput keyboard_input;
+                input_data = std::move(to_string(mouse_input));
+              } else {
+                hal::hid::KeyboardInput keyboard_input;
 
-          if (keyboard_->Handle(read_input, keyboard_input) &&
-              keyboard_input.make_code !=
-                  hal::hid::KeyboardInput::kOverrunMakeCode) {
-            // TODO(dimhotepus): Do smth with keyboard.
-            is_raw_input_handled = true;
+                if (keyboard_->Handle(read_input, keyboard_input) &&
+                    keyboard_input.make_code !=
+                        hal::hid::KeyboardInput::kOverrunMakeCode) {
+                  // TODO(dimhotepus): Do smth with keyboard.
+                  is_raw_input_handled = true;
 
-            using std::to_string;
+                  using std::to_string;
 
-            input_data = std::move(to_string(keyboard_input));
+                  input_data = std::move(to_string(keyboard_input));
 
-            if (keyboard_input.make_code == 0x57 &&
-                (keyboard_input.key_flags &
-                 hal::hid::KeyboardKeyFlags::kDown) ==
-                    hal::hid::KeyboardKeyFlags::kDown) {
-              const bool need_full_screen{
-                  !full_screen_window_toggler_->IsFullScreen()};
+                  if (keyboard_input.make_code == 0x57 &&
+                      (keyboard_input.key_flags &
+                       hal::hid::KeyboardKeyFlags::kDown) ==
+                          hal::hid::KeyboardKeyFlags::kDown) {
+                    const bool need_full_screen{
+                        !full_screen_window_toggler_->IsFullScreen()};
 
-              full_screen_window_toggler_->Toggle(need_full_screen);
+                    full_screen_window_toggler_->Toggle(need_full_screen);
 
-              ToggleDwmMmcss(!need_full_screen);
+                    ToggleDwmMmcss(!need_full_screen);
+                  }
+                }
+              }
             }
+
+          // Nor mouse or keyboard so system can do what it needs with.
+          if (!is_raw_input_handled) {
+            const auto rc =
+                hal::hid::HandleNonHandledRawInput(sizeof(read_input.header));
+            G3DCHECK(rc == 0);
           }
         }
-      }
 
-      // Nor mouse or keyboard so system can do what it needs with.
-      if (!is_raw_input_handled) {
+      {
+        // RIM_INPUT means "Input occurred while the application was in the
+        // foreground.  The application must call DefWindowProc so the system
+        // can perform cleanup."
+        //
+        // See
+        // https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-input#parameters
         const auto rc =
-            hal::hid::HandleNonHandledRawInput(sizeof(read_input.header));
+            FORWARD_WM_INPUT(window, input_code, source_input, DefWindowProc);
         G3DCHECK(rc == 0);
       }
-    }
 
-    {
-      // RIM_INPUT means "Input occurred while the application was in the
-      // foreground.  The application must call DefWindowProc so the system can
-      // perform cleanup."
-      //
-      // See
-      // https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-input#parameters
-      const auto rc =
-          FORWARD_WM_INPUT(window, input_code, source_input, DefWindowProc);
-      G3DCHECK(rc == 0);
+      return 0L;
     }
-
-    return 0L;
-  }
 
   // App doesn't handle RIM_INPUTSINK or other, signal system to handle it
   // itself.

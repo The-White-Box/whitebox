@@ -98,10 +98,11 @@ class Lookup::LookupImpl {
   [[nodiscard]] LookupResult<Lookup::Ref<const std::string>> String(
       uint64_t message_id) const noexcept {
     if (const auto& message = messages_by_id_.find(message_id);
-        message != messages_by_id_.end()) [[likely]] {
-      return LookupResult<Lookup::Ref<const std::string>>{
-          std::ref(message->second)};
-    }
+        message != messages_by_id_.end())
+      WB_ATTRIBUTE_LIKELY {
+        return LookupResult<Lookup::Ref<const std::string>>{
+            std::ref(message->second)};
+      }
 
     G3LOG(WARNING) << "Missed localization string for " << message_id
                    << " message id.";
@@ -125,9 +126,10 @@ class Lookup::LookupImpl {
 [[nodiscard]] LookupResult<Lookup> Lookup::New(
     const std::set<std::string>& locale_ids) noexcept {
   auto impl_result = LookupImpl::New(locale_ids);
-  if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result)) [[likely]] {
-    return LookupResult<Lookup>{Lookup{std::move(*impl)}};
-  }
+  if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result))
+    WB_ATTRIBUTE_LIKELY {
+      return LookupResult<Lookup>{Lookup{std::move(*impl)}};
+    }
 
   return LookupResult<Lookup>{std::get<Status>(impl_result)};
 }
@@ -142,9 +144,10 @@ class Lookup::LookupImpl {
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = String(message_id);
   if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-      [[likely]] {
-    return fmt::vformat(static_cast<const std::string&>(*string), format_args);
-  }
+    WB_ATTRIBUTE_LIKELY {
+      return fmt::vformat(static_cast<const std::string&>(*string),
+                          format_args);
+    }
   return LookupResult<std::string>{std::get<Status>(result)};
 }
 
@@ -166,10 +169,10 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     const std::set<std::string>& locale_ids,
     std::string fallback_string) noexcept {
   auto lookup_result = Lookup::New(locale_ids);
-  if (auto* lookup = std::get_if<Lookup>(&lookup_result)) [[likely]] {
-    return LookupResult<LookupWithFallback>{
-        LookupWithFallback(std::move(*lookup), std::move(fallback_string))};
-  }
+  if (auto* lookup = std::get_if<Lookup>(&lookup_result)) WB_ATTRIBUTE_LIKELY {
+      return LookupResult<LookupWithFallback>{
+          LookupWithFallback(std::move(*lookup), std::move(fallback_string))};
+    }
 
   return LookupResult<LookupWithFallback>{std::get<Status>(lookup_result)};
 }
@@ -178,9 +181,7 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     uint64_t message_id) const noexcept {
   auto result = lookup_.String(message_id);
   if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-      [[likely]] {
-    return *string;
-  }
+    WB_ATTRIBUTE_LIKELY { return *string; }
 
   G3LOG(WARNING) << "Missed localization string for " << message_id
                  << " message id.";
@@ -191,9 +192,10 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = lookup_.String(message_id);
   if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-      [[likely]] {
-    return fmt::vformat(static_cast<const std::string&>(*string), format_args);
-  }
+    WB_ATTRIBUTE_LIKELY {
+      return fmt::vformat(static_cast<const std::string&>(*string),
+                          format_args);
+    }
 
   G3LOG(WARNING) << "Missed localization string for " << message_id
                  << " message id.";
