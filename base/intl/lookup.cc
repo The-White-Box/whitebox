@@ -20,12 +20,12 @@ class Lookup::LookupImpl {
  public:
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(LookupImpl);
 
-  [[nodiscard]] static Lookup::LookupResult<un<Lookup::LookupImpl>> New(
+  [[nodiscard]] static LookupResult<un<Lookup::LookupImpl>> New(
       const std::set<std::string>& locale_ids) noexcept {
     // TODO(dimhotepus): Load locales.
     if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
         locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
-      return Lookup::LookupResult<un<Lookup::LookupImpl>>{un<
+      return LookupResult<un<Lookup::LookupImpl>>{un<
           Lookup::LookupImpl>{new Lookup::LookupImpl{MessagesById{
 #ifdef WB_OS_WIN
           {message_ids::kWindowsVersionIsTooOld,
@@ -92,22 +92,20 @@ class Lookup::LookupImpl {
       }}}};
     }
 
-    return Lookup::LookupResult<un<Lookup::LookupImpl>>{
-        Lookup::Status::kArgumentError};
+    return LookupResult<un<Lookup::LookupImpl>>{Status::kArgumentError};
   }
 
-  [[nodiscard]] Lookup::LookupResult<Lookup::ref<const std::string>> String(
+  [[nodiscard]] LookupResult<Lookup::Ref<const std::string>> String(
       uint64_t message_id) const noexcept {
     if (const auto& message = messages_by_id_.find(message_id);
         message != messages_by_id_.end()) [[likely]] {
-      return Lookup::LookupResult<Lookup::ref<const std::string>>{
+      return LookupResult<Lookup::Ref<const std::string>>{
           std::ref(message->second)};
     }
 
     G3LOG(WARNING) << "Missed localization string for " << message_id
                    << " message id.";
-    return Lookup::LookupResult<Lookup::ref<const std::string>>{
-        Lookup::Status::kUnavailable};
+    return LookupResult<Lookup::Ref<const std::string>>{Status::kUnavailable};
   }
 
  private:
@@ -124,30 +122,30 @@ class Lookup::LookupImpl {
       : messages_by_id_{std::move(messages_by_id)} {}
 };
 
-[[nodiscard]] Lookup::LookupResult<Lookup> Lookup::New(
+[[nodiscard]] LookupResult<Lookup> Lookup::New(
     const std::set<std::string>& locale_ids) noexcept {
   auto impl_result = LookupImpl::New(locale_ids);
   if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result)) [[likely]] {
-    return Lookup::LookupResult<Lookup>{Lookup{std::move(*impl)}};
+    return LookupResult<Lookup>{Lookup{std::move(*impl)}};
   }
 
-  return Lookup::LookupResult<Lookup>{std::get<Lookup::Status>(impl_result)};
+  return LookupResult<Lookup>{std::get<Status>(impl_result)};
 }
 
-[[nodiscard]] Lookup::LookupResult<Lookup::ref<const std::string>>
-Lookup::String(uint64_t message_id) const noexcept {
+[[nodiscard]] LookupResult<Lookup::Ref<const std::string>> Lookup::String(
+    uint64_t message_id) const noexcept {
   G3DCHECK(!!impl_);
   return impl_->String(message_id);
 }
 
-[[nodiscard]] Lookup::LookupResult<std::string> Lookup::StringFormat(
+[[nodiscard]] LookupResult<std::string> Lookup::Format(
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = String(message_id);
-  if (const auto* string = std::get_if<Lookup::ref<const std::string>>(&result))
+  if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
       [[likely]] {
     return fmt::vformat(static_cast<const std::string&>(*string), format_args);
   }
-  return Lookup::LookupResult<std::string>{std::get<Lookup::Status>(result)};
+  return LookupResult<std::string>{std::get<Status>(result)};
 }
 
 [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Lookup::Layout() const noexcept {
@@ -164,23 +162,22 @@ Lookup::Lookup(Lookup&& l) noexcept : impl_{std::move(l.impl_)} {}
 LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     : lookup_{std::move(l.lookup_)} {}
 
-[[nodiscard]] Lookup::LookupResult<LookupWithFallback> LookupWithFallback::New(
+[[nodiscard]] LookupResult<LookupWithFallback> LookupWithFallback::New(
     const std::set<std::string>& locale_ids,
     std::string fallback_string) noexcept {
   auto lookup_result = Lookup::New(locale_ids);
   if (auto* lookup = std::get_if<Lookup>(&lookup_result)) [[likely]] {
-    return Lookup::LookupResult<LookupWithFallback>{
+    return LookupResult<LookupWithFallback>{
         LookupWithFallback(std::move(*lookup), std::move(fallback_string))};
   }
 
-  return Lookup::LookupResult<LookupWithFallback>{
-      std::get<Lookup::Status>(lookup_result)};
+  return LookupResult<LookupWithFallback>{std::get<Status>(lookup_result)};
 }
 
 [[nodiscard]] const std::string& LookupWithFallback::String(
     uint64_t message_id) const noexcept {
   auto result = lookup_.String(message_id);
-  if (const auto* string = std::get_if<Lookup::ref<const std::string>>(&result))
+  if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
       [[likely]] {
     return *string;
   }
@@ -190,10 +187,10 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
   return fallback_string_;
 }
 
-[[nodiscard]] std::string LookupWithFallback::StringFormat(
+[[nodiscard]] std::string LookupWithFallback::Format(
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = lookup_.String(message_id);
-  if (const auto* string = std::get_if<Lookup::ref<const std::string>>(&result))
+  if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
       [[likely]] {
     return fmt::vformat(static_cast<const std::string&>(*string), format_args);
   }

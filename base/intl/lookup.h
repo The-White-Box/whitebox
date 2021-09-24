@@ -39,37 +39,41 @@ enum class StringLayout {
 };
 
 /**
+ * @brief Lookup status.
+ */
+enum class Status {
+  /**
+   * @brief All is ok.
+   */
+  kOk = 0,
+  /**
+   * @brief Locale or string is not available.
+   */
+  kUnavailable = 1,
+  /**
+   * @brief Invalid locale is passed to New.
+   */
+  kArgumentError = 2,
+  /**
+   * @brief Internal error occurred.
+   */
+  kInternal = 3
+};
+
+/**
+ * @brief Lookup result.
+ * @tparam T Result type.
+ */
+template <typename T>
+using LookupResult = std::variant<T, Status>;
+
+/**
  * @brief The API used to look up localized messages by their unique message ID.
  */
 class WB_BASE_API Lookup {
  public:
-  /**
-   * @brief Lookup status.
-   */
-  enum class Status {
-    /**
-     * @brief All is ok.
-     */
-    kOk = 0,
-    /**
-     * @brief Locale or string is not available.
-     */
-    kUnavailable = 1,
-    /**
-     * @brief Invalid locale is passed to New.
-     */
-    kArgumentError = 2,
-    /**
-     * @brief Internal error occurred.
-     */
-    kInternal = 3
-  };
-
   template <typename T>
-  using LookupResult = std::variant<T, Lookup::Status>;
-
-  template <typename T>
-  using ref = std::reference_wrapper<T>;
+  using Ref = std::reference_wrapper<T>;
 
   Lookup() noexcept = delete;
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(Lookup);
@@ -91,7 +95,7 @@ class WB_BASE_API Lookup {
    * @param message_id Message id.
    * @return Localized string.
    */
-  [[nodiscard]] LookupResult<ref<const std::string>> String(
+  [[nodiscard]] LookupResult<Ref<const std::string>> String(
       uint64_t message_id) const noexcept;
 
   /**
@@ -100,7 +104,7 @@ class WB_BASE_API Lookup {
    * @param format_args Message format args.
    * @return Localized string.
    */
-  [[nodiscard]] LookupResult<std::string> StringFormat(
+  [[nodiscard]] LookupResult<std::string> Format(
       uint64_t message_id, fmt::format_args format_args) const noexcept;
 
   /**
@@ -150,7 +154,7 @@ class WB_BASE_API LookupWithFallback {
    * @param fallback_string String to return if requested one not found.
    * @return Lookup.
    */
-  [[nodiscard]] static Lookup::LookupResult<LookupWithFallback> New(
+  [[nodiscard]] static LookupResult<LookupWithFallback> New(
       const std::set<std::string>& locale_ids,
       std::string fallback_string = kFallbackString) noexcept;
 
@@ -168,8 +172,8 @@ class WB_BASE_API LookupWithFallback {
    * @param format_args Message format args.
    * @return Localized string.
    */
-  [[nodiscard]] std::string StringFormat(
-      uint64_t message_id, fmt::format_args format_args) const noexcept;
+  [[nodiscard]] std::string Format(uint64_t message_id,
+                                   fmt::format_args format_args) const noexcept;
 
   /**
    * @brief Gets string layout.

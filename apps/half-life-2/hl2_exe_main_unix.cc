@@ -61,9 +61,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) [[unlikely]] {
     wb::ui::FatalDialog(
-        intl.StringFormat(
-            intl::message_ids::kAppErrorDialogTitle,
-            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.Format(intl::message_ids::kAppErrorDialogTitle,
+                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
         intl.String(
             intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
@@ -90,23 +89,21 @@ int BootmgrStartup(int argc, char** argv) noexcept {
     }
 
     wb::ui::FatalDialog(
-        intl.StringFormat(
-            intl::message_ids::kAppErrorDialogTitle,
-            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.Format(intl::message_ids::kAppErrorDialogTitle,
+                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.StringFormat(
+        intl.Format(
             intl::message_ids::kCantGetLibraryEntryPoint,
             fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
         std::get<std::error_code>(boot_manager_entry),
         {.text_layout = intl.Layout()});
   } else {
     wb::ui::FatalDialog(
-        intl.StringFormat(
-            intl::message_ids::kAppErrorDialogTitle,
-            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.Format(intl::message_ids::kAppErrorDialogTitle,
+                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.StringFormat(intl::message_ids::kCantLoadBootManager,
-                          fmt::make_format_args(boot_manager_path)),
+        intl.Format(intl::message_ids::kCantLoadBootManager,
+                    fmt::make_format_args(boot_manager_path)),
         std::get<std::error_code>(boot_manager_library),
         {.text_layout = intl.Layout()});
   }

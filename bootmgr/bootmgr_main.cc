@@ -209,7 +209,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
     wb::ui::FatalDialog(
         intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.StringFormat(intl::message_ids::kCantGetLibraryEntryPoint,
+        intl.Format(intl::message_ids::kCantGetLibraryEntryPoint,
                           fmt::make_format_args(kKernelMainName, kernel_path)),
         std::get<std::error_code>(kernel_main_entry),
         MakeFatalContext(bootmgr_args));
@@ -217,7 +217,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
     wb::ui::FatalDialog(
         intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.StringFormat(intl::message_ids::kCantLoadKernelFrom,
+        intl.Format(intl::message_ids::kCantLoadKernelFrom,
                           fmt::make_format_args(kernel_path)),
         std::get<std::error_code>(kernel_library),
         MakeFatalContext(bootmgr_args));

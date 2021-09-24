@@ -104,9 +104,8 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
   const auto app_path = windows::GetApplicationDirectory(instance);
   if (const auto* error = wb::base::std2::GetErrorCode(app_path)) [[unlikely]] {
     wb::ui::FatalDialog(
-        intl.StringFormat(
-            intl::message_ids::kAppErrorDialogTitle,
-            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.Format(intl::message_ids::kAppErrorDialogTitle,
+                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
         intl.String(
             intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
@@ -140,22 +139,20 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
     }
 
     wb::ui::FatalDialog(
-        intl.StringFormat(
-            intl::message_ids::kAppErrorDialogTitle,
-            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.Format(intl::message_ids::kAppErrorDialogTitle,
+                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.StringFormat(
+        intl.Format(
             intl::message_ids::kCantGetLibraryEntryPoint,
             fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
         std::get<std::error_code>(boot_manager_entry), MakeFatalContext(intl));
   } else {
     wb::ui::FatalDialog(
-        intl.StringFormat(
-            intl::message_ids::kAppErrorDialogTitle,
-            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.Format(intl::message_ids::kAppErrorDialogTitle,
+                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.StringFormat(intl::message_ids::kCantLoadBootManager,
-                          fmt::make_format_args(boot_manager_path)),
+        intl.Format(intl::message_ids::kCantLoadBootManager,
+                    fmt::make_format_args(boot_manager_path)),
         std::get<std::error_code>(boot_manager_library),
         MakeFatalContext(intl));
   }
