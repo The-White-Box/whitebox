@@ -136,6 +136,25 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
   return "N/A";
 }
 #endif
+
+#ifdef WB_OS_POSIX
+/**
+ * @brief Makes fatal dialog context.
+ * @param kernel_args Kernel arguments.
+ * @return Fatal dialog context.
+ */
+[[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
+    const wb::kernel::KernelArgs& kernel_args) noexcept {
+#ifdef WB_OS_POSIX
+  return {kernel_args.intl.Layout()};
+#elif defined(WB_OS_WIN)
+  return {kernel_args.intl, kernel_args.intl.Layout(), kernel_args.main_icon_id,
+          kernel_args.small_icon_id};
+#else
+#error Please define MakeFatalContext for your platform.
+#endif
+}
+#endif
 }  // namespace
 
 extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
@@ -188,7 +207,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                     "initialization failed.\n\n{3}.",
                     compiled_sdl_version, linked_sdl_version,
                     ::SDL_GetRevision(), *error),
-        {}, {.text_layout = kernel_args.intl.Layout()});
+        {}, MakeFatalContext(kernel_args));
   }
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
@@ -207,7 +226,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                         fmt::format("SDL image parser initialization failed "
                                     "for image types {0}.\n\n{1}.",
                                     sdl_image_initializer_flags, *error),
-                        {}, {.text_layout = kernel_args.intl.Layout()});
+                        {}, MakeFatalContext(kernel_args));
   }
 
   // TODO(dimhotepus): kAllowHighDpi handling at least on Mac.
@@ -234,7 +253,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
         fmt::format("SDL window create failed with '{0}' context.\n\n{1}.",
                     GetWindowGraphicsContext(window_flags),
                     *GetError(sdl_window)),
-        {}, {.text_layout = kernel_args.intl.Layout()});
+        {}, MakeFatalContext(kernel_args));
   }
 
   const auto window_icon_result = SdlSurface::FromImage("half-life-2_icon.png");

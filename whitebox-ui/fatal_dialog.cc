@@ -21,6 +21,7 @@
 #include "build/compiler_config.h"
 
 namespace {
+#ifdef WB_OS_POSIX
 /**
  * Adds end sentence mark to message.
  * @param error_message Error message.
@@ -40,6 +41,7 @@ namespace {
   return already_has_end_sentence_mark ? std::move(error_message)
                                        : (error_message += '.');
 }
+#endif
 }  // namespace
 
 namespace wb::ui {
@@ -107,11 +109,10 @@ namespace wb::ui {
   // in Release.
   G3DCHECK(!std2::GetErrorCode(result))
       << "Fatal dialog can't be shown: " << *std2::GetErrorCode(result);
-}
 #else
 #error Please define FatalDialog UI for your platform.
 #endif
 
-  exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
+  std::exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
 }
 }  // namespace wb::ui

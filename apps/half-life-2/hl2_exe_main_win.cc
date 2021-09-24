@@ -8,6 +8,8 @@
 
 #include "base/base_switches.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
+#include "base/intl/clocale_ext.h"
+#include "base/intl/lookup.h"
 #include "base/scoped_shared_library.h"
 #include "base/win/com/scoped_com_fatal_exception_handler.h"
 #include "base/win/com/scoped_com_initializer.h"
@@ -19,6 +21,7 @@
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
 #include "resource_win.h"
+#include "whitebox-ui/fatal_dialog.h"
 
 extern "C" {
 // Starting with the Release 302 drivers, application developers can direct the
@@ -41,6 +44,35 @@ WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
 
 namespace {
 /**
+ * @brief Creates internationalization lookup.
+ * @param user_locale User locale.
+ * @return Internationalization lookup.
+ */
+[[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
+    const std::string& user_locale) noexcept {
+  auto intl_lookup_result{
+      wb::base::intl::LookupWithFallback::New({user_locale})};
+  auto intl_lookup =
+      std::get_if<wb::base::intl::LookupWithFallback>(&intl_lookup_result);
+
+  G3LOG_IF(FATAL, !intl_lookup)
+      << "Unable to create localization strings lookup for locale "
+      << user_locale << ".";
+  return std::move(*intl_lookup);
+}
+
+/**
+ * @brief Makes fatal dialog context.
+ * @param intl Localization service.
+ * @return Fatal dialog context.
+ */
+[[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
+    const wb::base::intl::LookupWithFallback& intl) noexcept {
+  return {intl, intl.Layout(), WB_HALF_LIFE_2_IDI_MAIN_ICON,
+          WB_HALF_LIFE_2_IDI_SMALL_ICON};
+}
+
+/**
  * @brief Load and run bootmgr.
  * @param instance App instance.
  * @param command_line Command line.
@@ -51,6 +83,17 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
                    _In_ int show_window_flags) noexcept {
   using namespace wb::base;
 
+  // Start with specifying UTF-8 locale for all user-facing data.
+  const intl::ScopedProcessLocale scoped_process_locale{
+      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
+  const std::string user_locale{
+      scoped_process_locale.GetCurrentLocale().value_or(
+          intl::locales::kFallbackLocale)};
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
+              << " locale for UI.";
+
+  auto intl = CreateIntl(user_locale);
+
   // Search for DLLs in the secure order to prevent DLL plant attacks.
   std::error_code rc{windows::GetErrorCode(::SetDefaultDllDirectories(
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS))};
@@ -59,51 +102,63 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
          "malicious code.";
 
   const auto app_path = windows::GetApplicationDirectory(instance);
-  G3PLOGE_IF(FATAL, wb::base::std2::GetErrorCode(app_path))
-      << "Can't get current directory.  Unable to load "
-         "the app.  Please, contact authors.";
+  if (const auto* error = wb::base::std2::GetErrorCode(app_path)) [[unlikely]] {
+    wb::ui::FatalDialog(
+        intl.StringFormat(
+            intl::message_ids::kAppErrorDialogTitle,
+            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+        intl.String(
+            intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
+        *error, MakeFatalContext(intl));
+  }
 
   const std::string boot_manager_path{std::get<std::string>(app_path) +
                                       "bootmgr.dll"};
-  const unsigned boot_manager_load_flags{
+  const unsigned boot_manager_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
       (windows::MustBeSignedDllLoadTarget(command_line)
            ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
            : 0U)};
 
-  const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
-      boot_manager_path, boot_manager_load_flags);
-  if (const auto* boot_manager_module =
-          std2::GetSuccessResult(boot_manager_load_result)) {
-    using BootmgrMainFunction = decltype(&BootmgrMain);
-    constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
+  const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
+      boot_manager_path, boot_manager_flags);
+  if (const auto* boot_manager = std2::GetSuccessResult(boot_manager_library))
+      [[likely]] {
+    using BootmgrMain = decltype(&BootmgrMain);
+    constexpr char kBootManagerMainName[]{"BootmgrMain"};
 
     // Good, try to find and launch bootmgr.
-    const auto boot_manager_entry_result =
-        boot_manager_module->GetAddressAs<BootmgrMainFunction>(
-            kBootManagerMainFunctionName);
+    const auto boot_manager_entry =
+        boot_manager->GetAddressAs<BootmgrMain>(kBootManagerMainName);
     if (const auto* boot_manager_main =
-            std2::GetSuccessResult(boot_manager_entry_result)) {
+            std2::GetSuccessResult(boot_manager_entry)) [[likely]] {
       return (*boot_manager_main)(
           {instance, command_line, WB_PRODUCT_FILE_DESCRIPTION_STRING,
            show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
-           WB_HALF_LIFE_2_IDI_SMALL_ICON});
+           WB_HALF_LIFE_2_IDI_SMALL_ICON, intl});
     }
 
-    // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(boot_manager_entry_result);
-    G3PLOG_E(WARNING, rc)
-        << "Can't get '" << kBootManagerMainFunctionName
-        << "' entry point from '" << boot_manager_path
-        << "'.  Looks like app is broken, please, reinstall the one.";
+    wb::ui::FatalDialog(
+        intl.StringFormat(
+            intl::message_ids::kAppErrorDialogTitle,
+            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+        intl.StringFormat(
+            intl::message_ids::kCantGetLibraryEntryPoint,
+            fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
+        std::get<std::error_code>(boot_manager_entry), MakeFatalContext(intl));
   } else {
-    // TODO(dimhotepus): Show fancy UI box.
-    rc = std::get<std::error_code>(boot_manager_load_result);
-    G3PLOG_E(WARNING, rc) << "Can't load boot manager '" << boot_manager_path
-                          << "'.  Please, reinstall the app.";
+    wb::ui::FatalDialog(
+        intl.StringFormat(
+            intl::message_ids::kAppErrorDialogTitle,
+            fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
+        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
+        intl.StringFormat(intl::message_ids::kCantLoadBootManager,
+                          fmt::make_format_args(boot_manager_path)),
+        std::get<std::error_code>(boot_manager_library),
+        MakeFatalContext(intl));
   }
-
-  return rc.value();
 }
 }  // namespace
 
@@ -123,8 +178,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // Simplifies debugging experience, no need to sign targets.
   std::string debug_command_line{command_line};
   debug_command_line.append(" ");
-  debug_command_line.append(
-      wb::base::switches::insecure::kAllowUnsignedModuleTargetFlag);
+  debug_command_line.append(switches::insecure::kAllowUnsignedModuleTargetFlag);
 
   command_line = debug_command_line.data();
 #endif

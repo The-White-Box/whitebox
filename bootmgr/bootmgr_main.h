@@ -102,6 +102,8 @@ struct BootmgrArgs {
    * @brief Localization service.
    */
   const wb::base::intl::LookupWithFallback &intl;
+
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(BootmgrArgs);
 };
 }  // namespace wb::bootmgr
 

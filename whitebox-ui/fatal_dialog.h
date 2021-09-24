@@ -9,27 +9,32 @@
 #include <optional>
 #include <system_error>
 
-#include "base/intl/lookup.h"
 #include "base/base_macroses.h"
+#include "base/intl/lookup.h"
 #include "whitebox-ui/api.h"
 
 namespace wb::ui {
 /**
- * @brief Special os specific context for fatal dialog.
+ * @brief Special os context for fatal dialog.
  */
 struct FatalDialogContext {
-  /**
-   * Dialog content layout.
-   */
-  const base::intl::StringLayout text_layout;
-
 #ifdef WB_OS_WIN
-  std::byte pad_[4];
+  FatalDialogContext(const base::intl::LookupWithFallback& intl_,
+                     const base::intl::StringLayout text_layout_,
+                     const int main_icon_id_, const int small_icon_id_) noexcept
+      : intl{intl_},
+        text_layout{text_layout_},
+        main_icon_id{main_icon_id_},
+        small_icon_id{small_icon_id_} {}
 
   /**
    * @brief Localization service.
    */
   const base::intl::LookupWithFallback& intl;
+  /**
+   * Dialog content layout.
+   */
+  const base::intl::StringLayout text_layout;
   /**
    * @brief Main icon id to use in fatal dialog.
    */
@@ -38,9 +43,19 @@ struct FatalDialogContext {
    * @brief Small icon id to use in fatal dialog.
    */
   const int small_icon_id;
+
+  std::byte pad[4];
+#else
+  FatalDialogContext(const base::intl::StringLayout text_layout_) noexcept
+      : text_layout{text_layout_} {}
+
+  /**
+   * Dialog content layout.
+   */
+  const base::intl::StringLayout text_layout;
 #endif
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FatalDialogContext);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(FatalDialogContext);
 };
 
 /**

@@ -91,6 +91,8 @@ struct KernelArgs {
    * @brief Localization service.
    */
   const base::intl::LookupWithFallback &intl;
+
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(KernelArgs);
 };
 }  // namespace wb::kernel
 

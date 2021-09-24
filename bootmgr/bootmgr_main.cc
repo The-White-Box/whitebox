@@ -111,23 +111,41 @@ void BootHeapMemoryAllocator() noexcept {
 }
 
 /**
+ * @brief Makes fatal dialog context.
+ * @param bootmgr_args Boot manager arguments.
+ * @return Fatal dialog context.
+ */
+[[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
+    const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+#ifdef WB_OS_POSIX
+  return {bootmgr_args.intl.Layout()};
+#elif defined(WB_OS_WIN)
+  return {bootmgr_args.intl, bootmgr_args.intl.Layout(),
+          bootmgr_args.main_icon_id, bootmgr_args.small_icon_id};
+#else
+#error Please define MakeFatalContext for your platform.
+#endif
+}
+
+/**
  * Gets executable directory.
- * @param intl Localization service.
+ * @param bootmgr_args Boot manager arguments.
  * @return Executable directory.
  */
 [[nodiscard]] std::filesystem::path GetExecutableDirectoryPath(
-    const wb::base::intl::LookupWithFallback& intl) noexcept {
+    const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
   auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) [[unlikely]] {
+    const auto& intl = bootmgr_args.intl;
     wb::ui::FatalDialog(
         intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
         intl.String(
             intl::message_ids::kCantGetExecutableDirectoryForBootManager),
-        rc, {.text_layout = intl.Layout()});
+        rc, MakeFatalContext(bootmgr_args));
   }
 
   return app_path;
@@ -142,8 +160,7 @@ void BootHeapMemoryAllocator() noexcept {
 int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   using namespace wb::base;
 
-  const auto& intl = bootmgr_args.intl;
-  const auto app_directory_path = GetExecutableDirectoryPath(intl);
+  const auto app_directory_path = GetExecutableDirectoryPath(bootmgr_args);
 
 #ifdef WB_OS_WIN
   const std::string kernel_path{
@@ -165,6 +182,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   const int kernel_load_flags{RTLD_LAZY | RTLD_LOCAL};
 #endif
 
+  const auto& intl = bootmgr_args.intl;
   const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
   if (const auto* kernel_module = std2::GetSuccessResult(kernel_library))
@@ -194,7 +212,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
         intl.StringFormat(intl::message_ids::kCantGetLibraryEntryPoint,
                           fmt::make_format_args(kKernelMainName, kernel_path)),
         std::get<std::error_code>(kernel_main_entry),
-        {.text_layout = intl.Layout()});
+        MakeFatalContext(bootmgr_args));
   } else {
     wb::ui::FatalDialog(
         intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
@@ -202,7 +220,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
         intl.StringFormat(intl::message_ids::kCantLoadKernelFrom,
                           fmt::make_format_args(kernel_path)),
         std::get<std::error_code>(kernel_library),
-        {.text_layout = intl.Layout()});
+        MakeFatalContext(bootmgr_args));
   }
 }
 }  // namespace
@@ -231,11 +249,12 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
   if (windows::GetVersion() < windows::Version::WIN10_19H1) [[unlikely]] {
     wb::ui::FatalDialog(
-        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-        intl.String(intl::message_ids::kPleaseUpdateWindowsVersion),
-        intl.String(intl::message_ids::kWindowsVersionIsTooOld),
+        bootmgr_args.intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
+        bootmgr_args.intl.String(
+            intl::message_ids::kPleaseUpdateWindowsVersion),
+        bootmgr_args.intl.String(intl::message_ids::kWindowsVersionIsTooOld),
         std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION),
-        {.text_layout = intl.Layout()});
+        MakeFatalContext(bootmgr_args));
   }
 
   // Enable process attacks mitigation policies in scope.
