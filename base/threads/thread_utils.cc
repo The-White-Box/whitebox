@@ -89,8 +89,16 @@ GetCurrentThreadHandle() noexcept {
   return windows::GetErrorCode(
       ::SetThreadDescription(handle, thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
+#ifdef WB_OS_MACOSX
+  G3CHECK(handle == ::pthread_self())
+      << "Mac doesn't support naming of the selected thread, only calling "
+         "thread can be renamed.";
+  return std2::GetThreadPosixErrorCode(
+      ::pthread_setname_np(thread_name.data()));
+#else
   return std2::GetThreadPosixErrorCode(
       ::pthread_setname_np(handle, thread_name.data()));
+#endif
 #else
 #error Please, define SetThreadName for your platform.
 #endif

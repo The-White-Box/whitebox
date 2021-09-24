@@ -109,7 +109,10 @@
 #define WB_COMPILER_HAS_DEBUG 1
 #endif
 
-#ifdef WB_CPP_HAS_LIKELY_UNLIKELY_ATTRIBUTES
+// Under Mac attributes detected as valid during sample compliation, but not
+// in source tree :(
+// TODO(dimhotepus): Check on new Clang all is ok (13.0.0+).
+#if defined(WB_CPP_HAS_LIKELY_UNLIKELY_ATTRIBUTES) && !defined(WB_OS_MACOSX)
 /*
  * @brief [[likely]]
  */
