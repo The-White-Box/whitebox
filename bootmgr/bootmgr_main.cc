@@ -23,7 +23,7 @@
 
 #ifdef WB_OS_WIN
 #include "base/win/dll_load_utils.h"
-#include "base/win/error_handling/scoped_pure_call_handler.h"
+#include "base/win/error_handling/scoped_process_pure_call_handler.h"
 #include "base/win/error_handling/scoped_thread_invalid_parameter_handler.h"
 #include "base/win/memory/memory_utils.h"
 #include "base/win/memory/scoped_new_handler.h"
@@ -271,8 +271,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
       scoped_thread_invalid_parameter_handler{
           error_handling::DefaultThreadInvalidParameterHandler};
   // Handle pure virtual function call.
-  const error_handling::ScopedPureCallHandler scoped_pure_call_handler{
-      error_handling::DefaultPureCallHandler};
+  const error_handling::ScopedProcessPureCallHandler
+      scoped_process_pure_call_handler{error_handling::DefaultPureCallHandler};
   // Handle new allocation failure.
   const memory::ScopedNewHandler scoped_new_handler{
       memory::DefaultNewFailureHandler};

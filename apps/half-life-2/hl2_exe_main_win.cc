@@ -102,7 +102,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
          "malicious code.";
 
   const auto app_path = windows::GetApplicationDirectory(instance);
-  if (const auto* error = wb::base::std2::GetErrorCode(app_path))
+  if (const auto* error = std2::GetErrorCode(app_path))
     WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl.Format(
