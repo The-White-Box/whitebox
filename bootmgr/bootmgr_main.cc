@@ -14,7 +14,6 @@
 #include "base/intl/message_ids.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
-#include "base/scoped_process_unexpected_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "base/threads/thread_utils.h"
@@ -288,9 +287,6 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   // Handle terminate function call on the thread.
   const ScopedProcessTerminateHandler scoped_process_terminate_handler{
       DefaultProcessTerminateHandler};
-  // Handle unexpected function call on the thread.
-  const ScopedProcessUnexpectedHandler scoped_process_unexpected_handler{
-      DefaultProcessUnexpectedHandler};
 
 #ifdef WB_OS_WIN
   const threads::NativeThreadName new_thread_name{L"WhiteBoxMain"};
