@@ -49,7 +49,7 @@ GetCurrentThreadHandle() noexcept {
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    NativeThreadHandle handle, NativeThreadName& thread_name) {
+    NativeThreadHandle handle, NativeThreadName& thread_name) noexcept {
 #ifdef WB_OS_WIN
   // Minimum supported client is Windows 10, version 1607.
   wchar_t* wide_thread_name;
@@ -79,25 +79,21 @@ GetCurrentThreadHandle() noexcept {
 
 /**
  * @brief Set thread name.
- * @param handle Thread handle.
  * @param thread_name New thread name.
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    NativeThreadHandle handle, const NativeThreadName& thread_name) {
+    const NativeThreadName& thread_name) noexcept {
 #ifdef WB_OS_WIN
   return windows::GetErrorCode(
-      ::SetThreadDescription(handle, thread_name.c_str()));
+      ::SetThreadDescription(GetCurrentThreadHandle(), thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
 #ifdef WB_OS_MACOSX
-  G3CHECK(handle == ::pthread_self())
-      << "Mac doesn't support naming of the selected thread, only calling "
-         "thread can be renamed.";
   return std2::GetThreadPosixErrorCode(
-      ::pthread_setname_np(thread_name.data()));
+      ::pthread_setname_np(thread_name.c_str()));
 #else
   return std2::GetThreadPosixErrorCode(
-      ::pthread_setname_np(handle, thread_name.data()));
+      ::pthread_setname_np(GetCurrentThreadHandle(), thread_name.c_str()));
 #endif
 #else
 #error Please, define SetThreadName for your platform.

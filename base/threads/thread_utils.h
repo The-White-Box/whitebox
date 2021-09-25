@@ -40,22 +40,21 @@ using NativeThreadName = std::string;
 GetCurrentThreadHandle() noexcept;
 
 /**
- * @brief Gets thread name.
+ * @brief Gets current thread name.
  * @param handle Thread handle.
  * @param thread_name Thread name.
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    NativeThreadHandle handle, NativeThreadName &thread_name);
+    NativeThreadHandle handle, NativeThreadName &thread_name) noexcept;
 
 /**
- * @brief Set thread name.
- * @param handle Thread handle.
+ * @brief Set current thread name.
  * @param thread_name New thread name.
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    NativeThreadHandle handle, const NativeThreadName &thread_name);
+    const NativeThreadName &thread_name) noexcept;
 
 /**
  * @brief Scoped thread name.
@@ -63,15 +62,13 @@ GetCurrentThreadHandle() noexcept;
 class ScopedThreadName {
  public:
   /**
-   * @brief Set name for thread in scope and restore out of scope.
-   * @param thread Thread.
+   * @brief Set name for current thread in scope and restore out of scope.
    * @param new_thread_name Scoped thread name.
    * @return ScopedThreadName.
    */
   [[nodiscard]] static std2::result<ScopedThreadName> New(
-      NativeThreadHandle thread, const NativeThreadName &new_thread_name) {
-    ScopedThreadName name{thread, new_thread_name};
-
+      const NativeThreadName &new_thread_name) {
+    ScopedThreadName name{GetCurrentThreadHandle(), new_thread_name};
     return !name.error_code()
                ? std2::result<ScopedThreadName>{std::move(name)}
                : std2::result<ScopedThreadName>{name.error_code()};
@@ -82,6 +79,9 @@ class ScopedThreadName {
         old_thread_name_{std::move(n.old_thread_name_)},
         error_code_{n.error_code_} {
     n.error_code_ = std::error_code{EINVAL, std::system_category()};
+
+    G3DCHECK(thread_ == GetCurrentThreadHandle())
+        << "Thread name should be moved for original thread.";
   }
   ScopedThreadName &operator=(ScopedThreadName &&) noexcept = delete;
 
@@ -91,8 +91,11 @@ class ScopedThreadName {
    * @brief Restore previous thread name.
    */
   ~ScopedThreadName() noexcept {
+    G3DCHECK(thread_ == GetCurrentThreadHandle())
+        << "Thread name should be restored for original thread.";
+
     if (!error_code()) {
-      G3CHECK(!SetThreadName(thread_, old_thread_name_));
+      G3CHECK(!SetThreadName(old_thread_name_));
     }
   }
 
@@ -130,7 +133,7 @@ class ScopedThreadName {
         error_code_{GetThreadName(thread, old_thread_name_)} {
     G3CHECK(!error_code());
 
-    if (!error_code()) error_code_ = SetThreadName(thread_, new_thread_name);
+    if (!error_code()) error_code_ = SetThreadName(new_thread_name);
   }
 };
 }  // namespace wb::base::threads

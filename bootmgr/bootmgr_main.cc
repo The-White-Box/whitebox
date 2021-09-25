@@ -296,8 +296,8 @@ extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
   const threads::NativeThreadName new_thread_name{L"WhiteBoxMain"};
 
   // Mark main thread with name to simplify debugging.
-  const auto scoped_thread_name = threads::ScopedThreadName::New(
-      threads::GetCurrentThreadHandle(), new_thread_name);
+  const auto scoped_thread_name =
+      threads::ScopedThreadName::New(new_thread_name);
   G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 #else
