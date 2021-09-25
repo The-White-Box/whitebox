@@ -94,8 +94,6 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   constexpr char kMessage[]{""};
 #endif
 
-  triggerOom();
-
   EXPECT_EXIT(triggerOom(), testing::ExitedWithCode(kExitCodeForSigAbrt),
               kMessage);
 }
