@@ -386,12 +386,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   target_link_options(${THE_TARGET}
     PRIVATE
       # Detect and reject underlinking.
-      -Wl,-z,defs
+      $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,defs>
       # Marks some section read only, which prevents some GOT overwrite attacks.
-      -Wl,-z,relro
+      $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,relro>
       # All symbols are resolved at load time.  Combined with the previous flag,
       # this prevents more GOT overwrite attacks.
-      -Wl,-z,now
+      $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,now>
 
       # Full ASLR for executables.
       $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>:
