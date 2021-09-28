@@ -722,7 +722,7 @@
 /**
  * @brief Nothing.  GCC-11 somehow doesn't like unused on object fields.
  */
-#define WB_ATTRIBUTE_UNUSED_FIELD [[maybe_unused]]
+#define WB_ATTRIBUTE_UNUSED_FIELD
 
 /*
  * @brief Disables GCC suggest-attribute=malloc warning.

@@ -11,7 +11,7 @@
 
 # Fill first arg with list of values by pattern.
 #
-# Use like this: wb_auto_sources(files "*.cc" "RECURSE" "${SRC_DIR}")
+# wb_auto_sources(files "*.cc" "RECURSE" "${SRC_DIR}")
 function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
   if ("${SOURCE_SUBDIRS}" STREQUAL "RECURSE")
     SET(PATH ".")
@@ -48,7 +48,8 @@ function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
 endfunction(wb_auto_sources)
 
 # Checks platform requirements.
-# Use like this: wb_check_platform_requirements("My target name")
+#
+# wb_check_platform_requirements("My target name")
 function(wb_check_platform_requirements TARGET_NAME)
   # Check target architecture is 64bit, as we support only 64bit+.
   if (NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -70,7 +71,7 @@ function(wb_check_platform_requirements TARGET_NAME)
 endfunction(wb_check_platform_requirements)
 
 # Alas, option() doesn't support string values.
-# Use like this:
+#
 # wb_define_strings_option(MSVC_LANGUAGE_VERSION
 #   "This determines which version of C++ to compile as."
 #   "c++17" "c++latest")
@@ -188,7 +189,6 @@ endfunction()
 
 # Removes OS specific files from target.
 #
-# Usage example:
 # wb_remove_os_specific_files(
 #   "target_source_dir"
 #   "${header_files}"
@@ -239,7 +239,8 @@ function(wb_remove_os_specific_files target_source_dir header_files source_files
   set(source_files ${source_files} PARENT_SCOPE)
 endfunction()
 
-# Dumps target property as message.  Use like this:
+# Dumps target property as message.
+#
 # wb_dump_target_property("My target" "My property" "My property description")
 function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_DESCRIPTION)
   get_target_property(TARGET_PROPERTY_VALUE ${THE_TARGET} ${TARGET_PROPERTY})
@@ -264,7 +265,8 @@ function(wb_copy_target_asset_to_target_bin_dir THE_TARGET THE_ASSET_RELATIVE_PA
   )
 endfunction()
 
-# Copies target dependency to target binary dir.  Use like this:
+# Copies target dependency to target binary dir.
+#
 # wb_copy_target_dependency_to_target_bin_dir("My target" "My dependency")
 function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
   add_custom_command(

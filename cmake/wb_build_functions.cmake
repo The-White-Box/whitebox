@@ -6,7 +6,6 @@
 
 # Creates executable target.
 #
-# Usage example:
 # wb_cxx_executable(
 #   PROJECT_NAME  project_name
 #   TARGET        target_name
@@ -149,7 +148,6 @@ endfunction(wb_cxx_executable)
 
 # Creates shared library target.
 #
-# Usage example:
 # wb_cxx_shared_library(
 #   TARGET        target_name
 #   VERSION       target_version
@@ -272,7 +270,6 @@ endfunction(wb_cxx_shared_library)
 
 # Creates GTest test executable with tests from target.
 #
-# Usage example:
 # wb_cxx_test_exe_for_target(
 #   TARGET        testing_target
 #   SOURCE_DIR    tests_source_directory
