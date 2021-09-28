@@ -312,11 +312,10 @@ function(wb_cxx_test_exe_for_target)
     message(STATUS "${source_file}")
   endforeach()
 
-  # Include the root and with generated info directories.
+  # Include the root directory.
   target_include_directories(${tests_target_name}
     PRIVATE
       ${WB_ROOT_DIR}
-      ${target_binary_dir}/gen
   )
 
   # Specify tests compile / link options.
