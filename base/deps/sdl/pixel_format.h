@@ -43,8 +43,13 @@ class SdlPixelFormat {
                ? SdlResult<SdlPixelFormat>{std::move(format)}
                : SdlResult<SdlPixelFormat>{format.error_code()};
   }
+  
+  SdlPixelFormat(SdlPixelFormat &&f) noexcept : format_{f.format_}, init_rc_{f.init_rc_} {
+    f.format_ = nullptr;
+  }
+  SdlPixelFormat& operator=(SdlPixelFormat &&f) noexcept = delete;
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(SdlPixelFormat);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlPixelFormat);
 
   ~SdlPixelFormat() noexcept {
     if (format_) {

@@ -40,6 +40,7 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
 
   const auto triggerTerminate = []() { std::terminate(); };
 
+#ifdef WB_OS_WIN
 #ifdef NDEBUG
   // Windows handle SIGABRT and exit with code 3.  See
   // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
@@ -51,7 +52,24 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
   // In debug mode message is not printed.
   constexpr char kMessage[]{""};
 #endif
+#else
+#ifdef NDEBUG
+  // Windows handle SIGABRT and exit with code 3.  See
+  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
+  constexpr int kExitCodeForSigAbrt{3};
+  constexpr char kMessage[]{"Terminate called.  Stopping the app."};
+#else
+  constexpr int kExitCodeForSigAbrt{SIGTRAP};
+  // In debug mode message is not printed.
+  constexpr char kMessage[]{""};
+#endif
+#endif
 
+#ifdef WB_OS_WIN
   EXPECT_EXIT(triggerTerminate(), testing::ExitedWithCode(kExitCodeForSigAbrt),
               kMessage);
+#else
+  EXPECT_EXIT(triggerTerminate(), testing::KilledBySignal(kExitCodeForSigAbrt),
+              kMessage);
+#endif
 }

@@ -61,14 +61,13 @@ GTEST_TEST(SystemErrorExtTests, GetThreadErrorCode) {
   EXPECT_EQ(std::error_code(), std2::GetThreadErrorCode());
 #else
   errno = EPERM;
-  EXPECT_EQ(std::error_code(EPERM, std::system_category()),
-            std2::GetThreadNativeLastErrno());
+  EXPECT_EQ(EPERM, std2::GetThreadNativeLastErrno());
 
   EXPECT_EQ(std::error_code(EAGAIN, std::system_category()),
             std2::GetThreadErrorCode(EAGAIN));
 
   errno = 0;
-  EXPECT_EQ(std::error_code(), std2::GetThreadNativeLastErrno());
+  EXPECT_EQ(0, std2::GetThreadNativeLastErrno());
 #endif
 }
 
@@ -89,14 +88,13 @@ GTEST_TEST(SystemErrorExtTests, SetThreadErrorCode) {
   EXPECT_EQ(std::error_code(), std2::GetThreadErrorCode());
 #else
   std2::SetThreadErrorCode(std::error_code(EPERM, std::system_category()));
-  EXPECT_EQ(std::error_code(EPERM, std::system_category()),
-            std2::GetThreadNativeLastErrno());
+  EXPECT_EQ(EPERM, std2::GetThreadNativeLastErrno());
 
   EXPECT_EQ(std::error_code(EAGAIN, std::system_category()),
             std2::GetThreadErrorCode(EAGAIN));
 
   std2::SetThreadErrorCode(std::error_code(0, std::system_category()));
-  EXPECT_EQ(std::error_code(), std2::GetThreadNativeLastErrno());
+  EXPECT_EQ(0, std2::GetThreadNativeLastErrno());
 #endif
 }
 
