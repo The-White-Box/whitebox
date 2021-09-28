@@ -300,6 +300,11 @@ if (NOT WB_OS_WIN)
   set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
   add_subdirectory(deps/sdl)
 
+  if (WB_CXX_COMPILER_ID STREQUAL "AppleClang")
+    # Fix for undefined memset_pattern4() on MacOS.
+    target_compile_definitions(SDL2 PUBLIC _DARWIN_C_SOURCE=1)
+  endif()
+
   set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared SDL_image library" FORCE)
   set(PNG_SHARED ON CACHE BOOL "Build shared lib" FORCE)
   set(PNG_STATIC OFF CACHE BOOL "Build static lib" FORCE)
