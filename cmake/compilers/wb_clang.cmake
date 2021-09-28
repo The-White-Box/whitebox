@@ -394,7 +394,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,now>
 
       # Full ASLR for executables.
-      $<$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>:
+      $<$<AND:$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>,$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>>:
         -pie
       >
       # No text relocations for shared libraries.
