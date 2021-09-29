@@ -2,9 +2,9 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Bootmgr main entry point.
+// Boot manager main entry point.
 
-#include "bootmgr_main.h"
+#include "boot_manager_main.h"
 
 #include <filesystem>
 
@@ -16,12 +16,12 @@
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
-#include "base/threads/thread_utils.h"
 #include "build/build_config.h"
 #include "whitebox-kernel/main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
+#include "base/threads/thread_utils.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_process_pure_call_handler.h"
 #include "base/win/error_handling/scoped_thread_invalid_parameter_handler.h"
@@ -231,7 +231,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
  * @param bootmgr_args Bootmgr args.
  * @return 0 on success.
  */
-extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
+extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
     const wb::bootmgr::BootmgrArgs& bootmgr_args) {
   using namespace wb::base;
 

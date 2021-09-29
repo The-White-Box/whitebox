@@ -17,10 +17,10 @@
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_thread_error_mode.h"
 #include "base/win/windows_light.h"
-#include "bootmgr/bootmgr_main.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
 #include "resource_win.h"
+#include "whitebox-boot-manager/boot_manager_main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
 extern "C" {
@@ -102,8 +102,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
          "malicious code.";
 
   const auto app_path = windows::GetApplicationDirectory(instance);
-  if (const auto* error = std2::GetErrorCode(app_path))
-    WB_ATTRIBUTE_UNLIKELY {
+  if (const auto* error = std2::GetErrorCode(app_path)) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl.Format(
               intl::message_ids::kAppErrorDialogTitle,
@@ -115,7 +114,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
     }
 
   const std::string boot_manager_path{std::get<std::string>(app_path) +
-                                      "bootmgr.dll"};
+                                      "whitebox-boot-manager.dll"};
   const unsigned boot_manager_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
       (windows::MustBeSignedDllLoadTarget(command_line)

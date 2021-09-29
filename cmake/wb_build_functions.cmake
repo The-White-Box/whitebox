@@ -227,6 +227,8 @@ function(wb_cxx_shared_library)
   )
 
   add_library(${target_name} SHARED ${source_files} ${header_files})
+  # alias target for in-tree builds
+  add_library("wb::${target_name}" ALIAS ${target_name})
 
   # Include the root and with generated info directories.
   target_include_directories(${target_name}

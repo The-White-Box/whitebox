@@ -320,7 +320,7 @@ endif()
 
 # Libraries.
 add_subdirectory("base")
-add_subdirectory("bootmgr")
+add_subdirectory("whitebox-boot-manager")
 
 # Hardware Abstraction Layer.
 add_subdirectory("hal/drivers/hid")

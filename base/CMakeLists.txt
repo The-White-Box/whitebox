@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(WB_BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(WB_BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(WB_BASE_TARGET_NAME "base")
+set(WB_BASE_TARGET_NAME "whitebox-base")
 
 set(WB_BASE_LINK_OPTIONS "")
 set(WB_BASE_LINK_DEPS fmt g3log mimalloc)
@@ -52,7 +52,7 @@ wb_cxx_shared_library(
 )
 
 if (WB_BUILD_TESTS)
-  set(WB_BASE_TESTS_LINK_DEPS base g3log mimalloc)
+  set(WB_BASE_TESTS_LINK_DEPS g3log mimalloc wb::whitebox-base)
 
   if (WB_OS_WIN)
     # _com_ptr_t support.

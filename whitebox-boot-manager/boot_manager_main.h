@@ -2,14 +2,17 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Bootmgr main entry point.
+// Boot manager main entry point.
+
+#ifndef WB_WHITEBOX_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_
+#define WB_WHITEBOX_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_
 
 #include <cstddef>  // std::byte
 
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/lookup.h"
-#include "bootmgr/api.h"
 #include "build/build_config.h"
+#include "whitebox-boot-manager/api.h"
 
 #ifdef WB_OS_WIN
 /**
@@ -112,5 +115,7 @@ struct BootmgrArgs {
  * @param bootmgr_args Boot manager args.
  * @return 0 on success.
  */
-extern "C" [[nodiscard]] WB_BOOTMGR_API int BootmgrMain(
+extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
     const wb::bootmgr::BootmgrArgs &bootmgr_args);
+
+#endif  // !WB_WHITEBOX_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_

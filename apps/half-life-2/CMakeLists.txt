@@ -12,7 +12,8 @@ set(WB_HALF_LIFE2_TARGET_NAME  "half-life-2")
 
 set(WB_HALF_LIFE2_LINK_OPTIONS "")
 
-set(WB_HALF_LIFE2_LINK_DEPS base fmt g3log mimalloc whitebox-ui)
+set(WB_HALF_LIFE2_LINK_DEPS fmt g3log mimalloc
+  wb::whitebox-base wb::whitebox-ui)
 if (WB_OS_WIN)
   # _com_ptr_t support.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "comsuppw")
@@ -22,11 +23,16 @@ elseif (WB_OS_LINUX)
 endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS
-  base bootmgr g3log mimalloc whitebox-hid-driver whitebox-kernel whitebox-ui)
+    g3log mimalloc
+    wb::whitebox-boot-manager
+    wb::whitebox-base
+    wb::whitebox-hid-driver
+    wb::whitebox-kernel
+    wb::whitebox-ui)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS base SDL2::SDL2)
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS wb::whitebox-base SDL2::SDL2)
   list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS
-    "base" "png" "SDL2::SDL2" "SDL2::image")
+    "png" "wb::whitebox-base" "SDL2::SDL2" "SDL2::image")
 endif()
 
 wb_cxx_executable(

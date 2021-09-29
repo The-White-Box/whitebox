@@ -62,8 +62,9 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const size_t framework_path_size{parent_dir_len + rel_path_len + 2};
   std::unique_ptr<char[]> framework_path{
       std::make_unique<char[]>(framework_path_size)};
-  snprintf(framework_path.get(), framework_path_size, "%s/%s", parent_dir,
-           rel_path);
+  snprintf(framework_path.get(), framework_path_size, "%s/%s/%s", parent_dir,
+           rel_path,
+           "libwhitebox-boot-manager." WB_PRODUCT_VERSION_INFO_STRING ".dylib");
 
   using namespace wb::base;
 

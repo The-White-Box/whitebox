@@ -11,8 +11,8 @@ set(WB_HAL_HID_DRIVER_BINARY_DIR   ${CMAKE_CURRENT_BINARY_DIR})
 set(WB_HAL_HID_DRIVER_TARGET_NAME  "whitebox-hid-driver")
 
 set(WB_HAL_HID_DRIVER_LINK_OPTIONS "")
-set(WB_HAL_HID_DRIVER_LINK_DEPS base g3log mimalloc)
-set(WB_HAL_HID_DRIVER_RUNTIME_DEPS base g3log mimalloc)
+set(WB_HAL_HID_DRIVER_LINK_DEPS g3log mimalloc wb::whitebox-base)
+set(WB_HAL_HID_DRIVER_RUNTIME_DEPS g3log mimalloc wb::whitebox-base)
 
 wb_cxx_shared_library(
   TARGET        ${WB_HAL_HID_DRIVER_TARGET_NAME}

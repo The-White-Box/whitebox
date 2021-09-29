@@ -8,18 +8,19 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 set(WB_BOOTMGR_SOURCE_DIR   ${CMAKE_CURRENT_SOURCE_DIR})
 set(WB_BOOTMGR_BINARY_DIR   ${CMAKE_CURRENT_BINARY_DIR})
-set(WB_BOOTMGR_TARGET_NAME  "bootmgr")
+set(WB_BOOTMGR_TARGET_NAME  "whitebox-boot-manager")
 
 set(WB_BOOTMGR_LINK_OPTIONS "")
 
-set(WB_BOOTMGR_LINK_DEPS base g3log mimalloc whitebox-ui)
+set(WB_BOOTMGR_LINK_DEPS g3log mimalloc wb::whitebox-base wb::whitebox-ui)
 if (WB_OS_WIN)
   list(APPEND WB_BOOTMGR_LINK_DEPS "Winmm")
 else()
   list(APPEND WB_BOOTMGR_LINK_DEPS "dl;stdc++fs")
 endif()
 
-set(WB_BOOTMGR_RUNTIME_DEPS base g3log mimalloc whitebox-kernel whitebox-ui)
+set(WB_BOOTMGR_RUNTIME_DEPS g3log mimalloc
+  wb::whitebox-base wb::whitebox-kernel wb::whitebox-ui)
 
 wb_cxx_shared_library(
   TARGET        ${WB_BOOTMGR_TARGET_NAME}
@@ -27,7 +28,7 @@ wb_cxx_shared_library(
   DESCRIPTION   "Whitebox Boot Manager"
   SOURCE_DIR    ${WB_BOOTMGR_SOURCE_DIR}
   BINARY_DIR    ${WB_BOOTMGR_BINARY_DIR}
-  CXX_DEFS      WB_BOOTMGR_DLL=1
+  CXX_DEFS      WB_BOOT_MANAGER_DLL=1
   LINK_OPTS     ${WB_BOOTMGR_LINK_OPTIONS}
   LINK_DEPS     ${WB_BOOTMGR_LINK_DEPS}
   RUNTIME_DEPS  ${WB_BOOTMGR_RUNTIME_DEPS}

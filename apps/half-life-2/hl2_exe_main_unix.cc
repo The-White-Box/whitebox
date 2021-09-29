@@ -11,8 +11,8 @@
 #include "base/intl/message_ids.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
-#include "bootmgr/bootmgr_main.h"
 #include "build/static_settings_config.h"
+#include "whitebox-boot-manager/boot_manager_main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
 namespace {
@@ -70,7 +70,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           rc, {intl.Layout()});
     }
 
-  app_path /= "libbootmgr.so." WB_PRODUCT_VERSION_INFO_STRING;
+  app_path /= "libwhitebox-boot-manager.so." WB_PRODUCT_VERSION_INFO_STRING;
 
   const std::string boot_manager_path{app_path.string()};
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
@@ -80,7 +80,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
       using BootManagerMain = decltype(&BootmgrMain);
       constexpr char kBootManagerMainName[]{"BootmgrMain"};
 
-      // Good, try to find and launch bootmgr.
+      // Good, try to find and launch boot manager.
       const auto boot_manager_entry =
           boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
       if (const auto* boot_manager_main =
@@ -98,8 +98,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           intl.Format(
               intl::message_ids::kCantGetLibraryEntryPoint,
               fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
-          std::get<std::error_code>(boot_manager_entry),
-          {intl.Layout()});
+          std::get<std::error_code>(boot_manager_entry), {intl.Layout()});
     }
   else {
     wb::ui::FatalDialog(
@@ -108,8 +107,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
         intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
         intl.Format(intl::message_ids::kCantLoadBootManager,
                     fmt::make_format_args(boot_manager_path)),
-        std::get<std::error_code>(boot_manager_library),
-        {intl.Layout()});
+        std::get<std::error_code>(boot_manager_library), {intl.Layout()});
   }
 }
 }  // namespace
