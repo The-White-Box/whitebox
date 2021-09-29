@@ -258,13 +258,16 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
           {}, MakeFatalContext(kernel_args));
     }
 
-  const auto window_icon_result = SdlSurface::FromImage("half-life-2_icon.png");
+  const std::string window_icon_name{std::string{kernel_args.app_description} +
+                                     " icon.png"};
+  const auto window_icon_result =
+      SdlSurface::FromImage(window_icon_name.c_str());
   if (const auto* window_icon = GetSuccessResult(window_icon_result))
     WB_ATTRIBUTE_LIKELY { window->SetIcon(*window_icon); }
   else {
     const auto* error = GetError(window_icon_result);
-    G3LOG(WARNING) << "SDL unable to set window icon, run with default one: "
-                   << *error << ".";
+    G3LOG(WARNING) << "SDL unable to set window icon to " << window_icon_name
+                   << ", run with default one: " << *error << ".";
   }
 
   window->SetMinimumSizes(

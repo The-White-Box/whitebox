@@ -49,5 +49,5 @@ wb_cxx_executable(
 
 if (NOT WB_OS_WIN)
   wb_copy_target_asset_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}
-    "images/half-life-2_icon.png")
+    "images/Half-Life 2 icon.png")
 endif()
