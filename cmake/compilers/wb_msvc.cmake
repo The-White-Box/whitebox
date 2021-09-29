@@ -31,6 +31,10 @@ option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, bui
 option(WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_ANSI                 "If enabled, uses *W (UTF-16) WinAPI instead of *A ANSI." OFF)
 option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, uses secure tempalte overloads to ex. replace the strcpy call to strcpy_s, which prevents buffer overruns.  See https://docs.microsoft.com/en-us/cpp/c-runtime-library/secure-template-overloads" ON)
 
+wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
+  "This determines which version of C++ to use in Clang-Tidy."
+  "c++17" "c++20")
+
 wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
   "c++17" "c++latest")
@@ -165,7 +169,7 @@ endforeach()
 function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  # wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_MSVC_CXX_LANGUAGE_VERSION})
+  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION})
 
   # The general options passed:
   target_compile_options(${THE_TARGET}

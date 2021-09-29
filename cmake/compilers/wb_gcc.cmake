@@ -6,7 +6,7 @@
 #
 # Derived from https://github.com/facebook/folly/blob/master/CMake/FollyCompilerUnix.cmake
 # which is licensed under the Apache License, Version 2.0 (the "License").  See
-# the License for the specific language governing permissions andlimitations
+# the License for the specific language governing permissions and limitations
 # under the License.
 
 include(wb_clang_tidy_configuration)
@@ -42,7 +42,7 @@ wb_define_strings_option(WB_GCC_LINKER_TYPE
 
 wb_define_strings_option(WB_GCC_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via GCC."
-  "c++17" "c++20")
+  "c++20" "c++17")
 
 wb_define_strings_option(WB_GCC_MINIMUM_CPU_ARCHITECTURE
   "This tells the compiler to choose minimum instruction set for the specified architecture."

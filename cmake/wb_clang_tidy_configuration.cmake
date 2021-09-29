@@ -5,7 +5,7 @@
 # Clang-Tidy configuration.
 
 option(WB_CLANG_TIDY_DIR "Define custom clang-tidy directory path." "")
-option(WB_CLANG_TIDY_NAME "Determines clang-tidy executable name to use." "clang-tidy-13")
+option(WB_CLANG_TIDY_NAME "Determines clang-tidy executable name to use.")
 option(WB_GCC_ENABLE_CLANG_TIDY "Determines clang-tidy enabled in GCC builds.  Results in common set of Clang and GCC flags passed to GCC, which can lead to undetected source code warnings." OFF)
 
 # Searches for clang-tidy and applies it for the target.
@@ -16,7 +16,7 @@ function(wb_apply_clang_tidy_options_to_target RETURN_VALUE THE_TARGET CXX_STAND
     message(AUTHOR_WARNING "${THE_TARGET} missed -DCMAKE_EXPORT_COMPILE_COMMANDS=ON option in cmake invocation.  Needed for running clang-tidy.")
   endif()
 
-  if (WB_OS_WIN)
+  if (WB_OS_WIN AND NOT WB_CLANG_TIDY_DIR)
     get_filename_component(WB_CXX_COMPILER_PATH "${WB_CXX_COMPILER}" DIRECTORY CACHE)
     # Hack to allow find clang-tidy on Windows.
     set(WB_CLANG_TIDY_DIR "${WB_CXX_COMPILER_PATH}/../../../../../Llvm/x64/bin")
