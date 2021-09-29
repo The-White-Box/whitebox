@@ -11,7 +11,6 @@
 #include "app_version_config.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
-#include "base/intl/message_ids.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"
@@ -140,10 +139,12 @@ void BootHeapMemoryAllocator() noexcept {
   if (rc) WB_ATTRIBUTE_UNLIKELY {
       const auto& intl = bootmgr_args.intl;
       wb::ui::FatalDialog(
-          intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-          intl.String(
-              intl::message_ids::kCantGetExecutableDirectoryForBootManager),
+          intl::l18n(intl, "Boot Manager - Error"),
+          intl::l18n(intl,
+                     "Please, check app is installed correctly and you have "
+                     "enough permissions to run it."),
+          intl::l18n(
+              intl, "Can't get current directory.  Unable to load the kernel."),
           rc, MakeFatalContext(bootmgr_args));
     }
 
@@ -207,19 +208,22 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
         }
 
       wb::ui::FatalDialog(
-          intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-          intl.Format(intl::message_ids::kCantGetLibraryEntryPoint,
-                      fmt::make_format_args(kKernelMainName, kernel_path)),
+          intl::l18n(intl, "Boot Manager - Error"),
+          intl::l18n(intl,
+                     "Please, check app is installed correctly and you have "
+                     "enough permissions to run it."),
+          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
+                         kKernelMainName, kernel_path),
           std::get<std::error_code>(kernel_main_entry),
           MakeFatalContext(bootmgr_args));
     }
   else {
     wb::ui::FatalDialog(
-        intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.Format(intl::message_ids::kCantLoadKernelFrom,
-                    fmt::make_format_args(kernel_path)),
+        intl::l18n(intl, "Boot Manager - Error"),
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path),
         std::get<std::error_code>(kernel_library),
         MakeFatalContext(bootmgr_args));
   }
@@ -251,10 +255,14 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   if (windows::GetVersion() < windows::Version::WIN10_19H1)
     WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          bootmgr_args.intl.String(intl::message_ids::kBootmgrErrorDialogTitle),
-          bootmgr_args.intl.String(
-              intl::message_ids::kPleaseUpdateWindowsVersion),
-          bootmgr_args.intl.String(intl::message_ids::kWindowsVersionIsTooOld),
+          intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+          intl::l18n(bootmgr_args.intl,
+                     "Please, update Windows to Windows 10, version 1903 (May "
+                     "19, 2019) or greater."),
+          intl::l18n(
+              bootmgr_args.intl,
+              "Windows is too old.  At least Windows 10, version 1903 (May 19, "
+              "2019)+ required."),
           std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION),
           MakeFatalContext(bootmgr_args));
     }

@@ -20,7 +20,6 @@
 #include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/deps/fmt/core.h"
-#include "base/intl/message_ids.h"
 #include "build/compiler_config.h"
 
 namespace wb::base::intl {
@@ -53,11 +52,7 @@ enum class Status {
   /**
    * @brief Invalid locale is passed to New.
    */
-  kArgumentError = 2,
-  /**
-   * @brief Internal error occurred.
-   */
-  kInternal = 3
+  kArgumentError = 2
 };
 
 /**
@@ -198,6 +193,66 @@ class WB_BASE_API LookupWithFallback {
    */
   LookupWithFallback(Lookup lookup, std::string fallback_string) noexcept;
 };
+
+/**
+ * Small hasher for i18n purposes.
+ */
+class I18nStringViewHash {
+ public:
+  constexpr I18nStringViewHash() noexcept = default;
+
+  [[nodiscard]] WB_ATTRIBUTE_CONST constexpr uint64_t operator()(
+      std::string_view s, size_t index = 0) const noexcept {
+    return index < s.size()
+               ? (static_cast<uint64_t>(primes[index % std::size(primes)]) *
+                  (index + 1) * static_cast<uint64_t>(s[index])) ^
+                     (this->operator()(s, index + 1))
+               : 0;
+  }
+
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(I18nStringViewHash);
+
+ private:
+  constexpr static unsigned short primes[]{
+      2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,
+      53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107, 109, 113,
+      127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197,
+      199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
+      283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379,
+      383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
+      467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571,
+      577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
+      661, 673, 677, 683, 691, 701, 709, 719};
+  static_assert(sizeof(primes) == 256U,
+                "Should use small primes set to fit CPU cache.");
+};
+
+/**
+ * Localizes |string|.
+ * @param intl Localization lookup.
+ * @param string String to localize.
+ * @return Localized string.
+ */
+[[nodiscard]] WB_ATTRIBUTE_FORCEINLINE const std::string& l18n(
+    const LookupWithFallback& intl, std::string_view string) noexcept {
+  const uint64_t hash{I18nStringViewHash{}(string)};
+  return intl.String(hash);
+}
+
+/**
+ * Localizes |string| with format args |args|.
+ * @param intl Localization lookup.
+ * @param string String to localize.
+ * @param args Format args.
+ * @return Localized string.
+ */
+template <typename... TArgs>
+[[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::string l18n_fmt(
+    const LookupWithFallback& intl, std::string_view string,
+    TArgs&&... args) noexcept {
+  const uint64_t hash{I18nStringViewHash{}(string)};
+  return intl.Format(hash, fmt::make_format_args(std::forward<TArgs>(args)...));
+}
 }  // namespace wb::base::intl
 
 #endif  // !WB_BASE_INTL_LOOKUP_H_

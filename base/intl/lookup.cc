@@ -10,9 +10,18 @@
 #include <unordered_map>
 
 #include "base/deps/g3log/g3log.h"
-#include "base/intl/message_ids.h"
 
 namespace wb::base::intl {
+/**
+ * Computes hash for |string|.
+ * @param string String to hash.
+ * @return String hash.
+ */
+[[nodiscard]] WB_ATTRIBUTE_CONST WB_ATTRIBUTE_FORCEINLINE constexpr uint64_t
+hash(std::string_view string) noexcept {
+  return I18nStringViewHash{}(string);
+}
+
 /**
  * @brief Lookup implementation.
  */
@@ -28,67 +37,106 @@ class Lookup::LookupImpl {
       return LookupResult<un<Lookup::LookupImpl>>{un<
           Lookup::LookupImpl>{new Lookup::LookupImpl{MessagesById{
 #ifdef WB_OS_WIN
-          {message_ids::kWindowsVersionIsTooOld,
+          {hash("Windows is too old.  At least Windows 10, version 1903 (May "
+                "19, "
+                "2019)+ required."),
            "Windows is too old.  At least Windows 10, version 1903 (May 19, "
            "2019)+ required."},
-          {message_ids::kPleaseUpdateWindowsVersion,
+          {hash("Please, update Windows to Windows 10, version 1903 (May 19, "
+                "2019) or greater."),
            "Please, update Windows to Windows 10, version 1903 (May 19, 2019) "
            "or greater."},
-          {message_ids::kSeeTechnicalDetails, "See techical details"},
-          {message_ids::kHideTechnicalDetails, "Hide techical details"},
+          {hash("See techical details"), "See techical details"},
+          {hash("Hide techical details"), "Hide techical details"},
 #endif
-          {message_ids::kBootmgrErrorDialogTitle, "Boot Manager - Error"},
-          {message_ids::kNudgeAuthorsLink,
+          {hash("Boot Manager - Error"), "Boot Manager - Error"},
+          {hash("<A "
+                "HREF=\"https://github.com/The-White-Box/whitebox/"
+                "issues\">Nudge</"
+                "A> "
+                "authors"),
            "<A "
            "HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</"
            "A> "
            "authors"},
-          {message_ids::kCantGetExecutableDirectoryForBootManager,
+          {hash("Can't get executable directory.  Unable to load the kernel."),
            "Can't get executable directory.  Unable to load the kernel."},
-          {message_ids::kCantGetLibraryEntryPoint,
+          {hash("Can't get '{0}' entry point from '{1}'."),
            "Can't get '{0}' entry point from '{1}'."},
-          {message_ids::kPleaseReinstallTheGame,
-           "Looks like app is broken, please, reinstall the one."},
-          {message_ids::kCantLoadKernelFrom,
+          {hash("Can't load whitebox kernel '{0}'."),
            "Can't load whitebox kernel '{0}'."},
-          {message_ids::kAppErrorDialogTitle, "{0} - Error"},
+          {hash("{0} - Error"), "{0} - Error"},
           {
-              message_ids::kPleaseCheckAppInstalledCorrectly,
+              hash("Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
               "Please, check app is installed correctly and you have enough "
               "permissions to run it.",
           },
           {
-              message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp,
+              hash("Can't get current directory.  Unable to load the app."),
               "Can't get current directory.  Unable to load the app.",
           },
           {
-              message_ids::kCantLoadBootManager,
+              hash("Can't get current directory.  Unable to load the kernel."),
+              "Can't get current directory.  Unable to load the kernel.",
+          },
+          {
+              hash("Can't load boot manager '{0}'."),
               "Can't load boot manager '{0}'.",
           },
           {
-              message_ids::kKernelErrorDialogTitle,
+              hash("Whitebox Kernel - Error"),
               "Whitebox Kernel - Error",
           },
           {
-              message_ids::kPleaseCheckMouseOnYourDevice,
+              hash("Please, check mouse is connected and working."),
               "Please, check mouse is connected and working.",
           },
           {
-              message_ids::kUnableToRegisterMouseDevice,
+              hash("Unable to register mouse as <A "
+                   "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
+                   "inputdev/"
+                   "about-raw-input\">Raw Input</A> device."),
               "Unable to register mouse as <A "
               "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
               "about-raw-input\">Raw Input</A> device.",
           },
           {
-              message_ids::kPleaseCheckKeyboardOnYourDevice,
+              hash("Please, check keyboard is connected and working."),
               "Please, check keyboard is connected and working.",
           },
           {
-              message_ids::kUnableToRegisterKeyboardDevice,
+              hash("Unable to register keyboard as <A "
+                   "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
+                   "inputdev/"
+                   "about-raw-input\">Raw Input</A> device."),
               "Unable to register keyboard as <A "
               "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
               "about-raw-input\">Raw Input</A> device.",
           },
+          {
+              hash("Please, check your SDL library installed and working."),
+              "Please, check your SDL library installed and working.",
+          },
+          {
+              hash("SDL build/runtime v.{0}/v.{1}, revision '{2}' "
+                   "initialization "
+                   "failed.\n\n{3}."),
+              "SDL build/runtime v.{0}/v.{1}, revision '{2}' initialization "
+              "failed.\n\n{3}.",
+          },
+          {hash("SDL image parser initialization failed for image types "
+                "{0}.\n\n{1}."),
+           "SDL image parser initialization failed for image types "
+           "{0}.\n\n{1}."},
+          {
+              hash("Please, check you installed '{0}' libraries/drivers."),
+              "Please, check you installed '{0}' libraries/drivers."
+          },
+          {
+              hash("SDL window create failed with '{0}' context.\n\n{1}."),
+              "SDL window create failed with '{0}' context.\n\n{1}."
+          }
       }}}};
     }
 
@@ -163,7 +211,8 @@ Lookup::~Lookup() noexcept = default;
 Lookup::Lookup(Lookup&& l) noexcept : impl_{std::move(l.impl_)} {}
 
 LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
-    : lookup_{std::move(l.lookup_)} {}
+    : lookup_{std::move(l.lookup_)},
+      fallback_string_{std::move(l.fallback_string_)} {}
 
 [[nodiscard]] LookupResult<LookupWithFallback> LookupWithFallback::New(
     const std::set<std::string>& locale_ids,

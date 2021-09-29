@@ -98,9 +98,9 @@ namespace wb::ui {
 
   windows::ui::DialogBoxSettings dialog_settings(
       nullptr, title, main_instruction_message, content_message,
-      intl.String(intl::message_ids::kHideTechnicalDetails),
-      intl.String(intl::message_ids::kSeeTechnicalDetails), technical_details,
-      intl.String(intl::message_ids::kNudgeAuthorsLink),
+      intl::l18n(intl, "Hide techical details"),
+      intl::l18n(intl, "See techical details"), technical_details,
+      intl::i18n(intl, "<A HREF=\"https://github.com/The-White-Box/whitebox/issues\">Nudge</A> authors"),
       windows::ui::DialogBoxButton::kOk, context.main_icon_id,
       context.small_icon_id, rtl_layout);
   [[maybe_unused]] const auto result = windows::ui::ShowDialogBox(

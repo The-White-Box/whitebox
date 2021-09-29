@@ -8,7 +8,6 @@
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/intl/clocale_ext.h"
-#include "base/intl/message_ids.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "build/static_settings_config.h"
@@ -61,12 +60,9 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          intl.Format(
-              intl::message_ids::kAppErrorDialogTitle,
-              fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-          intl.String(
-              intl::message_ids::kCantGetCurrentDirectoryUnableToLoadTheApp),
+          intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          intl::l18n(intl, "Please, check app is installed correctly and you have enough permissions to run it."),
+          intl::l18n(intl, "Can't get current directory.  Unable to load the app."),
           rc, {intl.Layout()});
     }
 
@@ -91,22 +87,16 @@ int BootmgrStartup(int argc, char** argv) noexcept {
         }
 
       wb::ui::FatalDialog(
-          intl.Format(
-              intl::message_ids::kAppErrorDialogTitle,
-              fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-          intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-          intl.Format(
-              intl::message_ids::kCantGetLibraryEntryPoint,
-              fmt::make_format_args(kBootManagerMainName, boot_manager_path)),
+          intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          intl::l18n(intl, "Please, check app is installed correctly and you have enough permissions to run it."),
+          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.", kBootManagerMainName, boot_manager_path),
           std::get<std::error_code>(boot_manager_entry), {intl.Layout()});
     }
   else {
     wb::ui::FatalDialog(
-        intl.Format(intl::message_ids::kAppErrorDialogTitle,
-                    fmt::make_format_args(WB_PRODUCT_FILE_DESCRIPTION_STRING)),
-        intl.String(intl::message_ids::kPleaseCheckAppInstalledCorrectly),
-        intl.Format(intl::message_ids::kCantLoadBootManager,
-                    fmt::make_format_args(boot_manager_path)),
+        intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        intl::l18n(intl, "Please, check app is installed correctly and you have enough permissions to run it."),
+        intl::l18n_fmt(intl, "Can't load boot manager '{0}'.", boot_manager_path),
         std::get<std::error_code>(boot_manager_library), {intl.Layout()});
   }
 }

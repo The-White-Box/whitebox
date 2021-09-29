@@ -166,6 +166,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   constexpr int window_width{1024};
   constexpr int window_height{768};
 
+  const auto& intl = kernel_args.intl;
+
 #ifdef WB_OS_WIN
   const windows::ui::WindowDefinition window_definition{
       CreateMainWindowDefinition(kernel_args, kernel_args.app_description,
@@ -173,7 +175,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
   auto window_result = windows::ui::BaseWindow::New<MainWindow>(
-      window_definition, window_class_style, kernel_args.intl);
+      window_definition, window_class_style, intl);
   if (auto* window_ptr = std2::GetSuccessResult(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If
@@ -201,12 +203,14 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                                                    SdlInitializerFlags::kVideo);
   if (const auto* error = GetError(sdl_initializer)) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          kernel_args.app_description,
-          "Please, check your SDL library installed and working.",
-          fmt::format("SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                      "initialization failed.\n\n{3}.",
-                      compiled_sdl_version, linked_sdl_version,
-                      ::SDL_GetRevision(), *error),
+          intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
+          intl::l18n(intl,
+                     "Please, check your SDL library installed and working."),
+          intl::l18n_fmt(intl,
+                         "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
+                         "initialization failed.\n\n{3}.",
+                         compiled_sdl_version, linked_sdl_version,
+                         ::SDL_GetRevision(), *error),
           {}, MakeFatalContext(kernel_args));
     }
 
@@ -223,11 +227,13 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   if (const auto* error = GetError(sdl_image_initializer))
     WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          kernel_args.app_description,
-          "Please, check your SDL library installed and working.",
-          fmt::format("SDL image parser initialization failed "
-                      "for image types {0}.\n\n{1}.",
-                      sdl_image_initializer_flags, *error),
+          intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
+          intl::l18n(intl,
+                     "Please, check your SDL library installed and working."),
+          intl::l18n_fmt(intl,
+                         "SDL image parser initialization failed for image "
+                         "types {0}.\n\n{1}.",
+                         sdl_image_initializer_flags, *error),
           {}, MakeFatalContext(kernel_args));
     }
 
@@ -249,12 +255,13 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto* window = GetSuccessResult(sdl_window);
   if (!window) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          kernel_args.app_description,
-          fmt::format("Please, check you installed '{0}' libraries/drivers.",
-                      GetWindowGraphicsContext(window_flags)),
-          fmt::format("SDL window create failed with '{0}' context.\n\n{1}.",
-                      GetWindowGraphicsContext(window_flags),
-                      *GetError(sdl_window)),
+          intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
+          intl::l18n_fmt(intl,
+                         "Please, check you installed '{0}' libraries/drivers.",
+                         GetWindowGraphicsContext(window_flags)),
+          intl::l18n_fmt(
+              intl, "SDL window create failed with '{0}' context.\n\n{1}.",
+              GetWindowGraphicsContext(window_flags), *GetError(sdl_window)),
           {}, MakeFatalContext(kernel_args));
     }
 
