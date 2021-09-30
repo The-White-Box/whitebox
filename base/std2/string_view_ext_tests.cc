@@ -9,7 +9,7 @@
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
 #else
-#include <signal.h>  // SIGTRAP
+#include <csignal>  // SIGTRAP
 #endif
 
 #include "base/deps/googletest/gtest/gtest.h"

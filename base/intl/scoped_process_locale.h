@@ -2,10 +2,10 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// <clocale> extensions.
+// Scoped process locale.
 
-#ifndef WB_BASE_INTL_CLOCALE_EXT_H_
-#define WB_BASE_INTL_CLOCALE_EXT_H_
+#ifndef WB_BASE_INTL_SCOPED_PROCESS_LOCALE_H_
+#define WB_BASE_INTL_SCOPED_PROCESS_LOCALE_H_
 
 #include <clocale>
 #include <cstddef>
@@ -16,7 +16,7 @@
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base::intl {
-enum class ScopedProcessLocaleCategory : int;
+enum class ScopedProcessLocaleCategory : decltype(LC_ALL);
 
 namespace locales {
 #ifdef WB_OS_WIN
@@ -40,7 +40,7 @@ constexpr char kUtf8Locale[]{""};
 /**
  * @brief Fallback locale.
  */
-constexpr char kFallbackLocale[]{".Fallback"};
+constexpr char kFallbackLocale[]{"en_US.UTF8"};
 }  // namespace locales
 }  // namespace wb::base::intl
 
@@ -65,7 +65,7 @@ namespace wb::base::intl {
 /**
  * Locale category.
  */
-enum class ScopedProcessLocaleCategory : int {
+enum class ScopedProcessLocaleCategory : decltype(LC_ALL) {
   kAll = LC_ALL,
   kCollate = LC_COLLATE,
   kCharacterType = LC_CTYPE,
@@ -97,7 +97,8 @@ class ScopedProcessLocale {
         new_locale_{SetLocale(category, new_locale)},
         category_{category} {
     G3DCHECK(!new_locale_.empty())
-        << "Locale " << new_locale << " was not set for category " << category;
+        << "Locale " << GetUserFriendlyLocaleName(new_locale)
+        << " was not set for category " << category;
   }
   ~ScopedProcessLocale() noexcept {
     // For example, the sequence of calls
@@ -129,7 +130,7 @@ class ScopedProcessLocale {
    * Is new locale applied?
    * @return true if it is, false otherwise.
    */
-  [[nodiscard]] bool IsSucceeded() const noexcept {
+  [[nodiscard]] bool is_succeeded() const noexcept {
     return !new_locale_.empty();
   }
 
@@ -153,6 +154,9 @@ class ScopedProcessLocale {
    * Locale category.
    */
   ScopedProcessLocaleCategory category_;
+  /**
+   * Explicit padding.
+   */
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
       pad_[sizeof(new_locale_) - sizeof(category_)];  //-V1055
 
@@ -167,6 +171,17 @@ class ScopedProcessLocale {
         << "std::setlocale returned empty string, can't distinguish it and "
            "error case.  Please, use some other error marker.";
     return locale ? locale : "";
+  }
+
+  /**
+   * Gets user friendly locale name.
+   * @param original_name Original locale name.
+   * @return User friendly locale name.
+   */
+  [[nodiscard]] WB_ATTRIBUTE_PURE static std::string_view
+  GetUserFriendlyLocaleName(const char *original_name) noexcept {
+    std::string_view candidate{original_name};
+    return candidate.empty() ? "<empty>" : candidate;
   }
 };
 }  // namespace wb::base::intl
@@ -213,4 +228,4 @@ inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
   return s;
 }
 
-#endif  // !WB_BASE_INTL_CLOCALE_EXT_H_
+#endif  // !WB_BASE_INTL_SCOPED_PROCESS_LOCALE_H_

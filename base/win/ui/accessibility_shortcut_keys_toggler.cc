@@ -57,7 +57,7 @@ using system_key_concept =
 template <unsigned key_action, typename TSystemKey>
 system_key_concept<key_action, TSystemKey, std::error_code> SystemKeysInfo(
     _In_ TSystemKey& key) noexcept {
-  return wb::base::windows::GetErrorCode(
+  return wb::base::windows::get_error(
       ::SystemParametersInfo(key_action, sizeof(key), &key, 0));
 }
 }  // namespace
@@ -101,6 +101,8 @@ class AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl {
   std::error_code error_code_;
 
   nullable_bool is_toggled_;
+
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(nullable_bool)];
 };
 

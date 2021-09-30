@@ -103,8 +103,7 @@ class ScopedThreadExecutionState {
     ScopedThreadExecutionState state{flags};
     return !state.error_code()
                ? std2::result<ScopedThreadExecutionState>{std::move(state)}
-               : std2::result<ScopedThreadExecutionState>{
-                     state.error_code()};
+               : std2::result<ScopedThreadExecutionState>{state.error_code()};
   }
 
   ScopedThreadExecutionState(ScopedThreadExecutionState&& s) noexcept
@@ -129,6 +128,7 @@ class ScopedThreadExecutionState {
    */
   ScopedThreadExecutionStateFlags old_flags_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(old_flags)];
 
   /**
@@ -147,7 +147,7 @@ class ScopedThreadExecutionState {
             ::SetThreadExecutionState(underlying_cast(flags)))},
         error_code_{(old_flags_ != ScopedThreadExecutionStateFlags::kError
                          ? std::error_code{}
-                         : wb::base::std2::GetThreadErrorCode())} {}
+                         : wb::base::std2::system_last_error_code())} {}
 
   /**
    * @brief Get initialization error code.

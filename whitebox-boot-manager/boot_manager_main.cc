@@ -46,6 +46,7 @@ void DumpSystemInformation(const char* app_description) noexcept {
 
 #if defined(WB_OS_LINUX) || defined(WB_OS_MACOSX)
 #if defined(WB_COMPILER_CLANG)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kCompilerVersion[]{"Clang " __clang_version__};
 #elif defined(WB_COMPILER_GCC)
   const std::string kCompilerVersion{std::to_string(__GNUC__) + "." +
@@ -139,13 +140,14 @@ void BootHeapMemoryAllocator() noexcept {
   if (rc) WB_ATTRIBUTE_UNLIKELY {
       const auto& intl = bootmgr_args.intl;
       wb::ui::FatalDialog(
-          intl::l18n(intl, "Boot Manager - Error"),
+          intl::l18n(intl, "Boot Manager - Error"), rc,
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
+          MakeFatalContext(bootmgr_args),
           intl::l18n(
-              intl, "Can't get current directory.  Unable to load the kernel."),
-          rc, MakeFatalContext(bootmgr_args));
+              intl,
+              "Can't get current directory.  Unable to load the kernel."));
     }
 
   return app_path;
@@ -185,15 +187,16 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
   const auto& intl = bootmgr_args.intl;
   const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
-  if (const auto* kernel_module = std2::GetSuccessResult(kernel_library))
+  if (const auto* kernel_module = std2::get_result(kernel_library))
     WB_ATTRIBUTE_LIKELY {
       using WhiteBoxKernelMain = decltype(&KernelMain);
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       constexpr char kKernelMainName[]{"KernelMain"};
 
       // Good, try to find and launch whitebox-kernel.
       const auto kernel_main_entry =
           kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
-      if (const auto* kernel_main = std2::GetSuccessResult(kernel_main_entry))
+      if (const auto* kernel_main = std2::get_result(kernel_main_entry))
         WB_ATTRIBUTE_LIKELY {
 #ifdef WB_OS_WIN
           return (*kernel_main)(
@@ -209,23 +212,23 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
 
       wb::ui::FatalDialog(
           intl::l18n(intl, "Boot Manager - Error"),
+          std::get<std::error_code>(kernel_main_entry),
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
+          MakeFatalContext(bootmgr_args),
           intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
-                         kKernelMainName, kernel_path),
-          std::get<std::error_code>(kernel_main_entry),
-          MakeFatalContext(bootmgr_args));
+                         kKernelMainName, kernel_path));
     }
   else {
     wb::ui::FatalDialog(
         intl::l18n(intl, "Boot Manager - Error"),
+        std::get<std::error_code>(kernel_library),
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
-        intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path),
-        std::get<std::error_code>(kernel_library),
-        MakeFatalContext(bootmgr_args));
+        MakeFatalContext(bootmgr_args),
+        intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path));
   }
 }
 }  // namespace
@@ -256,21 +259,21 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
     WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+          std2::system_last_error_code(ERROR_OLD_WIN_VERSION),
           intl::l18n(bootmgr_args.intl,
                      "Please, update Windows to Windows 10, version 1903 (May "
                      "19, 2019) or greater."),
+          MakeFatalContext(bootmgr_args),
           intl::l18n(
               bootmgr_args.intl,
               "Windows is too old.  At least Windows 10, version 1903 (May 19, "
-              "2019)+ required."),
-          std2::GetThreadErrorCode(ERROR_OLD_WIN_VERSION),
-          MakeFatalContext(bootmgr_args));
+              "2019)+ required."));
     }
 
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
-  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_process_mitigation_policies))
+  G3PLOGE_IF(WARNING, std2::get_error(scoped_process_mitigation_policies))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 
@@ -302,7 +305,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name =
       threads::ScopedThreadName::New(new_thread_name);
-  G3PLOGE_IF(WARNING, std2::GetErrorCode(scoped_thread_name))
+  G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 #else
   // Well, we can't just use this one, as it is shown in top and monitors, so
@@ -345,20 +348,19 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
         windows::mmcss::ScopedMmcssThreadController::New(game_task,
                                                          playback_task);
     if (const auto* controller =
-            std2::GetSuccessResult(scoped_mmcss_thread_controller))
+            std2::get_result(scoped_mmcss_thread_controller))
       WB_ATTRIBUTE_LIKELY {
         const auto responsiveness_percent =
             controller->GetResponsivenessPercent();
 
-        if (const auto* percent =
-                std2::GetSuccessResult(responsiveness_percent))
+        if (const auto* percent = std2::get_result(responsiveness_percent))
           WB_ATTRIBUTE_LIKELY {
             G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
                          << implicit_cast<unsigned>(*percent)
                          << "% system responsiveness value.";
           }
         else {
-          G3PLOG_E(WARNING, *std2::GetErrorCode(responsiveness_percent))
+          G3PLOG_E(WARNING, *std2::get_error(responsiveness_percent))
               << "Can't get system responsiveness setting used by Multimedia "
                  "Class Scheduler Service for the main app thread.";
         }
@@ -371,7 +373,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
                "Class Scheduler Service for the thread.";
       }
     else {
-      G3PLOG_E(WARNING, *std2::GetErrorCode(scoped_mmcss_thread_controller))
+      G3PLOG_E(WARNING, *std2::get_error(scoped_mmcss_thread_controller))
           << "Can't enable Multimedia Class Scheduler Service for the app, "
              "some CPU resources may be underutilized.  See "
              "https://docs.microsoft.com/en-us/windows/win32/procthread/"

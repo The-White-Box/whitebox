@@ -11,6 +11,7 @@
 #include "base/win/error_handling/scoped_thread_last_error.h"
 #include "base/win/system_error_ext.h"
 #include "base/win/ui/scoped_window_class.h"
+#include "base/win/ui/window_utilities.h"
 #include "base/win/windows_light.h"
 
 namespace wb::base::windows::ui {
@@ -33,7 +34,7 @@ BaseWindow &BaseWindow::operator=(BaseWindow &&w) noexcept {
   return *this;
 }
 
-BaseWindow::~BaseWindow() noexcept {}
+BaseWindow::~BaseWindow() noexcept = default;
 
 BaseWindow::BaseWindow(_In_ HINSTANCE instance, _In_ int icon_id,
                        _In_ int icon_small_id) noexcept
@@ -60,11 +61,13 @@ bool BaseWindow::Update() const noexcept {
   G3DCHECK(!!window_message_handler);
 
   const auto icon =
-      LoadIcon(definition.instance, MAKEINTRESOURCE(definition.icon_id));
+      LoadIcon(definition.instance,
+               wb::base::windows::ui::MakeIntResource(definition.icon_id));
   G3DCHECK(!!icon);
 
-  const auto icon_small =
-      LoadIcon(definition.instance, MAKEINTRESOURCE(definition.icon_small_id));
+  const auto icon_small = LoadIcon(
+      definition.instance,
+      wb::base::windows::ui::MakeIntResource(definition.icon_small_id));
   G3DCHECK(!!icon_small);
 
   WNDCLASSEX wnd_class = {sizeof(wnd_class)};

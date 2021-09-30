@@ -72,7 +72,7 @@ std2::result<std::string> GetApplicationDirectory(_In_ HINSTANCE instance) {
       ::GetModuleFileNameA(instance, file_path.data(),
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
-    if (std2::GetThreadNativeLastErrno() == ERROR_INSUFFICIENT_BUFFER) {
+    if (std2::native_last_errno() == ERROR_INSUFFICIENT_BUFFER) {
       return std::error_code{ERROR_INSUFFICIENT_BUFFER, std::system_category()};
     }
 
@@ -85,7 +85,7 @@ std2::result<std::string> GetApplicationDirectory(_In_ HINSTANCE instance) {
                : file_path;
   }
 
-  return std2::GetThreadErrorCode();
+  return std2::system_last_error_code();
 }
 }  // namespace wb::base::windows
 

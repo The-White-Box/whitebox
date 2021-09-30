@@ -59,7 +59,7 @@ class ScopedComStrongUnmarshallingPolicy {
     if (!error_code_ && old_global_unmarshalling_policy_option_value_ !=
                             COMGLB_UNMARSHALING_POLICY_STRONG) {
       // Restore old unmarshalling policy.
-      G3CHECK(!GetErrorCode(
+      G3CHECK(!get_error(
           global_options_->Set(COMGLB_UNMARSHALING_POLICY,
                                old_global_unmarshalling_policy_option_value_)));
     }
@@ -93,12 +93,12 @@ class ScopedComStrongUnmarshallingPolicy {
    */
   ScopedComStrongUnmarshallingPolicy() noexcept
       : global_options_{},
-        error_code_{GetErrorCode(global_options_.CreateInstance(
+        error_code_{get_error(global_options_.CreateInstance(
             CLSID_GlobalOptions, nullptr, CLSCTX_INPROC_SERVER))},
         old_global_unmarshalling_policy_option_value_{0} {
     if (!error_code_) {
       // Get current COM unmarshalling policy to restore later.
-      error_code_ = GetErrorCode(global_options_->Query(
+      error_code_ = get_error(global_options_->Query(
           COMGLB_UNMARSHALING_POLICY,
           &old_global_unmarshalling_policy_option_value_));
     }
@@ -108,7 +108,7 @@ class ScopedComStrongUnmarshallingPolicy {
       // Unmarshaling allows only a system-trusted list of hardened unmarshalers
       // and unmarshalers allowed per-process by the CoAllowUnmarshalerCLSID
       // function.
-      error_code_ = GetErrorCode(global_options_->Set(
+      error_code_ = get_error(global_options_->Set(
           COMGLB_UNMARSHALING_POLICY, COMGLB_UNMARSHALING_POLICY_STRONG));
     }
 

@@ -56,32 +56,38 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Mouse is ready.
     auto mouse_result = hal::hid::Mouse::New(window);
-    if (auto *mouse = std2::GetSuccessResult(mouse_result)) {
+    if (auto *mouse = std2::get_result(mouse_result)) {
       mouse_.swap(*mouse);
     } else {
       wb::ui::FatalDialog(
-          intl::l18n(i18n_, "Whitebox Kernel - Error"),
-          intl::l18n(i18n_, "Please, check mouse is connected and working."),
-          intl::l18n(i18n_, "Unable to register mouse as <A "
-                     "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
-                     "about-raw-input\">Raw Input</A> device."),
-          std::get<std::error_code>(mouse_result), MakeFatalContext());
+          intl::l18n(l18n_, "Whitebox Kernel - Error"),
+          std::get<std::error_code>(mouse_result),
+          intl::l18n(l18n_, "Please, check mouse is connected and working."),
+          MakeFatalContext(),
+          intl::l18n(
+              l18n_,
+              "Unable to register mouse as <A "
+              "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
+              "about-raw-input\">Raw Input</A> device."));
     }
   }
 
   {
     // Keyboard is ready.
     auto keyboard_result = hal::hid::Keyboard::New(window);
-    if (auto *keyboard = std2::GetSuccessResult(keyboard_result)) {
+    if (auto *keyboard = std2::get_result(keyboard_result)) {
       keyboard_.swap(*keyboard);
     } else {
       wb::ui::FatalDialog(
-          intl::l18n(i18n_, "Whitebox Kernel - Error"),
-          intl::l18n(i18n_, "Please, check keyboard is connected and working."),
-          intl::l18n(i18n_, "Unable to register keyboard as <A "
-                     "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
-                     "about-raw-input\">Raw Input</A> device."),
-          std::get<std::error_code>(keyboard_result), MakeFatalContext());
+          intl::l18n(l18n_, "Whitebox Kernel - Error"),
+          std::get<std::error_code>(keyboard_result),
+          intl::l18n(l18n_, "Please, check keyboard is connected and working."),
+          MakeFatalContext(),
+          intl::l18n(
+              l18n_,
+              "Unable to register keyboard as <A "
+              "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
+              "about-raw-input\">Raw Input</A> device."));
     }
   }
 
@@ -195,7 +201,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     using namespace std::chrono_literals;
 
     if (const auto *scoped_window_paint =
-            std2::GetSuccessResult(scoped_window_paint_result);
+            std2::get_result(scoped_window_paint_result);
         scoped_window_paint && is_window_active_ && !::IsIconic(window)) {
       // TODO(dimhotepus): Repaint.
 
@@ -268,7 +274,7 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     // speed up window composition.
     auto scoped_toggle_dwm_mmcs_result = mmcss::ScopedMmcssToggleDwm::New(true);
     if (auto *scheduler =
-            wb::base::std2::GetSuccessResult(scoped_toggle_dwm_mmcs_result)) {
+            wb::base::std2::get_result(scoped_toggle_dwm_mmcs_result)) {
       auto *memory = new unsigned char[sizeof(mmcss::ScopedMmcssToggleDwm)];
 
       // Trick with placement new + move.
@@ -290,6 +296,6 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
 
 [[nodiscard]] wb::ui::FatalDialogContext
 MainWindow::MakeFatalContext() noexcept {
-  return {i18n_, i18n_.Layout(), icon_id_, icon_small_id_};
+  return {l18n_, l18n_.Layout(), icon_id_, icon_small_id_};
 }
 }  // namespace wb::kernel

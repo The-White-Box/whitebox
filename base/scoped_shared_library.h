@@ -129,10 +129,10 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
       _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
-    return library != nullptr ? std2::result<ScopedSharedLibrary>(
-                                    std::move(ScopedSharedLibrary{library}))
-                              : std2::result<ScopedSharedLibrary>(
-                                    windows::GetErrorCode(library));
+    return library != nullptr
+               ? std2::result<ScopedSharedLibrary>(
+                     std::move(ScopedSharedLibrary{library}))
+               : std2::result<ScopedSharedLibrary>(windows::get_error(library));
   }
 
   /**
@@ -148,11 +148,11 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
       // C4191 'reinterpret_cast': unsafe conversion from 'FARPROC' to 'T'
       // Perfectly valid in this case.
       WB_MSVC_DISABLE_WARNING(4191)
-      const auto *address =
+      const auto address =
           reinterpret_cast<T>(::GetProcAddress(get(), function_name));
     WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
     return address != nullptr ? std2::result<T>(address)
-                              : std2::result<T>(std2::GetThreadErrorCode());
+                              : std2::result<T>(std2::system_last_error_code());
   }
 #elif defined(WB_OS_POSIX)
   /**
@@ -169,7 +169,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
                      ScopedSharedLibrary{reinterpret_cast<MODULE_ *>(library)})
                // Decided to use EINVAL here as likely args invalid or no DLL.
                : std2::result<ScopedSharedLibrary>(
-                     std2::GetThreadErrorCode(EINVAL));
+                     std2::system_last_error_code(EINVAL));
   }
 
   // Gets (address, error_code) of function |function_name| in loaded shared
@@ -179,7 +179,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
       const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
     return address != nullptr ? std2::result<T>(address)
-                              : std2::result<T>(std2::GetThreadErrorCode());
+                              : std2::result<T>(std2::system_last_error_code());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error Please add shared library support for your platform.

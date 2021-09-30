@@ -39,7 +39,7 @@ class SdlPixelFormat {
   [[nodiscard]] static SdlResult<SdlPixelFormat> New(
       SdlPixelFormatFlag value) noexcept {
     SdlPixelFormat format{value};
-    return format.error_code().IsSucceeded()
+    return format.error_code().is_succeeded()
                ? SdlResult<SdlPixelFormat>{std::move(format)}
                : SdlResult<SdlPixelFormat>{format.error_code()};
   }

@@ -18,7 +18,7 @@ namespace wb::hal::hid {
  */
 [[nodiscard]] WB_HAL_HID_DRIVER_API std::error_code RegisterRawInputDevices(
     _In_ const RAWINPUTDEVICE& device) noexcept {
-  return base::windows::GetErrorCode(
+  return base::windows::get_error(
       ::RegisterRawInputDevices(&device, 1, sizeof(device)));
 }
 

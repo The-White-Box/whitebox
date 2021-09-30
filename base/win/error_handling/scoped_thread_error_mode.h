@@ -102,6 +102,7 @@ class ScopedThreadErrorMode {
    */
   unsigned long old_error_mode_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(old_error_mode_)];
 
   /**
@@ -117,7 +118,7 @@ class ScopedThreadErrorMode {
   explicit ScopedThreadErrorMode(
       const ScopedThreadErrorModeFlags error_mode_flags) noexcept
       : old_error_mode_{::GetThreadErrorMode()},
-        error_code_{GetErrorCode(::SetThreadErrorMode(
+        error_code_{get_error(::SetThreadErrorMode(
             old_error_mode_ | underlying_cast(error_mode_flags), nullptr))} {
     G3DCHECK(!error_code());
   }

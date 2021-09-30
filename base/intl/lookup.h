@@ -83,7 +83,7 @@ class WB_BASE_API Lookup {
    * @return Lookup.
    */
   [[nodiscard]] static LookupResult<Lookup> New(
-      const std::set<std::string>& locale_ids) noexcept;
+      const std::set<std::string_view>& locale_ids) noexcept;
 
   /**
    * @brief Gets localized string by message id.
@@ -123,7 +123,7 @@ class WB_BASE_API Lookup {
    * @param impl Lookup implementation.
    * @return nothing.
    */
-  Lookup(un<LookupImpl> impl) noexcept;
+  WB_CLANG_EXPLICIT Lookup(un<LookupImpl> impl) noexcept;
 };
 
 /**
@@ -140,7 +140,7 @@ class WB_BASE_API LookupWithFallback {
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(LookupWithFallback);
 
   LookupWithFallback(LookupWithFallback&&) noexcept;
-  Lookup& operator=(LookupWithFallback&&) noexcept = delete;
+  LookupWithFallback& operator=(LookupWithFallback&&) noexcept = delete;
 
   /**
    * @brief Creates new lookup by locale ids.  If no string found
@@ -150,7 +150,7 @@ class WB_BASE_API LookupWithFallback {
    * @return Lookup.
    */
   [[nodiscard]] static LookupResult<LookupWithFallback> New(
-      const std::set<std::string>& locale_ids,
+      const std::set<std::string_view>& locale_ids,
       std::string fallback_string = kFallbackString) noexcept;
 
   /**
@@ -199,8 +199,17 @@ class WB_BASE_API LookupWithFallback {
  */
 class I18nStringViewHash {
  public:
+  /**
+   * Creates string_view hash for i18n.
+   */
   constexpr I18nStringViewHash() noexcept = default;
 
+  /**
+   * Computes string_view hash.
+   * @param s string_view
+   * @param index start position of |s| to compute hash from till |s.size()|.
+   * @return Hash.
+   */
   [[nodiscard]] WB_ATTRIBUTE_CONST constexpr uint64_t operator()(
       std::string_view s, size_t index = 0) const noexcept {
     return index < s.size()
@@ -229,29 +238,29 @@ class I18nStringViewHash {
 
 /**
  * Localizes |string|.
- * @param intl Localization lookup.
+ * @param lookup Localization lookup.
  * @param string String to localize.
  * @return Localized string.
  */
 [[nodiscard]] WB_ATTRIBUTE_FORCEINLINE const std::string& l18n(
-    const LookupWithFallback& intl, std::string_view string) noexcept {
+    const LookupWithFallback& lookup, std::string_view string) noexcept {
   const uint64_t hash{I18nStringViewHash{}(string)};
-  return intl.String(hash);
+  return lookup.String(hash);
 }
 
 /**
  * Localizes |string| with format args |args|.
- * @param intl Localization lookup.
+ * @param lookup Localization lookup.
  * @param string String to localize.
  * @param args Format args.
  * @return Localized string.
  */
 template <typename... TArgs>
-[[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::string l18n_fmt(
-    const LookupWithFallback& intl, std::string_view string,
-    TArgs&&... args) noexcept {
+[[nodiscard]] inline std::string l18n_fmt(const LookupWithFallback& lookup,
+                                          std::string_view string,
+                                          TArgs&&... args) noexcept {
   const uint64_t hash{I18nStringViewHash{}(string)};
-  return intl.Format(hash, fmt::make_format_args(std::forward<TArgs>(args)...));
+  return lookup.Format(hash, fmt::make_format_args(std::forward<TArgs>(args)...));
 }
 }  // namespace wb::base::intl
 

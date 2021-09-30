@@ -724,18 +724,28 @@
  */
 #define WB_ATTRIBUTE_UNUSED_FIELD
 
+/**
+ * @brief Do nothing.
+ */
+#define WB_CLANG_EXPLICIT explicit
+
 /*
  * @brief Disables GCC suggest-attribute=malloc warning.
  */
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=malloc\"")
 
-#else  // !WB_COMPILER_GCC
+#else  // WB_COMPILER_CLANG
 
 /**
  * @brief Unused attribute.  Prevents Wunused-private-field.
  */
 #define WB_ATTRIBUTE_UNUSED_FIELD [[maybe_unused]]
+
+/**
+ * @brief Explicit keyword for places where Clang accepts it.
+ */
+#define WB_CLANG_EXPLICIT explicit
 
 /*
  * @brief Do nothing.
@@ -775,6 +785,11 @@
  * @brief Do nothing.
  */
 #define WB_ATTRIBUTE_UNUSED_FIELD [[maybe_unused]]
+
+/**
+ * @brief Do nothing.
+ */
+#define WB_CLANG_EXPLICIT
 
 /*
  * @brief Do nothing.

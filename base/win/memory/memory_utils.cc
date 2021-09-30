@@ -19,7 +19,7 @@ EnableTerminationOnHeapCorruption() noexcept {
   //
   // See
   // https://docs.microsoft.com/en-us/windows/win32/api/heapapi/nf-heapapi-heapsetinformation
-  const std::error_code rc{GetErrorCode(::HeapSetInformation(
+  const std::error_code rc{get_error(::HeapSetInformation(
       nullptr, HeapEnableTerminationOnCorruption, nullptr, 0))};
 
   G3DCHECK(!rc);
@@ -42,7 +42,7 @@ EnableTerminationOnHeapCorruption() noexcept {
   // https://docs.microsoft.com/en-us/windows/win32/api/heapapi/nf-heapapi-heapsetinformation
   HEAP_OPTIMIZE_RESOURCES_INFORMATION information{
       .Version = HEAP_OPTIMIZE_RESOURCES_CURRENT_VERSION};
-  const std::error_code rc{GetErrorCode(::HeapSetInformation(
+  const std::error_code rc{get_error(::HeapSetInformation(
       nullptr, HeapOptimizeResources, &information, sizeof(information)))};
 
   G3DCHECK(!rc);

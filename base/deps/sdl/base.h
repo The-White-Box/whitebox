@@ -64,7 +64,7 @@ struct SdlError {
    * @brief Is succeeded?
    * @return true if not error, false otherwise.
    */
-  [[nodiscard]] constexpr bool IsSucceeded() const noexcept {
+  [[nodiscard]] constexpr bool is_succeeded() const noexcept {
     return message == nullptr || !message[0];
   }
 
@@ -72,8 +72,8 @@ struct SdlError {
    * @brief Is error?
    * @return true if error, false otherwise.
    */
-  [[nodiscard]] constexpr bool IsFailed() const noexcept {
-    return !IsSucceeded();
+  [[nodiscard]] constexpr bool is_failed() const noexcept {
+    return !is_succeeded();
   }
 };
 
@@ -85,7 +85,7 @@ struct SdlError {
  */
 inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
                         const SdlError& error) {
-  return s << (error.IsFailed() ? error.message : "");
+  return s << (error.is_failed() ? error.message : "");
 }
 
 /**
@@ -101,7 +101,7 @@ using SdlResult = std::variant<TResult, SdlError>;
  * @return error code pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr const SdlError* GetError(
+[[nodiscard]] constexpr const SdlError* get_error(
     const SdlResult<TResult>& rc) noexcept {
   return std::get_if<SdlError>(&rc);
 }
@@ -113,8 +113,7 @@ template <typename TResult>
  * @return SDL result success pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr TResult* GetSuccessResult(
-    SdlResult<TResult>& rc) noexcept {
+[[nodiscard]] constexpr TResult* get_result(SdlResult<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
 
@@ -125,7 +124,7 @@ template <typename TResult>
  * @return SDL result success pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr const TResult* GetSuccessResult(
+[[nodiscard]] constexpr const TResult* get_result(
     const SdlResult<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }

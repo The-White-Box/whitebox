@@ -52,7 +52,7 @@ class ScopedWindowClass {
                              _In_ WNDCLASSEXA &class_definition) noexcept
       : instance_{instance},
         class_atom_{::RegisterClassExA(&class_definition)},
-        error_code_{GetErrorCode(class_atom_)} {
+        error_code_{get_error(class_atom_)} {
     G3DCHECK(!error_code());
   }
 
@@ -63,7 +63,7 @@ class ScopedWindowClass {
    */
   ~ScopedWindowClass() noexcept {
     if (!error_code_) {
-      const std::error_code rc{GetErrorCode(::UnregisterClassA(
+      const std::error_code rc{get_error(::UnregisterClassA(
           reinterpret_cast<const char *>(
               static_cast<uintptr_t>(MakeLong(class_atom_, 0))),
           instance_))};
@@ -89,6 +89,7 @@ class ScopedWindowClass {
    */
   const unsigned short class_atom_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(class_atom_)];
 
   /**

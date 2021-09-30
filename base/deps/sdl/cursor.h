@@ -52,7 +52,7 @@ class SdlCursor {
   [[nodiscard]] static SdlResult<SdlCursor> FromSystem(
       SdlSystemCursor system_cursor) noexcept {
     SdlCursor cursor{system_cursor};
-    return cursor.error_code().IsSucceeded()
+    return cursor.error_code().is_succeeded()
                ? SdlResult<SdlCursor>{std::move(cursor)}
                : SdlResult<SdlCursor>{cursor.error_code()};
   }
@@ -64,7 +64,7 @@ class SdlCursor {
    */
   [[nodiscard]] static SdlResult<SdlCursor> FromActive() noexcept {
     SdlCursor cursor;
-    return cursor.error_code().IsSucceeded()
+    return cursor.error_code().is_succeeded()
                ? SdlResult<SdlCursor>{std::move(cursor)}
                : SdlResult<SdlCursor>{cursor.error_code()};
   }
@@ -162,7 +162,7 @@ class ScopedSdlCursor {
   ScopedSdlCursor &operator=(ScopedSdlCursor &&c) noexcept = delete;
 
   ~ScopedSdlCursor() noexcept {
-    if (auto *old_cursor = GetSuccessResult(old_cursor_)) WB_ATTRIBUTE_LIKELY {
+    if (auto *old_cursor = get_result(old_cursor_)) WB_ATTRIBUTE_LIKELY {
         old_cursor->MakeActive();
       }
   }
@@ -183,7 +183,7 @@ class ScopedSdlCursor {
 
   auto new_cursor = SdlCursor::Empty();
   auto system_cursor = SdlCursor::FromSystem(new_cursor_in_scope);
-  if (auto *cursor = GetSuccessResult(system_cursor)) WB_ATTRIBUTE_LIKELY {
+  if (auto *cursor = get_result(system_cursor)) WB_ATTRIBUTE_LIKELY {
       new_cursor = std::move(*cursor);
     }
   return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));

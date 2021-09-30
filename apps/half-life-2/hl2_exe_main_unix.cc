@@ -7,7 +7,7 @@
 #include "app_version_config.h"
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
-#include "base/intl/clocale_ext.h"
+#include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "build/static_settings_config.h"
@@ -60,10 +60,16 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   auto app_path = std2::GetExecutableDirectory(rc);
   if (rc) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          intl::l18n(intl, "Please, check app is installed correctly and you have enough permissions to run it."),
-          intl::l18n(intl, "Can't get current directory.  Unable to load the app."),
-          rc, {intl.Layout()});
+          intl::l18n_fmt(intl, "{0} - Error",
+                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          rc,
+          intl::l18n(intl,
+                     "Please, check app is installed correctly and you have "
+                     "enough permissions to run it."),
+          {intl.Layout()} intl::l18n(intl,
+                                     "Can't get current directory.  May be app "
+                                     "located too deep (> 1024)?"),
+          rc);
     }
 
   app_path /= "libwhitebox-boot-manager.so." WB_PRODUCT_VERSION_INFO_STRING;
@@ -71,33 +77,42 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   const std::string boot_manager_path{app_path.string()};
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, RTLD_LAZY | RTLD_LOCAL);
-  if (const auto* boot_manager = std2::GetSuccessResult(boot_manager_library))
+  if (const auto* boot_manager = std2::get_result(boot_manager_library))
     WB_ATTRIBUTE_LIKELY {
       using BootManagerMain = decltype(&BootmgrMain);
+      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       constexpr char kBootManagerMainName[]{"BootmgrMain"};
 
       // Good, try to find and launch boot manager.
       const auto boot_manager_entry =
           boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
-      if (const auto* boot_manager_main =
-              std2::GetSuccessResult(boot_manager_entry))
+      if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
         WB_ATTRIBUTE_LIKELY {
           return (*boot_manager_main)(
               {WB_PRODUCT_FILE_DESCRIPTION_STRING, argv, argc, intl});
         }
 
       wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          intl::l18n(intl, "Please, check app is installed correctly and you have enough permissions to run it."),
-          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.", kBootManagerMainName, boot_manager_path),
-          std::get<std::error_code>(boot_manager_entry), {intl.Layout()});
+          intl::l18n_fmt(intl, "{0} - Error",
+                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          std::get<std::error_code>(boot_manager_entry),
+          intl::l18n(intl,
+                     "Please, check app is installed correctly and you have "
+                     "enough permissions to run it."),
+          {intl.Layout()},
+          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
+                         kBootManagerMainName, boot_manager_path));
     }
   else {
     wb::ui::FatalDialog(
         intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        intl::l18n(intl, "Please, check app is installed correctly and you have enough permissions to run it."),
-        intl::l18n_fmt(intl, "Can't load boot manager '{0}'.", boot_manager_path),
-        std::get<std::error_code>(boot_manager_library), {intl.Layout()});
+        std::get<std::error_code>(boot_manager_library),
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        {intl.Layout()},
+        intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
+                       boot_manager_path));
   }
 }
 }  // namespace

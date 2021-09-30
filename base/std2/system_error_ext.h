@@ -29,7 +29,7 @@ namespace wb::base::std2 {
  * @brief Get last native system errno.
  * @return Last native system errno.
  */
-[[nodiscard]] inline int GetThreadNativeLastErrno() noexcept {
+[[nodiscard]] inline int native_last_errno() noexcept {
 #ifdef WB_OS_WIN
   return static_cast<int>(::GetLastError());
 #else
@@ -38,11 +38,23 @@ namespace wb::base::std2 {
 }
 
 /**
+ * @brief Set system error code.
+ * @param rc Native system error code.
+ */
+inline void native_last_errno(const std::error_code rc) noexcept {  //-V801
+#ifdef WB_OS_WIN
+  ::SetLastError(static_cast<unsigned long>(rc.value()));
+#else
+  errno = rc.value();
+#endif
+}
+
+/**
  * @brief Get generic POSIX errno error code.
  * @param rc Native POSIX errno error code.
  * @return POSIX errno error code.
  */
-[[nodiscard]] inline std::error_code GetThreadPosixErrorCode(
+[[nodiscard]] inline std::error_code posix_last_error_code(
     const int rc = errno) noexcept {
   return std::error_code{rc, std::generic_category()};
 }
@@ -52,21 +64,9 @@ namespace wb::base::std2 {
  * @param rc Native system error code.
  * @return System error code.
  */
-[[nodiscard]] inline std::error_code GetThreadErrorCode(
-    const int rc = GetThreadNativeLastErrno()) noexcept {
+[[nodiscard]] inline std::error_code system_last_error_code(
+    const int rc = native_last_errno()) noexcept {
   return std::error_code{rc, std::system_category()};
-}
-
-/**
- * @brief Set system error code.
- * @param rc Native system error code.
- */
-inline void SetThreadErrorCode(const std::error_code rc) noexcept {  //-V801
-#ifdef WB_OS_WIN
-  ::SetLastError(static_cast<unsigned long>(rc.value()));
-#else
-  errno = rc.value();
-#endif
 }
 
 /**
@@ -83,7 +83,7 @@ using result = std::variant<TResult, std::error_code>;
  * @return error code pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr const std::error_code* GetErrorCode(
+[[nodiscard]] constexpr const std::error_code* get_error(
     const result<TResult>& rc) noexcept {
   return std::get_if<std::error_code>(&rc);
 }
@@ -95,8 +95,7 @@ template <typename TResult>
  * @return System result success pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr TResult* GetSuccessResult(
-    result<TResult>& rc) noexcept {
+[[nodiscard]] constexpr TResult* get_result(result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
 
@@ -107,7 +106,7 @@ template <typename TResult>
  * @return System result success pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr const TResult* GetSuccessResult(
+[[nodiscard]] constexpr const TResult* get_result(
     const result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }

@@ -84,7 +84,7 @@ Keyboard::~Keyboard() noexcept {
  * @return nothing.
  */
 Keyboard::Keyboard(Keyboard&& k) noexcept
-    : window_{k.window_}, error_code_{std::move(k.error_code_)} {
+    : window_{k.window_}, error_code_{k.error_code_} {
   k.window_ = nullptr;
   k.error_code_ = std::error_code{EINVAL, std::system_category()};
 }

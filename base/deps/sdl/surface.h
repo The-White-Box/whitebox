@@ -60,7 +60,7 @@ class SdlSurface {
   [[nodiscard]] static SdlResult<SdlSurface> FromRgb(
       int width, int height, int depth, const SdlSurfaceMask &mask) noexcept {
     SdlSurface surface{width, height, depth, mask};
-    return surface.error_code().IsSucceeded()
+    return surface.error_code().is_succeeded()
                ? SdlResult<SdlSurface>{std::move(surface)}
                : SdlResult<SdlSurface>{surface.error_code()};
   }
@@ -74,7 +74,7 @@ class SdlSurface {
   [[nodiscard]] static SdlResult<SdlSurface> FromImage(
       const char *image_path) noexcept {
     SdlSurface surface{image_path};
-    return surface.error_code().IsSucceeded()
+    return surface.error_code().is_succeeded()
                ? SdlResult<SdlSurface>{std::move(surface)}
                : SdlResult<SdlSurface>{surface.error_code()};
   }
@@ -88,7 +88,7 @@ class SdlSurface {
   [[nodiscard]] static SdlResult<SdlSurface> FromSurface(
       SdlSurface &source, const SdlPixelFormat &format) noexcept {
     SdlSurface surface{source, format};
-    return surface.error_code().IsSucceeded()
+    return surface.error_code().is_succeeded()
                ? SdlResult<SdlSurface>{std::move(surface)}
                : SdlResult<SdlSurface>{surface.error_code()};
   }

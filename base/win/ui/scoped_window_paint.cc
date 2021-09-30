@@ -70,6 +70,7 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
    * @param raster_operation Raster operation code.
    * @return true on success, false otherwise.
    */
+  // NOLINTNEXTLINE(modernize-use-nodiscard): Can not check result in Release.
   bool BlitPattern(const RECT& rc,
                    unsigned long raster_operation) const noexcept {
     G3DCHECK(!!device_context_);
@@ -94,7 +95,7 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
    * @brief Is window device context creation succeeded?
    * @return true if succeeded, false otherwise.
    */
-  [[nodiscard]] bool IsSucceeded() const noexcept {
+  [[nodiscard]] bool is_succeeded() const noexcept {
     return device_context_ != nullptr;
   }
 
@@ -116,9 +117,8 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
 [[nodiscard]] std2::result<ScopedWindowPaint> ScopedWindowPaint::New(
     _In_ HWND window) noexcept {
   ScopedWindowPaint scoped_window_paint{window};
-  return scoped_window_paint.impl_->IsSucceeded()
-             ? std2::result<ScopedWindowPaint>{std::move(
-                   scoped_window_paint)}
+  return scoped_window_paint.impl_->is_succeeded()
+             ? std2::result<ScopedWindowPaint>{std::move(scoped_window_paint)}
              : std2::result<ScopedWindowPaint>{std::error_code{
                    (int)ERROR_DC_NOT_FOUND, std::system_category()}};
 }
@@ -136,7 +136,8 @@ int ScopedWindowPaint::TextDraw(const char* text, int size, RECT* rc,
   return impl_->TextDraw(text, size, rc, format);
 }
 
-bool ScopedWindowPaint::BlitPattern(const RECT& rc, unsigned long raster_operation) const noexcept {
+bool ScopedWindowPaint::BlitPattern(
+    const RECT& rc, unsigned long raster_operation) const noexcept {
   return impl_->BlitPattern(rc, raster_operation);
 }
 

@@ -119,6 +119,7 @@ class ScopedComInitializer {
    */
   std::thread::id thread_id_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[4];
 #endif
 
@@ -129,7 +130,7 @@ class ScopedComInitializer {
    */
   explicit ScopedComInitializer(const ScopedComInitializerFlags flags) noexcept
       : error_code_ {
-    GetErrorCode(::CoInitializeEx(nullptr, underlying_cast(flags)))
+    get_error(::CoInitializeEx(nullptr, underlying_cast(flags)))
   }
 #ifndef NDEBUG
   , thread_id_ { std::this_thread::get_id() }

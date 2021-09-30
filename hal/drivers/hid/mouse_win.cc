@@ -72,7 +72,7 @@ Mouse::Mouse(_In_ HWND window) noexcept
  */
 Mouse::Mouse(Mouse&& m) noexcept
     : window_{m.window_},
-      error_code_{std::move(m.error_code_)},
+      error_code_{m.error_code_},
       last_absolute_x_{m.last_absolute_x_},
       last_absolute_y_{m.last_absolute_y_} {
   m.window_ = nullptr;

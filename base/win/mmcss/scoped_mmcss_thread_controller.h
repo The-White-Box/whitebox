@@ -15,6 +15,8 @@
 #ifndef WB_BASE_WIN_MMCSS_SCOPED_MMCSS_THREAD_CONTROLLER_H_
 #define WB_BASE_WIN_MMCSS_SCOPED_MMCSS_THREAD_CONTROLLER_H_
 
+#include <cstdint>
+
 #include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
@@ -133,13 +135,14 @@ class WB_BASE_API ScopedMmcssThreadController {
    * @return The system responsiveness value.  This value can range from 10 to
    * 100 percent.
    */
-  std2::result<unsigned char> GetResponsivenessPercent() const noexcept;
+  std2::result<std::uint8_t> GetResponsivenessPercent() const noexcept;
 
   /**
    * @brief Adjusts the thread priority of the calling thread relative to other
    * threads performing the same task.
    */
-  std::error_code SetPriority(ScopedMmcssThreadPriority priority) const noexcept;
+  [[nodiscard]] std::error_code SetPriority(
+      ScopedMmcssThreadPriority priority) const noexcept;
 
  private:
   class ScopedMmcssThreadControllerImpl;

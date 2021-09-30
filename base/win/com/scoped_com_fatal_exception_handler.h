@@ -58,7 +58,7 @@ class ScopedComFatalExceptionHandler {
     if (!error_code_ && old_global_exception_handling_option_value_ !=
                             COMGLB_EXCEPTION_DONOT_HANDLE_ANY) {
       // Restore "old" exception handling policy.
-      G3CHECK(!GetErrorCode(global_options_->Set(
+      G3CHECK(!get_error(global_options_->Set(
           COMGLB_EXCEPTION_HANDLING, COMGLB_EXCEPTION_DONOT_HANDLE)));
     }
   }
@@ -91,12 +91,12 @@ class ScopedComFatalExceptionHandler {
    */
   ScopedComFatalExceptionHandler() noexcept
       : global_options_{},
-        error_code_{GetErrorCode(global_options_.CreateInstance(
+        error_code_{get_error(global_options_.CreateInstance(
             CLSID_GlobalOptions, nullptr, CLSCTX_INPROC_SERVER))},
         old_global_exception_handling_option_value_{0} {
     if (!error_code_) {
       // Get current COM exception handling policy to restore later.
-      error_code_ = GetErrorCode(
+      error_code_ = get_error(
           global_options_->Query(COMGLB_EXCEPTION_HANDLING,
                                  &old_global_exception_handling_option_value_));
     }
@@ -105,7 +105,7 @@ class ScopedComFatalExceptionHandler {
                             COMGLB_EXCEPTION_DONOT_HANDLE_ANY) {
       // When set and a fatal exception occurs in a COM method, this causes the
       // COM runtime to not handle the exception.
-      error_code_ = GetErrorCode(global_options_->Set(
+      error_code_ = get_error(global_options_->Set(
           COMGLB_EXCEPTION_HANDLING, COMGLB_EXCEPTION_DONOT_HANDLE_ANY));
     }
 

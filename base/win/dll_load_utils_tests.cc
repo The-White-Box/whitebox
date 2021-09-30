@@ -52,6 +52,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _When_(lpModuleName == NULL, _Ret_notnull_)
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
+  // NOLINTNEXTLINE(performance-no-int-to-ptr): Required for test.
   const HINSTANCE mustBeInvalidInstance{reinterpret_cast<HINSTANCE>(
       reinterpret_cast<uintptr_t>(::GetModuleHandleA(nullptr)) + 1U)};
 

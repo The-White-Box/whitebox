@@ -65,7 +65,7 @@ namespace wb::base::windows {
  * @param hr HRESULT.
  * @return true if succeeded, false otherwise.
  */
-[[nodiscard]] constexpr bool IsSucceeded(HRESULT hr) noexcept {
+[[nodiscard]] constexpr bool is_succeeded(HRESULT hr) noexcept {
   return hr >= 0;
 }
 
@@ -75,57 +75,54 @@ namespace wb::base::windows {
  * @param hr HRESULT.
  * @return true if failed, false otherwise.
  */
-[[nodiscard]] constexpr bool IsFailed(HRESULT hr) noexcept { return hr < 0; }
+[[nodiscard]] constexpr bool is_failed(HRESULT hr) noexcept { return hr < 0; }
 
 /**
  * @brief Get error code.
  */
 template <typename R>
-[[nodiscard]] inline std::error_code GetErrorCode(_In_ R result) noexcept =
-    delete;
+[[nodiscard]] inline std::error_code get_error(_In_ R result) noexcept = delete;
 
 /**
  * @brief Get error code.
  */
 template <>
-[[nodiscard]] inline std::error_code GetErrorCode(
+[[nodiscard]] inline std::error_code get_error(
     _In_ unsigned short result) noexcept {
-  return result ? std::error_code{} : std2::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::system_last_error_code();
 }
 
 /**
  * @brief Get error code.
  */
 template <>
-[[nodiscard]] inline std::error_code GetErrorCode(
-    _In_opt_ HWND result) noexcept {
-  return result ? std::error_code{} : std2::GetThreadErrorCode();
+[[nodiscard]] inline std::error_code get_error(_In_opt_ HWND result) noexcept {
+  return result ? std::error_code{} : std2::system_last_error_code();
 }
 
 /**
  * @brief Get error code.
  */
 template <>
-[[nodiscard]] inline std::error_code GetErrorCode(_In_ BOOL result) noexcept {
-  return result ? std::error_code{} : std2::GetThreadErrorCode();
+[[nodiscard]] inline std::error_code get_error(_In_ BOOL result) noexcept {
+  return result ? std::error_code{} : std2::system_last_error_code();
 }
 
 /**
  * @brief Get error code.
  */
 template <>
-[[nodiscard]] inline std::error_code GetErrorCode(
-    _In_opt_ HHOOK result) noexcept {
-  return result ? std::error_code{} : std2::GetThreadErrorCode();
+[[nodiscard]] inline std::error_code get_error(_In_opt_ HHOOK result) noexcept {
+  return result ? std::error_code{} : std2::system_last_error_code();
 }
 
 /**
  * @brief Get error code.
  */
 template <>
-[[nodiscard]] inline std::error_code GetErrorCode(
+[[nodiscard]] inline std::error_code get_error(
     _In_opt_ HINSTANCE result) noexcept {
-  return result ? std::error_code{} : std2::GetThreadErrorCode();
+  return result ? std::error_code{} : std2::system_last_error_code();
 }
 
 /**
@@ -168,7 +165,7 @@ class ComErrorCategory : public std::error_category {
  * @param rc Native system COM error code.
  * @return System COM error code.
  */
-[[nodiscard]] inline std::error_code GetComErrorCode(
+[[nodiscard]] inline std::error_code get_com_error_code(
     const HRESULT result) noexcept {
   return std::error_code{result, com_error_category()};
 }
@@ -177,9 +174,8 @@ class ComErrorCategory : public std::error_category {
  * @brief Get COM error code by HRESULT.
  */
 template <>
-[[nodiscard]] inline std::error_code GetErrorCode(
-    _In_ HRESULT result) noexcept {
-  return IsSucceeded(result) ? std::error_code{} : GetComErrorCode(result);
+[[nodiscard]] inline std::error_code get_error(_In_ HRESULT result) noexcept {
+  return is_succeeded(result) ? std::error_code{} : get_com_error_code(result);
 }
 }  // namespace wb::base::windows
 

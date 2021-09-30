@@ -33,7 +33,7 @@ option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, use
 
 wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to use in Clang-Tidy."
-  "c++17" "c++20")
+  "c++20" "c++17")
 
 wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
