@@ -37,9 +37,10 @@ class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
     return error_code_;
   }
 
-  std2::result<unsigned char> GetResponsivenessPercent() const noexcept;
+  [[nodiscard]] std2::result<std::uint8_t> GetResponsivenessPercent()
+      const noexcept;
 
-  std::error_code SetPriority(
+  [[nodiscard]] std::error_code SetPriority(
       ScopedMmcssThreadPriority priority) const noexcept;
 
  private:
@@ -48,6 +49,7 @@ class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
    */
   unsigned long task_index_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(task_index_)];
 
   /**
@@ -69,7 +71,7 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
       task_handle_{::AvSetMmMaxThreadCharacteristicsA(
           first_task.name(), last_task.name(), &task_index_)},
       error_code_{task_handle_ ? std::error_code{}
-                               : std2::GetThreadErrorCode()} {
+                               : std2::system_last_error_code()} {
   // Well, if smb removed task from registry or no privileges it is ok.
   G3DCHECK(!error_code_ || error_code_.value() == ERROR_INVALID_TASK_NAME ||
            error_code_.value() == ERROR_PRIVILEGE_NOT_HELD);
@@ -78,18 +80,17 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
 ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
     ~ScopedMmcssThreadControllerImpl() noexcept {
   if (task_handle_) {
-    const auto rc =
-        GetErrorCode(::AvRevertMmThreadCharacteristics(task_handle_));
+    const auto rc = get_error(::AvRevertMmThreadCharacteristics(task_handle_));
     G3PCHECK_E(!rc, rc) << "AvRevertMmThreadCharacteristics failed";
   }
 }  // namespace wb::base::windows::mmcss
 
-std2::result<unsigned char> ScopedMmcssThreadController::
+std2::result<std::uint8_t> ScopedMmcssThreadController::
     ScopedMmcssThreadControllerImpl::GetResponsivenessPercent() const noexcept {
   G3DCHECK(!!task_handle_);
 
   unsigned long responsiveness_percent{0};
-  const auto rc = GetErrorCode(
+  const auto rc = get_error(
       ::AvQuerySystemResponsiveness(task_handle_, &responsiveness_percent));
 
   G3DPCHECK_E(!rc, rc) << "AvQuerySystemResponsiveness failed";
@@ -108,21 +109,21 @@ std2::result<unsigned char> ScopedMmcssThreadController::
           responsiveness_percent =
               std::clamp(responsiveness_percent, 10UL, 100UL);
         }
-      return std2::result<unsigned char>{
-          static_cast<unsigned char>(responsiveness_percent)};
+      return std2::result<std::uint8_t>{
+          static_cast<std::uint8_t>(responsiveness_percent)};
     }
 
-  return std2::result<unsigned char>{rc};
+  return std2::result<std::uint8_t>{rc};
 }
 
-std::error_code
+[[nodiscard]] std::error_code
 ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::SetPriority(
     ScopedMmcssThreadPriority priority) const noexcept {
   G3DCHECK(!!task_handle_);
 
   const auto native_priority = enum_cast<AVRT_PRIORITY>(priority);
   const auto rc =
-      GetErrorCode(::AvSetMmThreadPriority(task_handle_, native_priority));
+      get_error(::AvSetMmThreadPriority(task_handle_, native_priority));
 
   G3DPCHECK_E(!rc, rc) << "AvSetMmThreadPriority failed";
 
@@ -155,12 +156,12 @@ ScopedMmcssThreadController::ScopedMmcssThreadController(
 
 ScopedMmcssThreadController::~ScopedMmcssThreadController() noexcept = default;
 
-std2::result<unsigned char>
+std2::result<std::uint8_t>
 ScopedMmcssThreadController::GetResponsivenessPercent() const noexcept {
   return impl_->GetResponsivenessPercent();
 }
 
-std::error_code ScopedMmcssThreadController::SetPriority(
+[[nodiscard]] std::error_code ScopedMmcssThreadController::SetPriority(
     ScopedMmcssThreadPriority priority) const noexcept {
   return impl_->SetPriority(priority);
 }

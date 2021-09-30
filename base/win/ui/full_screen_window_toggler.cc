@@ -57,6 +57,7 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
   WINDOWPLACEMENT narrow_window_placement_;
   bool is_fullscreen_now_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(is_fullscreen_now_)];
 
   [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
@@ -66,10 +67,10 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
     // calling SetLastError with 0, then call SetWindowLongPtr.  Function
     // failure will be indicated by a return value of zero and a
     // GetLastError result that is nonzero.
-    std2::SetThreadErrorCode({});
+    std2::native_last_errno({});
 
     const LONG_PTR rc{::SetWindowLongPtr(window_, GWL_STYLE, window_style)};
-    const bool ok{rc != 0 || !std2::GetThreadErrorCode()};
+    const bool ok{rc != 0 || !std2::system_last_error_code()};
 
     G3DCHECK(ok);
 

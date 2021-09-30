@@ -27,7 +27,7 @@ EnableDefaultSecureDllSearch() noexcept {
   //
   // See
   // https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-setdefaultdlldirectories
-  return GetErrorCode(::SetDefaultDllDirectories(
+  return get_error(::SetDefaultDllDirectories(
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS));
 }
 
@@ -81,7 +81,7 @@ template <typename TPolicy>
 GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
   std2::BitwiseMemset(policy, 0);
 
-  return GetErrorCode(::GetProcessMitigationPolicy(
+  return get_error(::GetProcessMitigationPolicy(
       process, mitigation_policy_flag<TPolicy>, &policy, sizeof(policy)));
 }
 
@@ -94,7 +94,7 @@ GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
 template <typename TPolicy>
 [[nodiscard]] mitigation_policy_concept<TPolicy, std::error_code>
 SetProcessMitigationPolicy(TPolicy& policy) noexcept {
-  const std::error_code rc{GetErrorCode(::SetProcessMitigationPolicy(
+  const std::error_code rc{get_error(::SetProcessMitigationPolicy(
       mitigation_policy_flag<TPolicy>, &policy, sizeof(policy)))};
 
   // Access denied is ok result.

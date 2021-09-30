@@ -56,11 +56,11 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
     case SDL_SYSWM_KMSDRM:
       return s << "DRM/KMS";
     default:
-      // type != 0 is always true,  This is used to prevent compiler from
-      // complaining about constant in if condition.
-      G3DCHECK(type != 0) << "Unknown window subsystem ("  //-V547
-                          << wb::base::underlying_cast(type)
-                          << "), assume Unknown.";
+      // type != SDL_SYSWM_UNKNOWN is always true,  This is used to prevent
+      // compiler from complaining about constant in if condition.
+      G3DCHECK(type != SDL_SYSWM_UNKNOWN) //-V547
+          << "Unknown window subsystem ("
+          << wb::base::underlying_cast(type) << "), assume Unknown.";
       return s << "Unknown";
   }
 }

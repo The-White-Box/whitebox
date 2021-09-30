@@ -53,7 +53,7 @@ class ScopedMmcssToggleDwm {
 
   ~ScopedMmcssToggleDwm() noexcept {
     if (!error_code()) {
-      G3CHECK(!GetErrorCode(
+      G3CHECK(!get_error(
           ::DwmEnableMMCSS(is_dwm_mmcss_enabled_ ? FALSE : TRUE)));
     }
   }
@@ -77,7 +77,7 @@ class ScopedMmcssToggleDwm {
    * @return nothing.
    */
   explicit ScopedMmcssToggleDwm(_In_ bool enable) noexcept
-      : error_code_{GetErrorCode(::DwmEnableMMCSS(enable ? TRUE : FALSE))},
+      : error_code_{get_error(::DwmEnableMMCSS(enable ? TRUE : FALSE))},
         is_dwm_mmcss_enabled_{enable} {}
 
   /**

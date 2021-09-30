@@ -13,6 +13,7 @@
 #include "base/std2/string_ext.h"
 #include "base/win/system_error_ext.h"
 #include "base/win/ui/window_message_handlers.h"
+#include "base/win/ui/window_utilities.h"
 #include "base/win/windows_light.h"
 //
 #include <Commctrl.h>
@@ -28,16 +29,21 @@ constexpr wchar_t* GetIconByKind(
     wb::base::windows::ui::DialogBoxKind kind) noexcept {
   switch (kind) {
     case wb::base::windows::ui::DialogBoxKind::kInformation:
+      // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_INFORMATION_ICON;
     case wb::base::windows::ui::DialogBoxKind::kWarning:
+      // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_WARNING_ICON;
     case wb::base::windows::ui::DialogBoxKind::kError:
+      // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_ERROR_ICON;
     case wb::base::windows::ui::DialogBoxKind::kShield:
+      // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_SHIELD_ICON;
     default:
       G3DLOG(FATAL) << "Unknown dialog box kind: "
                     << wb::base::underlying_cast(kind);
+      // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_INFORMATION_ICON;
   }
 }
@@ -76,9 +82,10 @@ constexpr wb::base::windows::ui::DialogBoxButton GetButtonById(
  */
 template <int icon_type>
 inline void SetTaskDialogIcon(_In_ HWND window, _In_ int icon_id) noexcept {
-  const HANDLE exe_icon{::LoadImage(::GetModuleHandle(nullptr),
-                                    MAKEINTRESOURCE(icon_id), IMAGE_ICON, 0, 0,
-                                    LR_DEFAULTSIZE)};
+  const HANDLE exe_icon{
+      ::LoadImage(::GetModuleHandle(nullptr),
+                  wb::base::windows::ui::MakeIntResource(icon_id), IMAGE_ICON,
+                  0, 0, LR_DEFAULTSIZE)};
   G3DCHECK(!!exe_icon);
 
   ::SendMessage(window, WM_SETICON, icon_type,
@@ -109,6 +116,7 @@ inline void OnTaskDialogConstructed(_In_ HWND window,
                                     _In_ LONG_PTR ctx) noexcept {
   G3DCHECK(!!window);
 
+  // NOLINTNEXTLINE(performance-no-int-to-ptr): API design.
   const auto* context = reinterpret_cast<TaskDialogContext*>(ctx);
   G3DCHECK(!!context);
 
@@ -159,7 +167,9 @@ HRESULT __stdcall ShowDialogBoxCallback(_In_ HWND hwnd, _In_ UINT msg,
                                         _In_ [[maybe_unused]] LPARAM lParam,
                                         _In_ LONG_PTR lpRefData) {
   switch (msg) {
+    // NOLINTNEXTLINE(performance-no-int-to-ptr): API design.
     HANDLE_TD_MSG(hwnd, TDN_DIALOG_CONSTRUCTED, OnTaskDialogConstructed);
+    // NOLINTNEXTLINE(performance-no-int-to-ptr): API design.
     HANDLE_TD_MSG(hwnd, TDN_HYPERLINK_CLICKED, OnTaskDialogHyperlinkClicked);
   }
   return S_OK;
@@ -197,8 +207,8 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
       .dwFlags = TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION |
                  TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT |
                  (settings.rtl_layout ? TDF_RTL_LAYOUT : 0),
-      .dwCommonButtons =
-          implicit_cast<TASKDIALOG_COMMON_BUTTON_FLAGS>(settings.buttons),
+      .dwCommonButtons = implicit_cast<TASKDIALOG_COMMON_BUTTON_FLAGS>(
+          underlying_cast(settings.buttons)),
       .pszWindowTitle = title.c_str(),
       .pszMainIcon = GetIconByKind(kind),
       .pszMainInstruction = main_instruction.c_str(),
@@ -217,7 +227,7 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
       .cxWidth = 0};
 
   int pressed_button_id;
-  const std::error_code rc{GetErrorCode(
+  const std::error_code rc{get_error(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
   G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";

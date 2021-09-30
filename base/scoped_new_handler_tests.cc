@@ -7,6 +7,7 @@
 #include "scoped_new_handler.h"
 //
 #include <limits>
+#include <random>
 #include <vector>
 
 #ifdef WB_OS_WIN
@@ -40,6 +41,10 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
       wb::base::DefaultNewFailureHandler};
 
   const auto triggerOom = []() noexcept {
+    std::random_device random_device;
+    std::mt19937 generator{random_device()};
+    std::uniform_int_distribution<> distribution{1, 255};
+
     constexpr size_t doubled_total_ram_bytes{static_cast<size_t>(32) * 1028 *
                                              1028 * 1028};
     std::cerr << "Total RAM size: " << doubled_total_ram_bytes / 1024 / 1024
@@ -58,13 +63,14 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
 
       constexpr size_t kStepSize{65536}, kFillAreaSize{16};
       for (size_t i{0}; i < kBlockAllocSize - kFillAreaSize; i += kStepSize) {
-        memset(&block[i], std::rand() % 255 + 1, kFillAreaSize);
+        memset(&block[i], distribution(generator), kFillAreaSize);
       }
 
       memory.push_back(block);
 
       for (const auto *const it : memory) {
         for (size_t i{0}; i < kBlockAllocSize - kFillAreaSize; i += kStepSize) {
+          // NOLINTNEXTLINE(bugprone-lambda-function-name): Defined in deps.
           G3CHECK((static_cast<unsigned>(it[i]) >> 24) >= 1U);
         }
       }
@@ -84,6 +90,7 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   // Windows handle SIGABRT and exit with code 3.  See
   // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
   constexpr int kExitCodeForSigAbrt{3};
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kMessage[]{
       "Failed to allocate memory bytes via new.  Please, ensure you "
       "have enough RAM to run the app.  Stopping the app."};
@@ -91,6 +98,7 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
   constexpr int kExitCodeForSigAbrt{static_cast<int>(STATUS_ACCESS_VIOLATION)};
   // In debug mode message is not printed.
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kMessage[]{""};
 #endif
 

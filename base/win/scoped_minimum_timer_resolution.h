@@ -63,7 +63,7 @@ class ScopedMinimumTimerResolution {
   [[nodiscard]] static std::variant<ScopedMinimumTimerResolution, unsigned> New(
       _In_ std::chrono::milliseconds minimum_timer_resolution_ms) {
     ScopedMinimumTimerResolution resolution{minimum_timer_resolution_ms};
-    return resolution.IsSucceeded()
+    return resolution.is_succeeded()
                ? std::variant<ScopedMinimumTimerResolution, unsigned>{std::move(
                      resolution)}
                : std::variant<ScopedMinimumTimerResolution, unsigned>{
@@ -88,7 +88,7 @@ class ScopedMinimumTimerResolution {
    * @brief Restores previous minimum timer resolution.
    */
   ~ScopedMinimumTimerResolution() noexcept {
-    if (IsSucceeded()) {
+    if (is_succeeded()) {
       G3DCHECK(minimum_timer_resolution_ms_.count() <=
                static_cast<decltype(minimum_timer_resolution_ms_)::rep>(
                    std::numeric_limits<unsigned>::max()))
@@ -127,14 +127,14 @@ class ScopedMinimumTimerResolution {
             static_cast<decltype(minimum_timer_resolution_ms)::rep>(
                 std::numeric_limits<unsigned>::max()))
         << "Resolution is truncated before pass to timeBeginPeriod.";
-    G3DCHECK(IsSucceeded());
+    G3DCHECK(is_succeeded());
   }
 
   /**
    * @brief Is set minimum timers resolution succeeded?
    * @return true or false.
    */
-  [[nodiscard]] bool IsSucceeded() const noexcept {
+  [[nodiscard]] bool is_succeeded() const noexcept {
     return minimum_timer_resolution_error_code_ == 0;
   }
 };

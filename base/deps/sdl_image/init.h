@@ -81,7 +81,7 @@ class SdlImageInitializer {
   static sdl::SdlResult<SdlImageInitializer> New(
       SdlImageInitializerFlags flags) noexcept {
     SdlImageInitializer initializer{flags};
-    return initializer.error_code().IsSucceeded()
+    return initializer.error_code().is_succeeded()
                ? sdl::SdlResult<SdlImageInitializer>{std::move(initializer)}
                : sdl::SdlResult<SdlImageInitializer>{initializer.error_code()};
   }
@@ -115,7 +115,7 @@ class SdlImageInitializer {
   explicit SdlImageInitializer(SdlImageInitializerFlags flags) noexcept
       : actual_flags_{::IMG_Init(base::underlying_cast(flags))},
         init_rc_{Initialize(flags, actual_flags_)} {
-    G3DCHECK(init_rc_.IsSucceeded())
+    G3DCHECK(init_rc_.is_succeeded())
         << "IMG_Init(" << flags << ") failed: " << init_rc_;
   }
 

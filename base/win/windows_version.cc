@@ -66,7 +66,7 @@ namespace wb::base::windows {
     // C4996 'GetVersionExA': was declared deprecated.
     WB_MSVC_DISABLE_WARNING(4996)
     OSVERSIONINFOEX version_info = {sizeof(version_info)};
-    const std::error_code rc{GetErrorCode(
+    const std::error_code rc{get_error(
         ::GetVersionEx(reinterpret_cast<OSVERSIONINFO*>(&version_info)))};
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 

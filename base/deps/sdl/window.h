@@ -110,7 +110,7 @@ class SdlWindow {
   static SdlResult<SdlWindow> New(const char *title, int x, int y, int width,
                                   int height, SdlWindowFlags flags) noexcept {
     SdlWindow window{title, x, y, width, height, flags};
-    return window.error_code().IsSucceeded()
+    return window.error_code().is_succeeded()
                ? SdlResult<SdlWindow>{std::move(window)}
                : SdlResult<SdlWindow>{window.error_code()};
   }
@@ -171,6 +171,7 @@ class SdlWindow {
    * @brief SDL window flags.
    */
   SdlWindowFlags flags_;
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(flags_)];
 
   /**

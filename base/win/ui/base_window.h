@@ -64,7 +64,7 @@ class WB_BASE_API BaseWindow {
     std::error_code rc{
         RegisterWindowClass<TDerivedWindow>(definition, class_style, window)};
     if (!rc) {
-      rc = GetErrorCode(::CreateWindowExA(
+      rc = get_error(::CreateWindowExA(
           definition.ex_style, TDerivedWindow::ClassName(), definition.name,
           definition.style, definition.x_pos, definition.y_pos,
           definition.width, definition.height, definition.parent_window,
@@ -158,10 +158,10 @@ class WB_BASE_API BaseWindow {
         // calling SetLastError with 0, then call SetWindowLongPtr.  Function
         // failure will be indicated by a return value of zero and a
         // GetLastError result that is nonzero.
-        std2::SetThreadErrorCode({});
+        std2::native_last_errno({});
         const auto rc = ::SetWindowLongPtr(hwnd, GWLP_USERDATA,
                                            reinterpret_cast<LONG_PTR>(window));
-        G3CHECK(rc != 0 || !std2::GetThreadErrorCode());
+        G3CHECK(rc != 0 || !std2::system_last_error_code());
       }
 
       G3DCHECK(!!hwnd);

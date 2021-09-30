@@ -55,7 +55,7 @@ GetCurrentThreadHandle() noexcept {
   wchar_t* wide_thread_name;
 
   const std::error_code rc{
-      windows::GetErrorCode(::GetThreadDescription(handle, &wide_thread_name))};
+      windows::get_error(::GetThreadDescription(handle, &wide_thread_name))};
   const windows::memory::ScopedLocalMemory scoped_local_memory{
       wide_thread_name};
 
@@ -70,7 +70,7 @@ GetCurrentThreadHandle() noexcept {
 #elif defined(WB_OS_POSIX)
   thread_name.resize(32);  //-V112
 
-  return std2::GetThreadPosixErrorCode(
+  return std2::posix_last_error_code(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));
 #else
 #error Please, define GetThreadName for your platform.
@@ -85,14 +85,13 @@ GetCurrentThreadHandle() noexcept {
 [[nodiscard]] WB_BASE_API std::error_code SetThreadName(
     const NativeThreadName& thread_name) noexcept {
 #ifdef WB_OS_WIN
-  return windows::GetErrorCode(
+  return windows::get_error(
       ::SetThreadDescription(GetCurrentThreadHandle(), thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
 #ifdef WB_OS_MACOSX
-  return std2::GetThreadPosixErrorCode(
-      ::pthread_setname_np(thread_name.c_str()));
+  return std2::posix_last_error_code(::pthread_setname_np(thread_name.c_str()));
 #else
-  return std2::GetThreadPosixErrorCode(
+  return std2::posix_last_error_code(
       ::pthread_setname_np(GetCurrentThreadHandle(), thread_name.c_str()));
 #endif
 #else

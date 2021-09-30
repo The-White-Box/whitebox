@@ -20,10 +20,10 @@ class MainWindow {
     auto sdl_window = sdl::SdlWindow::New(title.c_str(), SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED, width, height,
                                           GetWindowFlags());
-    if (auto *window = sdl::GetSuccessResult(sdl_window)) WB_ATTRIBUTE_LIKELY {
+    if (auto *window = sdl::get_result(sdl_window)) WB_ATTRIBUTE_LIKELY {
         return sdl::SdlResult<MainWindow>{MainWindow{std::move(*window)}};
       }
-    return sdl::SdlResult<MainWindow>{*sdl::GetError(sdl_window)};
+    return sdl::SdlResult<MainWindow>{*sdl::get_error(sdl_window)};
   }
 
  private:

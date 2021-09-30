@@ -50,6 +50,7 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
   // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
   constexpr int kExitCodeForSigAbrt{static_cast<int>(STATUS_ACCESS_VIOLATION)};
   // In debug mode message is not printed.
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kMessage[]{""};
 #endif
 #else
@@ -57,11 +58,12 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
   // Windows handle SIGABRT and exit with code 3.  See
   // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
   constexpr int kExitCodeForSigAbrt{3};
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kMessage[]{"Terminate called.  Stopping the app."};
 #else
   constexpr int kExitCodeForSigAbrt{SIGTRAP};
   // In debug mode message is not printed.
-  constexpr char kMessage[]{""};
+  const std::string kMessage;
 #endif
 #endif
 

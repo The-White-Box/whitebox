@@ -11,12 +11,10 @@
 using namespace wb::base::std2;
 
 namespace {
-struct A {
-  int fun() const &;
-};
+struct A {};
 
 struct B {
-  int fun() const &;
+  [[nodiscard]] int fun() const & { return 0; }
 };
 }  // namespace
 

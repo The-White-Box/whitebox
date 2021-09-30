@@ -9,6 +9,7 @@
 #include <cstddef>  // std::byte
 #include <new>
 //
+#include "base/deps/g3log/g3log.h"
 #include "base/deps/googletest/gtest/gtest.h"
 
 namespace {
@@ -23,23 +24,24 @@ static const IID IID_ComptrTest = {
  * @brief Simple COM interface to test com_ptr.
  */
 struct IComptrTest : public IUnknown {
-  virtual HRESULT STDMETHODCALLTYPE SampleMethod() const = 0;
+  [[nodiscard]] virtual HRESULT STDMETHODCALLTYPE SampleMethod() const = 0;
 
   virtual ~IComptrTest() = 0;
 };
 
-IComptrTest::~IComptrTest() {}
+IComptrTest::~IComptrTest() = default;
 
 /**
  * @brief Simple COM class to test com_ptr.
  */
 struct ComptrTest : public IComptrTest {
   // Holds reference counter.
-  ULONG counter;
+  ULONG counter{1};
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(counter)];
 
-  ComptrTest() : counter{0} { AddRef(); }
+  ComptrTest() noexcept = default;
 
   HRESULT STDMETHODCALLTYPE QueryInterface(
       /* [in] */ REFIID riid,
@@ -79,9 +81,23 @@ struct ComptrTest : public IComptrTest {
     return counter;
   }
 
-  HRESULT STDMETHODCALLTYPE SampleMethod() const override { return S_OK; }
+  [[nodiscard]] HRESULT STDMETHODCALLTYPE SampleMethod() const override {
+    return S_OK;
+  }
 };
 }  // namespace
+
+namespace std {
+/**
+ * @brief Deleter to free ComptrTest on out of scope.
+ */
+template <>
+struct default_delete<ComptrTest> {
+  void operator()(_In_opt_ ComptrTest *test) const noexcept {
+    G3CHECK(!test || test->counter == 0 || !test->Release());
+  }
+};
+}  // namespace std
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldDefaultConstructTest) {
@@ -96,6 +112,7 @@ GTEST_TEST(ComPtrTests, ShouldDefaultConstructTest) {
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -116,13 +133,12 @@ GTEST_TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -132,6 +148,7 @@ GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
 
   {
     wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
     wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
 
     EXPECT_EQ(raw_ptr->counter, 3UL) << "com_ptr should update interface "
@@ -143,13 +160,12 @@ GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -159,6 +175,7 @@ GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
 
   {
     wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
     wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2 = p1;
 
     EXPECT_EQ(raw_ptr->counter, 3UL)
@@ -171,13 +188,12 @@ GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -201,13 +217,12 @@ GTEST_TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldMoveComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -229,13 +244,12 @@ GTEST_TEST(ComPtrTests, ShouldMoveComPtrTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -258,13 +272,12 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
 
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
@@ -288,8 +301,6 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
       << "COM class should set reference counter to before scope value when "
          "com_ptr went out of scope."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
@@ -303,6 +314,8 @@ GTEST_TEST(ComPtrTests, ShouldGetIidTest) {
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
@@ -317,6 +330,7 @@ GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
       << "COM class should update reference counter on safe AddRef."
       << std::endl;
 
+  // smart pointer is empty now.
   p.Release();
 
   EXPECT_EQ(raw_ptr->counter, 2UL)
@@ -329,6 +343,8 @@ GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
@@ -348,13 +364,13 @@ GTEST_TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
       << "Should GetInterfacePtr raw ptr." << std::endl;
   EXPECT_EQ(p4.GetInterfacePtr(), raw_ptr)
       << "Should GetInterfacePtr const raw ptr." << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
@@ -374,8 +390,6 @@ GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
   EXPECT_EQ(raw_ptr->counter, 2UL)
       << "COM class should update reference counter on safe Release."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
@@ -386,6 +400,8 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
       << std::endl;
 
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
@@ -406,13 +422,13 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
       << "Detach should return COM class ptr." << std::endl;
   EXPECT_EQ(p.GetInterfacePtr(), nullptr)
       << "Detach should remove COM class ptr from com_ptr." << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
   auto *raw_ptr1 = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter1{raw_ptr1};
+
   ASSERT_NE(raw_ptr1, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
@@ -421,6 +437,8 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
       << "COM class 1 should update reference counter on create." << std::endl;
 
   auto *raw_ptr2 = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter2{raw_ptr2};
+
   ASSERT_NE(raw_ptr2, nullptr)
       << "COM class 2 should be instantiated in heap." << std::endl;
 
@@ -446,14 +464,13 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
       << "Detach should return COM class 2 ptr." << std::endl;
   EXPECT_EQ(p.GetInterfacePtr(), nullptr)
       << "Detach should remove COM class 2 ptr from com_ptr." << std::endl;
-
-  raw_ptr2->Release();
-  raw_ptr1->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
@@ -471,13 +488,13 @@ GTEST_TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
   EXPECT_EQ(raw_ptr->counter, 2UL)
       << "Should not change ref counter when cast to interface reference."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
@@ -492,11 +509,14 @@ GTEST_TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
       << std::endl;
 
   // Attach doesn't change reference count, but still com_ptr Released on dtor.
+  [[maybe_unused]] auto *detached_ptr = p.Detach();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
@@ -509,13 +529,13 @@ GTEST_TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
   EXPECT_TRUE(p2.operator bool())
       << "com_ptr should be converted to true when has interface ptr."
       << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
@@ -537,13 +557,13 @@ GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
 
   EXPECT_EQ(p->SampleMethod(), S_OK)
       << "Should call sample method." << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
@@ -565,17 +585,18 @@ GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
 
   EXPECT_EQ((*p).SampleMethod(), S_OK)
       << "Should call sample method." << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
   wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
   wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
   wb::base::windows::com::com_ptr<IUnknown, &IID_IUnknown> pu{p1};
 
@@ -595,19 +616,21 @@ GTEST_TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
                         << std::endl;
   EXPECT_FALSE(p1 != pu) << "Should equals with self copy as IUnknown (2)."
                          << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
   const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{
       raw_ptr};
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
   const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
+  // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
   const wb::base::windows::com::com_ptr<IUnknown, &IID_IUnknown> pu{p1};
 
   EXPECT_TRUE(p1 == raw_ptr) << "Should equals with raw ptr." << std::endl;
@@ -626,13 +649,13 @@ GTEST_TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
                         << std::endl;
   EXPECT_FALSE(p1 != pu) << "Should equals with self copy as IUnknown (2)."
                          << std::endl;
-
-  raw_ptr->Release();
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
   EXPECT_EQ(raw_ptr->counter, 1UL)
@@ -652,7 +675,8 @@ GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
   EXPECT_EQ(p.GetInterfacePtr(), raw_ptr)
       << "Should set interface ptr." << std::endl;
 
-  (*pp1)->Release();
+  // Released through auto_deleter
+  // (*pp1)->Release();
 
   // Pointer already set in com_ptr and will be released.
 }
@@ -660,6 +684,8 @@ GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
 // NOLINTNEXTLINE(cert-err58-cpp)
 GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
+  std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
+
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
   EXPECT_EQ(raw_ptr->counter, 1UL)
@@ -683,7 +709,8 @@ GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
   EXPECT_EQ(p.GetInterfacePtr(), raw_ptr)
       << "Should set interface ptr." << std::endl;
 
-  (*pp1)->Release();
+  // Released through auto_deleter
+  // (*pp1)->Release();
 
   // Pointer already set in com_ptr and will be released.
 }

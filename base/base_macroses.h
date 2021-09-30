@@ -10,6 +10,7 @@
 #include <memory>
 #include <type_traits>
 
+// clang-format off
 /**
  * Deletes copy ctor and assignment operator for type.
  */
@@ -23,6 +24,7 @@
 #define WB_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName) \
   typeName(typeName&&) = delete;                 \
   typeName& operator=(typeName&&) = delete
+// clang-format on
 
 /**
  * Deletes copy / move ctors and assignment operators for type.

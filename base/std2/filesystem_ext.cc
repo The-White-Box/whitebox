@@ -8,6 +8,8 @@
 
 #ifdef WB_OS_POSIX
 #include <unistd.h>
+
+#include <array>
 #endif
 
 #ifdef WB_OS_WIN
@@ -27,25 +29,30 @@ namespace wb::base::std2 {
  * @return Path to invoking executable.
  */
 template <size_t path_size = 128U, size_t max_path_size = 1024U>
-[[nodiscard]] inline std::filesystem::path GetExecutablePath(
-    std::error_code& rc) noexcept {
-  char buffer[path_size];
+[[nodiscard]] inline auto GetExecutablePath(std::error_code& rc) noexcept
+    -> std::filesystem::path {
+  std::array<char, path_size> buffer{};
   const ssize_t bytes_required{
-      ::readlink("/proc/self/exe", buffer, std::size(buffer))};
+      ::readlink("/proc/self/exe", buffer.data(), std::size(buffer))};
 
   if (bytes_required > 0) {
     if (bytes_required != std::size(buffer)) {
       // readlink() does not append a terminating null byte to buf.
       buffer[std::size(buffer) - 1] = '\0';
-      return std::filesystem::path{buffer};
+      return std::filesystem::path{buffer.data()};
     }
 
     // May be truncated?  Try to extend path size.
-    return GetExecutablePath<std::min(path_size << 1U, max_path_size)>(rc);
+    if constexpr (path_size < max_path_size) {
+      constexpr size_t new_size{std::min(path_size << 1U, max_path_size)};
+      return GetExecutablePath<new_size>(rc);
+    } else {
+      rc = system_last_error_code(ENOMEM);
+    }
   }
 
   // Error case.
-  rc = GetThreadErrorCode();
+  rc = system_last_error_code();
   return std::filesystem::path{};
 }
 #endif
@@ -55,8 +62,8 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
  * @param rc Error code.
  * @return Path to executable directory.
  */
-[[nodiscard]] WB_BASE_API std::filesystem::path GetExecutableDirectory(
-    std::error_code& rc) noexcept {
+[[nodiscard]] WB_BASE_API auto GetExecutableDirectory(
+    std::error_code& rc) noexcept -> std::filesystem::path {
 #ifdef WB_OS_POSIX
   std::filesystem::path exe_path{GetExecutablePath(rc)};
 
@@ -69,7 +76,7 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
       ::GetModuleFileNameA(::GetModuleHandleA(nullptr), file_path.data(),
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
-    if (GetThreadNativeLastErrno() == ERROR_INSUFFICIENT_BUFFER) {
+    if (native_last_errno() == ERROR_INSUFFICIENT_BUFFER) {
       rc = std::error_code{implicit_cast<int>(ERROR_INSUFFICIENT_BUFFER),
                            std::system_category()};
     }
@@ -84,10 +91,10 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
             : file_path};
   }
 
-  rc = GetThreadErrorCode();
+  rc = system_last_error_code();
   return std::filesystem::path{};
 #else
 #error Please define GetExecutableDirectory for your OS.
 #endif
 }
-}  // namespace wb::base::std_ext
+}  // namespace wb::base::std2

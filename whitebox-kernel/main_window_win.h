@@ -49,7 +49,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
      */
     explicit MainWindow(
         _In_ HINSTANCE instance, _In_ int icon_id, _In_ int icon_small_id,
-        _In_ const wb::base::intl::LookupWithFallback &i18n) noexcept
+        _In_ const wb::base::intl::LookupWithFallback &l18n) noexcept
         : BaseWindow{instance, icon_id, icon_small_id},
           mouse_{},
           keyboard_{},
@@ -58,7 +58,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
           full_screen_window_toggler_{},
           accessibility_shortcut_keys_toggler_{},
           scoped_mmcss_toggle_dwm_{},
-          i18n_{i18n},
+          l18n_{l18n},
           is_window_active_{false} {}
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
@@ -78,7 +78,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
         accessibility_shortcut_keys_toggler_{
             std::move(w.accessibility_shortcut_keys_toggler_)},
         scoped_mmcss_toggle_dwm_{std::move(w.scoped_mmcss_toggle_dwm_)},
-        i18n_{w.i18n_},
+        l18n_{w.l18n_},
         is_window_active_{std::move(w.is_window_active_)} {}
   /**
    * @brief Move window assigment.
@@ -94,7 +94,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
     std::swap(accessibility_shortcut_keys_toggler_,
               w.accessibility_shortcut_keys_toggler_);
     std::swap(scoped_mmcss_toggle_dwm_, w.scoped_mmcss_toggle_dwm_);
-    // i18n_ = w.i18n_;
+    // l18n_ = w.l18n_;
     std::swap(is_window_active_, w.is_window_active_);
     return *this;
   }
@@ -131,12 +131,13 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
   /**
    * @brief Localization service.
    */
-  const wb::base::intl::LookupWithFallback &i18n_;
+  const wb::base::intl::LookupWithFallback &l18n_;
   /**
    * @brief Is window active or not?
    */
   bool is_window_active_;
 
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(is_window_active_)];
 
   /**

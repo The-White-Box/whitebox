@@ -55,7 +55,7 @@ class SdlInitializer {
    */
   static SdlResult<SdlInitializer> New(SdlInitializerFlags flags) noexcept {
     SdlInitializer initializer{flags};
-    return initializer.error_code().IsSucceeded()
+    return initializer.error_code().is_succeeded()
                ? SdlResult<SdlInitializer>{std::move(initializer)}
                : SdlResult<SdlInitializer>{initializer.error_code()};
   }
@@ -69,7 +69,7 @@ class SdlInitializer {
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlInitializer);
 
   ~SdlInitializer() noexcept {
-    if (init_rc_.IsSucceeded()) {
+    if (init_rc_.is_succeeded()) {
       ::SDL_Quit();
     }
   }
@@ -77,6 +77,7 @@ class SdlInitializer {
  private:
   SdlError init_rc_;
   SdlInitializerFlags flags_;
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(flags_)];
 
   /**
