@@ -45,7 +45,7 @@ namespace {
 void DumpSystemInformation(const char* app_description) noexcept {
   G3DCHECK(!!app_description);
 
-#if defined(WB_OS_LINUX) || defined(WB_OS_MACOSX)
+#if defined(WB_OS_POSIX)
 #if defined(WB_COMPILER_CLANG)
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kCompilerVersion[]{"Clang " __clang_version__};
@@ -69,7 +69,7 @@ void DumpSystemInformation(const char* app_description) noexcept {
               << " build with " << kCompilerVersion << " on libc++ "
               << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
 #endif
-#endif  // WB_OS_LINUX || WB_OS_MACOSX
+#endif  // WB_OS_POSIX
 
 #ifdef WB_OS_WIN
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING

@@ -20,6 +20,9 @@ if (WB_OS_WIN)
 elseif (WB_OS_LINUX)
   # dlopen, filesystem.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs")
+elseif (WB_OS_MACOS)
+  # dlopen, filesystem.
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;c++fs")
 endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS

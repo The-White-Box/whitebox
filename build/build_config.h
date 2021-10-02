@@ -4,7 +4,7 @@
 //
 // This file adds defines about the platform we're currently building on.
 //  Operating System:
-//    WB_OS_WIN / WB_OS_MACOSX / WB_OS_LINUX / WB_OS_POSIX (MACOSX or LINUX)
+//    WB_OS_WIN / WB_OS_MACOS / WB_OS_LINUX / WB_OS_POSIX (MACOS or LINUX)
 //    is set by the build system
 //  Compiler:
 //    WB_COMPILER_MSVC / WB_COMPILER_GCC / WB_COMPILER_CLANG
@@ -24,7 +24,7 @@
 // is really mac/ios.
 #include <TargetConditionals.h>
 // Mac OS.
-#define WB_OS_MACOSX 1
+#define WB_OS_MACOS 1
 #if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE
 // iOS.
 #define WB_OS_IOS 1
@@ -67,7 +67,7 @@
 #endif
 
 #if defined(WB_OS_AIX) || defined(WB_OS_ANDROID) || defined(WB_OS_FREEBSD) || \
-    defined(WB_OS_LINUX) || defined(WB_OS_MACOSX) || defined(WB_OS_NETBSD) || \
+    defined(WB_OS_LINUX) || defined(WB_OS_MACOS) || defined(WB_OS_NETBSD) ||  \
     defined(WB_OS_OPENBSD) || defined(WB_OS_QNX) || defined(WB_OS_SOLARIS)
 // For access to standard POSIXish features, use WB_OS_POSIX instead of a
 // more specific macro.

@@ -15,8 +15,12 @@ set(WB_BOOTMGR_LINK_OPTIONS "")
 set(WB_BOOTMGR_LINK_DEPS g3log mimalloc wb::whitebox-base wb::whitebox-ui)
 if (WB_OS_WIN)
   list(APPEND WB_BOOTMGR_LINK_DEPS "Winmm")
-else()
+elseif (WB_OS_LINUX)
+  # dlopen, filesystem.
   list(APPEND WB_BOOTMGR_LINK_DEPS "dl;stdc++fs")
+elseif (WB_OS_MACOS)
+  # dlopen, filesystem.
+  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;c++fs")
 endif()
 
 set(WB_BOOTMGR_RUNTIME_DEPS g3log mimalloc

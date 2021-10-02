@@ -243,8 +243,8 @@ class I18nStringViewHash {
  * @param string String to localize.
  * @return Localized string.
  */
-[[nodiscard]] WB_ATTRIBUTE_FORCEINLINE const std::string& l18n(
-    const LookupWithFallback& lookup, std::string_view string) noexcept {
+[[nodiscard]] inline const std::string& l18n(const LookupWithFallback& lookup,
+                                             std::string_view string) noexcept {
   const uint64_t hash{I18nStringViewHash{}(string)};
   return lookup.String(hash);
 }
@@ -261,7 +261,8 @@ template <typename... TArgs>
                                           std::string_view string,
                                           TArgs&&... args) noexcept {
   const uint64_t hash{I18nStringViewHash{}(string)};
-  return lookup.Format(hash, fmt::make_format_args(std::forward<TArgs>(args)...));
+  return lookup.Format(hash,
+                       fmt::make_format_args(std::forward<TArgs>(args)...));
 }
 
 }  // namespace wb::base::intl

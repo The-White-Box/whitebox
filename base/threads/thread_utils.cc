@@ -89,7 +89,7 @@ GetCurrentThreadHandle() noexcept {
   return windows::get_error(
       ::SetThreadDescription(GetCurrentThreadHandle(), thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
-#ifdef WB_OS_MACOSX
+#ifdef WB_OS_MACOS
   return std2::posix_last_error_code(::pthread_setname_np(thread_name.c_str()));
 #else
   return std2::posix_last_error_code(

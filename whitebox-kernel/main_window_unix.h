@@ -41,7 +41,7 @@ class MainWindow {
     return sdl::SdlWindowFlags::kResizable | sdl::SdlWindowFlags::kAllowHighDpi
 #if defined(WB_OS_LINUX)
            | sdl::SdlWindowFlags::kUseVulkan
-#elif defined(WB_OS_MACOSX)
+#elif defined(WB_OS_MACOS)
            | sdl::SdlWindowFlags::kUseMetal
 #else
 #error Unknown platform. Please, define SDL window flags for your platform in \

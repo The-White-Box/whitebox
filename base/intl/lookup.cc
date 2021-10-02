@@ -279,10 +279,7 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = lookup_.Format(message_id, format_args);
   if (const auto* string = std::get_if<std::string>(&result))
-    WB_ATTRIBUTE_LIKELY {
-      return fmt::vformat(static_cast<const std::string&>(*string),
-                          format_args);
-    }
+    WB_ATTRIBUTE_LIKELY { return fmt::vformat(*string, format_args); }
 
   G3LOG(WARNING) << "Missed localization string for " << message_id
                  << " message id.";

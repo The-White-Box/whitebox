@@ -72,10 +72,10 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          {intl.Layout()} intl::l18n(intl,
-                                     "Can't get current directory.  May be app "
-                                     "located too deep (> 1024)?"),
-          rc);
+          {intl.Layout()},
+          intl::l18n(intl,
+                     "Can't get current directory.  May be app "
+                     "located too deep (> 1024)?"));
     }
 
   app_path /= "libwhitebox-boot-manager.so." WB_PRODUCT_VERSION_INFO_STRING;

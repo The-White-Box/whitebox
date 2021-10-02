@@ -63,9 +63,9 @@ set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}" CACHE STRING
   "Name of the build system.")
 
 if (${WB_SYSTEM_NAME} STREQUAL "Darwin")
-  set(WB_OS_MACOSX ON CACHE BOOL "MacOS is build system.")
+  set(WB_OS_MACOS ON CACHE BOOL "MacOS is build system.")
 else()
-  set(WB_OS_MACOSX OFF CACHE BOOL "MacOS is NOT build system.")
+  set(WB_OS_MACOS OFF CACHE BOOL "MacOS is NOT build system.")
 endif()
 
 if (${WB_SYSTEM_NAME} STREQUAL "Linux")

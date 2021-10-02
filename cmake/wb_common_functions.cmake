@@ -217,7 +217,7 @@ function(wb_remove_os_specific_files target_source_dir header_files source_files
     )
   endif()
 
-  if (NOT WB_OS_MACOSX)
+  if (NOT WB_OS_MACOS)
     wb_remove_matches_from_lists(header_files source_files
       MATCHES
         "^${target_source_dir}/macos/"

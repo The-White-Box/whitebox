@@ -247,7 +247,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     SdlWindowFlags::kResizable | SdlWindowFlags::kAllowHighDpi
 #if defined(WB_OS_LINUX)
         | SdlWindowFlags::kUseVulkan
-#elif defined(WB_OS_MACOSX)
+#elif defined(WB_OS_MACOS)
         | SdlWindowFlags::kUseMetal
 #else
 #error Please, define SDL window flags for your platform.
