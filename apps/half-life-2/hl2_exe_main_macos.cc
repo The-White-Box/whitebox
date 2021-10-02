@@ -23,11 +23,34 @@
 #include <system_error>
 
 #include "app_version_config.h"
+#include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
+#include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "bootmgr/boot_manager_main.h"
+#include "build/static_settings_config.h"
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
+  // Initialize g3log logging library first as logs are used extensively.
+  const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
+      argv[0], wb::build::settings::kPathToMainLogFile};
+
+  // Start with specifying UTF-8 locale for all user-facing data.
+  const intl::ScopedProcessLocale scoped_process_locale{
+      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
+  const std::optional<std::string> maybe_user_locale{
+      scoped_process_locale.GetCurrentLocale()};
+  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
+      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
+      << intl::locales::kUtf8Locale << "' for UI, fallback to '"
+      << intl::locales::kFallbackLocale << "'.";
+
+  const std::string user_locale{
+      maybe_user_locale.value_or(intl::locales::kFallbackLocale)};
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
+              << " locale for UI.";
+  const auto intl = CreateIntl(user_locale);
+
   uint32_t exec_path_size{0};
   int rv{_NSGetExecutablePath(nullptr, &exec_path_size)};
   if (rv != -1) WB_ATTRIBUTE_UNLIKELY {

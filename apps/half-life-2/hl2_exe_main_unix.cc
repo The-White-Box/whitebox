@@ -47,13 +47,18 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
+  const std::optional<std::string> maybe_user_locale{
+      scoped_process_locale.GetCurrentLocale()};
+  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
+      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
+      << intl::locales::kUtf8Locale << "' for UI, fallback to '"
+      << intl::locales::kFallbackLocale << "'.";
+
   const std::string user_locale{
-      scoped_process_locale.GetCurrentLocale().value_or(
-          intl::locales::kFallbackLocale)};
+      maybe_user_locale.value_or(intl::locales::kFallbackLocale)};
   G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
               << " locale for UI.";
-
-  auto intl = CreateIntl(user_locale);
+  const auto intl = CreateIntl(user_locale);
 
   // Get not current directory, but directory from which exe is launched.
   // Prevents DLL / SO planting attacks.
