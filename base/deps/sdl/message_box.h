@@ -14,6 +14,7 @@
 #include "base/deps/sdl/sdl.h"
 
 namespace wb::sdl {
+
 /**
  * Message box flags.  See SDL_MESSAGEBOX_* for details.
  */
@@ -49,6 +50,7 @@ inline SdlError ShowSimpleMessageBox(MessageBoxFlags flags, const char* title,
   return SdlError::FromReturnCode(::SDL_ShowSimpleMessageBox(
       base::underlying_cast(flags), title, message, nullptr));
 }
+
 }  // namespace wb::sdl
 
 #endif  // !WB_BASE_DEPS_SDL_MESSAGE_BOX_H_

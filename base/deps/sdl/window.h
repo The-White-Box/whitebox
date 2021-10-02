@@ -16,6 +16,7 @@
 #include "base/std2/cstring_ext.h"
 
 namespace wb::sdl {
+
 /**
  * @brief SDL window flags.
  */
@@ -199,6 +200,7 @@ class SdlWindow {
    */
   [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
 };
+
 }  // namespace wb::sdl
 
 #endif  // !WB_BASE_DEPS_SDL_WINDOW_H_

@@ -22,6 +22,7 @@ using HINSTANCE = struct HINSTANCE__ *;
 #endif
 
 namespace wb::kernel {
+
 /**
  * @brief Kernel args.
  */
@@ -94,6 +95,7 @@ struct KernelArgs {
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(KernelArgs);
 };
+
 }  // namespace wb::kernel
 
 extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(

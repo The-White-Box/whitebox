@@ -14,6 +14,7 @@
 #include "base/std2/system_error_ext.h"
 
 namespace wb::sdl {
+
 /**
  * @brief SDL initializer flags.  See SDL_INIT_* fro details.
  */
@@ -95,6 +96,7 @@ class SdlInitializer {
    */
   [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
 };
+
 }  // namespace wb::sdl
 
 #endif  // !WB_BASE_DEPS_SDL_INIT_H_

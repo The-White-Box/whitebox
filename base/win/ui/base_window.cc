@@ -15,6 +15,7 @@
 #include "base/win/windows_light.h"
 
 namespace wb::base::windows::ui {
+
 BaseWindow::BaseWindow(BaseWindow &&w) noexcept
     : instance_{w.instance_},
       hwnd_{w.hwnd_},
@@ -84,4 +85,5 @@ bool BaseWindow::Update() const noexcept {
 
   return std::make_unique<ScopedWindowClass>(wnd_class.hInstance, wnd_class);
 }
+
 }  // namespace wb::base::windows::ui

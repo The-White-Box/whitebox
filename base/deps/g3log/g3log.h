@@ -28,6 +28,7 @@ WB_END_G3LOG_WARNING_OVERRIDE_SCOPE()
 #undef LOGF_IF
 
 namespace wb::base::deps::g3log {
+
 /**
  * @brief Writes error code to stream on out of scope.
  */
@@ -69,6 +70,7 @@ class ScopedEndError {
    */
   std::ostringstream &stream_;
 };
+
 }  // namespace wb::base::deps::g3log
 
 // G3LOG(level) is the API for the stream log

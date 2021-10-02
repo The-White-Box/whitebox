@@ -25,6 +25,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT int __stdcall UnregisterClassA(
     _In_ const char *lpClassName, _In_opt_ HINSTANCE hInstance);
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Make long from args.
  * @param a Left.
@@ -97,6 +98,7 @@ class ScopedWindowClass {
   */
   const std::error_code error_code_;
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_SCOPED_WINDOW_CLASS_H_

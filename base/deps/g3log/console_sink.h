@@ -22,6 +22,7 @@ WB_END_G3LOG_WARNING_OVERRIDE_SCOPE()
 #endif
 
 namespace wb::base::deps::g3log {
+
 /**
  * @brief Console sink.  Useful for debugging.
  */
@@ -76,6 +77,7 @@ struct ConsoleSink {
 #endif
   }
 };
+
 }  // namespace wb::base::deps::g3log
 
 #endif  // !WB_BASE_DEPS_G3LOG_CONSOLE_SINK_H_

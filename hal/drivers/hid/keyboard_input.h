@@ -13,6 +13,7 @@
 #include "build/build_config.h"
 
 namespace wb::hal::hid {
+
 /**
  * @brief Flags for scan code information.
  */
@@ -172,6 +173,7 @@ struct KeyboardInput {
 
   return result;
 }
+
 }  // namespace wb::hal::hid
 
 #endif  // !WB_HAL_DRIVERS_HID_KEYBOARD_INPUT_H_

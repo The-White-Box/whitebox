@@ -15,6 +15,7 @@
 #endif
 
 namespace wb::base::std2 {
+
 #ifdef WB_OS_WIN
 [[nodiscard]] WB_BASE_API std::string WideToUTF8(const std::wstring &source) {
   if (source.empty() ||
@@ -55,4 +56,5 @@ namespace wb::base::std2 {
   return result;
 }
 #endif
+
 }  // namespace wb::base::std2

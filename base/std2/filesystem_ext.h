@@ -12,6 +12,7 @@
 #include "base/base_api.h"
 
 namespace wb::base::std2 {
+
 /**
  * Gets path to invoking executable directory.
  * @param rc Error code.
@@ -19,6 +20,7 @@ namespace wb::base::std2 {
  */
 [[nodiscard]] WB_BASE_API std::filesystem::path GetExecutableDirectory(
     std::error_code &rc) noexcept;
+
 }  // namespace wb::base::std2
 
 #endif  // !WB_BASE_STD2_FILESYSTEM_EXT_H_

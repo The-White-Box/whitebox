@@ -10,6 +10,7 @@
 #include "build/build_config.h"
 
 namespace wb::build::settings {
+
 #if defined(WB_OS_WIN)
 /**
  * @brief Path to main log file.
@@ -38,6 +39,7 @@ constexpr int kMinHeight{480};
 }  // namespace dimensions
 }  // namespace window
 }  // namespace ui
+
 }  // namespace wb::build::settings
 
 #endif  // !WB_BUILD_STATIC_SETTINGS_CONFIG_H_

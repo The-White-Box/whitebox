@@ -12,6 +12,7 @@
 #include "build/compiler_config.h"
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Toggles windows accessibility shortcut keys.
  */
@@ -49,6 +50,7 @@ class WB_BASE_API AccessibilityShortcutKeysToggler {
     wb::base::un<AccessibilityShortcutKeysTogglerImpl> impl_;
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_

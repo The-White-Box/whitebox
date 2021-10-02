@@ -40,6 +40,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT FARPROC __stdcall GetProcAddress(
 #endif  // WB_OS_WIN
 
 namespace wb::base {
+
 #ifdef WB_OS_WIN
 /**
  * @brief DLL module descriptor.
@@ -59,9 +60,11 @@ using module_descriptor = MODULE_;
 #else  // WB_OS_POSIX
 #error Please add shared library descriptor support for your platform.
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
+
 }  // namespace wb::base
 
 namespace std {
+
 #ifdef WB_OS_WIN
 /**
  * @brief Deleter to unload DLL on end of scope.
@@ -87,9 +90,11 @@ struct default_delete<wb::base::module_descriptor> {
 #else  // WB_OS_POSIX
 #error Please add shared library default_delete support for your platform.
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
+
 }  // namespace std
 
 namespace wb::base {
+
 /**
  * @brief Function pointer concept.
  * @tparam TPointer Pointer to check.
@@ -185,6 +190,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
 #error Please add shared library support for your platform.
 #endif  // WB_OS_WIN
 };
+
 }  // namespace wb::base
 
 #endif  // WB_BASE_SCOPED_SHARED_LIBRARY_H_

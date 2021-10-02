@@ -40,6 +40,7 @@ struct formatter<SDL_version> : formatter<std::string> {
 FMT_END_NAMESPACE
 
 namespace wb::sdl {
+
 /**
  * Get SDL version with which app is compiled (not runtime one!).
  * @return Compile time SDL version.
@@ -71,6 +72,7 @@ inline SDL_version GetLinkTimeVersion() noexcept {
                 "pass by reference instead.");
   return version;
 }
+
 }  // namespace wb::sdl
 
 #endif  // !WB_BASE_DEPS_SDL_VERSION_H_

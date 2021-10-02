@@ -11,11 +11,13 @@
 using namespace wb::base::std2;
 
 namespace {
+
 struct A {};
 
 struct B {
   [[nodiscard]] int fun() const & { return 0; }
 };
+
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp)

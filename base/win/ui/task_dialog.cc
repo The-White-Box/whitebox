@@ -20,6 +20,7 @@
 #include <shellapi.h>
 
 namespace {
+
 /**
  * @brief Get task dialog icon by dialog kind.
  * @param kind Dialog kind.
@@ -174,9 +175,11 @@ HRESULT __stdcall ShowDialogBoxCallback(_In_ HWND hwnd, _In_ UINT msg,
   }
   return S_OK;
 }
+
 }  // namespace
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Shows dialog box.  The parent window should not be hidden or disabled
  * when this function is called.  Requires COM to be initialized before.
@@ -234,4 +237,5 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
   return !rc ? std2::result<DialogBoxButton>{GetButtonById(pressed_button_id)}
              : std2::result<DialogBoxButton>{rc};
 }
+
 }  // namespace wb::base::windows::ui

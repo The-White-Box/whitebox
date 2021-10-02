@@ -13,6 +13,7 @@
 #include <hidusage.h>
 
 namespace {
+
 /**
  * @brief Create keyboard device definition.
  * @param window Window.
@@ -26,9 +27,11 @@ namespace {
                         .dwFlags = flags,
                         .hwndTarget = window};
 }
+
 }  // namespace
 
 namespace wb::hal::hid {
+
 /**
  * @brief Alias to simplify API.
  */
@@ -132,4 +135,5 @@ Keyboard::Keyboard(Keyboard&& k) noexcept
 
   return false;
 }
+
 }  // namespace wb::hal::hid

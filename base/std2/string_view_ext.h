@@ -14,6 +14,7 @@
 #include "build/compiler_config.h"
 
 namespace wb::base::std2 {
+
 /**
  * Is string_view starts with character.
  * @param s string_view.
@@ -55,6 +56,7 @@ namespace wb::base::std2 {
   return idx != std::string_view::npos && idx == (s.size() - std::strlen(v));
 #endif
 }
+
 }  // namespace wb::base::std2
 
 #endif  // !WB_BASE_STD2_STRING_VIEW_EXT_H_

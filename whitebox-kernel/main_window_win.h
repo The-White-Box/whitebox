@@ -29,6 +29,7 @@
 using HRAWINPUT = struct HRAWINPUT__ *;
 
 namespace wb::kernel {
+
 /**
  * @brief Main app window.
  */
@@ -58,7 +59,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
           full_screen_window_toggler_{},
           accessibility_shortcut_keys_toggler_{},
           scoped_mmcss_toggle_dwm_{},
-          l18n_{l18n},
+          intl_{l18n},
           is_window_active_{false} {}
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
@@ -78,7 +79,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
         accessibility_shortcut_keys_toggler_{
             std::move(w.accessibility_shortcut_keys_toggler_)},
         scoped_mmcss_toggle_dwm_{std::move(w.scoped_mmcss_toggle_dwm_)},
-        l18n_{w.l18n_},
+        intl_{w.intl_},
         is_window_active_{std::move(w.is_window_active_)} {}
   /**
    * @brief Move window assigment.
@@ -94,7 +95,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
     std::swap(accessibility_shortcut_keys_toggler_,
               w.accessibility_shortcut_keys_toggler_);
     std::swap(scoped_mmcss_toggle_dwm_, w.scoped_mmcss_toggle_dwm_);
-    // l18n_ = w.l18n_;
+    // intl_ = w.intl_;
     std::swap(is_window_active_, w.is_window_active_);
     return *this;
   }
@@ -131,7 +132,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
   /**
    * @brief Localization service.
    */
-  const wb::base::intl::LookupWithFallback &l18n_;
+  const wb::base::intl::LookupWithFallback &intl_;
   /**
    * @brief Is window active or not?
    */
@@ -221,6 +222,7 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    */
   [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext() noexcept;
 };
+
 }  // namespace wb::kernel
 
 #endif  // !WB_WHITEBOX_KERNEL_MAIN_WINDOW_WIN_H_

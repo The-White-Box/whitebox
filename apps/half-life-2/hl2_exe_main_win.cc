@@ -43,6 +43,7 @@ WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
 
 namespace {
+
 /**
  * @brief Creates internationalization lookup.
  * @param user_locale User locale.
@@ -166,6 +167,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
                        boot_manager_path));
   }
 }
+
 }  // namespace
 
 /**

@@ -14,6 +14,7 @@
 using HWND = struct HWND__ *;
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Toggles window full/narrow screen.
  */
@@ -51,6 +52,7 @@ class WB_BASE_API FullScreenWindowToggler {
     wb::base::un<FullScreenWindowTogglerImpl> impl_;
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_FULL_SCREEN_WINDOW_TOGGLER_H_

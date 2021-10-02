@@ -34,6 +34,7 @@
   WB_NO_MOVE_CTOR_AND_ASSIGNMENT(typeName)
 
 namespace wb::base {
+
 /**
  * @brief Implicit, checked at compile time cast.
  * @tparam To Type to which cast to.
@@ -79,6 +80,7 @@ enum_cast(FromEnum from) noexcept {
  */
 template <typename T, typename Deleter = std::default_delete<T>>
 using un = std::unique_ptr<T, Deleter>;
+
 }  // namespace wb::base
 
 #endif  // !WB_BASE_BASE_MACROSES_H_

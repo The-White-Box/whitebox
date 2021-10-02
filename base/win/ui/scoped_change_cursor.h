@@ -16,6 +16,7 @@ using HCURSOR = HICON; /* HICONs & HCURSORs are polymorphic */
 WB_ATTRIBUTE_DLL_IMPORT HCURSOR __stdcall SetCursor(_In_opt_ HCURSOR hCursor);
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Changes cursor in scope and reverts back when out of scope.
  */
@@ -42,6 +43,7 @@ class ScopedChangeCursor {
    */
   _In_opt_ const HCURSOR old_cursor_;
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_SCOPED_CHANGE_CURSOR_H_

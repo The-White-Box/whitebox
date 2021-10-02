@@ -11,6 +11,7 @@
 #include "base/deps/googletest/gtest/gtest.h"
 
 namespace {
+
 class NotCopyable {
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(NotCopyable);
 };
@@ -31,6 +32,7 @@ class Base {};
 class Derived : public Base {};
 
 enum class Enum : unsigned int { kNone = 0U };
+
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp)

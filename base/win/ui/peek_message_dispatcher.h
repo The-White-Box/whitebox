@@ -14,6 +14,7 @@
 #include "base/win/windows_light.h"
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Default message predispatcher function.  Predispatch nothing.
  * @param Message.
@@ -100,6 +101,7 @@ class PeekMessageDispatcher {
    */
   const HWND hwnd_;
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_PEEK_MESSAGE_DISPATCHER_H_

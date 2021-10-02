@@ -19,6 +19,7 @@ using HRAWINPUT = struct HRAWINPUT__*;
 using LRESULT = std::intptr_t;
 
 namespace wb::hal::hid {
+
 /**
  * @brief Register raw input device.
  * @param device Device.
@@ -43,6 +44,7 @@ HandleNonHandledRawInput(unsigned header_size) noexcept;
  */
 [[nodiscard]] WB_HAL_HID_DRIVER_API bool ReadRawInput(
     _In_ HRAWINPUT source_input, RAWINPUT& read_input) noexcept;
+
 }  // namespace wb::hal::hid
 
 #endif  // !WB_HAL_DRIVERS_HID_RAW_INPUT_WIN_H_

@@ -19,6 +19,7 @@ WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
 namespace wb::sdl {
+
 /**
  * SDL pixel format.
  */
@@ -82,6 +83,7 @@ class SdlPixelFormat {
    */
   [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
 };
+
 }  // namespace wb::sdl
 
 #endif  // !WHITEBOX_BASE_DEPS_SDL_PIXEL_FORMAT_H_

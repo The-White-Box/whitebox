@@ -12,6 +12,7 @@
 #include "base/base_macroses.h"
 
 namespace wb::hal::hid {
+
 /**
  * @brief The mouse state.  Can be any reasonable combination of the following.
  */
@@ -332,6 +333,7 @@ struct MouseInput {
 
   return result;
 }
+
 }  // namespace wb::hal::hid
 
 #endif  // !WB_HAL_DRIVERS_HID_MOUSE_INPUT_H_

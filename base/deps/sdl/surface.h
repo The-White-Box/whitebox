@@ -19,6 +19,7 @@ WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
 namespace wb::sdl {
+
 /**
  * SDL surface mask.
  */
@@ -207,6 +208,7 @@ class ScopedSdlSurfaceLock {
    */
   SDL_Surface *surface_;
 };
+
 }  // namespace wb::sdl
 
 #endif  // !WHITEBOX_BASE_DEPS_SDL_SURFACE_H_

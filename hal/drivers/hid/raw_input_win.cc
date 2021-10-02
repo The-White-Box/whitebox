@@ -11,6 +11,7 @@
 #include "base/win/windows_light.h"
 
 namespace wb::hal::hid {
+
 /**
  * @brief Register raw input device.
  * @param device Device.
@@ -54,4 +55,5 @@ HandleNonHandledRawInput(unsigned header_size) noexcept {
 
   return error_code != kRawInputError;
 }
+
 }  // namespace wb::hal::hid

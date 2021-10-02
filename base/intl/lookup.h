@@ -23,6 +23,7 @@
 #include "build/compiler_config.h"
 
 namespace wb::base::intl {
+
 /**
  * @brief Gets string layout for used locale.
  */
@@ -262,6 +263,7 @@ template <typename... TArgs>
   const uint64_t hash{I18nStringViewHash{}(string)};
   return lookup.Format(hash, fmt::make_format_args(std::forward<TArgs>(args)...));
 }
+
 }  // namespace wb::base::intl
 
 #endif  // !WB_BASE_INTL_LOOKUP_H_

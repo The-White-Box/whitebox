@@ -11,6 +11,7 @@
 #include "base/win/windows_light.h"
 
 namespace wb::base::windows::memory {
+
 [[nodiscard]] WB_BASE_API std::error_code
 EnableTerminationOnHeapCorruption() noexcept {
   // Enables the terminate-on-corruption feature.  If the heap manager detects
@@ -49,4 +50,5 @@ EnableTerminationOnHeapCorruption() noexcept {
 
   return rc;
 }
+
 }  // namespace wb::base::windows::memory

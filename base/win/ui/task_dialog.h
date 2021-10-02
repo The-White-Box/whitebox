@@ -20,6 +20,7 @@
 using HWND = struct HWND__ *;
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Kind of dialog box.
  */
@@ -200,6 +201,7 @@ struct DialogBoxSettings {
  */
 WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings &settings) noexcept;
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_TASK_DIALOG_H_

@@ -4,6 +4,7 @@
 #
 # Clang-Tidy configuration.
 
+option(WB_CLANG_TIDY_ENABLED "Enables clang-tidy checks." OFF)
 option(WB_CLANG_TIDY_DIR "Define custom clang-tidy directory path." "")
 option(WB_CLANG_TIDY_NAME "Determines clang-tidy executable name to use.")
 # -bugprone-unhandled-exception-at-new -> if new throws we stop the app anyway.
@@ -17,6 +18,12 @@ option(WB_GCC_ENABLE_CLANG_TIDY "Determines clang-tidy enabled in GCC builds.  R
 # Searches for clang-tidy and applies it for the target.
 function(wb_apply_clang_tidy_options_to_target use_clang_tidy the_target cxx_standard)
   unset(${use_clang_tidy})
+
+  if (NOT WB_CLANG_TIDY_ENABLED)
+    message(STATUS "${the_target} clang-tidy is disabled.")
+    set(${use_clang_tidy} OFF PARENT_SCOPE)
+    return()
+  endif()
 
   if (NOT WB_EXPORT_COMPILE_COMMANDS)
     message(AUTHOR_WARNING "${the_target} missed -DCMAKE_EXPORT_COMPILE_COMMANDS=ON option in cmake invocation.  Needed for running clang-tidy.")

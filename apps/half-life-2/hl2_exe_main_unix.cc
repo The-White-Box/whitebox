@@ -15,6 +15,7 @@
 #include "whitebox-ui/fatal_dialog.h"
 
 namespace {
+
 /**
  * @brief Creates internationalization lookup.
  * @param user_locale User locale.
@@ -115,6 +116,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
                        boot_manager_path));
   }
 }
+
 }  // namespace
 
 int main(int argc, char* argv[]) {

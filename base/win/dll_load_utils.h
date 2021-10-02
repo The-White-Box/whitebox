@@ -30,6 +30,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _Success_(return != 0)
         _In_ unsigned long nSize);
 
 namespace wb::base::windows {
+
 /**
  * @brief Checks either dll to load must be signed or not.
  * @param command_line Command line.
@@ -87,6 +88,7 @@ std2::result<std::string> GetApplicationDirectory(_In_ HINSTANCE instance) {
 
   return std2::system_last_error_code();
 }
+
 }  // namespace wb::base::windows
 
 #endif  // !WB_BASE_WIN_DLL_LOAD_UTILS_H_

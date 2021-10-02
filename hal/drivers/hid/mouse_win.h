@@ -18,6 +18,7 @@ using HWND = struct HWND__ *;
 using RAWINPUT = struct tagRAWINPUT;
 
 namespace wb::hal::hid {
+
 /**
  * @brief Low level mouse input device.
  */
@@ -90,6 +91,7 @@ class WB_HAL_HID_DRIVER_API Mouse {
     return error_code_;
   }
 };
+
 }  // namespace wb::hal::hid
 
 #endif  // !WB_HAL_DRIVERS_HID_MOUSE_WIN_H_

@@ -19,6 +19,7 @@
 #include "build/build_config.h"
 
 namespace wb::base {
+
 #if defined(WB_ARCH_CPU_X86_64)
 /**
  * @brief Floating point mode flags.
@@ -98,6 +99,7 @@ class ScopedFloatingPointMode {
 #else
 #error Please define floating point behavior for your platform.
 #endif
+
 }  // namespace wb::base
 
 #endif  // !WB_BASE_SCOPED_FLOATING_POINT_MODE_H_

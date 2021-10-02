@@ -37,6 +37,7 @@
 #endif
 
 namespace {
+
 /**
  * Dump some system information.
  * @param app_description Application description.
@@ -231,6 +232,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
         intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path));
   }
 }
+
 }  // namespace
 
 /**

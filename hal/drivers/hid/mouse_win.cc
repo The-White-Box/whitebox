@@ -13,6 +13,7 @@
 #include <hidusage.h>
 
 namespace {
+
 /**
  * @brief Create mouse device definition.
  * @param window Window.
@@ -26,9 +27,11 @@ namespace {
                         .dwFlags = flags,
                         .hwndTarget = window};
 }
+
 }  // namespace
 
 namespace wb::hal::hid {
+
 /**
  * @brief Invalid mouse absolute coordinate.
  */
@@ -215,4 +218,5 @@ Mouse::~Mouse() noexcept {
 
   return false;
 }
+
 }  // namespace wb::hal::hid

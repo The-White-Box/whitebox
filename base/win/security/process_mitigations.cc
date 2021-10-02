@@ -13,6 +13,7 @@
 #include "base/win/windows_version.h"
 
 namespace wb::base::windows::security {
+
 /**
  * @brief Enables secure set of directories to search when the calling process
  * loads a DLL.  This search path is used when LoadLibraryEx is called with no
@@ -537,4 +538,5 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies(
 
 ScopedProcessMitigationPolicies::~ScopedProcessMitigationPolicies() noexcept =
     default;
+
 }  // namespace wb::base::windows::security

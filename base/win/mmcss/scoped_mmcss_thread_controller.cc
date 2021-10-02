@@ -23,6 +23,7 @@
 #include <avrt.h>
 
 namespace wb::base::windows::mmcss {
+
 class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
  public:
   ScopedMmcssThreadControllerImpl(
@@ -83,7 +84,7 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
     const auto rc = get_error(::AvRevertMmThreadCharacteristics(task_handle_));
     G3PCHECK_E(!rc, rc) << "AvRevertMmThreadCharacteristics failed";
   }
-}  // namespace wb::base::windows::mmcss
+}
 
 std2::result<std::uint8_t> ScopedMmcssThreadController::
     ScopedMmcssThreadControllerImpl::GetResponsivenessPercent() const noexcept {
@@ -165,4 +166,5 @@ ScopedMmcssThreadController::GetResponsivenessPercent() const noexcept {
     ScopedMmcssThreadPriority priority) const noexcept {
   return impl_->SetPriority(priority);
 }
+
 }  // namespace wb::base::windows::mmcss

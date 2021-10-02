@@ -11,7 +11,8 @@
 
 #include "base/deps/g3log/g3log.h"
 
-namespace wb::base::intl {
+namespace {
+
 /**
  * Computes hash for |string|.
  * @param string String to hash.
@@ -19,8 +20,12 @@ namespace wb::base::intl {
  */
 [[nodiscard]] WB_ATTRIBUTE_CONST WB_ATTRIBUTE_FORCEINLINE constexpr uint64_t
 hash(std::string_view string) noexcept {
-  return I18nStringViewHash{}(string);
+  return wb::base::intl::I18nStringViewHash{}(string);
 }
+
+}  // namespace
+
+namespace wb::base::intl {
 
 /**
  * @brief Lookup implementation.
@@ -33,128 +38,134 @@ class Lookup::LookupImpl {
     // C4868 compiler may not enforce left-to-right evaluation order
     // in braced initializer list.  hash is pure function here.
     WB_MSVC_DISABLE_WARNING(4868)
-  [[nodiscard]] static LookupResult<un<Lookup::LookupImpl>> New(
-      const std::set<std::string_view>& locale_ids) noexcept {
-    // TODO(dimhotepus): Load locales.
-    if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
-        locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
-      return LookupResult<
-          un<Lookup::LookupImpl>>{un<Lookup::LookupImpl>{new Lookup::LookupImpl{
-          MessagesById{
-      //-V509,
+    [[nodiscard]] static LookupResult<un<Lookup::LookupImpl>> New(
+        const std::set<std::string_view>& locale_ids) noexcept {
+      // TODO(dimhotepus): Load locales.
+      if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
+          locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
+        return LookupResult<un<Lookup::LookupImpl>>{un<
+            Lookup::LookupImpl>{new Lookup::LookupImpl{
+            MessagesById{
+        //-V509,
 #ifdef WB_OS_WIN
-              {hash("Windows is too old.  At least Windows 10, version 1903 "
-                    "(May "
-                    "19, "
-                    "2019)+ required."),
-               "Windows is too old.  At least Windows 10, version 1903 (May "
-               "19, "
-               "2019)+ required."},
-              {hash("Please, update Windows to Windows 10, version 1903 (May "
-                    "19, "
-                    "2019) or greater."),
-               "Please, update Windows to Windows 10, version 1903 (May 19, "
-               "2019) "
-               "or greater."},
-              {hash("See techical details"), "See techical details"},
-              {hash("Hide techical details"), "Hide techical details"},
+                {hash("Windows is too old.  At least Windows 10, version 1903 "
+                      "(May "
+                      "19, "
+                      "2019)+ required."),
+                 "Windows is too old.  At least Windows 10, version 1903 (May "
+                 "19, "
+                 "2019)+ required."},
+                {hash("Please, update Windows to Windows 10, version 1903 (May "
+                      "19, "
+                      "2019) or greater."),
+                 "Please, update Windows to Windows 10, version 1903 (May 19, "
+                 "2019) "
+                 "or greater."},
+                {hash("See techical details"), "See techical details"},
+                {hash("Hide techical details"), "Hide techical details"},
 #endif
-              {hash("Boot Manager - Error"), "Boot Manager - Error"},
-              {hash("<A "
-                    "HREF=\"https://github.com/The-White-Box/whitebox/"
-                    "issues\">Nudge</"
-                    "A> "
-                    "authors"),
-               "<A "
-               "HREF=\"https://github.com/The-White-Box/whitebox/"
-               "issues\">Nudge</"
-               "A> "
-               "authors"},
-              {hash("Can't get executable directory.  Unable to load the "
-                    "kernel."),
-               "Can't get executable directory.  Unable to load the kernel."},
-              {hash("Can't get '{0}' entry point from '{1}'."),
-               "Can't get '{0}' entry point from '{1}'."},
-              {hash("Can't load whitebox kernel '{0}'."),
-               "Can't load whitebox kernel '{0}'."},
-              {hash("{0} - Error"), "{0} - Error"},
-              {
-                  hash("Please, check app is installed correctly and you have "
-                       "enough permissions to run it."),
-                  "Please, check app is installed correctly and you have "
-                  "enough "
-                  "permissions to run it.",
-              },
-              {
-                  hash("Can't get current directory.  May be app located too deep (> 1024)?"),
-                  "Can't get current directory.  May be app located too deep (> 1024)?",
-              },
-              {
-                  hash("Can't get current directory.  Unable to load the "
-                       "kernel."),
-                  "Can't get current directory.  Unable to load the kernel.",
-              },
-              {
-                  hash("Can't load boot manager '{0}'."),
-                  "Can't load boot manager '{0}'.",
-              },
-              {
-                  hash("Whitebox Kernel - Error"),
-                  "Whitebox Kernel - Error",
-              },
-              {
-                  hash("Please, check mouse is connected and working."),
-                  "Please, check mouse is connected and working.",
-              },
-              {
-                  hash("Unable to register mouse as <A "
-                       "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
-                       "inputdev/"
-                       "about-raw-input\">Raw Input</A> device."),
-                  "Unable to register mouse as <A "
-                  "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
-                  "inputdev/"
-                  "about-raw-input\">Raw Input</A> device.",
-              },
-              {
-                  hash("Please, check keyboard is connected and working."),
-                  "Please, check keyboard is connected and working.",
-              },
-              {
-                  hash("Unable to register keyboard as <A "
-                       "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
-                       "inputdev/"
-                       "about-raw-input\">Raw Input</A> device."),
-                  "Unable to register keyboard as <A "
-                  "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
-                  "inputdev/"
-                  "about-raw-input\">Raw Input</A> device.",
-              },
-              {
-                  hash("Please, check your SDL library installed and working."),
-                  "Please, check your SDL library installed and working.",
-              },
-              {
-                  hash("SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                       "initialization "
-                       "failed.\n\n{3}."),
-                  "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                  "initialization "
-                  "failed.\n\n{3}.",
-              },
-              {hash("SDL image parser initialization failed for image types "
-                    "{0}.\n\n{1}."),
-               "SDL image parser initialization failed for image types "
-               "{0}.\n\n{1}."},
-              {hash("Please, check you installed '{0}' libraries/drivers."),
-               "Please, check you installed '{0}' libraries/drivers."},
-              {hash("SDL window create failed with '{0}' context.\n\n{1}."),
-               "SDL window create failed with '{0}' context.\n\n{1}."}},
-          StringLayout::LeftToRight}}};
-    }
+                {hash("Boot Manager - Error"), "Boot Manager - Error"},
+                {hash("<A "
+                      "HREF=\"https://github.com/The-White-Box/whitebox/"
+                      "issues\">Nudge</"
+                      "A> "
+                      "authors"),
+                 "<A "
+                 "HREF=\"https://github.com/The-White-Box/whitebox/"
+                 "issues\">Nudge</"
+                 "A> "
+                 "authors"},
+                {hash("Can't get executable directory.  Unable to load the "
+                      "kernel."),
+                 "Can't get executable directory.  Unable to load the kernel."},
+                {hash("Can't get '{0}' entry point from '{1}'."),
+                 "Can't get '{0}' entry point from '{1}'."},
+                {hash("Can't load whitebox kernel '{0}'."),
+                 "Can't load whitebox kernel '{0}'."},
+                {hash("{0} - Error"), "{0} - Error"},
+                {
+                    hash(
+                        "Please, check app is installed correctly and you have "
+                        "enough permissions to run it."),
+                    "Please, check app is installed correctly and you have "
+                    "enough "
+                    "permissions to run it.",
+                },
+                {
+                    hash("Can't get current directory.  May be app located too "
+                         "deep (> 1024)?"),
+                    "Can't get current directory.  May be app located too deep "
+                    "(> 1024)?",
+                },
+                {
+                    hash("Can't get current directory.  Unable to load the "
+                         "kernel."),
+                    "Can't get current directory.  Unable to load the kernel.",
+                },
+                {
+                    hash("Can't load boot manager '{0}'."),
+                    "Can't load boot manager '{0}'.",
+                },
+                {
+                    hash("Whitebox Kernel - Error"),
+                    "Whitebox Kernel - Error",
+                },
+                {
+                    hash("Please, check mouse is connected and working."),
+                    "Please, check mouse is connected and working.",
+                },
+                {
+                    hash(
+                        "Unable to register mouse as <A "
+                        "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
+                        "inputdev/"
+                        "about-raw-input\">Raw Input</A> device."),
+                    "Unable to register mouse as <A "
+                    "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
+                    "inputdev/"
+                    "about-raw-input\">Raw Input</A> device.",
+                },
+                {
+                    hash("Please, check keyboard is connected and working."),
+                    "Please, check keyboard is connected and working.",
+                },
+                {
+                    hash(
+                        "Unable to register keyboard as <A "
+                        "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
+                        "inputdev/"
+                        "about-raw-input\">Raw Input</A> device."),
+                    "Unable to register keyboard as <A "
+                    "HREF=\"https://docs.microsoft.com/en-us/windows/win32/"
+                    "inputdev/"
+                    "about-raw-input\">Raw Input</A> device.",
+                },
+                {
+                    hash("Please, check your SDL library installed and "
+                         "working."),
+                    "Please, check your SDL library installed and working.",
+                },
+                {
+                    hash("SDL build/runtime v.{0}/v.{1}, revision '{2}' "
+                         "initialization "
+                         "failed.\n\n{3}."),
+                    "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
+                    "initialization "
+                    "failed.\n\n{3}.",
+                },
+                {hash("SDL image parser initialization failed for image types "
+                      "{0}.\n\n{1}."),
+                 "SDL image parser initialization failed for image types "
+                 "{0}.\n\n{1}."},
+                {hash("Please, check you installed '{0}' libraries/drivers."),
+                 "Please, check you installed '{0}' libraries/drivers."},
+                {hash("SDL window create failed with '{0}' context.\n\n{1}."),
+                 "SDL window create failed with '{0}' context.\n\n{1}."}},
+            StringLayout::LeftToRight}}};
+      }
 
-    return LookupResult<un<Lookup::LookupImpl>>{Status::kArgumentError};
-  }
+      return LookupResult<un<Lookup::LookupImpl>>{Status::kArgumentError};
+    }
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   [[nodiscard]] LookupResult<Lookup::Ref<const std::string>> String(
@@ -290,4 +301,5 @@ LookupWithFallback::LookupWithFallback(Lookup lookup,
                                        std::string fallback_string) noexcept
     : lookup_{std::move(lookup)},
       fallback_string_{std::move(fallback_string)} {}
+
 }  // namespace wb::base::intl

@@ -13,6 +13,7 @@
 #include <type_traits>
 
 namespace wb::base::windows::com {
+
 /**
  * @brief COM interface concept.
  * @tparam TInterface Interface which should be COM one.
@@ -28,6 +29,7 @@ using com_interface_concept =
 template <typename TInterface, const IID *TIid = &__uuidof(TInterface),
           typename = com_interface_concept<TInterface>>
 class com_ptr : public _com_ptr_t<_com_IIID<TInterface, TIid>> {};
+
 }  // namespace wb::base::windows::com
 
 #endif  // !WB_BASE_WIN_COM_COM_PTR_H_

@@ -15,6 +15,7 @@
 #include "com_ptr.h"
 
 namespace wb::base::windows::com {
+
 /**
  * @brief Do not handle COM fatal exception, but return to the caller in scope.
  */
@@ -112,6 +113,7 @@ class ScopedComFatalExceptionHandler {
     G3DCHECK(!error_code());
   }
 };
+
 }  // namespace wb::base::windows::com
 
 #endif  // !WB_BASE_WIN_COM_SCOPED_COM_FATAL_EXCEPTION_HANDLER_H_

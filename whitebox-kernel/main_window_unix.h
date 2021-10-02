@@ -12,6 +12,7 @@
 #include "base/deps/sdl/window.h"
 
 namespace wb::kernel {
+
 class MainWindow {
  public:
   [[nodiscard]] static sdl::SdlResult<MainWindow> New(const std::string &title,
@@ -49,6 +50,7 @@ class MainWindow {
         ;
   }
 };
+
 }  // namespace wb::kernel
 
 #endif  // !WB_WHITEBOX_KERNEL_MAIN_WINDOW_UNIX_H_

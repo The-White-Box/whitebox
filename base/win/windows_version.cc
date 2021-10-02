@@ -15,6 +15,7 @@
 #include "build/compiler_config.h"
 
 namespace {
+
 /**
  * @brief Constructs version from major, minor and build components.
  * @param major Major.
@@ -50,9 +51,11 @@ namespace {
                  << "." << minor << "." << build;
   return Version::WIN_LAST;
 }
+
 }  // namespace
 
 namespace wb::base::windows {
+
 /**
  * @brief Gets windows version.
  * @return Windows version.
@@ -79,4 +82,5 @@ namespace wb::base::windows {
 
   return version;
 }
+
 }  // namespace wb::base::windows

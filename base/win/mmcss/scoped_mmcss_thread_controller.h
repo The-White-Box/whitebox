@@ -24,6 +24,7 @@
 #include "build/compiler_config.h"
 
 namespace wb::base::windows::mmcss {
+
 /**
  * @brief Known MMCSS thread tasks.  See
  * https://docs.microsoft.com/en-us/windows/win32/procthread/multimedia-class-scheduler-service#registry-settings
@@ -179,6 +180,7 @@ class WB_BASE_API ScopedMmcssThreadController {
    */
   [[nodiscard]] std::error_code error_code() const noexcept;
 };
+
 }  // namespace wb::base::windows::mmcss
 
 #endif  // !WB_BASE_WIN_MMCSS_SCOPED_MMCSS_THREAD_CONTROLLER_H_

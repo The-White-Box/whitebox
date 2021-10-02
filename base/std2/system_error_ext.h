@@ -25,6 +25,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT void __stdcall SetLastError(
 #endif
 
 namespace wb::base::std2 {
+
 /**
  * @brief Get last native system errno.
  * @return Last native system errno.
@@ -110,6 +111,7 @@ template <typename TResult>
     const result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
+
 }  // namespace wb::base::std2
 
 #endif  // !WB_BASE_STD2_SYSTEM_ERROR_EXT_H_

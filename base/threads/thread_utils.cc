@@ -27,6 +27,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT HRESULT __stdcall SetThreadDescription(
 #endif
 
 namespace wb::base::threads {
+
 /**
  * Gets current thread handle.
  * @return Native thread handle.
@@ -98,4 +99,5 @@ GetCurrentThreadHandle() noexcept {
 #error Please, define SetThreadName for your platform.
 #endif
 }
+
 }  // namespace wb::base::threads

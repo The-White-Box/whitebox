@@ -13,6 +13,7 @@
 #include "base/base_macroses.h"
 
 namespace wb::base {
+
 /**
  * @brief Sampling profiler.
  * @tparam TClock Clock to use as time source.
@@ -97,6 +98,7 @@ class SamplingProfiler {
  */
 using HighResolutionSamplingProfiler =
     SamplingProfiler<std::chrono::steady_clock>;
+
 }  // namespace wb::base
 
 #endif  // !WB_BASE_SAMPLING_PROFILER_H_

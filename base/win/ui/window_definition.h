@@ -17,6 +17,7 @@ using HMENU = struct HMENU__ *;
 using HWND = struct HWND__ *;
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Window definition.
  */
@@ -73,6 +74,7 @@ struct WindowDefinition {
   HWND parent_window;
   HMENU menu;
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_WINDOW_DEFINITION_H_

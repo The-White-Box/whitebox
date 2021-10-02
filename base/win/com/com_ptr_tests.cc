@@ -13,6 +13,7 @@
 #include "base/deps/googletest/gtest/gtest.h"
 
 namespace {
+
 // {5B45AB06-FAB2-4CA8-B24D-402F1B9A6B7C}
 static const IID IID_ComptrTest = {
     0x5b45ab06,
@@ -85,9 +86,11 @@ struct ComptrTest : public IComptrTest {
     return S_OK;
   }
 };
+
 }  // namespace
 
 namespace std {
+
 /**
  * @brief Deleter to free ComptrTest on out of scope.
  */
@@ -97,6 +100,7 @@ struct default_delete<ComptrTest> {
     G3CHECK(!test || test->counter == 0 || !test->Release());
   }
 };
+
 }  // namespace std
 
 // NOLINTNEXTLINE(cert-err58-cpp)

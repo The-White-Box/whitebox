@@ -15,6 +15,7 @@
 #include "base/win/windows_light.h"
 
 namespace {
+
 /**
  * @brief Is sticky system key?
  * @tparam TSystemKey key.
@@ -60,9 +61,11 @@ system_key_concept<key_action, TSystemKey, std::error_code> SystemKeysInfo(
   return wb::base::windows::get_error(
       ::SystemParametersInfo(key_action, sizeof(key), &key, 0));
 }
+
 }  // namespace
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Windows accessibility shortcut keys toggler implementation.  See
  * https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/disabling-shortcut-keys-in-games#disable-the-accessibility-shortcut-keys
@@ -209,4 +212,5 @@ AccessibilityShortcutKeysToggler& AccessibilityShortcutKeysToggler::operator=(
 bool AccessibilityShortcutKeysToggler::Toggle(bool toggle) noexcept {
   return impl_->Toggle(toggle);
 }
+
 }  // namespace wb::base::windows::ui

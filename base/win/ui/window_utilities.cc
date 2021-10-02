@@ -14,6 +14,7 @@
 #include "build/compiler_config.h"
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Moves window to the center of its monitor.
  * @param hwnd Window.
@@ -53,4 +54,5 @@ WB_BASE_API bool MoveWindowToItsDisplayCenter(
 
   return is_ok;
 }
+
 }  // namespace wb::base::windows::ui

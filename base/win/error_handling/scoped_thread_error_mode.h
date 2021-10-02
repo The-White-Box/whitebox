@@ -20,6 +20,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT int __stdcall SetThreadErrorMode(
     _In_ unsigned long dwNewMode, _In_opt_ unsigned long* lpOldMode);
 
 namespace wb::base::windows::error_handling {
+
 /**
  * @brief The thread error mode flags.
  */
@@ -131,6 +132,7 @@ class ScopedThreadErrorMode {
     return error_code_;
   }
 };
+
 }  // namespace wb::base::windows::error_handling
 
 #endif  // !WB_BASE_WIN_ERROR_HANDLING_SCOPED_THREAD_ERROR_MODE_H_

@@ -13,6 +13,7 @@
 #include "base/base_api.h"
 
 namespace wb::base::windows {
+
 /**
  * @brief The running version of Windows.  NOTE: Keep these in order so callers
  * can do things like
@@ -40,6 +41,7 @@ enum class Version {
  * @return Windows version.
  */
 [[nodiscard]] WB_BASE_API Version GetVersion() noexcept;
+
 }  // namespace wb::base::windows
 
 #endif  // !WB_BASE_WIN_WINDOWS_VERSION_H_

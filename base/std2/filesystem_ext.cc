@@ -20,6 +20,7 @@
 #include "base/std2/system_error_ext.h"
 
 namespace wb::base::std2 {
+
 #ifdef WB_OS_POSIX
 /**
  * Gets path to invoking executable.
@@ -97,4 +98,5 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
 #error Please define GetExecutableDirectory for your OS.
 #endif
 }
+
 }  // namespace wb::base::std2

@@ -14,6 +14,7 @@
 #include "whitebox-ui/api.h"
 
 namespace wb::ui {
+
 /**
  * @brief Special os context for fatal dialog.
  */
@@ -73,6 +74,7 @@ struct FatalDialogContext {
     const std::string& main_instruction_message,
     const FatalDialogContext& context,
     const std::string& content_message) noexcept;
+
 }  // namespace wb::ui
 
 #endif  // !WB_WHITEBOX_UI_FATAL_DIALOG_H_

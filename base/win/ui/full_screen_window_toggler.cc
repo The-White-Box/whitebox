@@ -14,6 +14,7 @@
 #include "base/win/windows_light.h"
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Actual implementation of window full/narrow screen toggler.
  */
@@ -131,4 +132,5 @@ bool FullScreenWindowToggler::Toggle(bool toggle) noexcept {
 [[nodiscard]] bool FullScreenWindowToggler::IsFullScreen() const noexcept {
   return impl_->IsFullScreen();
 }
+
 }  // namespace wb::base::windows::ui

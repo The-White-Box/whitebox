@@ -17,6 +17,7 @@
 using HWND = struct HWND__ *;
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Moves window to the center of its monitor.
  * @param hwnd Window.
@@ -62,6 +63,7 @@ template <typename T>
       static_cast<std::uintptr_t>(static_cast<unsigned short>(id)));
 }
 #endif  // !UNICODE
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_WINDOW_UTILITIES_H_

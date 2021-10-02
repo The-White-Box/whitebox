@@ -14,6 +14,7 @@
 #include "base/deps/sdl/sdl.h"
 
 namespace wb::sdl {
+
 /**
  * @brief SDL system cursor.
  */
@@ -188,6 +189,7 @@ class ScopedSdlCursor {
     }
   return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));
 }
+
 }  // namespace wb::sdl
 
 #endif  // !WB_BASE_DEPS_SDL_CURSOR_H_

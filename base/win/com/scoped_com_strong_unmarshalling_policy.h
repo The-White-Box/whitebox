@@ -16,6 +16,7 @@
 #include "com_ptr.h"
 
 namespace wb::base::windows::com {
+
 /**
  * @brief Unmarshaling allows only a system-trusted list of hardened
  * unmarshalers and unmarshalers allowed per-process by the
@@ -115,6 +116,7 @@ class ScopedComStrongUnmarshallingPolicy {
     G3DCHECK(!error_code());
   }
 };
+
 }  // namespace wb::base::windows::com
 
 #endif  // !WB_BASE_WIN_COM_SCOPED_COM_STRONG_UNMARSHALLING_POLICY_H_

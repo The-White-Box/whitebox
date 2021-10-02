@@ -22,6 +22,7 @@
 #include "whitebox-ui/fatal_dialog.h"
 
 namespace wb::kernel {
+
 LRESULT MainWindow::HandleMessage(_In_ UINT message,
                                   _In_ [[maybe_unused]] WPARAM wParam,
                                   _In_ LPARAM lParam) noexcept {
@@ -60,12 +61,12 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
       mouse_.swap(*mouse);
     } else {
       wb::ui::FatalDialog(
-          intl::l18n(l18n_, "Whitebox Kernel - Error"),
+          intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(mouse_result),
-          intl::l18n(l18n_, "Please, check mouse is connected and working."),
+          intl::l18n(intl_, "Please, check mouse is connected and working."),
           MakeFatalContext(),
           intl::l18n(
-              l18n_,
+              intl_,
               "Unable to register mouse as <A "
               "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
               "about-raw-input\">Raw Input</A> device."));
@@ -79,12 +80,12 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
       keyboard_.swap(*keyboard);
     } else {
       wb::ui::FatalDialog(
-          intl::l18n(l18n_, "Whitebox Kernel - Error"),
+          intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(keyboard_result),
-          intl::l18n(l18n_, "Please, check keyboard is connected and working."),
+          intl::l18n(intl_, "Please, check keyboard is connected and working."),
           MakeFatalContext(),
           intl::l18n(
-              l18n_,
+              intl_,
               "Unable to register keyboard as <A "
               "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
               "about-raw-input\">Raw Input</A> device."));
@@ -296,6 +297,7 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
 
 [[nodiscard]] wb::ui::FatalDialogContext
 MainWindow::MakeFatalContext() noexcept {
-  return {l18n_, l18n_.Layout(), icon_id_, icon_small_id_};
+  return {intl_, intl_.Layout(), icon_id_, icon_small_id_};
 }
+
 }  // namespace wb::kernel

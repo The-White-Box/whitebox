@@ -13,6 +13,7 @@
 #include <cstdint>  // precise bit integral types.
 
 namespace wb {
+
 // uint8_t.
 using u8 = std::uint8_t;
 // int8_t.
@@ -62,6 +63,7 @@ using ch16 = char16_t;
 using ch32 = char32_t;
 // wchar_t.
 using wch = wchar_t;
+
 }  // namespace wb
 
 #endif  // !WB_BASE_BASE_TYPES_H_

@@ -17,6 +17,7 @@ using PAINTSTRUCT = struct tagPAINTSTRUCT;
 using RECT = struct tagRECT;
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Paints to window in the scope.
  */
@@ -89,6 +90,7 @@ class WB_BASE_API ScopedWindowPaint {
    */
   explicit ScopedWindowPaint(_In_ HWND window) noexcept;
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_SCOPED_WINDOW_PAINT_H_

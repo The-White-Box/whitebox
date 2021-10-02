@@ -15,6 +15,7 @@
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base {
+
 /**
  * @brief Changes handler when new operator fails to allocate memory and reverts
  * back when out of scope.  If a user-defined operator new is provided, the new
@@ -55,6 +56,7 @@ class ScopedNewHandler {
   // Unreachable.
   std::exit(ENOMEM);
 }
+
 }  // namespace wb::base
 
 #endif  // !WB_BASE_SCOPED_NEW_HANDLER_H_

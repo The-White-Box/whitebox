@@ -21,6 +21,7 @@
 #endif
 
 namespace wb::base::threads {
+
 /**
  * @brief Native thread handle.
  */
@@ -136,6 +137,7 @@ class ScopedThreadName {
     if (!error_code()) error_code_ = SetThreadName(new_thread_name);
   }
 };
+
 }  // namespace wb::base::threads
 
 #endif  // !WB_BASE_THREADS_THREAD_UTILS_H_

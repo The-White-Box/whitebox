@@ -34,6 +34,7 @@ HWND WB_ATTRIBUTE_DLL_IMPORT __stdcall CreateWindowExA(
     _In_opt_ HMENU hMenu, _In_opt_ HINSTANCE hInstance, _In_opt_ void *lpParam);
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Base UI window.
  */
@@ -219,6 +220,7 @@ class WB_BASE_API BaseWindow {
  protected:
   int icon_id_, icon_small_id_;
 };
+
 }  // namespace wb::base::windows::ui
 
 #endif  // !WB_BASE_WIN_UI_BASE_WINDOW_H_

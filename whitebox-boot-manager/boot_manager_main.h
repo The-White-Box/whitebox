@@ -22,6 +22,7 @@ using HINSTANCE = struct HINSTANCE__ *;
 #endif
 
 namespace wb::bootmgr {
+
 /**
  * @brief Boot manager args.
  */
@@ -108,6 +109,7 @@ struct BootmgrArgs {
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(BootmgrArgs);
 };
+
 }  // namespace wb::bootmgr
 
 /**

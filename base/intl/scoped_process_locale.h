@@ -16,9 +16,14 @@
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base::intl {
+
+/**
+ * @brief Forward declare ScopedProcessLocaleCategory.
+ */
 enum class ScopedProcessLocaleCategory : decltype(LC_ALL);
 
 namespace locales {
+
 #ifdef WB_OS_WIN
 /**
  * @brief Starting in Windows 10 build 17134 (April 2018 Update), the Universal
@@ -41,7 +46,9 @@ constexpr char kUtf8Locale[]{""};
  * @brief Fallback locale.
  */
 constexpr char kFallbackLocale[]{"en_US.UTF8"};
+
 }  // namespace locales
+
 }  // namespace wb::base::intl
 
 #ifdef LC_MESSAGES
@@ -62,6 +69,7 @@ inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     wb::base::intl::ScopedProcessLocaleCategory category);
 
 namespace wb::base::intl {
+
 /**
  * Locale category.
  */
@@ -184,6 +192,7 @@ class ScopedProcessLocale {
     return candidate.empty() ? "<empty>" : candidate;
   }
 };
+
 }  // namespace wb::base::intl
 
 /**

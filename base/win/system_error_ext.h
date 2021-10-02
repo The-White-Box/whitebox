@@ -59,6 +59,7 @@ using HMODULE = HINSTANCE;
 using HRESULT = long;
 
 namespace wb::base::windows {
+
 /**
  * @brief Generic test for success on any status value (non-negative numbers
  * indicate success).
@@ -177,6 +178,7 @@ template <>
 [[nodiscard]] inline std::error_code get_error(_In_ HRESULT result) noexcept {
   return is_succeeded(result) ? std::error_code{} : get_com_error_code(result);
 }
+
 }  // namespace wb::base::windows
 
 #endif  // !WB_BASE_WIN_SYSTEM_ERROR_EXT_H_

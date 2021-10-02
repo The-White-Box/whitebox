@@ -13,6 +13,7 @@
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base {
+
 /**
  * @brief Changes process termination routine to be called by terminate.
  */
@@ -51,6 +52,7 @@ class ScopedProcessTerminateHandler {
 inline void DefaultProcessTerminateHandler() noexcept {
   G3LOG(FATAL) << "Terminate called.  Stopping the app.";
 }
+
 }  // namespace wb::base
 
 #endif  // !WB_BASE_SCOPED_PROCESS_TERMINATE_HANDLER_H_

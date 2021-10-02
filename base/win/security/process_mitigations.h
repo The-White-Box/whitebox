@@ -15,6 +15,7 @@
 #include "build/compiler_config.h"
 
 namespace wb::base::windows::security {
+
 /**
  * @brief Enables secure set of directories to search when the calling process
  * loads a DLL.  This search path is used when LoadLibraryEx is called with no
@@ -68,6 +69,7 @@ class WB_BASE_API ScopedProcessMitigationPolicies {
    */
   [[nodiscard]] std::error_code error_code() const noexcept;
 };
+
 }  // namespace wb::base::windows::security
 
 #endif  // !WB_BASE_WIN_SECURITY_PROCESS_MITIGATIONS_H_

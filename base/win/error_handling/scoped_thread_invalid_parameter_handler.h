@@ -12,6 +12,7 @@
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base::windows::error_handling {
+
 /**
  * @brief Set a function to be called when the CRT detects an invalid argument
  * and reverts back when out of scope.
@@ -114,6 +115,7 @@ class ScopedInvalidParameterReentrancyGuard {
                  << buffer << " Stopping the app.";
   }
 }
+
 }  // namespace wb::base::windows::error_handling
 
 #endif  // !WB_BASE_WIN_ERROR_HANDLING_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_

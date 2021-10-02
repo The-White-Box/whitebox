@@ -21,6 +21,7 @@
 #include "build/compiler_config.h"
 
 namespace {
+
 #ifdef WB_OS_POSIX
 /**
  * Adds end sentence mark to message.
@@ -42,9 +43,11 @@ namespace {
                                        : (error_message += '.');
 }
 #endif
+
 }  // namespace
 
 namespace wb::ui {
+
 /**
  * @brief Shows fatal dialog and exits.
  * @param title Title.
@@ -125,4 +128,5 @@ namespace wb::ui {
 
   std::exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
 }
+
 }  // namespace wb::ui

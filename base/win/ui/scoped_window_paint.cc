@@ -11,6 +11,7 @@
 #include "base/win/windows_light.h"
 
 namespace wb::base::windows::ui {
+
 /**
  * @brief Implementation of scoped window painter.
  */
@@ -144,4 +145,5 @@ bool ScopedWindowPaint::BlitPattern(
 [[nodiscard]] const PAINTSTRUCT& ScopedWindowPaint::PaintInfo() const noexcept {
   return impl_->PaintInfo();
 }
+
 }  // namespace wb::base::windows::ui

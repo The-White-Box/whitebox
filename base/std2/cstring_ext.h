@@ -15,6 +15,7 @@
 #include "build/build_config.h"
 
 namespace wb::base::std2 {
+
 /**
  * @brief Settable memory concept.
  * @tparam TMemory Type to check as settable memory.
@@ -75,6 +76,7 @@ inline Dest& BitwiseCopy(Dest& dest, const Source& source) noexcept {
 
   return *static_cast<Dest*>(std::memcpy(&dest, &source, sizeof(dest)));
 }
+
 }  // namespace wb::base::std2
 
 #endif  // !WB_BASE_STD2_CSTRING_EXT_H_

@@ -8,13 +8,17 @@
 #define WB_BASE_BASE_SWITCHES_H_
 
 namespace wb::base::switches {
+
 namespace insecure {
+
 /**
  * @brief Allow to load NOT SIGNED module targets.
  */
 constexpr char kAllowUnsignedModuleTargetFlag[]{
     "--insecure-allow-unsigned-module-target"};
+
 }  // namespace insecure
+
 }  // namespace wb::base::switches
 
 #endif  // !WB_BASE_BASE_SWITCHES_H_

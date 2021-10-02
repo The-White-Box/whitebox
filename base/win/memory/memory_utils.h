@@ -12,6 +12,7 @@
 #include "base/base_api.h"
 
 namespace wb::base::windows::memory {
+
 /**
  * @brief Enable process termination on heap corruption.
  * @return Error code.
@@ -26,6 +27,7 @@ EnableTerminationOnHeapCorruption() noexcept;
  */
 [[nodiscard]] WB_BASE_API std::error_code
 OptimizeHeapResourcesNow() noexcept;
+
 }  // namespace wb::base::windows::memory
 
 #endif  // !WB_BASE_WIN_MEMORY_MEMORY_UTILS_H_

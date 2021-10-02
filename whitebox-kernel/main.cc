@@ -28,6 +28,7 @@
 #endif
 
 namespace {
+
 #ifdef WB_OS_WIN
 /**
  * @brief Creates main app window definition.
@@ -157,6 +158,7 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 #endif
 }
 #endif
+
 }  // namespace
 
 extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(

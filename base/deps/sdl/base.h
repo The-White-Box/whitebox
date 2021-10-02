@@ -17,6 +17,7 @@
 #include "base/deps/sdl/sdl.h"
 
 namespace wb::sdl {
+
 /**
  * @brief SDL error.
  */
@@ -128,6 +129,7 @@ template <typename TResult>
     const SdlResult<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
+
 }  // namespace wb::sdl
 
 FMT_BEGIN_NAMESPACE

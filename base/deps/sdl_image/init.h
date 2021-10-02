@@ -16,6 +16,7 @@
 #include "deps/sdl_image/SDL_image.h"
 
 namespace wb::sdl_image {
+
 /**
  * SDL image initializer flags.
  */
@@ -33,6 +34,7 @@ inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     wb::sdl_image::SdlImageInitializerFlags flags);
 
 namespace wb::sdl_image {
+
 /**
  * SDL image initializer flags.
  */
@@ -143,6 +145,7 @@ class SdlImageInitializer {
    */
   [[nodiscard]] sdl::SdlError error_code() const noexcept { return init_rc_; }
 };
+
 }  // namespace wb::sdl_image
 
 /**

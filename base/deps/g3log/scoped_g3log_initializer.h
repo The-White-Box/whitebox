@@ -28,6 +28,7 @@
 #include "logworker.h"
 
 namespace wb::base::deps::g3log {
+
 /**
  * @brief Scoped g3log library initializer.
  */
@@ -180,6 +181,7 @@ class ScopedG3LogInitializer {
 #endif
   }
 };
+
 }  // namespace wb::base::deps::g3log
 
 #endif  // WB_BASE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_

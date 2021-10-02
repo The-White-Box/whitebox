@@ -20,6 +20,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT HRESULT __stdcall DwmEnableMMCSS(
     _In_ int fEnableMMCSS);
 
 namespace wb::base::windows::mmcss {
+
 /**
  * @brief Notifies the Desktop Window Manager (DWM) to opt in to or out of
  * Multimedia Class Schedule Service (MMCSS) scheduling while the calling
@@ -88,6 +89,7 @@ class ScopedMmcssToggleDwm {
     return error_code_;
   }
 };
+
 }  // namespace wb::base::windows::mmcss
 
 #endif  // !WB_BASE_WIN_MMCSS_SCOPED_MMCSS_TOGGLE_DWM_H_
