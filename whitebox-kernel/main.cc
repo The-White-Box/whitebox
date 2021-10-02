@@ -140,7 +140,6 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 }
 #endif
 
-#ifdef WB_OS_POSIX
 /**
  * @brief Makes fatal dialog context.
  * @param kernel_args Kernel arguments.
@@ -157,7 +156,6 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 #error Please define MakeFatalContext for your platform.
 #endif
 }
-#endif
 
 }  // namespace
 
@@ -191,12 +189,15 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     return DispatchMessages(window_definition.name);
   }
 
-  const auto error_code = std::get<std::error_code>(window_result);
-  G3PLOG_E(WARNING, error_code)
-      << "Unable to create main '" << window_definition.name
-      << "' window.  Please, contact authors.";
-
-  return error_code.value();
+  wb::ui::FatalDialog(
+      intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
+      std::get<std::error_code>(window_result),
+      intl::l18n_fmt(intl,
+                     "Please, check app is installed correctly and you have "
+                     "enough permissions to run it."),
+      MakeFatalContext(kernel_args),
+      intl::l18n_fmt(intl, "Unable to create main '{0}' window.",
+                     window_definition.name));
 #else
   using namespace wb::sdl;
   using namespace wb::sdl_image;

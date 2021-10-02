@@ -49,18 +49,13 @@ class Lookup::LookupImpl {
         //-V509,
 #ifdef WB_OS_WIN
                 {hash("Windows is too old.  At least Windows 10, version 1903 "
-                      "(May "
-                      "19, "
-                      "2019)+ required."),
+                      "(May 19, 2019)+ required."),
                  "Windows is too old.  At least Windows 10, version 1903 (May "
-                 "19, "
-                 "2019)+ required."},
+                 "19, 2019)+ required."},
                 {hash("Please, update Windows to Windows 10, version 1903 (May "
-                      "19, "
-                      "2019) or greater."),
+                      "19, 2019) or greater."),
                  "Please, update Windows to Windows 10, version 1903 (May 19, "
-                 "2019) "
-                 "or greater."},
+                 "2019) or greater."},
                 {hash("See techical details"), "See techical details"},
                 {hash("Hide techical details"), "Hide techical details"},
 #endif
@@ -88,8 +83,7 @@ class Lookup::LookupImpl {
                         "Please, check app is installed correctly and you have "
                         "enough permissions to run it."),
                     "Please, check app is installed correctly and you have "
-                    "enough "
-                    "permissions to run it.",
+                    "enough permissions to run it.",
                 },
                 {
                     hash("Can't get current directory.  May be app located too "
@@ -160,7 +154,10 @@ class Lookup::LookupImpl {
                 {hash("Please, check you installed '{0}' libraries/drivers."),
                  "Please, check you installed '{0}' libraries/drivers."},
                 {hash("SDL window create failed with '{0}' context.\n\n{1}."),
-                 "SDL window create failed with '{0}' context.\n\n{1}."}},
+                 "SDL window create failed with '{0}' context.\n\n{1}."},
+                {hash("Unable to create main '{0}' window."),
+                 "Unable to create main '{0}' window."},
+            },
             StringLayout::LeftToRight}}};
       }
 
