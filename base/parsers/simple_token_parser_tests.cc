@@ -35,7 +35,7 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   // wordbreak parsing set
   constexpr CharacterSet break_set{"{}()'"};
 
-  std::array<std::tuple<std::string_view, ParsedToken>, 62> cases{
+  constexpr std::array<std::tuple<std::string_view, ParsedToken>, 62> cases{
       std::tuple{"", ParsedToken{}},
       std::tuple{" ", ParsedToken{}},
       std::tuple{"  ", ParsedToken{}},
@@ -61,10 +61,14 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
       std::tuple{"//  4", ParsedToken{}},
       std::tuple{"//  a ", ParsedToken{}},
       std::tuple{"//  a  \nb", ParsedToken{.current_token = "b"}},
-      std::tuple{"//  a  \nb ", ParsedToken{.next_token = " ", .current_token = "b"}},
-      std::tuple{"//  a  \nbc d", ParsedToken{.next_token = " d", .current_token = "bc"}},
-      std::tuple{"//  a  \nbc d\n", ParsedToken{.next_token = " d\n", .current_token = "bc"}},
-      std::tuple{"//  a  \n{bc", ParsedToken{.next_token = "bc", .current_token = "{"}},
+      std::tuple{"//  a  \nb ",
+                 ParsedToken{.next_token = " ", .current_token = "b"}},
+      std::tuple{"//  a  \nbc d",
+                 ParsedToken{.next_token = " d", .current_token = "bc"}},
+      std::tuple{"//  a  \nbc d\n",
+                 ParsedToken{.next_token = " d\n", .current_token = "bc"}},
+      std::tuple{"//  a  \n{bc",
+                 ParsedToken{.next_token = "bc", .current_token = "{"}},
       std::tuple{" /", ParsedToken{.current_token = "/"}},
       std::tuple{" /a", ParsedToken{.current_token = "/a"}},
       std::tuple{" /ac", ParsedToken{.current_token = "/ac"}},
@@ -117,6 +121,12 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
     auto [input, token] = c;
 
     EXPECT_EQ(ParseToken(input, break_set), token)
-        << "Should parse '" << input << "'";
+        << "Should parse '" << input << "'.";
   }
+
+  // Test constexpr evaluation.
+  constexpr auto const_expr = ParseToken("//  a  \nbc d\n", break_set);
+  static_assert(
+      const_expr == ParsedToken{.next_token = " d\n", .current_token = "bc"},
+      "Should ParseToken as constexpr");
 }

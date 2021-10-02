@@ -70,7 +70,7 @@ struct ParsedToken {
   // Next token to parse.  Empty if nothing to parse next.
   std::string_view next_token;
   // Current parsed token.  Empty if nothing was parsed (EOF, etc.).
-  std::string current_token;
+  std::string_view current_token;
 };
 
 /**
@@ -79,8 +79,8 @@ struct ParsedToken {
  * @param r Right.
  * @return true if equals, false otherwise.
  */
-[[nodiscard]] inline bool operator==(const ParsedToken& l,
-                                     const ParsedToken& r) noexcept {
+[[nodiscard]] constexpr bool operator==(const ParsedToken& l,
+                                        const ParsedToken& r) noexcept {
   return l.current_token == r.current_token && l.next_token == r.next_token;
 }
 
@@ -90,8 +90,8 @@ struct ParsedToken {
  * @param r Right.
  * @return false if equals, true otherwise.
  */
-[[nodiscard]] inline bool operator!=(const ParsedToken& l,
-                                     const ParsedToken& r) noexcept {
+[[nodiscard]] constexpr bool operator!=(const ParsedToken& l,
+                                        const ParsedToken& r) noexcept {
   return !(l == r);
 }
 
@@ -99,38 +99,18 @@ struct ParsedToken {
  * @brief Parse token from |data| using |breaks| character set.
  * @param data Data to parse token from.
  * @param breaks Character set is used as token breaks.
- * @param estimated_max_token_size Estimated maximum token size.
  * @return Parsed token.
  */
-[[nodiscard]] constexpr ParsedToken ParseToken(
-    std::string_view data, const CharacterSet& breaks,
-    size_t estimated_max_token_size = 1024U) {
-  std::string token;
-
+[[nodiscard]] constexpr ParsedToken ParseToken(std::string_view data,
+                                               const CharacterSet& breaks) {
   if (data.empty()) {
     // Nothing to parse.
-    return {.next_token = std::string_view{}, .current_token = token};
+    return {.next_token = std::string_view{},
+            .current_token = std::string_view{}};
   }
 
   size_t i{0};
   char c{'\0'};
-  token.reserve(estimated_max_token_size);
-
-#ifndef NDEBUG
-  const size_t initial_token_capacity{token.capacity()};
-  const auto verify_and_get_token = [initial_token_capacity](
-                                        std::string tn) noexcept {
-    if (tn.size() > initial_token_capacity) WB_ATTRIBUTE_UNLIKELY {
-        G3LOG(WARNING) << "Token uses more space (" << tn.size()
-                       << ") than initial capacity (" << initial_token_capacity
-                       << ").  Performance is degraded due to token "
-                          "reallocations + copying.";
-      }
-    return tn;
-  };
-#else   // NDEBUG
-  const auto verify_and_get_token = [](std::string tn) noexcept { return tn; };
-#endif  // !NDEBUG
 
   // Skip white spaces and comments.
   do {
@@ -140,9 +120,9 @@ struct ParsedToken {
     }
 
     if (i == data.size()) {
-      // End of string is found, time to return token.
+      // End of string is found, no token.
       return {.next_token = std::string_view{},
-              .current_token = verify_and_get_token(token)};
+              .current_token = std::string_view{}};
     }
 
     // Skip // comments.
@@ -164,34 +144,36 @@ struct ParsedToken {
   if (c == '\"') {
     i++;
 
+    const size_t token_start_idx{i};
+
     while (true) {
       if (i < data.size()) {
         c = data[i++];
       } else {
-        return {.next_token = std::string_view{},
-                .current_token = verify_and_get_token(token)};
+        return {
+            .next_token = std::string_view{},
+            .current_token = data.substr(token_start_idx, i - token_start_idx)};
       }
 
       if (c == '\"') {
         return {.next_token = next_token(data, i),
-                .current_token = verify_and_get_token(token)};
+                .current_token =
+                    data.substr(token_start_idx, i - 1 - token_start_idx)};
       }
-
-      token.append(1, c);
     }
   }
 
   // Parse single break character.
   if (breaks.HasChar(c)) {
-    token.append(1, c);
+    const size_t token_start_idx{i};
     return {.next_token = next_token(data, i + 1),
-            .current_token = verify_and_get_token(token)};
+            .current_token = data.substr(token_start_idx, 1)};
   }
+
+  const size_t token_start_idx{i};
 
   // Parse word.
   do {
-    token.append(1, c);
-
     if (++i < data.size()) {
       c = data[i];
     } else {
@@ -202,7 +184,7 @@ struct ParsedToken {
   } while (c > ' ');
 
   return {.next_token = next_token(data, i),
-          .current_token = verify_and_get_token(token)};
+          .current_token = data.substr(token_start_idx, i - token_start_idx)};
 }
 
 }  // namespace wb::base::parsers::st
