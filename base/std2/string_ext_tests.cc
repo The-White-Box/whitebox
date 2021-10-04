@@ -11,14 +11,14 @@
 using namespace wb::base::std2;
 
 #ifdef WB_OS_WIN
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(StringExtTests, WideToUTF8AndBack) {
   const std::wstring expected{L"Привет!"};
 
   EXPECT_EQ(expected, UTF8ToWide(WideToUTF8(expected)));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(StringExtTests, UTF8ToWideAndBack) {
   const std::string expected{"Hello!"};
 

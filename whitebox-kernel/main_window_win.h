@@ -9,6 +9,7 @@
 
 #include <sal.h>
 
+#include <array>
 #include <cstddef>  // std::byte
 #include <memory>
 
@@ -138,8 +139,9 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
    */
   bool is_window_active_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(is_window_active_)];
+  [[maybe_unused]] std::array<std::byte,
+                              sizeof(char *) - sizeof(is_window_active_)>
+      pad_;
 
   /**
    * @brief Gets window class name.

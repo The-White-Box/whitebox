@@ -16,7 +16,7 @@
 
 #include "base/deps/googletest/gtest/gtest.h"
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
   using namespace wb::base;
 
@@ -33,7 +33,7 @@ GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
 
 // On POSIX just receive SIGKILL on OOM and we have no way to handle it.
 #ifdef WB_OS_WIN
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 

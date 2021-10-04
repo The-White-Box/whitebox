@@ -7,6 +7,9 @@
 #ifndef WB_BASE_DEPS_SDL_INIT_H_
 #define WB_BASE_DEPS_SDL_INIT_H_
 
+#include <array>
+#include <cstddef>
+
 #include "base/base_macroses.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
@@ -60,6 +63,10 @@ class SdlInitializer {
                ? SdlResult<SdlInitializer>{std::move(initializer)}
                : SdlResult<SdlInitializer>{initializer.error_code()};
   }
+  /**
+   * Move constructor.
+   * @param s Type to move frpm.
+   */
   SdlInitializer(SdlInitializer &&s) noexcept
       : init_rc_{s.init_rc_}, flags_{s.flags_} {
     s.init_rc_ = SdlError::Failure();
@@ -76,10 +83,17 @@ class SdlInitializer {
   }
 
  private:
+  /**
+   * SDL init return code.
+   */
   SdlError init_rc_;
+  /**
+   * SDL initializer flags.
+   */
   SdlInitializerFlags flags_;
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(flags_)];
+
+  WB_ATTRIBUTE_UNUSED_FIELD
+  std::array<std::byte, sizeof(char *) - sizeof(flags_)> pad_;
 
   /**
    * @brief Creates SDL initializer.

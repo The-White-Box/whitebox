@@ -10,7 +10,7 @@ option(WB_CLANG_TIDY_NAME "Determines clang-tidy executable name to use.")
 # -bugprone-unhandled-exception-at-new -> if new throws we stop the app anyway.
 # -modernize-use-trailing-return-type  -> questionable styling preferences.
 set(WB_CLANG_TIDY_CHECKS
-    "bugprone-*,-bugprone-unhandled-exception-at-new,cert-*,clang-analyzer-*,concurrency-*,modernize-*,-modernize-use-trailing-return-type,performance-*,portability-*"
+    "bugprone-*,-bugprone-unhandled-exception-at-new,cert-*,clang-analyzer-*,concurrency-*,misc-*,modernize-*,-modernize-use-trailing-return-type,performance-*,portability-*"
     CACHE STRING "Clang-tidy check groups to apply.  See https://clang.llvm.org/extra/clang-tidy/#using-clang-tidy")
 option(WB_CLANG_TIDY_WARN_AS_ERROR "Enables clang-tidy warnings as errors mode" ON)
 option(WB_GCC_ENABLE_CLANG_TIDY "Determines clang-tidy enabled in GCC builds.  Results in common set of Clang and GCC flags passed to GCC, which can lead to undetected source code warnings." OFF)

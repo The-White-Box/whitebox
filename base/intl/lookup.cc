@@ -6,7 +6,8 @@
 
 #include "base/intl/lookup.h"
 
-#include <map>
+#include <array>
+#include <cstddef>
 #include <unordered_map>
 
 #include "base/deps/g3log/g3log.h"
@@ -32,6 +33,8 @@ namespace wb::base::intl {
  */
 class Lookup::LookupImpl {
  public:
+  ~LookupImpl() noexcept = default;
+
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(LookupImpl);
 
   WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
@@ -186,12 +189,17 @@ class Lookup::LookupImpl {
  private:
   using MessagesById = std::unordered_map<uint64_t, std::string>;
 
+  /**
+   * Id to message map.
+   */
   const MessagesById messages_by_id_;
+  /**
+   * L18n string layout.
+   */
   const StringLayout string_layout_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(char*) - sizeof(string_layout_)];
+  WB_ATTRIBUTE_UNUSED_FIELD
+  std::array<std::byte, sizeof(char*) - sizeof(string_layout_)> pad_;
 
   /**
    * @brief Creates lookup implementation.
@@ -200,7 +208,7 @@ class Lookup::LookupImpl {
    */
   LookupImpl(MessagesById messages_by_id, StringLayout string_layout) noexcept
       : messages_by_id_{std::move(messages_by_id)},
-        string_layout_{string_layout} {}
+        string_layout_{string_layout}, pad_{} {}
 };
 
 [[nodiscard]] LookupResult<Lookup> Lookup::New(

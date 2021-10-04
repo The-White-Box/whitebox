@@ -126,6 +126,8 @@ namespace wb::ui {
     G3LOG(WARNING) << "Exception caught in FatalDialog: " << ex.what();
   }
 
+  // TODO(dimhotepus): Notify & wait other threads, so they are stopped before.
+  // NOLINTNEXTLINE(concurrency-mt-unsafe)
   std::exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
 }
 

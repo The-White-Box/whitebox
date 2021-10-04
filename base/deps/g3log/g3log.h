@@ -113,11 +113,13 @@ class ScopedEndError {
 // by using fatal signal SIGABRT
 //  For unit testing, you can override the fatal handling using
 //  setFatalExitHandler(...). See tes_io.cpp for examples
+// clang-format off
 #define G3CHECK(boolean_expression)                       \
   if (true == (boolean_expression)) WB_ATTRIBUTE_LIKELY { \
     }                                                     \
   else                                                    \
-    INTERNAL_CONTRACT_MESSAGE(#boolean_expression).stream()
+    INTERNAL_CONTRACT_MESSAGE(#boolean_expression).stream() // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+// clang-format on
 
 // 'Design By Contract' stream API + error code. Broken Contracts will exit the
 // application by using fatal signal SIGABRT

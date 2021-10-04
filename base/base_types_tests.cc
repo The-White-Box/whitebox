@@ -12,7 +12,7 @@
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseTypesTest, FixedWidthTypes) {
   static_assert(sizeof(wb::u8) == 1);
   static_assert(sizeof(wb::i8) == 1);
@@ -20,13 +20,15 @@ GTEST_TEST(BaseTypesTest, FixedWidthTypes) {
   static_assert(sizeof(wb::i16) == 2);
   static_assert(sizeof(wb::u32) == 4);  //-V112
   static_assert(sizeof(wb::i32) == 4);  //-V112
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   static_assert(sizeof(wb::u64) == 8);
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   static_assert(sizeof(wb::i64) == 8);
   static_assert(sizeof(wb::usize) == sizeof(char *));
   static_assert(sizeof(wb::isize) == sizeof(char *));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, FixedWidthTypesSign) {
   static_assert(std::is_unsigned_v<wb::u8>);
   static_assert(std::is_signed_v<wb::i8>);

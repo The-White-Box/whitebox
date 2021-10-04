@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
 
   // Initialize g3log logging library first as need to check contracts work.
   const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay, cppcoreguidelines-pro-bounds-pointer-arithmetic)
       argv[0], wb::build::settings::kPathToMainLogFile};
 
   testing::InitGoogleTest(&argc, argv);

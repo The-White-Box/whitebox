@@ -6,6 +6,7 @@
 
 #include "accessibility_shortcut_keys_toggler.h"
 
+#include <array>
 #include <cstddef>  // std::byte
 #include <optional>
 #include <type_traits>
@@ -105,8 +106,8 @@ class AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl {
 
   nullable_bool is_toggled_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(nullable_bool)];
+  [[maybe_unused]] std::array<std::byte, sizeof(char*) - sizeof(nullable_bool)>
+      pad_;
 };
 
 AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl::

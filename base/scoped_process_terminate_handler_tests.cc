@@ -12,7 +12,7 @@
 #include "base/win/windows_light.h"
 #endif
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedProcessTerminateHandlerTest, SetTerminateHandlerInScope) {
   using namespace wb::base;
 
@@ -28,7 +28,7 @@ GTEST_TEST(ScopedProcessTerminateHandlerTest, SetTerminateHandlerInScope) {
   EXPECT_NE(&DefaultProcessTerminateHandler, std::get_terminate());
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
            TerminateTriggersTerminateHandler) {
   using namespace wb::base;

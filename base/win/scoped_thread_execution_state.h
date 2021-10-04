@@ -9,6 +9,7 @@
 #ifndef WB_BASE_WIN_SCOPED_THREAD_EXECUTION_STATE_H_
 #define WB_BASE_WIN_SCOPED_THREAD_EXECUTION_STATE_H_
 
+#include <array>
 #include <cstddef>  // std::byte
 
 #include "base/base_macroses.h"
@@ -129,8 +130,7 @@ class ScopedThreadExecutionState {
    */
   ScopedThreadExecutionStateFlags old_flags_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(old_flags)];
+  [[maybe_unused]] std::array<std::byte, sizeof(char*) - sizeof(old_flags)>;
 
   /**
    * @brief Thread execution state acquire error code.

@@ -19,7 +19,7 @@
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SamplingProfilerTest, UsingClockTimepointDurationFromArg) {
   static_assert(std::is_same_v<
                 std::chrono::system_clock,
@@ -34,7 +34,7 @@ GTEST_TEST(SamplingProfilerTest, UsingClockTimepointDurationFromArg) {
           wb::base::SamplingProfiler<std::chrono::system_clock>::duration>);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SamplingProfilerTest, NoCopyConstructorAndAssignment) {
   static_assert(!std::is_copy_constructible_v<
                 wb::base::SamplingProfiler<std::chrono::system_clock>>);
@@ -42,7 +42,7 @@ GTEST_TEST(SamplingProfilerTest, NoCopyConstructorAndAssignment) {
                 wb::base::SamplingProfiler<std::chrono::system_clock>>);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
   using namespace std::chrono_literals;
 
@@ -81,7 +81,7 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
   }
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(HighResolutionSamplingProfilerTest,
            SampleAndGetTimeBetweenLastSamples) {
   using namespace std::chrono_literals;

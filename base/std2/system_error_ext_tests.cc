@@ -14,7 +14,7 @@
 
 using namespace wb::base;
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SystemErrorExtTests, native_last_errno) {
 #ifdef WB_OS_WIN
   ::SetLastError(ERROR_ACCESS_DENIED);
@@ -55,7 +55,7 @@ GTEST_TEST(SystemErrorExtTests, native_last_errno) {
 #endif
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SystemErrorExtTests, posix_last_error_code) {
   errno = EPERM;
   EXPECT_EQ(std::error_code(EPERM, std::generic_category()),
@@ -69,7 +69,7 @@ GTEST_TEST(SystemErrorExtTests, posix_last_error_code) {
             std2::posix_last_error_code());
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SystemErrorExtTests, system_last_error_code) {
 #ifdef WB_OS_WIN
   ::SetLastError(ERROR_ACCESS_DENIED);
@@ -95,8 +95,9 @@ GTEST_TEST(SystemErrorExtTests, system_last_error_code) {
 #endif
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SystemErrorExtTests, get_error) {
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   std2::result<int> r1{12};
   EXPECT_EQ(nullptr, std2::get_error(r1));
 
@@ -106,12 +107,13 @@ GTEST_TEST(SystemErrorExtTests, get_error) {
   EXPECT_EQ(rc, *std2::get_error(r2));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SystemErrorExtTests, get_result) {
   const auto rc = std::error_code{EAGAIN, std::generic_category()};
   const std2::result<int> r1{rc};
   EXPECT_EQ(nullptr, std2::get_result(r1));
 
+  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   std2::result<int> r2{12};
   EXPECT_EQ(12, *std2::get_result(r2));
 

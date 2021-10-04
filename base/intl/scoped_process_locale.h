@@ -86,6 +86,17 @@ enum class ScopedProcessLocaleCategory : decltype(LC_ALL) {
 };
 
 /**
+ * Gets user friendly locale name.
+ * @param original_name Original locale name.
+ * @return User friendly locale name.
+ */
+[[nodiscard]] WB_ATTRIBUTE_PURE static std::string_view
+GetUserFriendlyLocaleName(const char *original_name) noexcept {
+  std::string_view candidate{original_name};
+  return candidate.empty() ? "<empty>" : candidate;
+}
+
+/**
  * Scoped process locale.
  */
 class ScopedProcessLocale {
@@ -179,17 +190,6 @@ class ScopedProcessLocale {
         << "std::setlocale returned empty string, can't distinguish it and "
            "error case.  Please, use some other error marker.";
     return locale ? locale : "";
-  }
-
-  /**
-   * Gets user friendly locale name.
-   * @param original_name Original locale name.
-   * @return User friendly locale name.
-   */
-  [[nodiscard]] WB_ATTRIBUTE_PURE static std::string_view
-  GetUserFriendlyLocaleName(const char *original_name) noexcept {
-    std::string_view candidate{original_name};
-    return candidate.empty() ? "<empty>" : candidate;
   }
 };
 

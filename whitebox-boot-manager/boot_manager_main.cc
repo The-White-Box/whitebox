@@ -118,7 +118,7 @@ void BootHeapMemoryAllocator() noexcept {
 [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
     const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
 #ifdef WB_OS_POSIX
-  return {bootmgr_args.intl.Layout()};
+  return wb::ui::FatalDialogContext{bootmgr_args.intl.Layout()};
 #elif defined(WB_OS_WIN)
   return {bootmgr_args.intl, bootmgr_args.intl.Layout(),
           bootmgr_args.main_icon_id, bootmgr_args.small_icon_id};

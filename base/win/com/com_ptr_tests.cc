@@ -103,7 +103,7 @@ struct default_delete<ComptrTest> {
 
 }  // namespace std
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldDefaultConstructTest) {
   const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   auto *interface_ptr = p.GetInterfacePtr();
@@ -113,7 +113,7 @@ GTEST_TEST(ComPtrTests, ShouldDefaultConstructTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -139,7 +139,7 @@ GTEST_TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -166,7 +166,7 @@ GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -194,7 +194,7 @@ GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -223,7 +223,7 @@ GTEST_TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldMoveComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -250,7 +250,7 @@ GTEST_TEST(ComPtrTests, ShouldMoveComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -278,7 +278,7 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -307,7 +307,7 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldGetIidTest) {
   auto actual_iid =
       wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest>::GetIID();
@@ -315,7 +315,7 @@ GTEST_TEST(ComPtrTests, ShouldGetIidTest) {
   EXPECT_EQ(actual_iid, IID_ComptrTest) << "Should get IID.";
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -344,7 +344,7 @@ GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
   raw_ptr->Release();
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -370,7 +370,7 @@ GTEST_TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
       << "Should GetInterfacePtr const raw ptr." << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -396,7 +396,7 @@ GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
   wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   EXPECT_EQ(p.GetInterfacePtr(), nullptr)
@@ -428,7 +428,7 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
       << "Detach should remove COM class ptr from com_ptr." << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
   auto *raw_ptr1 = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter1{raw_ptr1};
@@ -470,7 +470,7 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
       << "Detach should remove COM class 2 ptr from com_ptr." << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -494,7 +494,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -516,7 +516,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
   [[maybe_unused]] auto *detached_ptr = p.Detach();
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -535,7 +535,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
       << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -563,7 +563,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
       << "Should call sample method." << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -591,7 +591,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
       << "Should call sample method." << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -622,7 +622,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
                          << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -655,7 +655,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
                          << std::endl;
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};
@@ -685,7 +685,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
   // Pointer already set in com_ptr and will be released.
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
   auto *raw_ptr = new (std::nothrow) ComptrTest;
   std::unique_ptr<ComptrTest> auto_deleter{raw_ptr};

@@ -148,7 +148,7 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
 [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
     const wb::kernel::KernelArgs& kernel_args) noexcept {
 #ifdef WB_OS_POSIX
-  return {kernel_args.intl.Layout()};
+  return wb::ui::FatalDialogContext{kernel_args.intl.Layout()};
 #elif defined(WB_OS_WIN)
   return {kernel_args.intl, kernel_args.intl.Layout(), kernel_args.main_icon_id,
           kernel_args.small_icon_id};

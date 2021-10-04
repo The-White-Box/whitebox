@@ -47,7 +47,8 @@ struct FatalDialogContext {
 
   std::byte pad[4];
 #else
-  FatalDialogContext(const base::intl::StringLayout text_layout_) noexcept
+  WB_CLANG_EXPLICIT FatalDialogContext(
+      const base::intl::StringLayout text_layout_) noexcept
       : text_layout{text_layout_} {}
 
   /**
@@ -69,7 +70,6 @@ struct FatalDialogContext {
  * @return void.
  */
 [[noreturn]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD void FatalDialog(
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     const std::string& title, std::optional<std::error_code> rc,
     const std::string& main_instruction_message,
     const FatalDialogContext& context,

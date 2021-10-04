@@ -51,8 +51,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
       scoped_process_locale.GetCurrentLocale()};
   G3LOG_IF(WARNING, !maybe_user_locale.has_value())
       << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
-      << intl::locales::kUtf8Locale << "' for UI, fallback to '"
-      << intl::locales::kFallbackLocale << "'.";
+      << intl::GetUserFriendlyLocaleName(intl::locales::kUtf8Locale)
+      << "' for UI, fallback to '" << intl::locales::kFallbackLocale << "'.";
 
   const std::string user_locale{
       maybe_user_locale.value_or(intl::locales::kFallbackLocale)};
@@ -72,7 +72,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          {intl.Layout()},
+          wb::ui::FatalDialogContext{intl.Layout()},
           intl::l18n(intl,
                      "Can't get current directory.  May be app "
                      "located too deep (> 1024)?"));
@@ -105,7 +105,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          {intl.Layout()},
+          wb::ui::FatalDialogContext{intl.Layout()},
           intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
                          kBootManagerMainName, boot_manager_path));
     }
@@ -116,7 +116,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
-        {intl.Layout()},
+        wb::ui::FatalDialogContext{intl.Layout()},
         intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
                        boot_manager_path));
   }

@@ -29,6 +29,7 @@ namespace wb::base::std2 {
  * @param rc Error code.
  * @return Path to invoking executable.
  */
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers): Constants are good.
 template <size_t path_size = 128U, size_t max_path_size = 1024U>
 [[nodiscard]] inline auto GetExecutablePath(std::error_code& rc) noexcept
     -> std::filesystem::path {

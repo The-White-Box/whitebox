@@ -9,6 +9,7 @@
 
 #include <sal.h>
 
+#include <array>
 #include <cstdint>
 
 #include "base/base_macroses.h"
@@ -90,12 +91,12 @@ class ScopedWindowClass {
    */
   const unsigned short class_atom_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(class_atom_)];
+  [[maybe_unused]] std::array<std::byte, sizeof(char *) - sizeof(class_atom_)>
+      pad_;
 
   /**
    * @brief Error code.
-  */
+   */
   const std::error_code error_code_;
 };
 

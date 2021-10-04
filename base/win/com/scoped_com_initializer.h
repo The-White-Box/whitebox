@@ -120,8 +120,7 @@ class ScopedComInitializer {
    */
   std::thread::id thread_id_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[4];
+  [[maybe_unused]] std::array<std::byte, 4> pad_;
 #endif
 
   /**

@@ -8,6 +8,7 @@
 #ifndef WB_BASE_WIN_ERROR_HANDLING_SCOPED_THREAD_ERROR_MODE_H_
 #define WB_BASE_WIN_ERROR_HANDLING_SCOPED_THREAD_ERROR_MODE_H_
 
+#include <array>
 #include <cstddef>  // std::byte
 
 #include "base/base_macroses.h"
@@ -103,8 +104,9 @@ class ScopedThreadErrorMode {
    */
   unsigned long old_error_mode_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(old_error_mode_)];
+  [[maybe_unused]] std::array<std::byte,
+                              sizeof(char*) - sizeof(old_error_mode_)>
+      pad_;
 
   /**
    * @brief Set thread error mode error code.

@@ -172,8 +172,9 @@ class SdlWindow {
    * @brief SDL window flags.
    */
   SdlWindowFlags flags_;
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(flags_)];
+
+  WB_ATTRIBUTE_UNUSED_FIELD
+  std::array<std::byte, sizeof(char *) - sizeof(flags_)> pad_;
 
   /**
    * Creates SDL window.

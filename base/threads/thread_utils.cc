@@ -69,7 +69,8 @@ GetCurrentThreadHandle() noexcept {
 
   return rc;
 #elif defined(WB_OS_POSIX)
-  thread_name.resize(32);  //-V112
+  constexpr size_t kEstimateThreadNameSize{32};  //-V112
+  thread_name.resize(kEstimateThreadNameSize);
 
   return std2::posix_last_error_code(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));

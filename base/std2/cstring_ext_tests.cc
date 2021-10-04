@@ -10,14 +10,14 @@
 
 using namespace wb::base::std2;
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(CStringExtTests, BitwiseMemset) {
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values[] = {1, 2, 3};
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   const unsigned int(*actual)[3]{&BitwiseMemset(values, 0)};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   const unsigned int(*expected)[3]{&values};
 
   EXPECT_EQ(expected, actual);
@@ -26,11 +26,11 @@ GTEST_TEST(CStringExtTests, BitwiseMemset) {
   EXPECT_EQ((*actual)[2], 0U);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(CStringExtTests, BitwiseCompare) {
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values1[] = {1, 1, 3};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values2[] = {1, 2, 3};
 
   EXPECT_LT(BitwiseCompare(values1, values2), 0);
@@ -42,16 +42,16 @@ GTEST_TEST(CStringExtTests, BitwiseCompare) {
   EXPECT_GT(BitwiseCompare(values1, values2), 0);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(CStringExtTests, BitwiseCopy) {
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values1[] = {0, 0, 0};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values2[] = {1, 2, 3};
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   const unsigned int(*actual)[3]{&BitwiseCopy(values1, values2)};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   const unsigned int(*expected)[3]{&values1};
 
   EXPECT_EQ(expected, actual);

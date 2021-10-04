@@ -6,6 +6,7 @@
 
 #include "full_screen_window_toggler.h"
 
+#include <array>
 #include <cstddef>  // std::byte
 
 #include "base/deps/g3log/g3log.h"
@@ -58,8 +59,9 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
   WINDOWPLACEMENT narrow_window_placement_;
   bool is_fullscreen_now_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(is_fullscreen_now_)];
+  [[maybe_unused]] std::array<std::byte,
+                              sizeof(char*) - sizeof(is_fullscreen_now_)>
+      pad_;
 
   [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
     error_handling::ScopedThreadLastError restore_last_error_on_out;

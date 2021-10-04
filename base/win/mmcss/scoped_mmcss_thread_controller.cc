@@ -15,6 +15,7 @@
 #include "scoped_mmcss_thread_controller.h"
 
 #include <algorithm>  // std::clamp
+#include <array>
 
 #include "base/deps/g3log/g3log.h"
 #include "base/win/system_error_ext.h"
@@ -50,8 +51,8 @@ class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
    */
   unsigned long task_index_;
 
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  [[maybe_unused]] std::byte pad_[sizeof(char*) - sizeof(task_index_)];
+  [[maybe_unused]] std::array<std::byte, sizeof(char*) - sizeof(task_index_)>
+      pad_;
 
   /**
    * @brief Task handle.

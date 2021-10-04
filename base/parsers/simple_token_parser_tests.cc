@@ -27,7 +27,7 @@ inline auto& operator<<(
 
 }  // namespace wb::base::parsers::st
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   using namespace wb::base::parsers;
   using namespace wb::base::parsers::st;
@@ -132,8 +132,7 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   }
 
   // Test constexpr evaluation.
-  constexpr auto const_expr = ParseToken("//  a  \nbc d\n", break_set);
   static_assert(
-      const_expr == ParsedToken{.next_token = " d\n", .current_token = "bc"},
+      ParseToken("//  a  \nbc d\n", break_set) == ParsedToken{.next_token = " d\n", .current_token = "bc"},
       "Should ParseToken as constexpr");
 }

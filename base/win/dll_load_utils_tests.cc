@@ -14,7 +14,7 @@
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(DllLoadUtilsTest, MustBeSignedDllLoadTarget) {
   EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget(""));
   EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget("program_name"));
@@ -50,7 +50,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _When_(lpModuleName == NULL, _Ret_notnull_)
     _When_(lpModuleName != NULL, _Ret_maybenull_) HMODULE
     __stdcall GetModuleHandleA(_In_opt_ const char* lpModuleName);
 
-// NOLINTNEXTLINE(cert-err58-cpp)
+// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
   // NOLINTNEXTLINE(performance-no-int-to-ptr): Required for test.
   const HINSTANCE mustBeInvalidInstance{reinterpret_cast<HINSTANCE>(
