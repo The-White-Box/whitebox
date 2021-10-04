@@ -16,6 +16,7 @@
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "build/build_config.h"
+#include "scoped_app_instance_manager.h"
 #include "whitebox-kernel/main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
@@ -30,8 +31,10 @@
 #include "base/win/mmcss/scoped_mmcss_thread_controller.h"
 #include "base/win/scoped_minimum_timer_resolution.h"
 #include "base/win/security/process_mitigations.h"
+#include "base/win/ui/window_utilities.h"
 #include "base/win/windows_version.h"
 #include "build/static_settings_config.h"
+#include "whitebox-kernel/main_window_win.h"
 #else
 #include "base/scoped_new_handler.h"
 #endif
@@ -116,7 +119,7 @@ void BootHeapMemoryAllocator() noexcept {
  * @return Fatal dialog context.
  */
 [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
-    const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+    const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
 #ifdef WB_OS_POSIX
   return wb::ui::FatalDialogContext{bootmgr_args.intl.Layout()};
 #elif defined(WB_OS_WIN)
@@ -133,7 +136,7 @@ void BootHeapMemoryAllocator() noexcept {
  * @return Executable directory.
  */
 [[nodiscard]] std::filesystem::path GetExecutableDirectoryPath(
-    const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+    const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
   using namespace wb::base;
 
   std::error_code rc;
@@ -160,7 +163,7 @@ void BootHeapMemoryAllocator() noexcept {
  * @param intl Localization lookup.
  * @return App exit code.
  */
-int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
+int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
   using namespace wb::base;
 
   const auto app_directory_path = GetExecutableDirectoryPath(bootmgr_args);
@@ -241,7 +244,7 @@ int KernelStartup(const wb::bootmgr::BootmgrArgs& bootmgr_args) noexcept {
  * @return 0 on success.
  */
 extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
-    const wb::bootmgr::BootmgrArgs& bootmgr_args) {
+    const wb::boot_manager::BootmgrArgs& bootmgr_args) {
   using namespace wb::base;
 
   DumpSystemInformation(bootmgr_args.app_description);
@@ -314,6 +317,33 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   // should be the same as app name.  Decided to use default app name for now.
   // const threads::NativeThreadName new_thread_name{"WhiteBoxMain"};
 #endif
+
+  // Check only single instance of the app is running.
+  const wb::boot_manager::ScopedAppInstanceManager scoped_app_instance_manager{
+      bootmgr_args.app_description};
+  const auto other_instance_status = scoped_app_instance_manager.GetStatus();
+  if (other_instance_status ==
+      wb::boot_manager::AppInstanceStatus::kAlreadyRunning) {
+#ifdef WB_OS_WIN
+    using namespace std::chrono_literals;
+
+    const std::string window_class_name{
+        wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
+    ui::FlashWindowByClass(window_class_name.c_str(), 900ms);
+#endif
+
+    wb::ui::FatalDialog(
+        intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+        std2::posix_last_error_code(EEXIST),
+        intl::l18n_fmt(bootmgr_args.intl,
+                       "Sorry, only single '{0}' can run at a time.",
+                       bootmgr_args.app_description),
+        MakeFatalContext(bootmgr_args),
+        intl::l18n_fmt(bootmgr_args.intl,
+                       "Can't run multiple copies of '{0}' at once.  Please, "
+                       "stop existing copy or return to the game.",
+                       bootmgr_args.app_description));
+  }
 
   // Setup heap memory allocator.
   BootHeapMemoryAllocator();

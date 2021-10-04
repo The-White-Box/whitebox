@@ -101,6 +101,14 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
     return *this;
   }
 
+  /**
+   * @brief Gets window class name.
+   * @return Window class name.
+   */
+  [[nodiscard]] static std::string ClassName(const char *window_name) noexcept {
+    return "WhiteBox " + std::string{window_name} + " Window Class";
+  }
+
  private:
   /**
    * @brief Mouse device.
@@ -142,14 +150,6 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
   [[maybe_unused]] std::array<std::byte,
                               sizeof(char *) - sizeof(is_window_active_)>
       pad_;
-
-  /**
-   * @brief Gets window class name.
-   * @return Window class name.
-   */
-  [[nodiscard]] static LPCSTR ClassName() noexcept {
-    return "WhiteBox_App_Half_Life2_Window_Class";
-  }
 
   /**
    * @brief Window message handler.

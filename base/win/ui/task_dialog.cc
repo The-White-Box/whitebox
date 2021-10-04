@@ -193,12 +193,19 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
   const std::wstring main_instruction{
       std2::UTF8ToWide(settings.main_instruction)};
   const std::wstring content{std2::UTF8ToWide(settings.content)};
+
+  const auto no_collapse_settings =
+      DialogBoxCollapseSettings{std::string{}, std::string{}, std::string{}};
+  const auto& collapse_settings = settings.collapse_settings.has_value()
+                                      ? settings.collapse_settings.value()
+                                      : no_collapse_settings;
   const std::wstring expanded_control_text{
-      std2::UTF8ToWide(settings.expanded_control_text)};
+      std2::UTF8ToWide(collapse_settings.expanded_control_text)};
   const std::wstring collapsed_control_text{
-      std2::UTF8ToWide(settings.collapsed_control_text)};
+      std2::UTF8ToWide(collapse_settings.collapsed_control_text)};
   const std::wstring expanded_content{
-      std2::UTF8ToWide(settings.expand_collapse_content)};
+      std2::UTF8ToWide(collapse_settings.expand_collapse_content)};
+
   const std::wstring footer{std2::UTF8ToWide(settings.footer_text)};
   const TaskDialogContext context{.main_icon_id = settings.main_icon_id,
                                   .small_icon_id = settings.small_icon_id};
@@ -220,9 +227,11 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
                                 DialogBoxButton::kCancel
                             ? IDCANCEL
                             : IDOK,
-      .pszExpandedInformation = expanded_content.c_str(),
-      .pszExpandedControlText = expanded_control_text.c_str(),
-      .pszCollapsedControlText = collapsed_control_text.c_str(),
+      .pszExpandedInformation = std2::CStringOrNullptrIfEmpty(expanded_content),
+      .pszExpandedControlText =
+          std2::CStringOrNullptrIfEmpty(expanded_control_text),
+      .pszCollapsedControlText =
+          std2::CStringOrNullptrIfEmpty(collapsed_control_text),
       .pszFooterIcon = GetIconByKind(DialogBoxKind::kInformation),
       .pszFooter = footer.c_str(),
       .pfCallback = &ShowDialogBoxCallback,

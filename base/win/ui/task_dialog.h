@@ -10,6 +10,7 @@
 #include <sal.h>
 
 #include <cstddef>  // std::byte
+#include <optional>
 #include <string>
 #include <variant>
 
@@ -98,6 +99,39 @@ enum class DialogBoxButton {
 }
 
 /**
+ * @brief Collapse control settings.
+ */
+struct DialogBoxCollapseSettings {
+  DialogBoxCollapseSettings(
+      const std::string &expanded_control_text_,
+      const std::string &collapsed_control_text_,
+      const std::string &expand_collapse_content_) noexcept
+      : expanded_control_text{expanded_control_text_},
+        collapsed_control_text{collapsed_control_text_},
+        expand_collapse_content{expand_collapse_content_} {}
+
+  /**
+   * @brief Expanded toggle control text.
+   */
+  const std::string &expanded_control_text;
+  /**
+   * @brief Collapsed toggle control text.
+   */
+  const std::string &collapsed_control_text;
+  /**
+   * @brief Expand control content when toggle expanded.
+   */
+  const std::string &expand_collapse_content;
+
+  DialogBoxCollapseSettings(DialogBoxCollapseSettings &s) noexcept = default;
+  DialogBoxCollapseSettings(DialogBoxCollapseSettings &&s) noexcept = default;
+  DialogBoxCollapseSettings &operator=(DialogBoxCollapseSettings &s) noexcept =
+      delete;
+  DialogBoxCollapseSettings &operator=(DialogBoxCollapseSettings &&s) noexcept =
+      delete;
+};
+
+/**
  * @brief Dialog box settings.
  */
 struct DialogBoxSettings {
@@ -106,11 +140,8 @@ struct DialogBoxSettings {
    * @param parent_window_ Parent window.  May be nullptr.
    * @param title_ Dialog box title.
    * @param main_instruction_ Main instruction.
+   * @param collapse_settings_ Collapse control settings.
    * @param content_ Content.
-   * @param expanded_control_text_ Expanded toggle control text.
-   * @param collapsed_control_text_ Collapsed toggle control text.
-   * @param expand_collapse_content_ Expand control content when toggle
-   * expanded.
    * @param footer_text_ Footer text.
    * @param rtl_layout_ Is Left to right text layout or not?
    * @param is_cancellable_ Is cancel button available?
@@ -118,20 +149,16 @@ struct DialogBoxSettings {
    */
   DialogBoxSettings(_In_opt_ HWND parent_window_, const std::string &title_,
                     const std::string &main_instruction_,
+                    std::optional<DialogBoxCollapseSettings> collapse_settings_,
                     const std::string &content_,
-                    const std::string &expanded_control_text_,
-                    const std::string &collapsed_control_text_,
-                    const std::string &expand_collapse_content_,
                     const std::string &footer_text_, DialogBoxButton buttons_,
                     int main_icon_id_, int small_icon_id_,
                     bool rtl_layout_) noexcept
       : parent_window{parent_window_},
         title{title_},
         main_instruction{main_instruction_},
+        collapse_settings{std::move(collapse_settings_)},
         content{content_},
-        expanded_control_text{expanded_control_text_},
-        collapsed_control_text{collapsed_control_text_},
-        expand_collapse_content{expand_collapse_content_},
         footer_text{footer_text_},
         buttons{buttons_},
         main_icon_id{main_icon_id_},
@@ -151,21 +178,13 @@ struct DialogBoxSettings {
    */
   const std::string &main_instruction;
   /**
+   * @brief Collapse control settings.
+   */
+  const std::optional<DialogBoxCollapseSettings> collapse_settings;
+  /**
    * @brief Content.
    */
   const std::string &content;
-  /**
-   * @brief Expanded toggle control text.
-   */
-  const std::string &expanded_control_text;
-  /**
-   * @brief Collapsed toggle control text.
-   */
-  const std::string &collapsed_control_text;
-  /**
-   * @brief Expand control content when toggle expanded.
-   */
-  const std::string &expand_collapse_content;
   /**
    * @brief Footer text.
    */

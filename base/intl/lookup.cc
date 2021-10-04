@@ -160,6 +160,12 @@ class Lookup::LookupImpl {
                  "SDL window create failed with '{0}' context.\n\n{1}."},
                 {hash("Unable to create main '{0}' window."),
                  "Unable to create main '{0}' window."},
+                {hash("Sorry, only single '{0}' can run at a time."),
+                 "Sorry, only single '{0}' can run at a time."},
+                {hash("Can't run multiple copies of '{0}' at once.  Please, "
+                      "stop existing copy or return to the game."),
+                 "Can't run multiple copies of '{0}' at once.  Please, stop "
+                 "existing copy or return to the game."},
             },
             StringLayout::LeftToRight}}};
       }
@@ -208,7 +214,8 @@ class Lookup::LookupImpl {
    */
   LookupImpl(MessagesById messages_by_id, StringLayout string_layout) noexcept
       : messages_by_id_{std::move(messages_by_id)},
-        string_layout_{string_layout}, pad_{} {}
+        string_layout_{string_layout},
+        pad_{} {}
 };
 
 [[nodiscard]] LookupResult<Lookup> Lookup::New(

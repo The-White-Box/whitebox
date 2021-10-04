@@ -21,7 +21,7 @@
 using HINSTANCE = struct HINSTANCE__ *;
 #endif
 
-namespace wb::bootmgr {
+namespace wb::boot_manager {
 
 /**
  * @brief Boot manager args.
@@ -110,7 +110,7 @@ struct BootmgrArgs {
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(BootmgrArgs);
 };
 
-}  // namespace wb::bootmgr
+}  // namespace wb::boot_manager
 
 /**
  * @brief Boot manager entry point on Windows.
@@ -118,6 +118,6 @@ struct BootmgrArgs {
  * @return 0 on success.
  */
 extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
-    const wb::bootmgr::BootmgrArgs &bootmgr_args);
+    const wb::boot_manager::BootmgrArgs &bootmgr_args);
 
 #endif  // !WB_WHITEBOX_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_

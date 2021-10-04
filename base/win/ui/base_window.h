@@ -66,7 +66,8 @@ class WB_BASE_API BaseWindow {
         RegisterWindowClass<TDerivedWindow>(definition, class_style, window)};
     if (!rc) {
       rc = get_error(::CreateWindowExA(
-          definition.ex_style, TDerivedWindow::ClassName(), definition.name,
+          definition.ex_style,
+          TDerivedWindow::ClassName(definition.name).c_str(), definition.name,
           definition.style, definition.x_pos, definition.y_pos,
           definition.width, definition.height, definition.parent_window,
           definition.menu, definition.instance, window.get()));
@@ -192,7 +193,8 @@ class WB_BASE_API BaseWindow {
     static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
 
     auto new_scoped_window_class =
-        CreateWindowClass(definition, class_style, TDerivedWindow::ClassName(),
+        CreateWindowClass(definition, class_style,
+                          TDerivedWindow::ClassName(definition.name).c_str(),
                           &WindowMessageHandler<TDerivedWindow>);
 
     G3DCHECK(!!window);

@@ -74,7 +74,7 @@ namespace {
 }
 
 /**
- * @brief Load and run bootmgr.
+ * @brief Load and run boot manager.
  * @param instance App instance.
  * @param command_line Command line.
  * @param show_window_flags Show window flags.
@@ -138,7 +138,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
       constexpr char kBootManagerMainName[]{"BootmgrMain"};
 
-      // Good, try to find and launch bootmgr.
+      // Good, try to find and launch boot manager.
       const auto boot_manager_entry =
           boot_manager->GetAddressAs<BootmgrMain>(kBootManagerMainName);
       if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))

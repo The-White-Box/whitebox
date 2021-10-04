@@ -18,11 +18,13 @@ namespace wb::base::std2 {
 
 #ifdef WB_OS_WIN
 [[nodiscard]] WB_BASE_API std::string WideToUTF8(const std::wstring &source) {
-  if (source.empty() ||
-      source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+  if (source.empty()) return std::string{};
+
+  if (source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
     G3DLOG(FATAL) << "WideToUTF8 source size is too large.";
     return std::string{};
   }
+
   const int size{::WideCharToMultiByte(CP_UTF8, 0, &source[0],
                                        static_cast<int>(source.size()), nullptr,
                                        0, nullptr, nullptr)};
@@ -38,11 +40,13 @@ namespace wb::base::std2 {
 }
 
 [[nodiscard]] WB_BASE_API std::wstring UTF8ToWide(const std::string &source) {
-  if (source.empty() ||
-      source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+  if (source.empty()) return std::wstring{};
+
+  if (source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
     G3DLOG(FATAL) << "UTF8ToWide source size is too large.";
     return std::wstring{};
   }
+
   const int size{::MultiByteToWideChar(
       CP_UTF8, 0, &source[0], static_cast<int>(source.size()), nullptr, 0)};
   G3DCHECK(size > 0);

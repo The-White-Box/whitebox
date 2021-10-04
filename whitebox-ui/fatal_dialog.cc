@@ -98,15 +98,21 @@ namespace wb::ui {
     using namespace wb::base::windows;
 
     auto& intl = context.intl;
-    const std::string technical_details{
-        rc.value_or(std::error_code{}).message()};
+
+    const std::string technical_details{rc.has_value() ? rc.value().message()
+                                                       : ""};
+    auto collapse_settings =
+        !technical_details.empty()
+            ? std::optional<windows::ui::DialogBoxCollapseSettings>(
+                  std::in_place, intl::l18n(intl, "Hide techical details"),
+                  intl::l18n(intl, "See techical details"), technical_details)
+            : std::optional<windows::ui::DialogBoxCollapseSettings>{};
     const bool rtl_layout{context.text_layout ==
                           intl::StringLayout::RightToLeft};
 
     windows::ui::DialogBoxSettings dialog_settings(
-        nullptr, title, main_instruction_message, content_message,
-        intl::l18n(intl, "Hide techical details"),
-        intl::l18n(intl, "See techical details"), technical_details,
+        nullptr, title, main_instruction_message, std::move(collapse_settings),
+        content_message,
         intl::l18n(intl,
                    "<A "
                    "HREF=\"https://github.com/The-White-Box/whitebox/"

@@ -30,6 +30,18 @@ namespace wb::base::std2 {
 [[nodiscard]] WB_BASE_API std::wstring UTF8ToWide(const std::string &in);
 #endif
 
+/**
+ * @brief Gets C string or nullptr if empty.
+ * @param value String.
+ * @return C string or nullptr.
+ */
+template <typename TElem>
+[[nodiscard]] WB_ATTRIBUTE_PURE inline const TElem *CStringOrNullptrIfEmpty(
+    const std::basic_string<TElem, std::char_traits<TElem>,
+                            std::allocator<TElem>> &value) noexcept {
+  return !value.empty() ? value.c_str() : nullptr;
+};
+
 }  // namespace wb::base::std2
 
 #endif  // !WB_BASE_STD2_STRING_EXT_H_

@@ -37,7 +37,7 @@ WB_BASE_API bool MoveWindowToItsDisplayCenter(
   is_ok = !!::GetMonitorInfoA(monitor, &mi);
   G3DCHECK(is_ok);
 
-  const RECT &work_area{mi.rcWork};
+  const RECT& work_area{mi.rcWork};
   const long screen_width{work_area.right - work_area.left},
       screen_height{work_area.bottom - work_area.top};
 
@@ -53,6 +53,46 @@ WB_BASE_API bool MoveWindowToItsDisplayCenter(
   G3DCHECK(is_ok);
 
   return is_ok;
+}
+
+/**
+ * @brief Flashes window caption and title bar.
+ * @param window_class_name Window class name.
+ * @param timeout_between_flashes How many milliseconds to wait between window
+ * flashes.
+ * @return true if window is flashing, false otherwise.
+ */
+WB_BASE_API bool FlashWindowByClass(
+    _In_ const char* window_class_name,
+    _In_ std::chrono::milliseconds timeout_between_flashes) noexcept {
+  G3DCHECK(!!window_class_name);
+  G3DCHECK(timeout_between_flashes.count() >= 0 &&
+           timeout_between_flashes.count() <=
+               std::numeric_limits<decltype(FLASHWINFO::dwTimeout)>::max());
+
+  const HWND hwnd_to_flash{::FindWindowA(window_class_name, nullptr)};
+  if (hwnd_to_flash) {
+    FLASHWINFO flash_info{
+        .cbSize = sizeof(flash_info),
+        .hwnd = hwnd_to_flash,
+        .dwFlags = FLASHW_ALL | FLASHW_TIMERNOFG,
+        .uCount = 7,
+        .dwTimeout = static_cast<decltype(FLASHWINFO::dwTimeout)>(
+            timeout_between_flashes.count())};
+    // The return value specifies the window's state before the call to the
+    // FlashWindowEx function.  If the window caption was drawn as active before
+    // the call, the return value is nonzero.  Otherwise, the return value is
+    // zero.
+    //
+    // See
+    // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-flashwindowex#return-value
+    ::FlashWindowEx(&flash_info);
+    return true;
+  }
+
+  G3DLOG(WARNING) << "No window with class name " << window_class_name
+                  << " was found.  Nothing will be flashed.";
+  return false;
 }
 
 }  // namespace wb::base::windows::ui

@@ -90,9 +90,6 @@ class ScopedEndError {
         error_code, INTERNAL_LOG_MESSAGE(level).stream()} \
         .stream()
 
-// G3PLOG(level) is the API for the stream log + last system error code.
-#define G3PLOG(level) G3PLOG_E(level, std2::system_last_error_code())
-
 // 'Conditional' stream log
 #define G3LOG_IF(level, boolean_expression)                  \
   if (!g3::logLevel(level) || false == (boolean_expression)) \
@@ -226,16 +223,6 @@ And here is possible output
   } else                \
     G3LOG(level)
 // Does nothing.
-#define G3DPLOG_E(level, error_code) \
-  if constexpr (true) {              \
-  } else                             \
-    G3PLOG(level, error_code)
-// Does nothing.
-#define G3DPLOG(level)  \
-  if constexpr (true) { \
-  } else                \
-    G3PLOG(level)
-// Does nothing.
 #define G3DLOG_IF(level, boolean_expression) \
   if constexpr (true) {                      \
   } else                                     \
@@ -273,10 +260,6 @@ And here is possible output
 #else
 // G3DLOG(level) is the API for the stream log in DEBUG mode.
 #define G3DLOG(level) G3LOG(level)
-
-// G3DPLOG(level) is the API for the stream log + last system error code in
-// DEBUG mode.
-#define G3DPLOG(level) G3PLOG(level)
 
 // G3DPLOG_E(level) is the API for the stream log + system error code in
 // DEBUG mode.

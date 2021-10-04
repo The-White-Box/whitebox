@@ -35,7 +35,7 @@ namespace {
 }
 
 /**
- * @brief Load and run bootmgr.
+ * @brief Load and run boot manager.
  * @param argc App arguments count.
  * @param argv App arguments.
  * @param intl Localization service.

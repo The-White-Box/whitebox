@@ -10,10 +10,10 @@
 #include "build/compiler_config.h"
 
 #if defined(WB_BOOT_MANAGER_DLL) && (WB_BOOT_MANAGER_DLL == 1)
-// Export marked symbol from bootmgr module.
+// Export marked symbol from boot manager module.
 #define WB_BOOT_MANAGER_API WB_ATTRIBUTE_DLL_EXPORT
 #else
-// Import marked symbol from bootmgr module.
+// Import marked symbol from boot manager module.
 #define WB_BOOT_MANAGER_API WB_ATTRIBUTE_DLL_IMPORT
 #endif
 

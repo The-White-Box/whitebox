@@ -18,7 +18,10 @@ WB_BEGIN_G3LOG_WARNING_OVERRIDE_SCOPE()
 WB_END_G3LOG_WARNING_OVERRIDE_SCOPE()
 
 #ifdef WB_OS_WIN
-#include "base/win/windows_light.h"
+#include <sal.h>
+
+extern "C" WB_ATTRIBUTE_DLL_IMPORT void __stdcall OutputDebugStringA(
+    _In_opt_ const char* lpOutputString);
 #endif
 
 namespace wb::base::deps::g3log {

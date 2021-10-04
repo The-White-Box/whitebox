@@ -34,11 +34,10 @@ constexpr inline void HasNoPostDispatchMessage(const MSG&) noexcept {}
  * @tparam HasPreDispatchedMessageFn Predispatch function.
  * @tparam PostDispatchedMessageFn Postdispatch function.
  */
-template <typename HasPreDispatchedMessageFn, typename PostDispatchedMessageFn>
+template <typename HasPreDispatchedMessage, typename PostDispatchedMessage>
 using dispatcher_functions_concept = std::enable_if_t<
-    std::is_nothrow_invocable_r_v<bool, HasPreDispatchedMessageFn,
-                                  const MSG&> &&
-    std::is_nothrow_invocable_r_v<void, PostDispatchedMessageFn, const MSG&>>;
+    std::is_nothrow_invocable_r_v<bool, HasPreDispatchedMessage, const MSG&> &&
+    std::is_nothrow_invocable_r_v<void, PostDispatchedMessage, const MSG&>>;
 
 /**
  * @brief Window messages peeking dispatcher.
@@ -68,13 +67,12 @@ class PeekMessageDispatcher {
    * @return void.
    */
   template <
-      typename HasPreDispatchedMessageFn = decltype(&HasNoPreDispatchMessage),
-      typename PostDispatchedMessageFn = decltype(&HasNoPostDispatchMessage)>
-  dispatcher_functions_concept<HasPreDispatchedMessageFn,
-                               PostDispatchedMessageFn>
-  Dispatch(_In_ HasPreDispatchedMessageFn has_pre_dispatched_message_fn =
+      typename HasPreDispatchedMessage = decltype(&HasNoPreDispatchMessage),
+      typename PostDispatchedMessage = decltype(&HasNoPostDispatchMessage)>
+  dispatcher_functions_concept<HasPreDispatchedMessage, PostDispatchedMessage>
+  Dispatch(_In_ HasPreDispatchedMessage has_pre_dispatched_message =
                HasNoPreDispatchMessage,
-           _In_ PostDispatchedMessageFn post_dispatched_message_fn =
+           _In_ PostDispatchedMessage post_dispatched_message =
                HasNoPostDispatchMessage,
            _In_ UINT lowest_message_id = 0U,
            _In_ UINT highest_message_id = 0U) const noexcept {
@@ -85,10 +83,10 @@ class PeekMessageDispatcher {
           GetMessage(&msg, hwnd_, lowest_message_id, highest_message_id)};
       G3DCHECK(rc != -1);
 
-      if (rc != -1 && !has_pre_dispatched_message_fn(msg)) {
+      if (rc != -1 && !has_pre_dispatched_message(msg)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
-        post_dispatched_message_fn(msg);
+        post_dispatched_message(msg);
       } else {
         break;
       }

@@ -1,1 +1,1 @@
-The bootmgr directory contains boot manager.
+The whitebox-boot-manager directory contains boot manager.

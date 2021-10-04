@@ -9,6 +9,7 @@
 
 #include <sal.h>
 
+#include <chrono>
 #include <cstdint>
 #include <type_traits>
 
@@ -26,6 +27,17 @@ namespace wb::base::windows::ui {
  */
 WB_BASE_API bool MoveWindowToItsDisplayCenter(_In_ HWND window,
                                               _In_ bool repaint_after) noexcept;
+
+/**
+ * @brief Flashes window caption and title bar.
+ * @param window_class_name Window class name.
+ * @param timeout_between_flashes How many milliseconds to wait between window
+ * flashes.
+ * @return true if window is flashing, false otherwise.
+ */
+WB_BASE_API bool FlashWindowByClass(
+    _In_ const char *window_class_name,
+    _In_ std::chrono::milliseconds timeout_between_flashes) noexcept;
 
 /**
  * @brief Is resource id for MakeIntResource concept.
