@@ -27,8 +27,8 @@
 #include "base/deps/sdl/message_box.h"
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
-#include "bootmgr/boot_manager_main.h"
 #include "build/static_settings_config.h"
+#include "whitebox-boot-manager/boot_manager_main.h"
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // Initialize g3log logging library first as logs are used extensively.
