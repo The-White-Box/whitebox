@@ -71,6 +71,11 @@ inline void native_last_errno(const std::error_code rc) noexcept {  //-V801
 }
 
 /**
+ * @brief Success error code.
+*/
+const inline std::error_code ok_code;
+
+/**
  * @brief System result type.
  * @tparam TResult Result.
  */

@@ -72,7 +72,7 @@ ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl::
     : task_index_{0},
       task_handle_{::AvSetMmMaxThreadCharacteristicsA(
           first_task.name(), last_task.name(), &task_index_)},
-      error_code_{task_handle_ ? std::error_code{}
+      error_code_{task_handle_ ? std2::ok_code
                                : std2::system_last_error_code()} {
   // Well, if smb removed task from registry or no privileges it is ok.
   G3DCHECK(!error_code_ || error_code_.value() == ERROR_INVALID_TASK_NAME ||

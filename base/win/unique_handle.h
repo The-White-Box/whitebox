@@ -56,7 +56,7 @@ struct default_delete<wb::base::windows::handle_descriptor> {
       _In_ wb::base::windows::handle_descriptor *handle) const noexcept {
     if (handle && handle != wb::base::windows::kInvalidNativeHandle) {
       const std::error_code rc{::CloseHandle(handle) != 0
-                                   ? std::error_code{}
+                                   ? wb::base::std2::ok_code
                                    : wb::base::std2::system_last_error_code()};
       G3PCHECK_E(!rc, rc) << "Close handle failed.";
     }

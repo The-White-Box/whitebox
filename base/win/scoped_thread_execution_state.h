@@ -147,7 +147,7 @@ class ScopedThreadExecutionState {
       : old_flags_{static_cast<ScopedThreadExecutionStateFlags>(
             ::SetThreadExecutionState(underlying_cast(flags)))},
         error_code_{(old_flags_ != ScopedThreadExecutionStateFlags::kError
-                         ? std::error_code{}
+                         ? std2::ok_code
                          : wb::base::std2::system_last_error_code())} {}
 
   /**

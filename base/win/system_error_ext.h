@@ -90,7 +90,7 @@ template <typename R>
 template <>
 [[nodiscard]] inline std::error_code get_error(
     _In_ unsigned short result) noexcept {
-  return result ? std::error_code{} : std2::system_last_error_code();
+  return result ? std2::ok_code : std2::system_last_error_code();
 }
 
 /**
@@ -98,7 +98,7 @@ template <>
  */
 template <>
 [[nodiscard]] inline std::error_code get_error(_In_opt_ HWND result) noexcept {
-  return result ? std::error_code{} : std2::system_last_error_code();
+  return result ? std2::ok_code : std2::system_last_error_code();
 }
 
 /**
@@ -106,7 +106,7 @@ template <>
  */
 template <>
 [[nodiscard]] inline std::error_code get_error(_In_ BOOL result) noexcept {
-  return result ? std::error_code{} : std2::system_last_error_code();
+  return result ? std2::ok_code : std2::system_last_error_code();
 }
 
 /**
@@ -114,7 +114,7 @@ template <>
  */
 template <>
 [[nodiscard]] inline std::error_code get_error(_In_opt_ HHOOK result) noexcept {
-  return result ? std::error_code{} : std2::system_last_error_code();
+  return result ? std2::ok_code : std2::system_last_error_code();
 }
 
 /**
@@ -123,7 +123,7 @@ template <>
 template <>
 [[nodiscard]] inline std::error_code get_error(
     _In_opt_ HINSTANCE result) noexcept {
-  return result ? std::error_code{} : std2::system_last_error_code();
+  return result ? std2::ok_code : std2::system_last_error_code();
 }
 
 /**
@@ -176,7 +176,7 @@ class ComErrorCategory : public std::error_category {
  */
 template <>
 [[nodiscard]] inline std::error_code get_error(_In_ HRESULT result) noexcept {
-  return is_succeeded(result) ? std::error_code{} : get_com_error_code(result);
+  return is_succeeded(result) ? std2::ok_code : get_com_error_code(result);
 }
 
 }  // namespace wb::base::windows

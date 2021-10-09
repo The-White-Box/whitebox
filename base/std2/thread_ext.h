@@ -2,10 +2,10 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Thread extensions.
+// <thread> extensions.
 
-#ifndef WB_BASE_THREADS_THREAD_UTILS_H_
-#define WB_BASE_THREADS_THREAD_UTILS_H_
+#ifndef WB_BASE_STD2_THREAD_EXT_H_
+#define WB_BASE_STD2_THREAD_EXT_H_
 
 #include <string>
 #include <thread>
@@ -20,25 +20,24 @@
 #include <sal.h>
 #endif
 
-namespace wb::base::threads {
+namespace wb::base::std2 {
 
 /**
  * @brief Native thread handle.
  */
-using NativeThreadHandle = std::thread::native_handle_type;
+using native_thread_handle = std::thread::native_handle_type;
 
 #ifdef WB_OS_WIN
-using NativeThreadName = std::wstring;
-#else
-using NativeThreadName = std::string;
-#endif
-
 /**
- * Gets current thread handle.
- * @return Native thread handle.
+ * @brief Native thread name.
  */
-[[nodiscard]] WB_ATTRIBUTE_CONST WB_BASE_API NativeThreadHandle
-GetCurrentThreadHandle() noexcept;
+using native_thread_name = std::wstring;
+#else
+/**
+ * @brief Native thread name.
+ */
+using native_thread_name = std::string;
+#endif
 
 /**
  * @brief Gets current thread name.
@@ -46,16 +45,24 @@ GetCurrentThreadHandle() noexcept;
  * @param thread_name Thread name.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    NativeThreadHandle handle, NativeThreadName &thread_name) noexcept;
+[[nodiscard]] WB_BASE_API std::error_code get_thread_name(
+    native_thread_handle handle, native_thread_name &thread_name) noexcept;
+
+namespace this_thread {
+
+/**
+ * Gets current thread handle.
+ * @return Native thread handle.
+ */
+[[nodiscard]] WB_BASE_API native_thread_handle get_handle() noexcept;
 
 /**
  * @brief Set current thread name.
  * @param thread_name New thread name.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    const NativeThreadName &thread_name) noexcept;
+[[nodiscard]] WB_BASE_API std::error_code set_name(
+    const native_thread_name &thread_name) noexcept;
 
 /**
  * @brief Scoped thread name.
@@ -68,8 +75,8 @@ class ScopedThreadName {
    * @return ScopedThreadName.
    */
   [[nodiscard]] static std2::result<ScopedThreadName> New(
-      const NativeThreadName &new_thread_name) {
-    ScopedThreadName name{GetCurrentThreadHandle(), new_thread_name};
+      const native_thread_name &new_thread_name) {
+    ScopedThreadName name{get_handle(), new_thread_name};
     return !name.error_code()
                ? std2::result<ScopedThreadName>{std::move(name)}
                : std2::result<ScopedThreadName>{name.error_code()};
@@ -81,7 +88,7 @@ class ScopedThreadName {
         error_code_{n.error_code_} {
     n.error_code_ = std::error_code{EINVAL, std::system_category()};
 
-    G3DCHECK(thread_ == GetCurrentThreadHandle())
+    G3DCHECK(thread_ == get_handle())
         << "Thread name should be moved for original thread.";
   }
   ScopedThreadName &operator=(ScopedThreadName &&) noexcept = delete;
@@ -92,31 +99,23 @@ class ScopedThreadName {
    * @brief Restore previous thread name.
    */
   ~ScopedThreadName() noexcept {
-    G3DCHECK(thread_ == GetCurrentThreadHandle())
+    G3DCHECK(thread_ == get_handle())
         << "Thread name should be restored for original thread.";
 
     if (!error_code()) {
-      G3CHECK(!SetThreadName(old_thread_name_));
+      G3CHECK(!set_name(old_thread_name_));
     }
-  }
-
-  /**
-   * @brief Get error code.
-   * @return Error code.
-   */
-  [[nodiscard]] std::error_code error_code() const noexcept {
-    return error_code_;
   }
 
  private:
   /**
    * @brief Thread handle.
    */
-  NativeThreadHandle thread_;
+  native_thread_handle thread_;
   /**
    * @brief Previous thread name.
    */
-  NativeThreadName old_thread_name_;
+  native_thread_name old_thread_name_;
   /**
    * @brief Error code.
    */
@@ -127,17 +126,27 @@ class ScopedThreadName {
    * @param thread Thread.
    * @param new_thread_name Scoped thread name.
    */
-  explicit ScopedThreadName(NativeThreadHandle thread,
-                            const NativeThreadName &new_thread_name)
+  explicit ScopedThreadName(native_thread_handle thread,
+                            const native_thread_name &new_thread_name)
       : thread_{thread},
         old_thread_name_{},
-        error_code_{GetThreadName(thread, old_thread_name_)} {
+        error_code_{get_thread_name(thread, old_thread_name_)} {
     G3CHECK(!error_code());
 
-    if (!error_code()) error_code_ = SetThreadName(new_thread_name);
+    if (!error_code()) error_code_ = set_name(new_thread_name);
+  }
+
+  /**
+   * @brief Get error code.
+   * @return Error code.
+   */
+  [[nodiscard]] std::error_code error_code() const noexcept {
+    return error_code_;
   }
 };
 
-}  // namespace wb::base::threads
+}  // namespace this_thread
 
-#endif  // !WB_BASE_THREADS_THREAD_UTILS_H_
+}  // namespace wb::base::std2
+
+#endif  // !WB_BASE_STD2_THREAD_EXT_H_

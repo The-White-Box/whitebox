@@ -2,9 +2,9 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Thread extensions.
+// <thread> extensions.
 
-#include "thread_utils.h"
+#include "thread_ext.h"
 
 #include "base/deps/g3log/g3log.h"
 #include "build/build_config.h"
@@ -26,22 +26,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT HRESULT __stdcall SetThreadDescription(
 #include <pthread.h>
 #endif
 
-namespace wb::base::threads {
-
-/**
- * Gets current thread handle.
- * @return Native thread handle.
- */
-[[nodiscard]] WB_ATTRIBUTE_CONST WB_BASE_API NativeThreadHandle
-GetCurrentThreadHandle() noexcept {
-#ifdef WB_OS_WIN
-  return NativeThreadHandle{::GetCurrentThread()};
-#elif defined(WB_OS_POSIX)
-  return NativeThreadHandle{pthread_self()};
-#else
-#error Please define GetCurrentThreadHandle for your platform.
-#endif
-}
+namespace wb::base::std2 {
 
 /**
  * @brief Gets thread name.
@@ -49,8 +34,8 @@ GetCurrentThreadHandle() noexcept {
  * @param thread_name Thread name.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code GetThreadName(
-    NativeThreadHandle handle, NativeThreadName& thread_name) noexcept {
+[[nodiscard]] WB_BASE_API std::error_code get_thread_name(
+    native_thread_handle handle, native_thread_name& thread_name) noexcept {
 #ifdef WB_OS_WIN
   // Minimum supported client is Windows 10, version 1607.
   wchar_t* wide_thread_name;
@@ -75,7 +60,23 @@ GetCurrentThreadHandle() noexcept {
   return std2::posix_last_error_code(
       ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));
 #else
-#error Please, define GetThreadName for your platform.
+#error Please, define get_thread_name for your platform.
+#endif
+}
+
+namespace this_thread {
+
+/**
+ * Gets current thread handle.
+ * @return Native thread handle.
+ */
+[[nodiscard]] WB_BASE_API native_thread_handle get_handle() noexcept {
+#ifdef WB_OS_WIN
+  return native_thread_handle{::GetCurrentThread()};
+#elif defined(WB_OS_POSIX)
+  return native_thread_handle{pthread_self()};
+#else
+#error Please define get_handle for your platform.
 #endif
 }
 
@@ -84,21 +85,23 @@ GetCurrentThreadHandle() noexcept {
  * @param thread_name New thread name.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code SetThreadName(
-    const NativeThreadName& thread_name) noexcept {
+[[nodiscard]] WB_BASE_API std::error_code set_name(
+    const native_thread_name& thread_name) noexcept {
 #ifdef WB_OS_WIN
   return windows::get_error(
-      ::SetThreadDescription(GetCurrentThreadHandle(), thread_name.c_str()));
+      ::SetThreadDescription(get_handle(), thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
 #ifdef WB_OS_MACOS
   return std2::posix_last_error_code(::pthread_setname_np(thread_name.c_str()));
 #else
   return std2::posix_last_error_code(
-      ::pthread_setname_np(GetCurrentThreadHandle(), thread_name.c_str()));
+      ::pthread_setname_np(get_handle(), thread_name.c_str()));
 #endif
 #else
-#error Please, define SetThreadName for your platform.
+#error Please, define set_name for your platform.
 #endif
 }
 
-}  // namespace wb::base::threads
+}  // namespace this_thread
+
+}  // namespace wb::base::std2

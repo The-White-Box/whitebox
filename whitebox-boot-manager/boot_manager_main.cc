@@ -21,7 +21,7 @@
 #include "whitebox-ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
-#include "base/threads/thread_utils.h"
+#include "base/std2/thread_ext.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_process_pure_call_handler.h"
 #include "base/win/error_handling/scoped_thread_invalid_parameter_handler.h"
@@ -305,17 +305,17 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
       DefaultProcessTerminateHandler};
 
 #ifdef WB_OS_WIN
-  const threads::NativeThreadName new_thread_name{L"WhiteBoxMain"};
+  const std2::native_thread_name new_thread_name{L"WhiteBoxMain"};
 
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name =
-      threads::ScopedThreadName::New(new_thread_name);
+      std2::this_thread::ScopedThreadName::New(new_thread_name);
   G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_name))
       << "Can't rename main thread, continue with default name.";
 #else
   // Well, we can't just use this one, as it is shown in top and monitors, so
   // should be the same as app name.  Decided to use default app name for now.
-  // const threads::NativeThreadName new_thread_name{"WhiteBoxMain"};
+  // const std2::native_thread_name new_thread_name{"WhiteBoxMain"};
 #endif
 
   // Check only single instance of the app is running.

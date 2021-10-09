@@ -99,7 +99,7 @@ SetProcessMitigationPolicy(TPolicy& policy) noexcept {
       mitigation_policy_flag<TPolicy>, &policy, sizeof(policy)))};
 
   // Access denied is ok result.
-  return !rc || rc.value() == ERROR_ACCESS_DENIED ? std::error_code{} : rc;
+  return !rc || rc.value() == ERROR_ACCESS_DENIED ? std2::ok_code : rc;
 }
 
 /**
