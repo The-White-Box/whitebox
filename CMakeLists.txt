@@ -350,6 +350,7 @@ foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
       NOT ${WB_TARGET_NAME} MATCHES "gensym" AND
       NOT ${WB_TARGET_NAME} MATCHES "genvers" AND
       NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
+      NOT ${WB_TARGET_NAME} MATCHES "sdl-build-options" AND
       NOT ${WB_TARGET_NAME} MATCHES "symbol-check" AND
       NOT ${WB_TARGET_NAME} MATCHES "uninstall")
     # Include the directories with the new files.
