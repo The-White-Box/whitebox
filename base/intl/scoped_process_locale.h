@@ -85,6 +85,7 @@ enum class ScopedProcessLocaleCategory : decltype(LC_ALL) {
   kTime = LC_TIME
 };
 
+#ifndef NDEBUG
 /**
  * Gets user friendly locale name.
  * @param original_name Original locale name.
@@ -95,6 +96,7 @@ GetUserFriendlyLocaleName(const char *original_name) noexcept {
   std::string_view candidate{original_name};
   return candidate.empty() ? "<empty>" : candidate;
 }
+#endif  // !NDEBUG
 
 /**
  * Scoped process locale.

@@ -730,6 +730,12 @@
 #define WB_CLANG_EXPLICIT explicit
 
 /*
+ * @brief Disables GCC suggest-attribute=const warning.
+ */
+#define WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=const\"")
+
+/*
  * @brief Disables GCC suggest-attribute=malloc warning.
  */
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING() \
@@ -746,6 +752,11 @@
  * @brief Explicit keyword for places where Clang accepts it.
  */
 #define WB_CLANG_EXPLICIT explicit
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
 
 /*
  * @brief Do nothing.
@@ -825,6 +836,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_UNDEF_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
 
 /*
  * @brief Do nothing.

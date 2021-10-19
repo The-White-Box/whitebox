@@ -65,19 +65,25 @@ namespace wb::base::std2 {
 
 namespace this_thread {
 
-/**
- * Gets current thread handle.
- * @return Native thread handle.
- */
-[[nodiscard]] WB_BASE_API native_thread_handle get_handle() noexcept {
+WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  // Can't use const attribute here, as thread can change under the hood,
+  // so observable state of the program can change between calls (ex. in new
+  // thread scope).
+  WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+  /**
+   * Gets current thread handle.
+   * @return Native thread handle.
+   */
+  [[nodiscard]] WB_BASE_API native_thread_handle get_handle() noexcept {
 #ifdef WB_OS_WIN
-  return native_thread_handle{::GetCurrentThread()};
+    return native_thread_handle{::GetCurrentThread()};
 #elif defined(WB_OS_POSIX)
-  return native_thread_handle{pthread_self()};
+    return native_thread_handle{pthread_self()};
 #else
 #error Please define get_handle for your platform.
 #endif
-}
+  }
+WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 /**
  * @brief Set thread name.

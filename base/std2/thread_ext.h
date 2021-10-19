@@ -50,11 +50,17 @@ using native_thread_name = std::string;
 
 namespace this_thread {
 
-/**
- * Gets current thread handle.
- * @return Native thread handle.
- */
-[[nodiscard]] WB_BASE_API native_thread_handle get_handle() noexcept;
+WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  // Can't use const attribute here, as thread can change under the hood,
+  // so observable state of the program can change between calls (ex. in new
+  // thread scope).
+  WB_GCC_DISABLE_SUGGEST_CONST_ATTRIBUTE_WARNING()
+  /**
+   * Gets current thread handle.
+   * @return Native thread handle.
+   */
+  [[nodiscard]] WB_BASE_API native_thread_handle get_handle() noexcept;
+WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 /**
  * @brief Set current thread name.
