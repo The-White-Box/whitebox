@@ -4,8 +4,8 @@
 //
 // Common window utilities.
 
-#ifndef WB_BASE_WIN_UI_WINDOW_UTILITIES_H_
-#define WB_BASE_WIN_UI_WINDOW_UTILITIES_H_
+#ifndef WB_WHITEBOX_UI_WIN_WINDOW_UTILITIES_H_
+#define WB_WHITEBOX_UI_WIN_WINDOW_UTILITIES_H_
 
 #include <sal.h>
 
@@ -13,11 +13,11 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "base/base_api.h"
+#include "whitebox-ui/api.h"
 
 using HWND = struct HWND__ *;
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Moves window to the center of its monitor.
@@ -25,8 +25,8 @@ namespace wb::base::windows::ui {
  * @param repaint_after Should repaint window after move?
  * @return true on success, false otherwise.
  */
-WB_BASE_API bool MoveWindowToItsDisplayCenter(_In_ HWND window,
-                                              _In_ bool repaint_after) noexcept;
+WB_WHITEBOX_UI_API bool MoveWindowToItsDisplayCenter(
+    _In_ HWND window, _In_ bool repaint_after) noexcept;
 
 /**
  * @brief Flashes window caption and title bar.
@@ -35,7 +35,7 @@ WB_BASE_API bool MoveWindowToItsDisplayCenter(_In_ HWND window,
  * flashes.
  * @return true if window is flashing, false otherwise.
  */
-WB_BASE_API bool FlashWindowByClass(
+WB_WHITEBOX_UI_API bool FlashWindowByClass(
     _In_ const char *window_class_name,
     _In_ std::chrono::milliseconds timeout_between_flashes) noexcept;
 
@@ -76,6 +76,6 @@ template <typename T>
 }
 #endif  // !UNICODE
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_WINDOW_UTILITIES_H_
+#endif  // !WB_WHITEBOX_UI_WIN_WINDOW_UTILITIES_H_

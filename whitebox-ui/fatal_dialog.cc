@@ -13,7 +13,7 @@
 #endif
 
 #ifdef WB_OS_WIN
-#include "base/win/ui/task_dialog.h"
+#include "whitebox-ui/win/task_dialog.h"
 #endif
 
 #include "base/deps/g3log/g3log.h"
@@ -95,7 +95,7 @@ namespace wb::ui {
     G3DCHECK(error.is_succeeded()) << "Fatal dialog can't be shown: " << error;
 #elif defined(WB_OS_WIN)
     using namespace wb::base;
-    using namespace wb::base::windows;
+    using namespace wb::ui::win;
 
     auto& intl = context.intl;
 
@@ -103,24 +103,24 @@ namespace wb::ui {
                                                        : ""};
     auto collapse_settings =
         !technical_details.empty()
-            ? std::optional<windows::ui::DialogBoxCollapseSettings>(
+            ? std::optional<DialogBoxCollapseSettings>(
                   std::in_place, intl::l18n(intl, "Hide techical details"),
                   intl::l18n(intl, "See techical details"), technical_details)
-            : std::optional<windows::ui::DialogBoxCollapseSettings>{};
+            : std::optional<DialogBoxCollapseSettings>{};
     const bool rtl_layout{context.text_layout ==
                           intl::StringLayout::RightToLeft};
 
-    windows::ui::DialogBoxSettings dialog_settings(
+    DialogBoxSettings dialog_settings(
         nullptr, title, main_instruction_message, std::move(collapse_settings),
         content_message,
         intl::l18n(intl,
                    "<A "
                    "HREF=\"https://github.com/The-White-Box/whitebox/"
                    "issues\">Nudge</A> authors"),
-        windows::ui::DialogBoxButton::kOk, context.main_icon_id,
-        context.small_icon_id, rtl_layout);
-    [[maybe_unused]] const auto result = windows::ui::ShowDialogBox(
-        windows::ui::DialogBoxKind::kError, dialog_settings);
+        DialogBoxButton::kOk, context.main_icon_id, context.small_icon_id,
+        rtl_layout);
+    [[maybe_unused]] const auto result =
+        ShowDialogBox(DialogBoxKind::kError, dialog_settings);
     // Well, dialog may not be shown (too low RAM, etc.).  So just ignore result
     // in Release.
     G3DCHECK(!std2::get_error(result))

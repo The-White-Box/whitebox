@@ -4,8 +4,8 @@
 //
 // Windows Task Dialog.
 
-#ifndef WB_BASE_WIN_UI_TASK_DIALOG_H_
-#define WB_BASE_WIN_UI_TASK_DIALOG_H_
+#ifndef WB_WHITEBOX_UI_WIN_TASK_DIALOG_H_
+#define WB_WHITEBOX_UI_WIN_TASK_DIALOG_H_
 
 #include <sal.h>
 
@@ -14,13 +14,13 @@
 #include <string>
 #include <variant>
 
-#include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/std2/system_error_ext.h"
+#include "whitebox-ui/api.h"
 
 using HWND = struct HWND__ *;
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Kind of dialog box.
@@ -82,8 +82,8 @@ enum class DialogBoxButton {
  */
 [[nodiscard]] constexpr DialogBoxButton operator|(
     DialogBoxButton left, DialogBoxButton right) noexcept {
-  return static_cast<DialogBoxButton>(underlying_cast(left) |
-                                      underlying_cast(right));
+  return static_cast<DialogBoxButton>(base::underlying_cast(left) |
+                                      base::underlying_cast(right));
 }
 
 /**
@@ -94,8 +94,8 @@ enum class DialogBoxButton {
  */
 [[nodiscard]] constexpr DialogBoxButton operator&(
     DialogBoxButton left, DialogBoxButton right) noexcept {
-  return static_cast<DialogBoxButton>(underlying_cast(left) &
-                                      underlying_cast(right));
+  return static_cast<DialogBoxButton>(base::underlying_cast(left) &
+                                      base::underlying_cast(right));
 }
 
 /**
@@ -218,9 +218,9 @@ struct DialogBoxSettings {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
+WB_WHITEBOX_UI_API base::std2::result<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings &settings) noexcept;
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_TASK_DIALOG_H_
+#endif  // !WB_WHITEBOX_UI_WIN_TASK_DIALOG_H_

@@ -4,15 +4,15 @@
 //
 // Scoped window cursor visibility toggler.
 
-#ifndef WB_BASE_WIN_UI_SCOPED_TOGGLE_CURSOR_H_
-#define WB_BASE_WIN_UI_SCOPED_TOGGLE_CURSOR_H_
+#ifndef WB_WHITEBOX_UI_WIN_SCOPED_TOGGLE_CURSOR_H_
+#define WB_WHITEBOX_UI_WIN_SCOPED_TOGGLE_CURSOR_H_
 
 #include "base/base_macroses.h"
 #include "build/compiler_config.h"
 
 WB_ATTRIBUTE_DLL_IMPORT int __stdcall ShowCursor(_In_ int bShow);
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Hides cursor in scope and reverts back when out of scope.
@@ -57,6 +57,6 @@ class ScopedToggleCursor {
   const bool is_show_cursor_;
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_SCOPED_TOGGLE_CURSOR_H_
+#endif  // !WB_WHITEBOX_UI_WIN_SCOPED_TOGGLE_CURSOR_H_

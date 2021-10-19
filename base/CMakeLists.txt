@@ -31,12 +31,10 @@ if (WB_OS_WIN)
 
   # Delay load DLLs we use in rare call paths.
   list(APPEND WB_BASE_LINK_OPTIONS
-    "/DELAYLOAD:Avrt.dll" "/DELAYLOAD:Comctl32.dll" "/DELAYLOAD:Shell32.dll")
+    "/DELAYLOAD:Avrt.dll")
   # Avrt for MMCSS support.
-  # Comctl32 for TaskDialogIndirect.
   # Delayimp for DLL delay load support.
-  # Shell32 for ShellExecuteW.
-  list(APPEND WB_BASE_LINK_DEPS Avrt Comctl32 Delayimp Shell32)
+  list(APPEND WB_BASE_LINK_DEPS Avrt Delayimp)
 endif()
 
 wb_cxx_shared_library(

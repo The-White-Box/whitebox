@@ -10,11 +10,11 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/win/error_handling/scoped_thread_last_error.h"
 #include "base/win/system_error_ext.h"
-#include "base/win/ui/scoped_window_class.h"
-#include "base/win/ui/window_utilities.h"
 #include "base/win/windows_light.h"
+#include "whitebox-ui/win/scoped_window_class.h"
+#include "whitebox-ui/win/window_utilities.h"
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 BaseWindow::BaseWindow(BaseWindow &&w) noexcept
     : instance_{w.instance_},
@@ -54,7 +54,7 @@ bool BaseWindow::Update() const noexcept {
   return !!::UpdateWindow(hwnd_);
 }
 
-[[nodiscard]] wb::base::un<ScopedWindowClass> BaseWindow::CreateWindowClass(
+[[nodiscard]] base::un<ScopedWindowClass> BaseWindow::CreateWindowClass(
     _In_ const WindowDefinition &definition,
     _In_ const unsigned long class_style, _In_ const char *class_name,
     _In_ WNDPROC window_message_handler) noexcept {
@@ -62,13 +62,11 @@ bool BaseWindow::Update() const noexcept {
   G3DCHECK(!!window_message_handler);
 
   const auto icon =
-      LoadIcon(definition.instance,
-               wb::base::windows::ui::MakeIntResource(definition.icon_id));
+      LoadIcon(definition.instance, MakeIntResource(definition.icon_id));
   G3DCHECK(!!icon);
 
-  const auto icon_small = LoadIcon(
-      definition.instance,
-      wb::base::windows::ui::MakeIntResource(definition.icon_small_id));
+  const auto icon_small =
+      LoadIcon(definition.instance, MakeIntResource(definition.icon_small_id));
   G3DCHECK(!!icon_small);
 
   WNDCLASSEX wnd_class = {sizeof(wnd_class)};
@@ -86,4 +84,4 @@ bool BaseWindow::Update() const noexcept {
   return std::make_unique<ScopedWindowClass>(wnd_class.hInstance, wnd_class);
 }
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win

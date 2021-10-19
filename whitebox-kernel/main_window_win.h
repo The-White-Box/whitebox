@@ -17,12 +17,12 @@
 #include "base/intl/lookup.h"
 #include "base/sampling_profiler.h"
 #include "base/win/mmcss/scoped_mmcss_toggle_dwm.h"
-#include "base/win/ui/accessibility_shortcut_keys_toggler.h"
-#include "base/win/ui/base_window.h"
-#include "base/win/ui/full_screen_window_toggler.h"
 #include "hal/drivers/hid/keyboard_win.h"
 #include "hal/drivers/hid/mouse_win.h"
 #include "whitebox-ui/fatal_dialog.h"
+#include "whitebox-ui/win/accessibility_shortcut_keys_toggler.h"
+#include "whitebox-ui/win/base_window.h"
+#include "whitebox-ui/win/full_screen_window_toggler.h"
 
 /**
  * @brief Raw input handle.
@@ -34,7 +34,7 @@ namespace wb::kernel {
 /**
  * @brief Main app window.
  */
-class MainWindow : public wb::base::windows::ui::BaseWindow {
+class MainWindow : public wb::ui::win::BaseWindow {
   friend class BaseWindow;
 
  public:
@@ -125,12 +125,12 @@ class MainWindow : public wb::base::windows::ui::BaseWindow {
   /**
    * @brief Scoped Full Screen toggler.
    */
-  wb::base::un<wb::base::windows::ui::FullScreenWindowToggler>
+  wb::base::un<wb::ui::win::FullScreenWindowToggler>
       full_screen_window_toggler_;
   /**
    * @brief Windows Accessibility Shortcut Keys toggler.
    */
-  wb::base::windows::ui::AccessibilityShortcutKeysToggler
+  wb::ui::win::AccessibilityShortcutKeysToggler
       accessibility_shortcut_keys_toggler_;
   /**
    * @brief Display Window Manager runs using Multimedia Class Schedule Service

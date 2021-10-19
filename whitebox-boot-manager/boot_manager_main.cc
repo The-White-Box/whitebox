@@ -31,10 +31,10 @@
 #include "base/win/mmcss/scoped_mmcss_thread_controller.h"
 #include "base/win/scoped_minimum_timer_resolution.h"
 #include "base/win/security/process_mitigations.h"
-#include "base/win/ui/window_utilities.h"
 #include "base/win/windows_version.h"
 #include "build/static_settings_config.h"
 #include "whitebox-kernel/main_window_win.h"
+#include "whitebox-ui/win/window_utilities.h"
 #else
 #include "base/scoped_new_handler.h"
 #endif
@@ -329,7 +329,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
 
     const std::string window_class_name{
         wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
-    ui::FlashWindowByClass(window_class_name.c_str(), 900ms);
+    wb::ui::win::FlashWindowByClass(window_class_name.c_str(), 900ms);
 #endif
 
     wb::ui::FatalDialog(

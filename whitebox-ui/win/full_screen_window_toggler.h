@@ -4,21 +4,21 @@
 //
 // Toggles window full/narrow screen.
 
-#ifndef WB_BASE_WIN_UI_FULL_SCREEN_WINDOW_TOGGLER_H_
-#define WB_BASE_WIN_UI_FULL_SCREEN_WINDOW_TOGGLER_H_
+#ifndef WB_WHITEBOX_UI_WIN_FULL_SCREEN_WINDOW_TOGGLER_H_
+#define WB_WHITEBOX_UI_WIN_FULL_SCREEN_WINDOW_TOGGLER_H_
 
-#include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "build/compiler_config.h"
+#include "whitebox-ui/api.h"
 
 using HWND = struct HWND__ *;
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Toggles window full/narrow screen.
  */
-class WB_BASE_API FullScreenWindowToggler {
+class WB_WHITEBOX_UI_API FullScreenWindowToggler {
  public:
   FullScreenWindowToggler(_In_ HWND window,
                           _In_ long default_window_style) noexcept;
@@ -49,10 +49,10 @@ class WB_BASE_API FullScreenWindowToggler {
     /**
      * @brief Actual implementation.
      */
-    wb::base::un<FullScreenWindowTogglerImpl> impl_;
+    base::un<FullScreenWindowTogglerImpl> impl_;
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_FULL_SCREEN_WINDOW_TOGGLER_H_
+#endif  // !WB_WHITEBOX_UI_WIN_FULL_SCREEN_WINDOW_TOGGLER_H_

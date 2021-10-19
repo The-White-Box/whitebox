@@ -14,7 +14,7 @@
 #include "base/win/system_error_ext.h"
 #include "base/win/windows_light.h"
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Actual implementation of window full/narrow screen toggler.
@@ -64,7 +64,9 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
       pad_;
 
   [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
-    error_handling::ScopedThreadLastError restore_last_error_on_out;
+    using namespace wb::base;
+
+    windows::error_handling::ScopedThreadLastError restore_last_error_on_out;
 
     // To determine success or failure, clear the last error information by
     // calling SetLastError with 0, then call SetWindowLongPtr.  Function
@@ -73,7 +75,7 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
     std2::native_last_errno({});
 
     const LONG_PTR rc{::SetWindowLongPtr(window_, GWL_STYLE, window_style)};
-    const bool ok{rc != 0 || !std2::system_last_error_code()};
+    const bool ok{rc != 0 || !wb::base::std2::system_last_error_code()};
 
     G3DCHECK(ok);
 
@@ -135,4 +137,4 @@ bool FullScreenWindowToggler::Toggle(bool toggle) noexcept {
   return impl_->IsFullScreen();
 }
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win

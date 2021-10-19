@@ -4,8 +4,8 @@
 //
 // Scoped window class.
 
-#ifndef WB_BASE_WIN_UI_SCOPED_WINDOW_CLASS_H_
-#define WB_BASE_WIN_UI_SCOPED_WINDOW_CLASS_H_
+#ifndef WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_CLASS_H_
+#define WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_CLASS_H_
 
 #include <sal.h>
 
@@ -25,7 +25,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT unsigned short __stdcall RegisterClassExA(
 extern "C" WB_ATTRIBUTE_DLL_IMPORT int __stdcall UnregisterClassA(
     _In_ const char *lpClassName, _In_opt_ HINSTANCE hInstance);
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Make long from args.
@@ -54,7 +54,7 @@ class ScopedWindowClass {
                              _In_ WNDCLASSEXA &class_definition) noexcept
       : instance_{instance},
         class_atom_{::RegisterClassExA(&class_definition)},
-        error_code_{get_error(class_atom_)} {
+        error_code_{base::windows::get_error(class_atom_)} {
     G3DCHECK(!error_code());
   }
 
@@ -65,7 +65,7 @@ class ScopedWindowClass {
    */
   ~ScopedWindowClass() noexcept {
     if (!error_code_) {
-      const std::error_code rc{get_error(::UnregisterClassA(
+      const std::error_code rc{base::windows::get_error(::UnregisterClassA(
           reinterpret_cast<const char *>(
               static_cast<uintptr_t>(MakeLong(class_atom_, 0))),
           instance_))};
@@ -100,6 +100,6 @@ class ScopedWindowClass {
   const std::error_code error_code_;
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_SCOPED_WINDOW_CLASS_H_
+#endif  // !WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_CLASS_H_

@@ -4,19 +4,19 @@
 //
 // Toggles windows accessibility shortcut keys.
 
-#ifndef WB_BASE_WIN_UI_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
-#define WB_BASE_WIN_UI_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
+#ifndef WB_WHITEBOX_UI_WIN_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
+#define WB_WHITEBOX_UI_WIN_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
 
-#include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "build/compiler_config.h"
+#include "whitebox-ui/api.h"
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Toggles windows accessibility shortcut keys.
  */
-class WB_BASE_API AccessibilityShortcutKeysToggler {
+class WB_WHITEBOX_UI_API AccessibilityShortcutKeysToggler {
  public:
   /**
    * @brief Creates windows accessibility shortcut keys toggler.
@@ -47,10 +47,10 @@ class WB_BASE_API AccessibilityShortcutKeysToggler {
     /**
      * @brief Actual implementation.
      */
-    wb::base::un<AccessibilityShortcutKeysTogglerImpl> impl_;
+    base::un<AccessibilityShortcutKeysTogglerImpl> impl_;
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
+#endif  // !WB_WHITEBOX_UI_WIN_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_

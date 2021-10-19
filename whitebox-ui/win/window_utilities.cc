@@ -13,7 +13,7 @@
 #include "base/win/windows_light.h"
 #include "build/compiler_config.h"
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Moves window to the center of its monitor.
@@ -21,7 +21,7 @@ namespace wb::base::windows::ui {
  * @param repaint_after Should repaint window after move?
  * @return true on success, false otherwise.
  */
-WB_BASE_API bool MoveWindowToItsDisplayCenter(
+WB_WHITEBOX_UI_API bool MoveWindowToItsDisplayCenter(
     _In_ HWND window, _In_ bool repaint_after) noexcept {
   G3DCHECK(!!window);
 
@@ -62,7 +62,7 @@ WB_BASE_API bool MoveWindowToItsDisplayCenter(
  * flashes.
  * @return true if window is flashing, false otherwise.
  */
-WB_BASE_API bool FlashWindowByClass(
+WB_WHITEBOX_UI_API bool FlashWindowByClass(
     _In_ const char* window_class_name,
     _In_ std::chrono::milliseconds timeout_between_flashes) noexcept {
   G3DCHECK(!!window_class_name);
@@ -95,4 +95,4 @@ WB_BASE_API bool FlashWindowByClass(
   return false;
 }
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win

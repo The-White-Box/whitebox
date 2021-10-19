@@ -4,8 +4,8 @@
 //
 // Window message handlers.
 
-#ifndef WB_BASE_WIN_UI_WINDOW_MESSAGE_HANDLERS_H_
-#define WB_BASE_WIN_UI_WINDOW_MESSAGE_HANDLERS_H_
+#ifndef WB_WHITEBOX_UI_WIN_WINDOW_MESSAGE_HANDLERS_H_
+#define WB_WHITEBOX_UI_WIN_WINDOW_MESSAGE_HANDLERS_H_
 
 #include <windowsx.h>
 
@@ -29,4 +29,4 @@
   (LRESULT)(fn)((hwnd), WM_INPUT, (WPARAM)(unsigned char)(input_code), \
                 (LPARAM)(HRAWINPUT)(input))
 
-#endif  // !WB_BASE_WIN_UI_WINDOW_MESSAGE_HANDLERS_H_
+#endif  // !WB_WHITEBOX_UI_WIN_WINDOW_MESSAGE_HANDLERS_H_

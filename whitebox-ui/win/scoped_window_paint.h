@@ -4,31 +4,31 @@
 //
 // Scoped window painting on GDI device context.
 
-#ifndef WB_BASE_WIN_UI_SCOPED_WINDOW_PAINT_H_
-#define WB_BASE_WIN_UI_SCOPED_WINDOW_PAINT_H_
+#ifndef WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_PAINT_H_
+#define WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_PAINT_H_
 
-#include "base/base_api.h"
 #include "base/base_macroses.h"
 #include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
+#include "whitebox-ui/api.h"
 
 using HWND = struct HWND__*;
 using PAINTSTRUCT = struct tagPAINTSTRUCT;
 using RECT = struct tagRECT;
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Paints to window in the scope.
  */
-class WB_BASE_API ScopedWindowPaint {
+class WB_WHITEBOX_UI_API ScopedWindowPaint {
  public:
   /**
    * @brief Creates scoped window painter.
    * @param window Window.
    * @return ScopedWindowPaint.
    */
-  [[nodiscard]] static std2::result<ScopedWindowPaint> New(
+  [[nodiscard]] static base::std2::result<ScopedWindowPaint> New(
       _In_ HWND window) noexcept;
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedWindowPaint);
@@ -91,6 +91,6 @@ class WB_BASE_API ScopedWindowPaint {
   explicit ScopedWindowPaint(_In_ HWND window) noexcept;
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_SCOPED_WINDOW_PAINT_H_
+#endif  // !WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_PAINT_H_

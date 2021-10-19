@@ -4,8 +4,8 @@
 //
 // Base UI window.
 
-#ifndef WB_BASE_WIN_UI_WINDOW_DEFINITION_H_
-#define WB_BASE_WIN_UI_WINDOW_DEFINITION_H_
+#ifndef WB_WHITEBOX_UI_WIN_WINDOW_DEFINITION_H_
+#define WB_WHITEBOX_UI_WIN_WINDOW_DEFINITION_H_
 
 #include <sal.h>
 
@@ -15,8 +15,14 @@ using HICON = struct HICON__ *;
 using HCURSOR = HICON; /* HICONs & HCURSORs are polymorphic */
 using HMENU = struct HMENU__ *;
 using HWND = struct HWND__ *;
+using DWORD = unsigned long;
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
+
+/**
+ * @brief Use default position for window.
+*/
+constexpr inline int kUseDefaultPosition{(int)0x80000000};
 
 /**
  * @brief Window definition.
@@ -43,10 +49,10 @@ struct WindowDefinition {
                    _In_ int icon_id_, _In_ int icon_small_id_,
                    _In_opt_ HCURSOR cursor_, _In_opt_ HBRUSH class_brush_,
                    _In_ unsigned long style_, _In_ unsigned long ex_style_ = 0,
-                   _In_ int x_pos_ = CW_USEDEFAULT,
-                   _In_ int y_pos_ = CW_USEDEFAULT,
-                   _In_ int width_ = CW_USEDEFAULT,
-                   _In_ int height_ = CW_USEDEFAULT,
+                   _In_ int x_pos_ = kUseDefaultPosition,
+                   _In_ int y_pos_ = kUseDefaultPosition,
+                   _In_ int width_ = kUseDefaultPosition,
+                   _In_ int height_ = kUseDefaultPosition,
                    _In_opt_ HWND parent_window_ = nullptr,
                    _In_opt_ HMENU menu_ = nullptr) noexcept
       : instance{instance_},
@@ -75,6 +81,6 @@ struct WindowDefinition {
   HMENU menu;
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_WINDOW_DEFINITION_H_
+#endif  // !WB_WHITEBOX_UI_WIN_WINDOW_DEFINITION_H_

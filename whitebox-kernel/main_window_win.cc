@@ -13,13 +13,13 @@
 
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
-#include "base/win/ui/scoped_change_cursor.h"
-#include "base/win/ui/scoped_window_paint.h"
-#include "base/win/ui/window_message_handlers.h"
-#include "base/win/ui/window_utilities.h"
 #include "build/static_settings_config.h"
 #include "hal/drivers/hid/raw_input_win.h"
 #include "whitebox-ui/fatal_dialog.h"
+#include "whitebox-ui/win/scoped_change_cursor.h"
+#include "whitebox-ui/win/scoped_window_paint.h"
+#include "whitebox-ui/win/window_message_handlers.h"
+#include "whitebox-ui/win/window_utilities.h"
 
 namespace wb::kernel {
 
@@ -44,13 +44,14 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
 
   using namespace wb::base;
   using namespace wb::base::windows;
+  using namespace wb::ui::win;
 
   // We are loading.
-  windows::ui::ScopedChangeCursor scoped_app_starting_cursor{
+  ScopedChangeCursor scoped_app_starting_cursor{
       ::LoadCursor(nullptr, IDC_APPSTARTING)};
 
   // For nice looking window.
-  windows::ui::MoveWindowToItsDisplayCenter(window, false);
+  MoveWindowToItsDisplayCenter(window, false);
 
   // TODO(dimhotepus): What if only joystick?
 
@@ -94,7 +95,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
 
   // Now can go full screen.
   full_screen_window_toggler_.reset(
-      new windows::ui::FullScreenWindowToggler{window, create_struct->style});
+      new FullScreenWindowToggler{window, create_struct->style});
 
   // When window is of normal size, should enable DWM MMCSS to speed up window
   // composition.
@@ -197,7 +198,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
 
   {
     auto scoped_window_paint_result =
-        windows::ui::ScopedWindowPaint::New(window);
+        wb::ui::win::ScopedWindowPaint::New(window);
 
     using namespace std::chrono_literals;
 

@@ -4,8 +4,8 @@
 //
 // Peek window message queue dispatcher.
 
-#ifndef WB_BASE_WIN_UI_PEEK_MESSAGE_DISPATCHER_H_
-#define WB_BASE_WIN_UI_PEEK_MESSAGE_DISPATCHER_H_
+#ifndef WB_WHITEBOX_UI_WIN_PEEK_MESSAGE_DISPATCHER_H_
+#define WB_WHITEBOX_UI_WIN_PEEK_MESSAGE_DISPATCHER_H_
 
 #include <type_traits>
 
@@ -13,7 +13,7 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/win/windows_light.h"
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Default message predispatcher function.  Predispatch nothing.
@@ -100,6 +100,6 @@ class PeekMessageDispatcher {
   const HWND hwnd_;
 };
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win
 
-#endif  // !WB_BASE_WIN_UI_PEEK_MESSAGE_DISPATCHER_H_
+#endif  // !WB_WHITEBOX_UI_WIN_PEEK_MESSAGE_DISPATCHER_H_

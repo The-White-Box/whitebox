@@ -10,7 +10,7 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/win/windows_light.h"
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Implementation of scoped window painter.
@@ -115,12 +115,13 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
   PAINTSTRUCT paint_struct_;
 };
 
-[[nodiscard]] std2::result<ScopedWindowPaint> ScopedWindowPaint::New(
+[[nodiscard]] base::std2::result<ScopedWindowPaint> ScopedWindowPaint::New(
     _In_ HWND window) noexcept {
   ScopedWindowPaint scoped_window_paint{window};
   return scoped_window_paint.impl_->is_succeeded()
-             ? std2::result<ScopedWindowPaint>{std::move(scoped_window_paint)}
-             : std2::result<ScopedWindowPaint>{std::error_code{
+             ? base::std2::result<ScopedWindowPaint>{std::move(
+                   scoped_window_paint)}
+             : base::std2::result<ScopedWindowPaint>{std::error_code{
                    (int)ERROR_DC_NOT_FOUND, std::system_category()}};
 }
 
@@ -146,4 +147,4 @@ bool ScopedWindowPaint::BlitPattern(
   return impl_->PaintInfo();
 }
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win

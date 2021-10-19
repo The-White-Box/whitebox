@@ -12,9 +12,9 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/std2/string_ext.h"
 #include "base/win/system_error_ext.h"
-#include "base/win/ui/window_message_handlers.h"
-#include "base/win/ui/window_utilities.h"
 #include "base/win/windows_light.h"
+#include "whitebox-ui/win/window_message_handlers.h"
+#include "whitebox-ui/win/window_utilities.h"
 //
 #include <Commctrl.h>
 #include <shellapi.h>
@@ -26,19 +26,18 @@ namespace {
  * @param kind Dialog kind.
  * @return Task dialog icon resource.
  */
-constexpr wchar_t* GetIconByKind(
-    wb::base::windows::ui::DialogBoxKind kind) noexcept {
+constexpr wchar_t* GetIconByKind(wb::ui::win::DialogBoxKind kind) noexcept {
   switch (kind) {
-    case wb::base::windows::ui::DialogBoxKind::kInformation:
+    case wb::ui::win::DialogBoxKind::kInformation:
       // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_INFORMATION_ICON;
-    case wb::base::windows::ui::DialogBoxKind::kWarning:
+    case wb::ui::win::DialogBoxKind::kWarning:
       // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_WARNING_ICON;
-    case wb::base::windows::ui::DialogBoxKind::kError:
+    case wb::ui::win::DialogBoxKind::kError:
       // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_ERROR_ICON;
-    case wb::base::windows::ui::DialogBoxKind::kShield:
+    case wb::ui::win::DialogBoxKind::kShield:
       // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
       return TD_SHIELD_ICON;
     default:
@@ -54,24 +53,23 @@ constexpr wchar_t* GetIconByKind(
  * @param button_id Button id.
  * @return Dialog box button
  */
-constexpr wb::base::windows::ui::DialogBoxButton GetButtonById(
-    int button_id) noexcept {
+constexpr wb::ui::win::DialogBoxButton GetButtonById(int button_id) noexcept {
   switch (button_id) {
     case IDOK:
-      return wb::base::windows::ui::DialogBoxButton::kOk;
+      return wb::ui::win::DialogBoxButton::kOk;
     case IDCANCEL:
-      return wb::base::windows::ui::DialogBoxButton::kCancel;
+      return wb::ui::win::DialogBoxButton::kCancel;
     case IDRETRY:
-      return wb::base::windows::ui::DialogBoxButton::kRetry;
+      return wb::ui::win::DialogBoxButton::kRetry;
     case IDYES:
-      return wb::base::windows::ui::DialogBoxButton::kYes;
+      return wb::ui::win::DialogBoxButton::kYes;
     case IDNO:
-      return wb::base::windows::ui::DialogBoxButton::kNo;
+      return wb::ui::win::DialogBoxButton::kNo;
     case IDCLOSE:
-      return wb::base::windows::ui::DialogBoxButton::kClose;
+      return wb::ui::win::DialogBoxButton::kClose;
     default:
       G3DLOG(FATAL) << "Unknown dialog box button id: " << button_id;
-      return wb::base::windows::ui::DialogBoxButton::kCancel;
+      return wb::ui::win::DialogBoxButton::kCancel;
   }
 }
 
@@ -83,10 +81,9 @@ constexpr wb::base::windows::ui::DialogBoxButton GetButtonById(
  */
 template <int icon_type>
 inline void SetTaskDialogIcon(_In_ HWND window, _In_ int icon_id) noexcept {
-  const HANDLE exe_icon{
-      ::LoadImage(::GetModuleHandle(nullptr),
-                  wb::base::windows::ui::MakeIntResource(icon_id), IMAGE_ICON,
-                  0, 0, LR_DEFAULTSIZE)};
+  const HANDLE exe_icon{::LoadImage(::GetModuleHandle(nullptr),
+                                    wb::ui::win::MakeIntResource(icon_id),
+                                    IMAGE_ICON, 0, 0, LR_DEFAULTSIZE)};
   G3DCHECK(!!exe_icon);
 
   ::SendMessage(window, WM_SETICON, icon_type,
@@ -178,7 +175,7 @@ HRESULT __stdcall ShowDialogBoxCallback(_In_ HWND hwnd, _In_ UINT msg,
 
 }  // namespace
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Shows dialog box.  The parent window should not be hidden or disabled
@@ -187,8 +184,10 @@ namespace wb::base::windows::ui {
  * @param settings Dialog box settings.
  * @return true on success, false on failure.
  */
-WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
+WB_WHITEBOX_UI_API base::std2::result<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings& settings) noexcept {
+  using namespace wb::base;
+
   const std::wstring title{std2::UTF8ToWide(settings.title)};
   const std::wstring main_instruction{
       std2::UTF8ToWide(settings.main_instruction)};
@@ -239,7 +238,7 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
       .cxWidth = 0};
 
   int pressed_button_id;
-  const std::error_code rc{get_error(
+  const std::error_code rc{windows::get_error(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
   G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";
@@ -247,4 +246,4 @@ WB_BASE_API std2::result<DialogBoxButton> ShowDialogBox(
              : std2::result<DialogBoxButton>{rc};
 }
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win

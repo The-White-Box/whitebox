@@ -65,7 +65,7 @@ system_key_concept<key_action, TSystemKey, std::error_code> SystemKeysInfo(
 
 }  // namespace
 
-namespace wb::base::windows::ui {
+namespace wb::ui::win {
 
 /**
  * @brief Windows accessibility shortcut keys toggler implementation.  See
@@ -214,4 +214,4 @@ bool AccessibilityShortcutKeysToggler::Toggle(bool toggle) noexcept {
   return impl_->Toggle(toggle);
 }
 
-}  // namespace wb::base::windows::ui
+}  // namespace wb::ui::win

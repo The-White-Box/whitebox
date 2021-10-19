@@ -11,10 +11,10 @@
 #include "whitebox-ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
-#include "base/win/ui/base_window.h"
-#include "base/win/ui/peek_message_dispatcher.h"
 #include "base/win/windows_light.h"
 #include "whitebox-kernel/main_window_win.h"
+#include "whitebox-ui/win/base_window.h"
+#include "whitebox-ui/win/peek_message_dispatcher.h"
 #else
 #include <chrono>
 #include <thread>
@@ -38,15 +38,14 @@ namespace {
  * @param height WIndow height.
  * @return Window definition.
  */
-[[nodiscard]] wb::base::windows::ui::WindowDefinition
-CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
-                           const char* window_title, _In_ int width,
-                           _In_ int height) noexcept {
+[[nodiscard]] wb::ui::win::WindowDefinition CreateMainWindowDefinition(
+    const wb::kernel::KernelArgs& kernel_args, const char* window_title,
+    _In_ int width, _In_ int height) noexcept {
   G3DCHECK(!!kernel_args.instance);
 
   // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
   const auto cursor = LoadCursor(nullptr, IDC_ARROW);
-  return wb::base::windows::ui::WindowDefinition{
+  return wb::ui::win::WindowDefinition{
       kernel_args.instance, window_title, kernel_args.main_icon_id,
       kernel_args.small_icon_id, cursor,
       // TODO(dimhotepus): Remove when use Vulkan renderer?
@@ -69,14 +68,13 @@ CreateMainWindowDefinition(const wb::kernel::KernelArgs& kernel_args,
     }
   };
 
-  using namespace wb::base::windows;
-  ui::PeekMessageDispatcher message_dispatcher;
+  using namespace wb::ui::win;
+  PeekMessageDispatcher message_dispatcher;
 
   // Main message app loop.
   // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in dispatcher.
   while (!is_done) {
-    message_dispatcher.Dispatch(ui::HasNoPreDispatchMessage,
-                                handle_quit_message);
+    message_dispatcher.Dispatch(HasNoPreDispatchMessage, handle_quit_message);
   }
 
   G3LOG_IF(WARNING, rc != 0)
@@ -171,12 +169,12 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto& intl = kernel_args.intl;
 
 #ifdef WB_OS_WIN
-  const windows::ui::WindowDefinition window_definition{
+  const wb::ui::win::WindowDefinition window_definition{
       CreateMainWindowDefinition(kernel_args, kernel_args.app_description,
                                  window_width, window_height)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
-  auto window_result = windows::ui::BaseWindow::New<MainWindow>(
+  auto window_result = wb::ui::win::BaseWindow::New<MainWindow>(
       window_definition, window_class_style, intl);
   if (auto* window_ptr = std2::get_result(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
