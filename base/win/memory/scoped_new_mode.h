@@ -13,7 +13,7 @@
 
 #include "base/base_macroses.h"
 
-namespace wb::base::windows::memory {
+namespace wb::base::win::memory {
 
 /**
  * @brief Flag determines malloc behaviour on allocation failure.
@@ -58,6 +58,6 @@ class ScopedNewMode {
   const int previous_new_mode_;
 };
 
-}  // namespace wb::base::windows::memory
+}  // namespace wb::base::win::memory
 
 #endif  // !WB_BASE_WIN_MEMORY_SCOPED_NEW_MODE_H_

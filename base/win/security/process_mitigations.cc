@@ -12,7 +12,7 @@
 #include "base/win/windows_light.h"
 #include "base/win/windows_version.h"
 
-namespace wb::base::windows::security {
+namespace wb::base::win::security {
 
 /**
  * @brief Enables secure set of directories to search when the calling process
@@ -404,7 +404,7 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
   }
 
 #if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-  if (windows::GetVersion() < windows::Version::WIN10_20H1)
+  if (win::GetVersion() < win::Version::WIN10_20H1)
     WB_ATTRIBUTE_UNLIKELY {
       // Policies below require Windows 10, version 2004+ (Build 19041)
       std::get<std::error_code>(old_uss_policy_to_new_errc_) =
@@ -539,4 +539,4 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies(
 ScopedProcessMitigationPolicies::~ScopedProcessMitigationPolicies() noexcept =
     default;
 
-}  // namespace wb::base::windows::security
+}  // namespace wb::base::win::security

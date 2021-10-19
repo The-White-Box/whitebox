@@ -187,6 +187,7 @@ namespace wb::ui::win {
 WB_WHITEBOX_UI_API base::std2::result<DialogBoxButton> ShowDialogBox(
     DialogBoxKind kind, const DialogBoxSettings& settings) noexcept {
   using namespace wb::base;
+  using namespace wb::ui;
 
   const std::wstring title{std2::UTF8ToWide(settings.title)};
   const std::wstring main_instruction{
@@ -238,7 +239,7 @@ WB_WHITEBOX_UI_API base::std2::result<DialogBoxButton> ShowDialogBox(
       .cxWidth = 0};
 
   int pressed_button_id;
-  const std::error_code rc{windows::get_error(
+  const std::error_code rc{wb::base::win::get_error(
       ::TaskDialogIndirect(&config, &pressed_button_id, nullptr, nullptr))};
 
   G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";

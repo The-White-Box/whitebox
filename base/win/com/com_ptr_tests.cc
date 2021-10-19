@@ -105,7 +105,7 @@ struct default_delete<ComptrTest> {
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldDefaultConstructTest) {
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   auto *interface_ptr = p.GetInterfacePtr();
 
   ASSERT_EQ(interface_ptr, nullptr)
@@ -125,7 +125,7 @@ GTEST_TEST(ComPtrTests, ShouldAssignFromRawPointerTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
 
     EXPECT_EQ(raw_ptr->counter, 2UL) << "com_ptr should update interface "
                                         "reference counter after construction "
@@ -151,9 +151,9 @@ GTEST_TEST(ComPtrTests, ShouldCopyComPtrTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
 
     EXPECT_EQ(raw_ptr->counter, 3UL) << "com_ptr should update interface "
                                         "reference counter on com_ptr copying."
@@ -178,9 +178,9 @@ GTEST_TEST(ComPtrTests, ShouldAssignToEmptyComPtrTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2 = p1;
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2 = p1;
 
     EXPECT_EQ(raw_ptr->counter, 3UL)
         << "com_ptr should update interface "
@@ -206,8 +206,8 @@ GTEST_TEST(ComPtrTests, ShouldAssignToExistingComPtrTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{raw_ptr};
 
     p1 = p2;
 
@@ -235,8 +235,8 @@ GTEST_TEST(ComPtrTests, ShouldMoveComPtrTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{
         std::move(p1)};
 
     EXPECT_EQ(raw_ptr->counter, 2UL)
@@ -262,8 +262,8 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToEmptyComPtrTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2 =
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2 =
         std::move(p1);
 
     EXPECT_EQ(raw_ptr->counter, 2UL)
@@ -290,8 +290,8 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
       << std::endl;
 
   {
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
-    wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+    wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{raw_ptr};
 
     p1 = std::move(p2);
 
@@ -310,7 +310,7 @@ GTEST_TEST(ComPtrTests, ShouldMoveAssignToExistingComPtrTest) {
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldGetIidTest) {
   auto actual_iid =
-      wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest>::GetIID();
+      wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest>::GetIID();
 
   EXPECT_EQ(actual_iid, IID_ComptrTest) << "Should get IID.";
 }
@@ -323,7 +323,7 @@ GTEST_TEST(ComPtrTests, ShouldSafeAddRefReleaseComPtrTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
   EXPECT_EQ(raw_ptr->counter, 2UL)
       << "COM class should update reference counter on create from raw ptr."
       << std::endl;
@@ -352,11 +352,11 @@ GTEST_TEST(ComPtrTests, ShouldGetInterfacePtrTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{nullptr};
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{nullptr};
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{
       nullptr};
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p3{raw_ptr};
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p4{
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p3{raw_ptr};
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p4{
       raw_ptr};
 
   EXPECT_EQ(p.GetInterfacePtr(), nullptr)
@@ -378,7 +378,7 @@ GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
   EXPECT_EQ(raw_ptr->counter, 2UL)
       << "COM class should update reference counter on create from raw ptr."
       << std::endl;
@@ -398,7 +398,7 @@ GTEST_TEST(ComPtrTests, ShouldUnsafeAddRefReleaseComPtrTest) {
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToEmptyComPtrTest) {
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   EXPECT_EQ(p.GetInterfacePtr(), nullptr)
       << "com_ptr should have nullptr interface pointer by default."
       << std::endl;
@@ -436,7 +436,7 @@ GTEST_TEST(ComPtrTests, ShouldAttachDetachInterfaceToExistingComPtrTest) {
   ASSERT_NE(raw_ptr1, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr1};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr1};
   EXPECT_EQ(raw_ptr1->counter, 2UL)
       << "COM class 1 should update reference counter on create." << std::endl;
 
@@ -478,7 +478,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyCastToInterfaceOperatorTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class should be instantiated in heap." << std::endl;
 
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{
       raw_ptr};
 
   EXPECT_TRUE(static_cast<IComptrTest *>(p) == raw_ptr)
@@ -502,7 +502,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyOperatorBoolTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
   EXPECT_FALSE(p.operator bool())
       << "com_ptr should be converted to false by default." << std::endl;
 
@@ -524,11 +524,11 @@ GTEST_TEST(ComPtrTests, ShouldApplyConstOperatorBoolTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1;
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1;
   EXPECT_FALSE(p1.operator bool())
       << "com_ptr should be converted to false by default." << std::endl;
 
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{
       raw_ptr};
   EXPECT_TRUE(p2.operator bool())
       << "com_ptr should be converted to true when has interface ptr."
@@ -543,7 +543,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughPointerOperatorTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
 
   EXPECT_EQ(p->AddRef(), 3UL) << "Should add ref." << std::endl;
   EXPECT_EQ(p->Release(), 2UL) << "Should release ref." << std::endl;
@@ -571,7 +571,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyMemberAccessThroughObjectOperatorTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
 
   EXPECT_EQ((*p).AddRef(), 3UL) << "Should add ref." << std::endl;
   EXPECT_EQ((*p).Release(), 2UL) << "Should release ref." << std::endl;
@@ -599,10 +599,10 @@ GTEST_TEST(ComPtrTests, ShouldApplyEqualsNotEqualsOperatorsTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{raw_ptr};
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
-  wb::base::windows::com::com_ptr<IUnknown, &IID_IUnknown> pu{p1};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
+  wb::base::win::com::com_ptr<IUnknown, &IID_IUnknown> pu{p1};
 
   EXPECT_TRUE(p1 == raw_ptr) << "Should equals with raw ptr." << std::endl;
   EXPECT_FALSE(p1 != raw_ptr) << "Should equals with raw ptr (2)." << std::endl;
@@ -630,12 +630,12 @@ GTEST_TEST(ComPtrTests, ShouldApplyConstEqualsNotEqualsOperatorsTest) {
   ASSERT_NE(raw_ptr, nullptr)
       << "COM class 1 should be instantiated in heap." << std::endl;
 
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p1{
       raw_ptr};
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
-  const wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
+  const wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p2{p1};
   // NOLINTNEXTLINE(performance-unnecessary-copy-initialization): Required
-  const wb::base::windows::com::com_ptr<IUnknown, &IID_IUnknown> pu{p1};
+  const wb::base::win::com::com_ptr<IUnknown, &IID_IUnknown> pu{p1};
 
   EXPECT_TRUE(p1 == raw_ptr) << "Should equals with raw ptr." << std::endl;
   EXPECT_FALSE(p1 != raw_ptr) << "Should equals with raw ptr (2)." << std::endl;
@@ -665,7 +665,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToEmptyComPtrTest) {
   EXPECT_EQ(raw_ptr->counter, 1UL)
       << "Should set reference counter." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p;
 
   IComptrTest **pp1 = &p;
   EXPECT_NE(pp1, nullptr) << "Should get interface pointer address."
@@ -695,7 +695,7 @@ GTEST_TEST(ComPtrTests, ShouldApplyAddressOfOperatorToExistingComPtrTest) {
   EXPECT_EQ(raw_ptr->counter, 1UL)
       << "Should set reference counter." << std::endl;
 
-  wb::base::windows::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
+  wb::base::win::com::com_ptr<IComptrTest, &IID_ComptrTest> p{raw_ptr};
   EXPECT_EQ(raw_ptr->counter, 2UL)
       << "Should update reference counter." << std::endl;
 

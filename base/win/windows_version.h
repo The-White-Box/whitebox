@@ -12,12 +12,12 @@
 
 #include "base/base_api.h"
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief The running version of Windows.  NOTE: Keep these in order so callers
  * can do things like
- * "if (base::windows::GetVersion() >= base::windows::Version::WIN10_TH2) ...".
+ * "if (base::win::GetVersion() >= base::win::Version::WIN10_TH2) ...".
  */
 enum class Version {
   PRE_WIN10 = 0,    // Not supported.
@@ -42,6 +42,6 @@ enum class Version {
  */
 [[nodiscard]] WB_BASE_API Version GetVersion() noexcept;
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win
 
 #endif  // !WB_BASE_WIN_WINDOWS_VERSION_H_

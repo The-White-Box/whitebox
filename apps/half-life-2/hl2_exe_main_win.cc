@@ -101,13 +101,13 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
   const auto intl = CreateIntl(user_locale);
 
   // Search for DLLs in the secure order to prevent DLL plant attacks.
-  std::error_code rc{windows::get_error(::SetDefaultDllDirectories(
+  std::error_code rc{win::get_error(::SetDefaultDllDirectories(
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS))};
   G3PLOGE_IF(WARNING, rc ? &rc : nullptr)
       << "Can't enable secure DLL search order, attacker can plant DLLs with "
          "malicious code.";
 
-  const auto app_path = windows::GetApplicationDirectory(instance);
+  const auto app_path = win::GetApplicationDirectory(instance);
   if (const auto* error = std2::get_error(app_path)) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
@@ -126,7 +126,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
                                       "whitebox-boot-manager.dll"};
   const unsigned boot_manager_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
-      (windows::MustBeSignedDllLoadTarget(command_line)
+      (win::MustBeSignedDllLoadTarget(command_line)
            ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
            : 0U)};
 
@@ -185,7 +185,7 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
                    _In_ LPSTR command_line, _In_ int show_window_flags) {
   using namespace wb::base;
-  using namespace wb::base::windows;
+  using namespace wb::base::win;
 
 #ifdef _DEBUG
   // Simplifies debugging experience, no need to sign targets.

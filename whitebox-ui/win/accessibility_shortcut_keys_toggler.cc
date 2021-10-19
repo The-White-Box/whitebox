@@ -59,7 +59,7 @@ using system_key_concept =
 template <unsigned key_action, typename TSystemKey>
 system_key_concept<key_action, TSystemKey, std::error_code> SystemKeysInfo(
     _In_ TSystemKey& key) noexcept {
-  return wb::base::windows::get_error(
+  return wb::base::win::get_error(
       ::SystemParametersInfo(key_action, sizeof(key), &key, 0));
 }
 

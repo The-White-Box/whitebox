@@ -137,7 +137,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
     return library != nullptr
                ? std2::result<ScopedSharedLibrary>(
                      std::move(ScopedSharedLibrary{library}))
-               : std2::result<ScopedSharedLibrary>(windows::get_error(library));
+               : std2::result<ScopedSharedLibrary>(win::get_error(library));
   }
 
   /**

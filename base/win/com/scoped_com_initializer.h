@@ -24,7 +24,7 @@ _Check_return_ extern "C" WB_ATTRIBUTE_DLL_IMPORT
                                      _In_ unsigned long dwCoInit);
 extern "C" WB_ATTRIBUTE_DLL_IMPORT void CoUninitialize(void);
 
-namespace wb::base::windows::com {
+namespace wb::base::win::com {
 
 /**
  * @brief COM initilizer flags.
@@ -146,6 +146,6 @@ class ScopedComInitializer {
   }
 };
 
-}  // namespace wb::base::windows::com
+}  // namespace wb::base::win::com
 
 #endif  // !WB_BASE_WIN_COM_SCOPED_COM_INITIALIZER_H_

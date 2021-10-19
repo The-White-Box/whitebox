@@ -15,7 +15,7 @@
 #include "base/win/system_error_ext.h"
 #include "com_ptr.h"
 
-namespace wb::base::windows::com {
+namespace wb::base::win::com {
 
 /**
  * @brief Unmarshaling allows only a system-trusted list of hardened
@@ -117,6 +117,6 @@ class ScopedComStrongUnmarshallingPolicy {
   }
 };
 
-}  // namespace wb::base::windows::com
+}  // namespace wb::base::win::com
 
 #endif  // !WB_BASE_WIN_COM_SCOPED_COM_STRONG_UNMARSHALLING_POLICY_H_

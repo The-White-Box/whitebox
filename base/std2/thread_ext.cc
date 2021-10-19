@@ -41,9 +41,8 @@ namespace wb::base::std2 {
   wchar_t* wide_thread_name;
 
   const std::error_code rc{
-      windows::get_error(::GetThreadDescription(handle, &wide_thread_name))};
-  const windows::memory::ScopedLocalMemory scoped_local_memory{
-      wide_thread_name};
+      win::get_error(::GetThreadDescription(handle, &wide_thread_name))};
+  const win::memory::ScopedLocalMemory scoped_local_memory{wide_thread_name};
 
   if (!rc) WB_ATTRIBUTE_LIKELY {
       thread_name = wide_thread_name;
@@ -88,7 +87,7 @@ namespace this_thread {
 [[nodiscard]] WB_BASE_API std::error_code set_name(
     const native_thread_name& thread_name) noexcept {
 #ifdef WB_OS_WIN
-  return windows::get_error(
+  return win::get_error(
       ::SetThreadDescription(get_handle(), thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
 #ifdef WB_OS_MACOS

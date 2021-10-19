@@ -16,30 +16,30 @@
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(DllLoadUtilsTest, MustBeSignedDllLoadTarget) {
-  EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget(""));
-  EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget("program_name"));
-  EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_TRUE(wb::base::win::MustBeSignedDllLoadTarget(""));
+  EXPECT_TRUE(wb::base::win::MustBeSignedDllLoadTarget("program_name"));
+  EXPECT_TRUE(wb::base::win::MustBeSignedDllLoadTarget(
       "program_name --type network-driver"));
-  EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_TRUE(wb::base::win::MustBeSignedDllLoadTarget(
       "--prepend--insecure-allow-unsigned-module-target"));
-  EXPECT_TRUE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_TRUE(wb::base::win::MustBeSignedDllLoadTarget(
       "--insecure-allow-unsigned-module-target--append"));
 
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       "--previous-flag --insecure-allow-unsigned-module-target"));
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       "--previous-flag-tab\t--insecure-allow-unsigned-module-target"));
 
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       "--insecure-allow-unsigned-module-target"));
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       " --insecure-allow-unsigned-module-target "));
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       "\t--insecure-allow-unsigned-module-target\t"));
 
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       "--insecure-allow-unsigned-module-target --next-flag"));
-  EXPECT_FALSE(wb::base::windows::MustBeSignedDllLoadTarget(
+  EXPECT_FALSE(wb::base::win::MustBeSignedDllLoadTarget(
       "--insecure-allow-unsigned-module-target\t--next-flag"));
 }
 
@@ -59,7 +59,7 @@ GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
   EXPECT_EQ(
       std::error_code(ERROR_MOD_NOT_FOUND, std::system_category()),
       std::get<std::error_code>(
-          wb::base::windows::GetApplicationDirectory(mustBeInvalidInstance)))
+          wb::base::win::GetApplicationDirectory(mustBeInvalidInstance)))
       << "Should return ERROR_MOD_NOT_FOUND system error if module not found.";
 
   std::error_code rc;
@@ -73,6 +73,6 @@ GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
           std::wstring{std::filesystem::path::preferred_separator})};
   EXPECT_EQ(expected_application_directory,
             std::get<std::string>(
-                wb::base::windows::GetApplicationDirectory(nullptr)))
+                wb::base::win::GetApplicationDirectory(nullptr)))
       << "Should get application directory with path separator in the end.";
 }

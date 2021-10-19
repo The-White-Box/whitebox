@@ -23,7 +23,7 @@ extern "C" _Return_type_success_(
 extern "C" _Return_type_success_(return == 0) unsigned __stdcall timeEndPeriod(
     _In_ unsigned uPeriod);
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief Changes minimum resolution for periodic timers and reverts back when
@@ -140,6 +140,6 @@ class ScopedMinimumTimerResolution {
   }
 };
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win
 
 #endif  // !WB_BASE_WIN_SCOPED_MINIMUM_TIMER_RESOLUTION_H_

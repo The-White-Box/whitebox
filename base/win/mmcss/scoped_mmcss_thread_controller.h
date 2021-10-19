@@ -23,7 +23,7 @@
 #include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
-namespace wb::base::windows::mmcss {
+namespace wb::base::win::mmcss {
 
 /**
  * @brief Known MMCSS thread tasks.  See
@@ -181,6 +181,6 @@ class WB_BASE_API ScopedMmcssThreadController {
   [[nodiscard]] std::error_code error_code() const noexcept;
 };
 
-}  // namespace wb::base::windows::mmcss
+}  // namespace wb::base::win::mmcss
 
 #endif  // !WB_BASE_WIN_MMCSS_SCOPED_MMCSS_THREAD_CONTROLLER_H_

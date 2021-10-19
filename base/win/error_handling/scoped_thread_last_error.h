@@ -18,7 +18,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _Check_return_
 extern "C" WB_ATTRIBUTE_DLL_IMPORT void __stdcall SetLastError(
     _In_ unsigned long dwErrCode);
 
-namespace wb::base::windows::error_handling {
+namespace wb::base::win::error_handling {
 
 /**
  * @brief Changes calling thread's last-error code in scope and reverts back
@@ -49,6 +49,6 @@ class ScopedThreadLastError {
   const unsigned long previous_last_error_;
 };
 
-}  // namespace wb::base::windows::error_handling
+}  // namespace wb::base::win::error_handling
 
 #endif  // !WB_BASE_WIN_ERROR_HANDLING_SCOPED_THREAD_LAST_ERROR_H_

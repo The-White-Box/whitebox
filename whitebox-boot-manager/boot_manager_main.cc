@@ -89,7 +89,7 @@ void BootHeapMemoryAllocator() noexcept {
   {
     // Terminate the app if system detected heap corruption.
     const auto error_code =
-        wb::base::windows::memory::EnableTerminationOnHeapCorruption();
+        wb::base::win::memory::EnableTerminationOnHeapCorruption();
     G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
         << "Can't enable 'Terminate on Heap corruption' os feature, continue "
            "without it.";
@@ -98,7 +98,7 @@ void BootHeapMemoryAllocator() noexcept {
   {
     // Optimize heap caches now.
     const auto error_code =
-        wb::base::windows::memory::OptimizeHeapResourcesNow();
+        wb::base::win::memory::OptimizeHeapResourcesNow();
     G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
         << "Can't optimize heap resources caches, some memory will not be "
            "freed.";
@@ -181,7 +181,7 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
 #ifdef WB_OS_WIN
   const unsigned kernel_load_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
-      (windows::MustBeSignedDllLoadTarget(bootmgr_args.command_line)
+      (win::MustBeSignedDllLoadTarget(bootmgr_args.command_line)
            ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
            : 0U)};
 #else
@@ -250,7 +250,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   DumpSystemInformation(bootmgr_args.app_description);
 
 #ifdef WB_OS_WIN
-  using namespace wb::base::windows;
+  using namespace wb::base::win;
 
   // Requires Windows Version 1903+ for UTF-8 process code page.
   //
@@ -260,7 +260,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   //
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
-  if (windows::GetVersion() < windows::Version::WIN10_19H1)
+  if (win::GetVersion() < win::Version::WIN10_19H1)
     WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
@@ -357,7 +357,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
 #ifdef WB_OS_WIN
   // Set minimum timers resolution to good enough, but not too power hungry.
   const auto scoped_minimum_timer_resolution =
-      windows::ScopedMinimumTimerResolution::New(std::chrono::milliseconds{
+      win::ScopedMinimumTimerResolution::New(std::chrono::milliseconds{
           wb::build::settings::kMinimumTimerResolutionMs});
   G3LOG_IF(WARNING, !!std::get_if<unsigned>(&scoped_minimum_timer_resolution))
       << "Failed to set minimum periodic timers resolution to "
@@ -372,12 +372,12 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
     // Signal Multimedia Class Scheduler Service we have game thread here, so
     // utilize as much of the CPU as possible without denying CPU resources to
     // lower-priority applications.
-    const windows::mmcss::ScopedMmcssThreadTask game_task{
-        windows::mmcss::KnownScopedMmcssThreadTaskName::kGames};
-    const windows::mmcss::ScopedMmcssThreadTask playback_task{
-        windows::mmcss::KnownScopedMmcssThreadTaskName::kPlayback};
+    const win::mmcss::ScopedMmcssThreadTask game_task{
+        win::mmcss::KnownScopedMmcssThreadTaskName::kGames};
+    const win::mmcss::ScopedMmcssThreadTask playback_task{
+        win::mmcss::KnownScopedMmcssThreadTaskName::kPlayback};
     const auto scoped_mmcss_thread_controller =
-        windows::mmcss::ScopedMmcssThreadController::New(game_task,
+        win::mmcss::ScopedMmcssThreadController::New(game_task,
                                                          playback_task);
     if (const auto* controller =
             std2::get_result(scoped_mmcss_thread_controller))
@@ -398,7 +398,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
         }
 
         const auto bump_thread_priority_rc = controller->SetPriority(
-            windows::mmcss::ScopedMmcssThreadPriority::kHigh);
+            win::mmcss::ScopedMmcssThreadPriority::kHigh);
         G3PLOGE_IF(WARNING,
                    bump_thread_priority_rc ? &bump_thread_priority_rc : nullptr)
             << "Can't get system responsiveness setting used by Multimedia "

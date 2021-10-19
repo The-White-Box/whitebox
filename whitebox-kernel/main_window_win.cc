@@ -43,7 +43,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   G3DCHECK(!!window);
 
   using namespace wb::base;
-  using namespace wb::base::windows;
+  using namespace wb::base::win;
   using namespace wb::ui::win;
 
   // We are loading.
@@ -116,7 +116,7 @@ LRESULT MainWindow::OnInput(_In_ HWND window, _In_ unsigned char input_code,
 
   // If app is in foreground and query raw input data succeeded.
   if (input_code == RIM_INPUT) WB_ATTRIBUTE_LIKELY {
-      using namespace wb::base::windows;
+      using namespace wb::base::win;
 
       RAWINPUT read_input;
       if (hal::hid::ReadRawInput(source_input, read_input))
@@ -269,7 +269,7 @@ void MainWindow::OnGetWindowSizeBounds(_In_ HWND,
 void MainWindow::OnWindowDestroy(_In_ HWND) noexcept { ::PostQuitMessage(0); }
 
 void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
-  using namespace wb::base::windows;
+  using namespace wb::base::win;
 
   if (enable) {
     // Change window to normal size, should enable DWM MMCSS to

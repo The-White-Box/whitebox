@@ -54,9 +54,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
   // Well, windows sleep precision can be not so high.  Need to increase it to
   // fluctuate no more than sample_time_deviation.
   const auto scoped_minimum_timer_resolution =
-      wb::base::windows::ScopedMinimumTimerResolution::New(
+      wb::base::win::ScopedMinimumTimerResolution::New(
           sample_time_deviation);
-  EXPECT_TRUE(!!std::get_if<wb::base::windows::ScopedMinimumTimerResolution>(
+  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedMinimumTimerResolution>(
       &scoped_minimum_timer_resolution));
 #endif
 
@@ -94,9 +94,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
   // Well, windows sleep precision can be not so high.  Need to increase it to
   // fluctuate no more than sample_time_deviation.
   const auto scoped_minimum_timer_resolution =
-      wb::base::windows::ScopedMinimumTimerResolution::New(
+      wb::base::win::ScopedMinimumTimerResolution::New(
           sample_time_deviation);
-  EXPECT_TRUE(!!std::get_if<wb::base::windows::ScopedMinimumTimerResolution>(
+  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedMinimumTimerResolution>(
       &scoped_minimum_timer_resolution));
 #endif
 

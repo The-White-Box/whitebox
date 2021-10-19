@@ -8,7 +8,7 @@
 #ifndef WB_BASE_WIN_SECURITY_OS_OBJECTS_ACCESS_RIGHTS_H_
 #define WB_BASE_WIN_SECURITY_OS_OBJECTS_ACCESS_RIGHTS_H_
 
-namespace wb::base::windows::security {
+namespace wb::base::win::security {
 
 /**
  * @brief Standard access rights used by all objects.
@@ -142,6 +142,6 @@ struct ScopedMutexAccessRights
 static inline constexpr ScopedMutexAccessRights DefaultMutexAccessRights{
     StandardAccessRightFlag::kNone, ScopedMutexAccessRightFlag::kNone};
 
-}  // namespace wb::base::windows::security
+}  // namespace wb::base::win::security
 
 #endif  // !WB_BASE_WIN_SECURITY_OS_OBJECTS_ACCESS_RIGHTS_H_

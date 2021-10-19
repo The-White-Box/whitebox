@@ -14,7 +14,7 @@
 #include "base/win/system_error_ext.h"
 #include "com_ptr.h"
 
-namespace wb::base::windows::com {
+namespace wb::base::win::com {
 
 /**
  * @brief Do not handle COM fatal exception, but return to the caller in scope.
@@ -114,6 +114,6 @@ class ScopedComFatalExceptionHandler {
   }
 };
 
-}  // namespace wb::base::windows::com
+}  // namespace wb::base::win::com
 
 #endif  // !WB_BASE_WIN_COM_SCOPED_COM_FATAL_EXCEPTION_HANDLER_H_

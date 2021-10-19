@@ -15,7 +15,7 @@
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
 
-namespace wb::base::windows::memory {
+namespace wb::base::win::memory {
 
 /**
  * @brief Changes handler when new operator fails to allocate memory and reverts
@@ -61,6 +61,6 @@ class ScopedNewHandler {
   std::exit(ENOMEM);
 }
 
-}  // namespace wb::base::windows::memory
+}  // namespace wb::base::win::memory
 
 #endif  // !WB_BASE_WIN_MEMORY_SCOPED_NEW_HANDLER_H_

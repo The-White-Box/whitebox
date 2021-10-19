@@ -19,7 +19,7 @@ using HLOCAL = HANDLE;
 extern "C" WB_ATTRIBUTE_DLL_IMPORT _Success_(return == 0) _Ret_maybenull_ HLOCAL
     __stdcall LocalFree(_Frees_ptr_opt_ HLOCAL memory);
 
-namespace wb::base::windows::memory {
+namespace wb::base::win::memory {
 
 /**
  * @brief Scoped local memory holder.
@@ -47,6 +47,6 @@ class ScopedLocalMemory {
   const HLOCAL memory_;
 };
 
-}  // namespace wb::base::windows::memory
+}  // namespace wb::base::win::memory
 
 #endif  // WB_BASE_WIN_MEMORY_SCOPED_LOCAL_MEMORY_H_

@@ -54,10 +54,10 @@ class ScopedAppInstanceManager {
    */
   explicit ScopedAppInstanceManager(const char* app_description) noexcept
 #ifdef WB_OS_WIN
-      : app_instance_mutex_{base::windows::ScopedMutex::New(
+      : app_instance_mutex_{base::win::ScopedMutex::New(
             nullptr, MakeMutexName(app_description).c_str(),
-            base::windows::ScopedMutexCreationFlag::kNone,
-            base::windows::security::DefaultMutexAccessRights)},
+            base::win::ScopedMutexCreationFlag::kNone,
+            base::win::security::DefaultMutexAccessRights)},
         status_{CheckStatus(app_instance_mutex_)} {
   }
 #else
@@ -79,7 +79,7 @@ class ScopedAppInstanceManager {
   /**
    * @brief Mutex to be acquired only by single app instance.
    */
-  const base::std2::result<base::windows::ScopedMutex> app_instance_mutex_;
+  const base::std2::result<base::win::ScopedMutex> app_instance_mutex_;
 #endif
 
   /**
@@ -107,7 +107,7 @@ class ScopedAppInstanceManager {
    * @return App instance status.
    */
   [[nodiscard]] static AppInstanceStatus CheckStatus(
-      const base::std2::result<base::windows::ScopedMutex>&
+      const base::std2::result<base::win::ScopedMutex>&
           mutex_result) noexcept {
     if (auto* mutex = base::std2::get_result(mutex_result))
       WB_ATTRIBUTE_LIKELY { return AppInstanceStatus::kNoOtherInstances; }

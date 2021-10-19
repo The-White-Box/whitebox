@@ -25,7 +25,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _Ret_maybenull_
 extern "C" WB_ATTRIBUTE_DLL_IMPORT unsigned long __stdcall WaitForSingleObject(
     _In_ HANDLE hHandle, _In_ unsigned long dwMilliseconds);
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief Mutex creation flags.
@@ -163,6 +163,6 @@ class ScopedMutex {
   }
 };
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win
 
 #endif  // !WB_BASE_WIN_SCOPED_MUTEX_H_

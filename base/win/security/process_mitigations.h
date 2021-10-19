@@ -14,7 +14,7 @@
 #include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
 
-namespace wb::base::windows::security {
+namespace wb::base::win::security {
 
 /**
  * @brief Enables secure set of directories to search when the calling process
@@ -70,6 +70,6 @@ class WB_BASE_API ScopedProcessMitigationPolicies {
   [[nodiscard]] std::error_code error_code() const noexcept;
 };
 
-}  // namespace wb::base::windows::security
+}  // namespace wb::base::win::security
 
 #endif  // !WB_BASE_WIN_SECURITY_PROCESS_MITIGATIONS_H_

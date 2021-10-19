@@ -22,7 +22,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT
     EXECUTION_STATE __stdcall SetThreadExecutionState(
         _In_ EXECUTION_STATE esFlags);
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief The thread's execution requirements.  This parameter can be one or
@@ -159,6 +159,6 @@ class ScopedThreadExecutionState {
   }
 };
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win
 
 #endif  // !WB_BASE_WIN_SCOPED_THREAD_EXECUTION_STATE_H_

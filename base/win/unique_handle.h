@@ -17,7 +17,7 @@ using HANDLE = void *;
 extern "C" WB_ATTRIBUTE_DLL_IMPORT int __stdcall CloseHandle(
     _In_ _Post_ptr_invalid_ HANDLE hObject);
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief Pseudo handle.
@@ -38,7 +38,7 @@ using handle_descriptor = HANDLE_;
 inline const HANDLE kInvalidNativeHandle{
     reinterpret_cast<HANDLE>(static_cast<std::uintptr_t>(-1))};
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win
 
 namespace std {
 
@@ -46,15 +46,15 @@ namespace std {
  * @brief Deleter to close HANDLE on end of scope.
  */
 template <>
-struct default_delete<wb::base::windows::handle_descriptor> {
+struct default_delete<wb::base::win::handle_descriptor> {
   /**
    * @brief Closes handle.
    * @param handle Handle to close.
    * @return void.
    */
   void operator()(
-      _In_ wb::base::windows::handle_descriptor *handle) const noexcept {
-    if (handle && handle != wb::base::windows::kInvalidNativeHandle) {
+      _In_ wb::base::win::handle_descriptor *handle) const noexcept {
+    if (handle && handle != wb::base::win::kInvalidNativeHandle) {
       const std::error_code rc{::CloseHandle(handle) != 0
                                    ? wb::base::std2::ok_code
                                    : wb::base::std2::system_last_error_code()};
@@ -65,7 +65,7 @@ struct default_delete<wb::base::windows::handle_descriptor> {
 
 }  // namespace std
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief Smart pointer with std::unique_ptr semantic for HANDLE lifecycle
@@ -108,6 +108,6 @@ class unique_handle : private std::unique_ptr<handle_descriptor> {
   }
 };
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win
 
 #endif  // !WB_BASE_WIN_UNIQUE_HANDLE_H_

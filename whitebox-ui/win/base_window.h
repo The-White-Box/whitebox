@@ -60,6 +60,7 @@ class WB_WHITEBOX_UI_API BaseWindow {
     static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
 
     using namespace base;
+    using namespace base::win;
 
     auto window = std::make_unique<TDerivedWindow>(
         definition.instance, definition.icon_id, definition.icon_small_id,
@@ -67,7 +68,7 @@ class WB_WHITEBOX_UI_API BaseWindow {
     std::error_code rc{
         RegisterWindowClass<TDerivedWindow>(definition, class_style, window)};
     if (!rc) {
-      rc = windows::get_error(::CreateWindowExA(
+      rc = get_error(::CreateWindowExA(
           definition.ex_style,
           TDerivedWindow::ClassName(definition.name).c_str(), definition.name,
           definition.style, definition.x_pos, definition.y_pos,
@@ -158,8 +159,7 @@ class WB_WHITEBOX_UI_API BaseWindow {
       G3CHECK(!!window);
 
       {
-        windows::error_handling::ScopedThreadLastError
-            restore_last_error_on_out;
+        wb::base::win::error_handling::ScopedThreadLastError restore_last_error_on_out;
 
         // To determine success or failure, clear the last error information by
         // calling SetLastError with 0, then call SetWindowLongPtr.  Function

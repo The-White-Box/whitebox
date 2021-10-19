@@ -10,7 +10,7 @@
 #include "base/win/system_error_ext.h"
 #include "base/win/windows_light.h"
 
-namespace wb::base::windows::memory {
+namespace wb::base::win::memory {
 
 [[nodiscard]] WB_BASE_API std::error_code
 EnableTerminationOnHeapCorruption() noexcept {
@@ -51,4 +51,4 @@ EnableTerminationOnHeapCorruption() noexcept {
   return rc;
 }
 
-}  // namespace wb::base::windows::memory
+}  // namespace wb::base::win::memory

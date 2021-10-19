@@ -23,9 +23,9 @@ namespace {
  * @param build Build.
  * @return Version.
  */
-[[nodiscard]] wb::base::windows::Version MajorMinorBuildToVersion(
+[[nodiscard]] wb::base::win::Version MajorMinorBuildToVersion(
     unsigned major, unsigned minor, unsigned build) noexcept {
-  using wb::base::windows::Version;
+  using wb::base::win::Version;
 
   // Win 10+.
   if (major == 10U) {
@@ -54,7 +54,7 @@ namespace {
 
 }  // namespace
 
-namespace wb::base::windows {
+namespace wb::base::win {
 
 /**
  * @brief Gets windows version.
@@ -83,4 +83,4 @@ namespace wb::base::windows {
   return version;
 }
 
-}  // namespace wb::base::windows
+}  // namespace wb::base::win

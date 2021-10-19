@@ -54,7 +54,7 @@ class ScopedWindowClass {
                              _In_ WNDCLASSEXA &class_definition) noexcept
       : instance_{instance},
         class_atom_{::RegisterClassExA(&class_definition)},
-        error_code_{base::windows::get_error(class_atom_)} {
+        error_code_{base::win::get_error(class_atom_)} {
     G3DCHECK(!error_code());
   }
 
@@ -65,7 +65,7 @@ class ScopedWindowClass {
    */
   ~ScopedWindowClass() noexcept {
     if (!error_code_) {
-      const std::error_code rc{base::windows::get_error(::UnregisterClassA(
+      const std::error_code rc{base::win::get_error(::UnregisterClassA(
           reinterpret_cast<const char *>(
               static_cast<uintptr_t>(MakeLong(class_atom_, 0))),
           instance_))};

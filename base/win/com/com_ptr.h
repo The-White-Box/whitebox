@@ -12,7 +12,7 @@
 
 #include <type_traits>
 
-namespace wb::base::windows::com {
+namespace wb::base::win::com {
 
 /**
  * @brief COM interface concept.
@@ -30,6 +30,6 @@ template <typename TInterface, const IID *TIid = &__uuidof(TInterface),
           typename = com_interface_concept<TInterface>>
 class com_ptr : public _com_ptr_t<_com_IIID<TInterface, TIid>> {};
 
-}  // namespace wb::base::windows::com
+}  // namespace wb::base::win::com
 
 #endif  // !WB_BASE_WIN_COM_COM_PTR_H_

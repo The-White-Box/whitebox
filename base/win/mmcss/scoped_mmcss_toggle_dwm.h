@@ -19,7 +19,7 @@ using HRESULT = long;
 extern "C" WB_ATTRIBUTE_DLL_IMPORT HRESULT __stdcall DwmEnableMMCSS(
     _In_ int fEnableMMCSS);
 
-namespace wb::base::windows::mmcss {
+namespace wb::base::win::mmcss {
 
 /**
  * @brief Notifies the Desktop Window Manager (DWM) to opt in to or out of
@@ -90,6 +90,6 @@ class ScopedMmcssToggleDwm {
   }
 };
 
-}  // namespace wb::base::windows::mmcss
+}  // namespace wb::base::win::mmcss
 
 #endif  // !WB_BASE_WIN_MMCSS_SCOPED_MMCSS_TOGGLE_DWM_H_

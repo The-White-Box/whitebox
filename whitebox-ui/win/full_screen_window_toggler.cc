@@ -66,7 +66,7 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
   [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
     using namespace wb::base;
 
-    windows::error_handling::ScopedThreadLastError restore_last_error_on_out;
+    wb::base::win::error_handling::ScopedThreadLastError restore_last_error_on_out;
 
     // To determine success or failure, clear the last error information by
     // calling SetLastError with 0, then call SetWindowLongPtr.  Function
@@ -75,7 +75,7 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
     std2::native_last_errno({});
 
     const LONG_PTR rc{::SetWindowLongPtr(window_, GWL_STYLE, window_style)};
-    const bool ok{rc != 0 || !wb::base::std2::system_last_error_code()};
+    const bool ok{rc != 0 || !std2::system_last_error_code()};
 
     G3DCHECK(ok);
 

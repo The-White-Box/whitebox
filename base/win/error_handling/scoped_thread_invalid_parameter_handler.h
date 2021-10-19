@@ -11,7 +11,7 @@
 
 #include "base/deps/g3log/g3log.h"
 
-namespace wb::base::windows::error_handling {
+namespace wb::base::win::error_handling {
 
 /**
  * @brief Set a function to be called when the CRT detects an invalid argument
@@ -116,6 +116,6 @@ class ScopedInvalidParameterReentrancyGuard {
   }
 }
 
-}  // namespace wb::base::windows::error_handling
+}  // namespace wb::base::win::error_handling
 
 #endif  // !WB_BASE_WIN_ERROR_HANDLING_SCOPED_THREAD_INVALID_PARAMETER_HANDLER_H_

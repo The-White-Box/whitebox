@@ -136,7 +136,7 @@ class MainWindow : public wb::ui::win::BaseWindow {
    * @brief Display Window Manager runs using Multimedia Class Schedule Service
    * (MMCSS) scheduling to speed up window composition.
    */
-  wb::base::un<wb::base::windows::mmcss::ScopedMmcssToggleDwm>
+  wb::base::un<wb::base::win::mmcss::ScopedMmcssToggleDwm>
       scoped_mmcss_toggle_dwm_;
   /**
    * @brief Localization service.

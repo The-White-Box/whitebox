@@ -11,7 +11,7 @@
 
 #include "base/base_api.h"
 
-namespace wb::base::windows::memory {
+namespace wb::base::win::memory {
 
 /**
  * @brief Enable process termination on heap corruption.
@@ -25,9 +25,8 @@ EnableTerminationOnHeapCorruption() noexcept;
  * their caches optimized, and the memory will be decommitted if possible.
  * @return Error code.
  */
-[[nodiscard]] WB_BASE_API std::error_code
-OptimizeHeapResourcesNow() noexcept;
+[[nodiscard]] WB_BASE_API std::error_code OptimizeHeapResourcesNow() noexcept;
 
-}  // namespace wb::base::windows::memory
+}  // namespace wb::base::win::memory
 
 #endif  // !WB_BASE_WIN_MEMORY_MEMORY_UTILS_H_

@@ -23,7 +23,7 @@
 //
 #include <avrt.h>
 
-namespace wb::base::windows::mmcss {
+namespace wb::base::win::mmcss {
 
 class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
  public:
@@ -168,4 +168,4 @@ ScopedMmcssThreadController::GetResponsivenessPercent() const noexcept {
   return impl_->SetPriority(priority);
 }
 
-}  // namespace wb::base::windows::mmcss
+}  // namespace wb::base::win::mmcss
