@@ -276,7 +276,7 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     // speed up window composition.
     auto scoped_toggle_dwm_mmcs_result = mmcss::ScopedMmcssToggleDwm::New(true);
     if (auto *scheduler =
-            wb::base::std2::get_result(scoped_toggle_dwm_mmcs_result)) {
+            base::std2::get_result(scoped_toggle_dwm_mmcs_result)) {
       auto *memory = new unsigned char[sizeof(mmcss::ScopedMmcssToggleDwm)];
 
       // Trick with placement new + move.
@@ -284,8 +284,9 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
           new (reinterpret_cast<mmcss::ScopedMmcssToggleDwm *>(memory))
               mmcss::ScopedMmcssToggleDwm{std::move(*scheduler)});
     } else {
-      const auto rc = std::get<std::error_code>(scoped_toggle_dwm_mmcs_result);
-      G3PLOG_E(WARNING, rc)
+      const auto *rc = base::std2::get_error(scoped_toggle_dwm_mmcs_result);
+      G3DCHECK(!!rc);
+      G3PLOG_E(WARNING, *rc)
           << "Unable to enable Desktop Window Manager (DWM) Multimedia Class "
              "Schedule Service (MMCSS) scheduling.  Rendering will not be "
              "optimized for multimedia applications.";

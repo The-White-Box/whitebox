@@ -201,7 +201,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       ::GetCommandLineA(), wb::build::settings::kPathToMainLogFile};
 
   // Calling thread will handle critical errors, does not show general
-  // protection fault error box and message box for OpenFile failed to find
+  // protection fault error box and message box when OpenFile failed to find
   // file.
   const auto scoped_thread_error_mode =
       error_handling::ScopedThreadErrorMode::New(

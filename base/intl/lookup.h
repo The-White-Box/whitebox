@@ -243,8 +243,8 @@ class I18nStringViewHash {
  * @param string String to localize.
  * @return Localized string.
  */
-[[nodiscard]] inline const std::string& l18n(const LookupWithFallback& lookup,
-                                             std::string_view string) noexcept {
+[[nodiscard]] inline const std::string& l18n(
+    const LookupWithFallback& lookup, std::string_view&& string) noexcept {
   const uint64_t hash{I18nStringViewHash{}(string)};
   return lookup.String(hash);
 }
@@ -258,7 +258,7 @@ class I18nStringViewHash {
  */
 template <typename... TArgs>
 [[nodiscard]] inline std::string l18n_fmt(const LookupWithFallback& lookup,
-                                          std::string_view string,
+                                          std::string_view&& string,
                                           TArgs&&... args) noexcept {
   const uint64_t hash{I18nStringViewHash{}(string)};
   return lookup.Format(hash,

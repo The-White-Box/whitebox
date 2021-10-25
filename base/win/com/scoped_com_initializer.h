@@ -9,6 +9,7 @@
 
 #include <sal.h>
 
+#include <array>
 #include <cstddef>  // std::byte
 #include <thread>
 #include <type_traits>
