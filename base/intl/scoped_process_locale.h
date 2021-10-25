@@ -117,9 +117,11 @@ class ScopedProcessLocale {
       : old_locale_{SetLocale(category, nullptr)},
         new_locale_{SetLocale(category, new_locale)},
         category_{category} {
+#ifndef NDEBUG
     G3DCHECK(!new_locale_.empty())
         << "Locale " << GetUserFriendlyLocaleName(new_locale)
         << " was not set for category " << category;
+#endif
   }
   ~ScopedProcessLocale() noexcept {
     // For example, the sequence of calls
