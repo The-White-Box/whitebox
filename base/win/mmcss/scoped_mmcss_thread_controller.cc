@@ -104,8 +104,7 @@ std2::result<std::uint8_t> ScopedMmcssThreadController::
       // https://docs.microsoft.com/en-us/windows/win32/api/avrt/nf-avrt-avquerysystemresponsiveness#parameters
       G3DCHECK(is_valid_responsiveness)
           << "AvQuerySystemResponsiveness returned system responsiveness "
-             "percent "
-             "not in [10..100] range ("
+             "percent not in [10..100] range ("
           << responsiveness_percent << "%).";
       if (!is_valid_responsiveness) WB_ATTRIBUTE_UNLIKELY {
           responsiveness_percent =

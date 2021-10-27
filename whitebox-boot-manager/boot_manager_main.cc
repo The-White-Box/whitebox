@@ -390,7 +390,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
           WB_ATTRIBUTE_LIKELY {
             G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
                          << implicit_cast<unsigned>(*percent)
-                         << "% system responsiveness value.";
+                         << "% of CPU for system wide tasks.";
           }
         else {
           G3PLOG_E(WARNING, *std2::get_error(responsiveness_percent))
