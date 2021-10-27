@@ -4,7 +4,7 @@
 //
 // Simple token parser for small C subset.
 //
-// Format syntax is (in: break-set, out: token-value-*):
+// Formal syntax is (in: break-set, out: token-value-*):
 // token_line:
 //   whitespace-list(opt) cpp-comment
 //   token-body
