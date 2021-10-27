@@ -11,6 +11,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <string>
 #include <type_traits>
 
 #include "whitebox-ui/api.h"
@@ -36,7 +37,7 @@ WB_WHITEBOX_UI_API bool MoveWindowToItsDisplayCenter(
  * @return true if window is flashing, false otherwise.
  */
 WB_WHITEBOX_UI_API bool FlashWindowByClass(
-    _In_ const char *window_class_name,
+    _In_ const std::string &window_class_name,
     _In_ std::chrono::milliseconds timeout_between_flashes) noexcept;
 
 /**

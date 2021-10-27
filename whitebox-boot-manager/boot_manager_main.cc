@@ -329,7 +329,8 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
 
     const std::string window_class_name{
         wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
-    wb::ui::win::FlashWindowByClass(window_class_name.c_str(), 900ms);
+    // Time to flash other instance window.
+    wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
 #endif
 
     wb::ui::FatalDialog(

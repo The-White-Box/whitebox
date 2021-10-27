@@ -63,14 +63,14 @@ WB_WHITEBOX_UI_API bool MoveWindowToItsDisplayCenter(
  * @return true if window is flashing, false otherwise.
  */
 WB_WHITEBOX_UI_API bool FlashWindowByClass(
-    _In_ const char* window_class_name,
+    _In_ const std::string& window_class_name,
     _In_ std::chrono::milliseconds timeout_between_flashes) noexcept {
-  G3DCHECK(!!window_class_name);
+  G3DCHECK(!window_class_name.empty());
   G3DCHECK(timeout_between_flashes.count() >= 0 &&
            timeout_between_flashes.count() <=
                std::numeric_limits<decltype(FLASHWINFO::dwTimeout)>::max());
 
-  const HWND hwnd_to_flash{::FindWindowA(window_class_name, nullptr)};
+  const HWND hwnd_to_flash{::FindWindowA(window_class_name.c_str(), nullptr)};
   if (hwnd_to_flash) {
     FLASHWINFO flash_info{
         .cbSize = sizeof(flash_info),
