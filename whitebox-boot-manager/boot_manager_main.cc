@@ -97,8 +97,7 @@ void BootHeapMemoryAllocator() noexcept {
 
   {
     // Optimize heap caches now.
-    const auto error_code =
-        wb::base::win::memory::OptimizeHeapResourcesNow();
+    const auto error_code = wb::base::win::memory::OptimizeHeapResourcesNow();
     G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
         << "Can't optimize heap resources caches, some memory will not be "
            "freed.";
@@ -139,12 +138,11 @@ void BootHeapMemoryAllocator() noexcept {
     const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
   using namespace wb::base;
 
-  std::error_code rc;
-  auto app_path = std2::GetExecutableDirectory(rc);
-  if (rc) WB_ATTRIBUTE_UNLIKELY {
+  const auto app_path_result = std2::filesystem::get_executable_directory();
+  if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
       const auto& intl = bootmgr_args.intl;
       wb::ui::FatalDialog(
-          intl::l18n(intl, "Boot Manager - Error"), rc,
+          intl::l18n(intl, "Boot Manager - Error"), *rc,
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
@@ -154,7 +152,7 @@ void BootHeapMemoryAllocator() noexcept {
               "Can't get current directory.  Unable to load the kernel."));
     }
 
-  return app_path;
+  return *std2::get_result(app_path_result);
 }
 
 /**
@@ -260,8 +258,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   //
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
-  if (win::GetVersion() < win::Version::WIN10_19H1)
-    WB_ATTRIBUTE_UNLIKELY {
+  if (win::GetVersion() < win::Version::WIN10_19H1) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
           std2::system_last_error_code(ERROR_OLD_WIN_VERSION),
@@ -378,8 +375,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
     const win::mmcss::ScopedMmcssThreadTask playback_task{
         win::mmcss::KnownScopedMmcssThreadTaskName::kPlayback};
     const auto scoped_mmcss_thread_controller =
-        win::mmcss::ScopedMmcssThreadController::New(game_task,
-                                                         playback_task);
+        win::mmcss::ScopedMmcssThreadController::New(game_task, playback_task);
     if (const auto* controller =
             std2::get_result(scoped_mmcss_thread_controller))
       WB_ATTRIBUTE_LIKELY {

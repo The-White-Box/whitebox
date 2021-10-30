@@ -62,13 +62,12 @@ int BootmgrStartup(int argc, char** argv) noexcept {
 
   // Get not current directory, but directory from which exe is launched.
   // Prevents DLL / SO planting attacks.
-  std::error_code rc;
-  auto app_path = std2::GetExecutableDirectory(rc);
-  if (rc) WB_ATTRIBUTE_UNLIKELY {
+  auto app_path_result = std2::filesystem::get_executable_directory();
+  if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          rc,
+          *rc,
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
@@ -78,6 +77,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
                      "located too deep (> 1024)?"));
     }
 
+  auto app_path = *std2::get_result(app_path_result);
   app_path /= "libwhitebox-boot-manager.so." WB_PRODUCT_VERSION_INFO_STRING;
 
   const std::string boot_manager_path{app_path.string()};

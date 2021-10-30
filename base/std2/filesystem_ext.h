@@ -10,17 +10,17 @@
 #include <filesystem>
 
 #include "base/base_api.h"
+#include "base/std2/system_error_ext.h"
 
-namespace wb::base::std2 {
+namespace wb::base::std2::filesystem {
 
 /**
  * Gets path to invoking executable directory.
- * @param rc Error code.
  * @return Path to executable directory.
  */
-[[nodiscard]] WB_BASE_API std::filesystem::path GetExecutableDirectory(
-    std::error_code &rc) noexcept;
+[[nodiscard]] WB_BASE_API result<std::filesystem::path>
+get_executable_directory() noexcept;
 
-}  // namespace wb::base::std2
+}  // namespace wb::base::std2::filesystem
 
 #endif  // !WB_BASE_STD2_FILESYSTEM_EXT_H_

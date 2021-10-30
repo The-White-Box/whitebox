@@ -19,7 +19,7 @@
 
 #include "base/std2/system_error_ext.h"
 
-namespace wb::base::std2 {
+namespace {
 
 #ifdef WB_OS_POSIX
 /**
@@ -31,8 +31,10 @@ namespace wb::base::std2 {
  */
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers): Constants are good.
 template <size_t path_size = 128U, size_t max_path_size = 1024U>
-[[nodiscard]] inline auto GetExecutablePath(std::error_code& rc) noexcept
-    -> std::filesystem::path {
+[[nodiscard]] inline result<std::filesystem::path>
+GetExecutablePath() noexcept {
+  using namespace wb::base::std2;
+
   std::array<char, path_size> buffer{};
   const ssize_t bytes_required{
       ::readlink("/proc/self/exe", buffer.data(), std::size(buffer))};
@@ -47,29 +49,35 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
     // May be truncated?  Try to extend path size.
     if constexpr (path_size < max_path_size) {
       constexpr size_t new_size{std::min(path_size << 1U, max_path_size)};
-      return GetExecutablePath<new_size>(rc);
-    } else {
-      rc = system_last_error_code(ENOMEM);
+      return GetExecutablePath<new_size>();
     }
+
+    return system_last_error_code(ENOMEM);
   }
 
   // Error case.
-  rc = system_last_error_code();
-  return std::filesystem::path{};
+  return system_last_error_code();
 }
 #endif
 
+}  // namespace
+
+namespace wb::base::std2::filesystem {
+
 /**
  * Gets path to invoking executable directory.
- * @param rc Error code.
  * @return Path to executable directory.
  */
-[[nodiscard]] WB_BASE_API auto GetExecutableDirectory(
-    std::error_code& rc) noexcept -> std::filesystem::path {
+[[nodiscard]] WB_BASE_API result<std::filesystem::path>
+get_executable_directory() noexcept {
 #ifdef WB_OS_POSIX
-  std::filesystem::path exe_path{GetExecutablePath(rc)};
+  auto exe_path_result{GetExecutablePath()};
 
-  return exe_path.parent_path();
+  if (auto *result = std2::get_result(exe_path_result)) WB_ATTRIBUTE_LIKELY {
+      return result->parent_path();
+    }
+
+  return exe_path_result;
 #elif defined(WB_OS_WIN)
   std::string file_path;
   file_path.resize(_MAX_PATH + 1);
@@ -79,8 +87,8 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
     if (native_last_errno() == ERROR_INSUFFICIENT_BUFFER) {
-      rc = std::error_code{implicit_cast<int>(ERROR_INSUFFICIENT_BUFFER),
-                           std::system_category()};
+      return std::error_code{implicit_cast<int>(ERROR_INSUFFICIENT_BUFFER),
+                             std::system_category()};
     }
 
     file_path.resize(file_name_path_size);
@@ -93,11 +101,10 @@ template <size_t path_size = 128U, size_t max_path_size = 1024U>
             : file_path};
   }
 
-  rc = system_last_error_code();
-  return std::filesystem::path{};
+  return system_last_error_code();
 #else
-#error Please define GetExecutableDirectory for your OS.
+#error Please define get_executable_directory for your OS.
 #endif
 }
 
-}  // namespace wb::base::std2
+}  // namespace wb::base::std2::filesystem

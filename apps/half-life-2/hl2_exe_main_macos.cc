@@ -23,12 +23,35 @@
 #include <system_error>
 
 #include "app_version_config.h"
+#include "base/deps/g3log/g3log.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "build/static_settings_config.h"
 #include "whitebox-boot-manager/boot_manager_main.h"
+
+namespace {
+
+/**
+ * @brief Creates internationalization lookup.
+ * @param user_locale User locale.
+ * @return Internationalization lookup.
+ */
+[[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
+    const std::string& user_locale) noexcept {
+  auto intl_lookup_result{
+      wb::base::intl::LookupWithFallback::New({user_locale})};
+  auto intl_lookup =
+      std::get_if<wb::base::intl::LookupWithFallback>(&intl_lookup_result);
+
+  G3LOG_IF(FATAL, !intl_lookup)
+      << "Unable to create localization strings lookup for locale "
+      << user_locale << ".";
+  return std::move(*intl_lookup);
+}
+
+}  // namespace
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // Initialize g3log logging library first as logs are used extensively.
