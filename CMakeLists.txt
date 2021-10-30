@@ -39,12 +39,24 @@ endif()
 # Package information.
 set(PACKAGE_NAME      "WhiteBox")
 if (NOT DEFINED PACKAGE_VERSION)
-  set(PACKAGE_VER_MAJOR 0)
-  set(PACKAGE_VER_MAJOR 1)
+  if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
+    message("[common]: Extracting Git software version.")
+    execute_process(COMMAND cmd /c "git rev-list --branches HEAD | find /v " " /c" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  else()
+    message(STATUS "[common]: Extracting Git software version.")
+    execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  endif()
+  
   set(PACKAGE_VER_PATCH 0)
-  set(PACKAGE_VER_TWEAK 0)
+  math(EXPR PACKAGE_VER_TWEAK ${WB_GIT_VERSION})
+  message(STATUS
+    "[common]: Build version from Git as <patch.tweak>: ${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}.")
+
+  set(PACKAGE_VER_MAJOR 1)
+  set(PACKAGE_VER_MINOR 0)
+
   set(PACKAGE_VERSION
-    "${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MAJOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}-dev")
+    "${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MINOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}")
 endif()
 set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
 set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
