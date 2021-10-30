@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Character set for parsers.
+// Defines set of characters useful for parsers.
 
 #ifndef WB_BASE_PARSERS_CHARACTER_SET_H_
 #define WB_BASE_PARSERS_CHARACTER_SET_H_

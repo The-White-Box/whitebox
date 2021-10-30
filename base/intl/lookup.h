@@ -4,6 +4,15 @@
 //
 // Provides an API for looking up localized message strings.
 //
+// Usage example:
+//
+// const std::string &hello_message{intl::l18n(intl, "Hello, international
+// world!")};
+//
+// or
+//
+// const std::string greetings{intl::l18n_fmt(intl, "Hi, {0}!", user_name)};
+//
 // Based on
 // https://cs.opensource.google/fuchsia/fuchsia/+/main:src/lib/intl/lookup/cpp/lookup.h
 
@@ -223,6 +232,9 @@ class I18nStringViewHash {
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(I18nStringViewHash);
 
  private:
+  /**
+   * @brief Primes to use in hash computation.
+   */
   constexpr static unsigned short primes[]{
       2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,
       53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107, 109, 113,

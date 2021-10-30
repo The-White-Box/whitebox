@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Scoped process locale.
+// Sets process locale till ScopedProcessLocale object lifetime end.
 
 #ifndef WB_BASE_INTL_SCOPED_PROCESS_LOCALE_H_
 #define WB_BASE_INTL_SCOPED_PROCESS_LOCALE_H_
@@ -99,7 +99,7 @@ GetUserFriendlyLocaleName(const char *original_name) noexcept {
 #endif  // !NDEBUG
 
 /**
- * Scoped process locale.
+ * Sets process locale category in scope, restores out of scope.
  */
 class ScopedProcessLocale {
  public:

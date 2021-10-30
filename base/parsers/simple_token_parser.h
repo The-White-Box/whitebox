@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Simple token parser for small C subset.
+// Simple token parser for C-like language subset.
 //
 // Formal syntax is (in: break-set, out: token-value-*):
 // token_line:
