@@ -77,7 +77,7 @@ void DumpSystemInformation(const char* app_description) noexcept {
 #ifdef WB_OS_WIN
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with MSVC " << _MSC_FULL_VER << '.' << _MSC_BUILD
-              << ".";
+              << " running on " << wb::base::win::GetVersion() << ".";
 #endif
 }
 
