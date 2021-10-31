@@ -16,10 +16,8 @@
 
 #ifdef WB_OS_WIN
 #include "base/win/scoped_mutex.h"
-#elif defined(WB_OS_LINUX)
-
-#elif defined(WB_OS_MAC)
-
+#elif defined(WB_OS_POSIX)
+#include "base/posix/scoped_shared_memory_object.h"
 #endif
 
 namespace wb::boot_manager {
@@ -60,9 +58,9 @@ class ScopedAppInstanceManager {
             base::win::security::DefaultMutexAccessRights)},
         status_{CheckStatus(app_instance_mutex_)} {
   }
-#else
-      : status_{AppInstanceStatus::kUnableToDetermine} {
-    // TODO(dimhotepus): Use lock file in user app data dir.
+#elif defined(WB_OS_POSIX)
+      : app_instance_mutex_{CreateProcessMutex(app_description)},
+        status_{CheckStatus(app_instance_mutex_)} {
   }
 #endif
 
@@ -80,10 +78,16 @@ class ScopedAppInstanceManager {
    * @brief Mutex to be acquired only by single app instance.
    */
   const base::std2::result<base::win::ScopedMutex> app_instance_mutex_;
-#endif
+#elif defined(WB_OS_POSIX)
+  /**
+   * @brief Shared memory object to be acquired only by single app instance.
+   */
+  const base::std2::result<base::posix::ScopedSharedMemoryObject>
+      app_instance_mutex_;
+#endif  // WB_OS_WIN
 
   /**
-   * @brief APp instance status.
+   * @brief App instance status.
    */
   const AppInstanceStatus status_;
 
@@ -97,7 +101,14 @@ class ScopedAppInstanceManager {
    */
   [[nodiscard]] static std::string MakeMutexName(
       const char* app_description) noexcept {
+    G3DCHECK(!!app_description);
+
+#ifdef WB_OS_WIN
     return "WhiteBox " + std::string{app_description} + " Singleton Mutex";
+#else
+    // Start with / to be portable.
+    return "/WhiteBox " + std::string{app_description} + " Singleton Mutex";
+#endif  // WB_OS_WIN
   }
 
 #ifdef WB_OS_WIN
@@ -107,8 +118,7 @@ class ScopedAppInstanceManager {
    * @return App instance status.
    */
   [[nodiscard]] static AppInstanceStatus CheckStatus(
-      const base::std2::result<base::win::ScopedMutex>&
-          mutex_result) noexcept {
+      const base::std2::result<base::win::ScopedMutex>& mutex_result) noexcept {
     if (auto* mutex = base::std2::get_result(mutex_result))
       WB_ATTRIBUTE_LIKELY { return AppInstanceStatus::kNoOtherInstances; }
 
@@ -133,7 +143,54 @@ class ScopedAppInstanceManager {
         return AppInstanceStatus::kUnableToDetermine;
     }
   }
-#endif
+#elif defined(WB_OS_POSIX)
+  /**
+   * Creates process shared mutex.
+   * @param mutex_or_error Process shared mutex attribute or error.
+   * @return Process shared mutex.
+   */
+  [[nodiscard]] static base::std2::result<base::posix::ScopedSharedMemoryObject>
+  CreateProcessMutex(const char* app_description) noexcept {
+    using namespace wb::base::posix;
+
+    return ScopedSharedMemoryObject::New(
+        MakeMutexName(app_description),
+        ScopedSharedMemoryObjectFlags::kCreate |
+            ScopedSharedMemoryObjectFlags::kExclusive,
+        ScopedAccessModeFlags::kOwnerRead);
+  };
+
+  /**
+   * @brief Get app instance status.
+   * @param mutex_result Mutex.
+   * @return App instance status.
+   */
+  [[nodiscard]] static AppInstanceStatus CheckStatus(
+      const base::std2::result<base::posix::ScopedSharedMemoryObject>&
+          mutex_or_error) noexcept {
+    using namespace wb::base;
+
+    if (std2::get_result(mutex_or_error)) WB_ATTRIBUTE_LIKELY {
+        // Shared process mutex is locked by current process, will be unlocked
+        // on process end.
+        // TODO(dimhotepus): Ensure ScopedSharedMemoryObject freed on crash.
+        return AppInstanceStatus::kNoOtherInstances;
+      }
+
+    const auto* error = std2::get_error(mutex_or_error);
+    G3DCHECK(!!error);
+
+    if (error->value() == EEXIST) {
+      // Mutex already exists means locked by other instance.
+      return AppInstanceStatus::kAlreadyRunning;
+    }
+
+    G3PLOG_E(WARNING, *error)
+        << "Unable to determine either app already running or "
+           "not.  Mutex creation failed.";
+    return AppInstanceStatus::kUnableToDetermine;
+  }
+#endif  // WB_OS_WIN
 };
 
 }  // namespace wb::boot_manager
