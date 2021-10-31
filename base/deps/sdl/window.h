@@ -110,19 +110,19 @@ class SdlWindow {
    */
   static SdlResult<SdlWindow> New(const char *title, int x, int y, int width,
                                   int height, SdlWindowFlags flags) noexcept {
-    SdlWindow window{title, x, y, width, height, flags};
-    return window.error_code().is_succeeded()
-               ? SdlResult<SdlWindow>{std::move(window)}
-               : SdlResult<SdlWindow>{window.error_code()};
+    SdlWindow window{::SDL_CreateWindow(title, x, y, width, height,
+                                        base::underlying_cast(flags)),
+                     flags};
+    G3DCHECK(!!window.window_)
+        << "SDL_CreateWindow failed with error: " << SdlError::Failure();
+    return window.window_ ? SdlResult<SdlWindow>{std::move(window)}
+                          : SdlResult<SdlWindow>{SdlError::Failure()};
   }
-  SdlWindow(SdlWindow &&w) noexcept
-      : window_{w.window_}, init_rc_{w.init_rc_}, flags_{w.flags_} {
+  SdlWindow(SdlWindow &&w) noexcept : window_{w.window_}, flags_{w.flags_} {
     w.window_ = nullptr;
-    w.init_rc_ = SdlError::Success();
   }
   SdlWindow &operator=(SdlWindow &&w) noexcept {
     std::swap(window_, w.window_);
-    std::swap(init_rc_, w.init_rc_);
     std::swap(flags_, w.flags_);
     return *this;
   }
@@ -165,10 +165,6 @@ class SdlWindow {
    */
   SDL_Window *window_;
   /**
-   * @brief SDL window initialization code.
-   */
-  SdlError init_rc_;
-  /**
    * @brief SDL window flags.
    */
   SdlWindowFlags flags_;
@@ -178,28 +174,11 @@ class SdlWindow {
 
   /**
    * Creates SDL window.
-   * @param title Title.
-   * @param x X position.
-   * @param y Y position.
-   * @param width Window width.
-   * @param height Window height.
+   * @param window SDL window.
    * @param flags SdlWindowFlags.
    */
-  SdlWindow(const char *title, int x, int y, int width, int height,
-            SdlWindowFlags flags) noexcept
-      : window_{::SDL_CreateWindow(title, x, y, width, height,
-                                   base::underlying_cast(flags))},
-        init_rc_{window_ ? SdlError::Success() : SdlError::Failure()},
-        flags_{flags} {
-    G3DCHECK(!!window_) << "SDL_CreateWindow failed with error: "
-                        << error_code();
-  }
-
-  /**
-   * @brief Init result.
-   * @return SDL error.
-   */
-  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
+  SdlWindow(SDL_Window *window, SdlWindowFlags flags) noexcept
+      : window_{window}, flags_{flags} {}
 };
 
 }  // namespace wb::sdl
