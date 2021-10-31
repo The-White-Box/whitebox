@@ -73,8 +73,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
                      "enough permissions to run it."),
           wb::ui::FatalDialogContext{intl.Layout()},
           intl::l18n(intl,
-                     "Can't get current directory.  May be app "
-                     "located too deep (> 1024)?"));
+                     "Can't get current directory.  May be app located too "
+                     "deep (> 1024)?"));
     }
 
   auto app_path = *std2::get_result(app_path_result);
