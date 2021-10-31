@@ -56,8 +56,15 @@ namespace wb::base::std2 {
   constexpr size_t kEstimateThreadNameSize{32};  //-V112
   thread_name.resize(kEstimateThreadNameSize);
 
-  return std2::posix_last_error_code(
-      ::pthread_getname_np(handle, thread_name.data(), thread_name.size()));
+  const std::error_code rc{std2::system_last_error_code(
+      ::pthread_getname_np(handle, thread_name.data(), thread_name.size()))};
+
+  const size_t terminator_idx{thread_name.find('\0')};
+  if (terminator_idx != std::string::npos) {
+    thread_name.resize(terminator_idx);
+  }
+
+  return rc;
 #else
 #error Please, define get_thread_name for your platform.
 #endif
@@ -97,9 +104,13 @@ WB_GCC_END_WARNING_OVERRIDE_SCOPE()
       ::SetThreadDescription(get_handle(), thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
 #ifdef WB_OS_MACOS
+  // The thread name is a meaningful C language string, whose length is
+  // restricted to 64 characters, including the terminating null byte ('\0').
   return std2::posix_last_error_code(::pthread_setname_np(thread_name.c_str()));
 #else
-  return std2::posix_last_error_code(
+  // The thread name is a meaningful C language string, whose length is
+  // restricted to 16 characters, including the terminating null byte ('\0').
+  return std2::system_last_error_code(
       ::pthread_setname_np(get_handle(), thread_name.c_str()));
 #endif
 #else

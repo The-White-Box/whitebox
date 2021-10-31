@@ -64,7 +64,8 @@ WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 /**
  * @brief Set current thread name.
- * @param thread_name New thread name.
+ * @param thread_name New thread name.  Should be 15 symbols or less for Linux
+ * distros and 63 or less for Mac.
  * @return Error code.
  */
 [[nodiscard]] WB_BASE_API std::error_code set_name(
