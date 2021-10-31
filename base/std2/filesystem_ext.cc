@@ -31,7 +31,7 @@ namespace {
  */
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers): Constants are good.
 template <size_t path_size = 128U, size_t max_path_size = 1024U>
-[[nodiscard]] inline result<std::filesystem::path>
+[[nodiscard]] inline wb::base::std2::result<std::filesystem::path>
 GetExecutablePath() noexcept {
   using namespace wb::base::std2;
 
