@@ -68,7 +68,7 @@ enum class ScopedThreadExecutionStateFlags : EXECUTION_STATE {
  * @param right Right.
  * @return Left | Right.
  */
-[[nodiscard]] ScopedThreadExecutionStateFlags operator|(
+[[nodiscard]] constexpr ScopedThreadExecutionStateFlags operator|(
     ScopedThreadExecutionStateFlags left,
     ScopedThreadExecutionStateFlags right) noexcept {
   return static_cast<ScopedThreadExecutionStateFlags>(underlying_cast(left) |
@@ -81,7 +81,7 @@ enum class ScopedThreadExecutionStateFlags : EXECUTION_STATE {
  * @param right Right.
  * @return Left & Right.
  */
-[[nodiscard]] ScopedThreadExecutionStateFlags operator&(
+[[nodiscard]] constexpr ScopedThreadExecutionStateFlags operator&(
     ScopedThreadExecutionStateFlags left,
     ScopedThreadExecutionStateFlags right) noexcept {
   return static_cast<ScopedThreadExecutionStateFlags>(underlying_cast(left) &
