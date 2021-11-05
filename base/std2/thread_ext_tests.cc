@@ -24,7 +24,7 @@ GTEST_TEST(ThreadExtTests, this_thread_get_handle) {
 #elif defined(WB_OS_POSIX)
   const std2::native_thread_handle expected_thread_handle{pthread_self()};
 #else
-#error Please define get_handle for your platform.
+#error "Please define get_handle for your platform."
 #endif
 
   EXPECT_EQ(actual_thread_handle, expected_thread_handle);
@@ -48,7 +48,7 @@ GTEST_TEST(ThreadExtTests, this_thread_set_name) {
 #elif defined(WB_OS_POSIX)
   const std2::native_thread_name expected_thread_name{"small_name"};
 #else
-#error Please define native_thread_name for your platform.
+#error "Please define native_thread_name for your platform."
 #endif
 
   EXPECT_EQ(std2::ok_code, std2::this_thread::set_name(expected_thread_name));
@@ -70,7 +70,7 @@ GTEST_TEST(ThreadExtTests, this_thread_ScopedThreadNameScope) {
   const std2::native_thread_name expected_thread_name{
       "ScopedName"};
 #else
-#error Please define native_thread_name for your platform.
+#error "Please define native_thread_name for your platform."
 #endif
 
   std2::native_thread_name original_thread_name;
@@ -106,7 +106,7 @@ GTEST_TEST(ThreadExtTests, this_thread_ScopedThreadNameMoveConstructor) {
   const std2::native_thread_name expected_thread_name{
       "ScopedName"};
 #else
-#error Please define native_thread_name for your platform.
+#error "Please define native_thread_name for your platform."
 #endif
 
   std2::native_thread_name original_thread_name;

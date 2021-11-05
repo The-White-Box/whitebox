@@ -97,7 +97,7 @@ class ScopedFloatingPointMode {
   const unsigned previous_mxcsr_register_value_;
 };
 #else
-#error Please define floating point behavior for your platform.
+#error "Please define floating point mode for your platform."
 #endif
 
 }  // namespace wb::base

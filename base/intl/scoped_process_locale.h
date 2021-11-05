@@ -39,7 +39,7 @@ constexpr char kUtf8Locale[]{".UTF8"};
  */
 constexpr char kUtf8Locale[]{""};
 #else
-#error Please define utf8 locale for your os.
+#error "Please define UTF-8 locale for your os."
 #endif
 
 /**

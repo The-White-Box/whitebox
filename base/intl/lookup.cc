@@ -20,7 +20,7 @@ namespace {
  * @return String hash.
  */
 [[nodiscard]] WB_ATTRIBUTE_CONST WB_ATTRIBUTE_FORCEINLINE constexpr uint64_t
-hash(std::string_view &&string) noexcept {
+hash(std::string_view&& string) noexcept {
   return wb::base::intl::I18nStringViewHash{}(string);
 }
 

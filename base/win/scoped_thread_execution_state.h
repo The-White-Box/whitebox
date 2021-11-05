@@ -32,34 +32,34 @@ enum class ScopedThreadExecutionStateFlags : EXECUTION_STATE {
   /**
    * @brief Error occured.
    */
-  kError = 0x00000000UL,
+  kError = 0x0000'0000UL,
   /**
    * @brief Informs the system that the state being set should remain in effect
    * until the next call that uses kContinuous and one of the other state
    * flags is cleared.
    */
-  kContinuous = 0x80000000UL,
+  kContinuous = 0x8000'0000UL,
   /**
    * @brief Forces the system to be in the working state by resetting the system
    * idle timer.
    */
-  kSystemRequired = 0x00000001UL,
+  kSystemRequired = 0x0000'0001UL,
   /**
    * @brief Forces the display to be on by resetting the display idle timer.
    */
-  kDisplayRequired = 0x00000002UL,
+  kDisplayRequired = 0x0000'0002UL,
   /**
    * @brief This value is not supported.  If kUserPresent is combined with other
    * esFlags values, the call will fail and none of the specified states will be
    * set.
    */
-  kUserPresent = 0x00000004UL,
+  kUserPresent = 0x0000'0004UL,
   /**
    * @brief Away mode should be used only by media-recording and
    * media-distribution applications that must perform critical background
    * processing on desktop computers while the computer appears to be sleeping.
    */
-  kAwayModeRequired = 0x00000040UL | kContinuous,
+  kAwayModeRequired = 0x0000'0040UL | kContinuous,
 };
 
 /**
@@ -119,7 +119,7 @@ class ScopedThreadExecutionState {
 
   ~ScopedThreadExecutionState() noexcept {
     if (!error_code()) {
-      G3CHECK(!!::SetThreadExecutionState(underlying_cast(
+      G3CHECK(!!::SetThreadExecutionState(base::underlying_cast(
           old_flags_ & ScopedThreadExecutionStateFlags::kContinuous)));
     }
   }
@@ -148,7 +148,7 @@ class ScopedThreadExecutionState {
             ::SetThreadExecutionState(underlying_cast(flags)))},
         error_code_{(old_flags_ != ScopedThreadExecutionStateFlags::kError
                          ? std2::ok_code
-                         : wb::base::std2::system_last_error_code())} {}
+                         : std2::system_last_error_code())} {}
 
   /**
    * @brief Get initialization error code.

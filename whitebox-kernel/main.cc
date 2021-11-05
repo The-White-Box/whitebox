@@ -151,7 +151,7 @@ namespace {
   return {kernel_args.intl, kernel_args.intl.Layout(), kernel_args.main_icon_id,
           kernel_args.small_icon_id};
 #else
-#error Please define MakeFatalContext for your platform.
+#error "Please define MakeFatalContext for your platform."
 #endif
 }
 
@@ -248,7 +248,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 #elif defined(WB_OS_MACOS)
         | SdlWindowFlags::kUseMetal
 #else
-#error Please, define SDL window flags for your platform.
+#error "Please, define SDL window flags for your platform."
 #endif
   };
 

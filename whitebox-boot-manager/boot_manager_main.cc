@@ -58,7 +58,7 @@ void DumpSystemInformation(const char* app_description) noexcept {
                                      std::to_string(__GNUC_PATCHLEVEL__)};
 #else
   constexpr char kCompilerVersion[];
-#error Please, add your compiler build version here.
+#error "Please, add your compiler build version here."
 #endif  // WB_COMPILER_GCC
 
 #if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
@@ -125,7 +125,7 @@ void BootHeapMemoryAllocator() noexcept {
   return {bootmgr_args.intl, bootmgr_args.intl.Layout(),
           bootmgr_args.main_icon_id, bootmgr_args.small_icon_id};
 #else
-#error Please define MakeFatalContext for your platform.
+#error "Please define MakeFatalContext for your platform."
 #endif
 }
 

@@ -66,7 +66,7 @@ namespace wb::base::std2 {
 
   return rc;
 #else
-#error Please, define get_thread_name for your platform.
+#error "Please, define get_thread_name for your platform."
 #endif
 }
 
@@ -87,7 +87,7 @@ WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
 #elif defined(WB_OS_POSIX)
     return native_thread_handle{pthread_self()};
 #else
-#error Please define get_handle for your platform.
+#error "Please define get_handle for your platform."
 #endif
   }
 WB_GCC_END_WARNING_OVERRIDE_SCOPE()
@@ -114,7 +114,7 @@ WB_GCC_END_WARNING_OVERRIDE_SCOPE()
       ::pthread_setname_np(get_handle(), thread_name.c_str()));
 #endif
 #else
-#error Please, define set_name for your platform.
+#error "Please, define set_name for your platform."
 #endif
 }
 

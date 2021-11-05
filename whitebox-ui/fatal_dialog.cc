@@ -126,7 +126,7 @@ namespace wb::ui {
     G3DCHECK(!std2::get_error(result))
         << "Fatal dialog can't be shown: " << *std2::get_error(result);
 #else
-#error Please define FatalDialog UI for your platform.
+#error "Please define FatalDialog UI for your platform."
 #endif
   } catch (const std::exception& ex) {
     G3LOG(WARNING) << "Exception caught in FatalDialog: " << ex.what();

@@ -76,7 +76,7 @@ struct ConsoleSink {
 
     ::OutputDebugStringA(message.c_str());
 #else
-#error Please define console output sink for your platform.
+#error "Please define console output sink for your platform."
 #endif
   }
 };

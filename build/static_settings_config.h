@@ -22,7 +22,7 @@ constexpr char kPathToMainLogFile[]{""};
  */
 constexpr char kPathToMainLogFile[]{"/tmp/"};
 #else
-#error Please define path to main log file for your platform.
+#error "Please define path to main log file for your platform."
 #endif
 
 /**

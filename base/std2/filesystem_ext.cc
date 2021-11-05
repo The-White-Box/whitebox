@@ -103,7 +103,7 @@ get_executable_directory() noexcept {
 
   return system_last_error_code();
 #else
-#error Please define get_executable_directory for your OS.
+#error "Please define get_executable_directory for your OS."
 #endif
 }
 

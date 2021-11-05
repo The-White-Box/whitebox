@@ -58,7 +58,7 @@ struct alignas(void *) MODULE_ {
  */
 using module_descriptor = MODULE_;
 #else  // WB_OS_POSIX
-#error Please add shared library descriptor support for your platform.
+#error "Please add shared library descriptor support for your platform."
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
 
 }  // namespace wb::base
@@ -88,7 +88,7 @@ struct default_delete<wb::base::module_descriptor> {
   }
 };
 #else  // WB_OS_POSIX
-#error Please add shared library default_delete support for your platform.
+#error "Please add shared library default_delete support for your platform."
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
 
 }  // namespace std
@@ -187,7 +187,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
                               : std2::result<T>(std2::system_last_error_code());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
-#error Please add shared library support for your platform.
+#error "Please add shared library support for your platform."
 #endif  // WB_OS_WIN
 };
 

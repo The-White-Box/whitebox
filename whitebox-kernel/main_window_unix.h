@@ -44,8 +44,7 @@ class MainWindow {
 #elif defined(WB_OS_MACOS)
            | sdl::SdlWindowFlags::kUseMetal
 #else
-#error Unknown platform. Please, define SDL window flags for your platform in \
-	whitebox-kernel/whitebox_kernel_main.cc
+#error "Please, define SDL window flags for your platform."
 #endif
         ;
   }

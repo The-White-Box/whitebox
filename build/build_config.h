@@ -54,7 +54,7 @@
 // Solaris OS.
 #define WB_OS_SOLARIS 1
 #else
-#error Please add support for your platform.
+#error "Please add support for your platform."
 #endif
 // NOTE: Adding a new port?  Please follow
 // https://github.com/The-White-Box/whitebox/blob/master/docs/new_port_policy.md
@@ -90,7 +90,7 @@
 // MSVC.
 #define WB_COMPILER_MSVC 1
 #else
-#error Please add support for your platform.
+#error "Please add support for your platform."
 #endif
 
 // Processor architecture detection.  For more info on what's defined, see:
@@ -128,7 +128,7 @@
 #define WB_ARCH_CPU_64_BITS 1
 #define WB_ARCH_CPU_BIG_ENDIAN 1
 #else
-#error Please add support for your CPU architecture.
+#error "Please add support for your CPU architecture."
 #endif
 
 // Type detection for wchar_t.
@@ -144,12 +144,11 @@
     defined(__WCHAR_MAX__) &&                                   \
     (__WCHAR_MAX__ == 0x7fff || __WCHAR_MAX__ == 0xffff)
 // On Posix, we'll detect short wchar_t, but projects aren't guaranteed to
-// compile in this mode (in particular, Chrome doesn't). This is intended for
-// other projects using base who manage their own dependencies and make sure
-// short wchar works for them.
+// compile in this mode.  This is intended for other projects using base who
+// manage their own dependencies and make sure short wchar works for them.
 #define WB_WCHAR_T_IS_UTF16
 #else
-#error Please add support for your wchar_t type.
+#error "Please add support for wchar_t type on your platform."
 #endif
 
 #endif  // !WB_BUILD_BUILD_CONFIG_H_

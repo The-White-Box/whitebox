@@ -12,6 +12,8 @@
 #include <cstddef>  // std::size_t, std::ptrdiff_t.
 #include <cstdint>  // precise bit integral types.
 
+#include "base/policy_checks.h"
+
 namespace wb {
 
 // uint8_t.

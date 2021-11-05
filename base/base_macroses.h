@@ -10,6 +10,8 @@
 #include <memory>
 #include <type_traits>
 
+#include "base/policy_checks.h"
+
 // clang-format off
 /**
  * Deletes copy ctor and assignment operator for type.

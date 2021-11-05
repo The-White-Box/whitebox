@@ -29,6 +29,7 @@ namespace {
 
   // Win 10+.
   if (major == 10U) {
+    // Win 11+.
     if (build >= 22000U) return Version::WIN11_21H2;
     if (build >= 19043U) return Version::WIN10_21H1;
     if (build >= 19042U) return Version::WIN10_20H2;
