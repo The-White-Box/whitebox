@@ -10,6 +10,7 @@
 #include <cstdlib>
 
 #include "base/deps/g3log/g3log.h"
+#include "build/compiler_config.h"
 
 namespace wb::base::win::error_handling {
 
@@ -19,20 +20,26 @@ namespace wb::base::win::error_handling {
  */
 class ScopedThreadInvalidParameterHandler {
  public:
-  /**
-   * @brief Set a function to be called when the CRT detects an invalid
-   * argument.
-   * @param invalid_parameter_handler New CRT invalid argument handler for
-   * thread.
-   * @return nothing.
-   */
-  explicit ScopedThreadInvalidParameterHandler(
-      _In_ _invalid_parameter_handler invalid_parameter_handler) noexcept
-      : old_invalid_parameter_handler_{
-            ::_set_thread_local_invalid_parameter_handler(
-                invalid_parameter_handler)} {
-    G3DCHECK(!!invalid_parameter_handler);
-  }
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Pointer or reference to potentially throwing function passed to 'extern
+    // "C"' function under -EHc. Undefined behavior may occur if this function
+    // throws an exception.  This function should not throw.
+    WB_MSVC_DISABLE_WARNING(5039)
+    /**
+     * @brief Set a function to be called when the CRT detects an invalid
+     * argument.
+     * @param invalid_parameter_handler New CRT invalid argument handler for
+     * thread.
+     * @return nothing.
+     */
+    explicit ScopedThreadInvalidParameterHandler(
+        _In_ _invalid_parameter_handler invalid_parameter_handler) noexcept
+        : old_invalid_parameter_handler_{
+              ::_set_thread_local_invalid_parameter_handler(
+                  invalid_parameter_handler)} {
+      G3DCHECK(!!invalid_parameter_handler);
+    }
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedThreadInvalidParameterHandler);
 
@@ -40,8 +47,14 @@ class ScopedThreadInvalidParameterHandler {
    * @brief Restore previous invalid parameter handler.
    */
   ~ScopedThreadInvalidParameterHandler() noexcept {
-    ::_set_thread_local_invalid_parameter_handler(
-        old_invalid_parameter_handler_);
+    WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+      // Pointer or reference to potentially throwing function passed to 'extern
+      // "C"' function under -EHc. Undefined behavior may occur if this function
+      // throws an exception.  This function should not throw.
+      WB_MSVC_DISABLE_WARNING(5039)
+      ::_set_thread_local_invalid_parameter_handler(
+          old_invalid_parameter_handler_);
+    WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
   }
 
  private:

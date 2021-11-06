@@ -10,6 +10,7 @@
 #include <cstdlib>
 
 #include "base/deps/g3log/g3log.h"
+#include "build/compiler_config.h"
 
 namespace wb::base::win::error_handling {
 
@@ -21,16 +22,22 @@ namespace wb::base::win::error_handling {
  */
 class ScopedProcessPureCallHandler {
  public:
-  /**
-   * @brief Set pure call handler in scope.
-   * @param pure_call_handler New pure call handler.
-   * @return nothing.
-   */
-  explicit ScopedProcessPureCallHandler(
-      _In_ _purecall_handler pure_call_handler) noexcept
-      : old_pure_call_handler_{::_set_purecall_handler(pure_call_handler)} {
-    G3DCHECK(!!pure_call_handler);
-  }
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Pointer or reference to potentially throwing function passed to 'extern
+    // "C"' function under -EHc. Undefined behavior may occur if this function
+    // throws an exception.  This function should not throw.
+    WB_MSVC_DISABLE_WARNING(5039)
+    /**
+     * @brief Set pure call handler in scope.
+     * @param pure_call_handler New pure call handler.
+     * @return nothing.
+     */
+    explicit ScopedProcessPureCallHandler(
+        _In_ _purecall_handler pure_call_handler) noexcept
+        : old_pure_call_handler_{::_set_purecall_handler(pure_call_handler)} {
+      G3DCHECK(!!pure_call_handler);
+    }
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedProcessPureCallHandler);
 
@@ -38,7 +45,13 @@ class ScopedProcessPureCallHandler {
    * @brief Restore previous pure call handler.
    */
   ~ScopedProcessPureCallHandler() noexcept {
-    ::_set_purecall_handler(old_pure_call_handler_);
+    WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+      // Pointer or reference to potentially throwing function passed to 'extern
+      // "C"' function under -EHc. Undefined behavior may occur if this function
+      // throws an exception.  This function should not throw.
+      WB_MSVC_DISABLE_WARNING(5039)
+      ::_set_purecall_handler(old_pure_call_handler_);
+    WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
   }
 
  private:
