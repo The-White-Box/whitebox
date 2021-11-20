@@ -54,3 +54,5 @@ if (NOT WB_OS_WIN)
   wb_copy_target_asset_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}
     "images/Half-Life 2 icon.png")
 endif()
+
+wb_copy_licenses_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME})

@@ -253,7 +253,8 @@ function(wb_dump_target_property THE_TARGET TARGET_PROPERTY TARGET_PROPERTY_DESC
   #  COMMAND echo "${THE_TARGET} built with the ${TARGET_PROPERTY_DESCRIPTION}: ${TARGET_PROPERTY_VALUE}")
 endfunction(wb_dump_target_property)
 
-# Copies target assets to target binary directory.  Use like this:
+# Copies target assets to target binary directory.
+# 
 # wb_copy_target_asset_to_target_bin_dir("My target" "My asset")
 function(wb_copy_target_asset_to_target_bin_dir THE_TARGET THE_ASSET_RELATIVE_PATH)
   set(full_asset_path "${WB_ROOT_DIR}/assets/${THE_TARGET}/${THE_ASSET_RELATIVE_PATH}")
@@ -262,6 +263,26 @@ function(wb_copy_target_asset_to_target_bin_dir THE_TARGET THE_ASSET_RELATIVE_PA
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${full_asset_path} $<TARGET_FILE_DIR:${THE_TARGET}>
       WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
       COMMENT "Copy ${full_asset_path} to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+  )
+endfunction()
+
+# Copies target licenses to target binary directory.
+#
+# wb_copy_licenses_to_target_bin_dir("My target")
+function(wb_copy_licenses_to_target_bin_dir THE_TARGET)
+  set(license_path "${WB_ROOT_DIR}/LICENSE")
+  set(third_party_license_path "${WB_ROOT_DIR}/THIRD_PARTY")
+  add_custom_command(
+      TARGET ${THE_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${license_path} $<TARGET_FILE_DIR:${THE_TARGET}>
+      WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
+      COMMENT "Copy ${license_path} to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+  )
+  add_custom_command(
+      TARGET ${THE_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${third_party_license_path} $<TARGET_FILE_DIR:${THE_TARGET}>
+      WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
+      COMMENT "Copy ${third_party_license_path} to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
   )
 endfunction()
 
@@ -278,7 +299,8 @@ function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
   )
 endfunction()
 
-# Copy all target dependencies + optionally mimalloc redirect.  Use like this:
+# Copy all target dependencies + optionally mimalloc redirect.
+#
 # wb_copy_all_target_dependencies_to_target_bin_dir("My target" My_dependencies_list)
 function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPENDENCIES)
   set(WB_SHOULD_COPY_MIMALLOC OFF)
