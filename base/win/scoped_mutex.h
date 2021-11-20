@@ -93,7 +93,7 @@ class ScopedMutex {
 
   ScopedMutex(ScopedMutex &&s) noexcept
       : mutex_{std::move(s.mutex_)}, error_code_{s.error_code_} {
-    s.error_code_ = std::error_code{EINVAL, std::system_category()};
+    s.error_code_ = std2::posix_last_error_code(EINVAL);
   }
   ScopedMutex &operator=(ScopedMutex &&) = delete;
 

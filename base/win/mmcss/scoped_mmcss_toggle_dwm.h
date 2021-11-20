@@ -46,7 +46,7 @@ class ScopedMmcssToggleDwm {
   ScopedMmcssToggleDwm(ScopedMmcssToggleDwm&& s) noexcept
       : error_code_{std::move(s.error_code_)},
         is_dwm_mmcss_enabled_{std::move(s.is_dwm_mmcss_enabled_)} {
-    s.error_code_ = std::error_code{EINVAL, std::system_category()};
+    s.error_code_ = std2::posix_last_error_code(EINVAL);
   }
   ScopedMmcssToggleDwm& operator=(ScopedMmcssToggleDwm&&) = delete;
 
@@ -54,8 +54,8 @@ class ScopedMmcssToggleDwm {
 
   ~ScopedMmcssToggleDwm() noexcept {
     if (!error_code()) {
-      G3CHECK(!get_error(
-          ::DwmEnableMMCSS(is_dwm_mmcss_enabled_ ? FALSE : TRUE)));
+      G3CHECK(
+          !get_error(::DwmEnableMMCSS(is_dwm_mmcss_enabled_ ? FALSE : TRUE)));
     }
   }
 

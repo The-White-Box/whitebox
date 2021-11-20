@@ -28,8 +28,8 @@ EnableDefaultSecureDllSearch() noexcept {
   //
   // See
   // https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-setdefaultdlldirectories
-  return get_error(::SetDefaultDllDirectories(
-      LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS));
+  return get_error(::SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_SYSTEM32 |
+                                              LOAD_LIBRARY_SEARCH_USER_DIRS));
 }
 
 /**
@@ -404,11 +404,10 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
   }
 
 #if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-  if (win::GetVersion() < win::Version::WIN10_20H1)
-    WB_ATTRIBUTE_UNLIKELY {
+  if (win::GetVersion() < win::Version::WIN10_20H1) WB_ATTRIBUTE_UNLIKELY {
       // Policies below require Windows 10, version 2004+ (Build 19041)
       std::get<std::error_code>(old_uss_policy_to_new_errc_) =
-          std::error_code(ERROR_NOT_SUPPORTED, std::system_category());
+          std2::system_last_error_code(ERROR_NOT_SUPPORTED);
       return;
     }
   if (!GetProcessMitigationPolicy(

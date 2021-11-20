@@ -8,6 +8,7 @@
 
 #include "base/base_macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/std2/system_error_ext.h"
 #include "base/win/windows_light.h"
 
 namespace wb::ui::win {
@@ -121,8 +122,8 @@ class ScopedWindowPaint::ScopedWindowPaintImpl {
   return scoped_window_paint.impl_->is_succeeded()
              ? base::std2::result<ScopedWindowPaint>{std::move(
                    scoped_window_paint)}
-             : base::std2::result<ScopedWindowPaint>{std::error_code{
-                   (int)ERROR_DC_NOT_FOUND, std::system_category()}};
+             : base::std2::result<ScopedWindowPaint>{
+                   base::std2::system_last_error_code(ERROR_DC_NOT_FOUND)};
 }
 
 ScopedWindowPaint::ScopedWindowPaint(_In_ HWND window) noexcept

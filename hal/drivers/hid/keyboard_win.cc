@@ -89,7 +89,7 @@ Keyboard::~Keyboard() noexcept {
 Keyboard::Keyboard(Keyboard&& k) noexcept
     : window_{k.window_}, error_code_{k.error_code_} {
   k.window_ = nullptr;
-  k.error_code_ = std::error_code{EINVAL, std::system_category()};
+  k.error_code_ = wb::base::std2::posix_last_error_code(EINVAL);
 }
 
 /**

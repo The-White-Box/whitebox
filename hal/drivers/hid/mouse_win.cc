@@ -79,7 +79,7 @@ Mouse::Mouse(Mouse&& m) noexcept
       last_absolute_x_{m.last_absolute_x_},
       last_absolute_y_{m.last_absolute_y_} {
   m.window_ = nullptr;
-  m.error_code_ = std::error_code{EINVAL, std::system_category()};
+  m.error_code_ = wb::base::std2::posix_last_error_code(EINVAL);
   m.last_absolute_x_ = m.last_absolute_y_ = kInvalidMouseAbsoluteCoordinate;
 }
 
