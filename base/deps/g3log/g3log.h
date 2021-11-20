@@ -73,7 +73,7 @@ class ScopedEndError {
 
 }  // namespace wb::base::deps::g3log
 
-// G3LOG(level) is the API for the stream log
+// G3LOG(level) is the API for the stream log.
 #define G3LOG(level)                              \
   if (!g3::logLevel(level)) WB_ATTRIBUTE_LIKELY { \
     }                                             \
@@ -90,14 +90,14 @@ class ScopedEndError {
         error_code, INTERNAL_LOG_MESSAGE(level).stream()} \
         .stream()
 
-// 'Conditional' stream log
+// 'Conditional' stream log.
 #define G3LOG_IF(level, boolean_expression)                  \
   if (!g3::logLevel(level) || false == (boolean_expression)) \
     WB_ATTRIBUTE_LIKELY {}                                   \
   else                                                       \
     INTERNAL_LOG_MESSAGE(level).stream()
 
-// 'Conditional' stream log + system error code.
+// 'Conditional' stream log + system error code pointer.
 #define G3PLOGE_IF(level, error_code_ptr_expression)                        \
   if (!g3::logLevel(level) || false == (!!(error_code_ptr_expression)))     \
     WB_ATTRIBUTE_LIKELY {}                                                  \
@@ -106,10 +106,20 @@ class ScopedEndError {
         *(error_code_ptr_expression), INTERNAL_LOG_MESSAGE(level).stream()} \
         .stream()
 
-// 'Design By Contract' stream API. Broken Contracts will exit the application
-// by using fatal signal SIGABRT
-//  For unit testing, you can override the fatal handling using
-//  setFatalExitHandler(...). See tes_io.cpp for examples
+// 'Conditional' stream log + system error code.
+#define G3PLOGE2_IF(level, error_code)                                       \
+  if (!g3::logLevel(level) || false == (!!error_code)) WB_ATTRIBUTE_LIKELY { \
+    }                                                                        \
+  else                                                                       \
+    wb::base::deps::g3log::ScopedEndError{                                   \
+        error_code, INTERNAL_LOG_MESSAGE(level).stream()}                    \
+        .stream()
+
+// 'Design By Contract' stream API.  Broken Contracts will exit the application
+// by using fatal signal SIGABRT.
+//
+// For unit testing, you can override the fatal handling using
+// setFatalExitHandler(...).  See tes_io.cpp for examples.
 // clang-format off
 #define G3CHECK(boolean_expression)                       \
   if (true == (boolean_expression)) WB_ATTRIBUTE_LIKELY { \
@@ -118,10 +128,11 @@ class ScopedEndError {
     INTERNAL_CONTRACT_MESSAGE(#boolean_expression).stream() // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 // clang-format on
 
-// 'Design By Contract' stream API + error code. Broken Contracts will exit the
-// application by using fatal signal SIGABRT
-//  For unit testing, you can override the fatal handling using
-//  setFatalExitHandler(...). See tes_io.cpp for examples
+// 'Design By Contract' stream API + error code.  Broken Contracts will exit the
+// application by using fatal signal SIGABRT.
+//
+// For unit testing, you can override the fatal handling using
+// setFatalExitHandler(...).  See tes_io.cpp for examples
 #define G3PCHECK_E(boolean_expression, error_code)                           \
   if (true == (boolean_expression)) WB_ATTRIBUTE_LIKELY {                    \
     }                                                                        \
@@ -184,7 +195,7 @@ And here is possible output
   else                                            \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
-// Conditional log printf syntax
+// Conditional log printf syntax.
 #define G3LOGF_IF(level, boolean_expression, printf_like_message, ...) \
   if (!g3::logLevel(level) || false == (boolean_expression))           \
     WB_ATTRIBUTE_LIKELY {}                                             \
@@ -193,9 +204,10 @@ And here is possible output
 
 // Design By Contract, printf-like API syntax with variadic input parameters.
 // Calls the signal handler if the contract failed with the default exit for a
-// failed contract. This is typically SIGABRT See g3log,
-// setFatalExitHandler(...) which can be overriden for unit tests (ref
-// test_io.cpp)
+// failed contract.  This is typically SIGABRT.
+//
+// See g3log, setFatalExitHandler(...) which can be overriden for unit tests
+// (ref test_io.cpp)
 #define G3CHECKF(boolean_expression, printf_like_message, ...) \
   if (true == (boolean_expression)) WB_ATTRIBUTE_LIKELY {      \
     }                                                          \
@@ -203,11 +215,12 @@ And here is possible output
     INTERNAL_CONTRACT_MESSAGE(#boolean_expression)             \
         .capturef(printf_like_message, ##__VA_ARGS__)
 
-// Backwards compatible. The same as CHECKF.
-// Design By Contract, printf-like API syntax with variadic input parameters.
-// Calls the signal handler if the contract failed. See g3log,
-// setFatalExitHandler(...) which can be overriden for unit tests (ref
-// test_io.cpp)
+// Backwards compatible.  The same as CHECKF.  Design By Contract, printf-like
+// API syntax with variadic input parameters.  Calls the signal handler if the
+// contract failed.
+//
+// See g3log, setFatalExitHandler(...) which can be overriden
+// for unit tests (ref test_io.cpp)
 #define G3CHECK_F(boolean_expression, printf_like_message, ...) \
   if (true == (boolean_expression)) WB_ATTRIBUTE_LIKELY {       \
     }                                                           \
@@ -265,12 +278,15 @@ And here is possible output
 // DEBUG mode.
 #define G3DPLOG_E(level, error_code) G3PLOG_E(level, error_code)
 
-// 'Conditional' stream log
+// 'Conditional' stream log.
 #define G3DLOG_IF(level, boolean_expression) G3LOG_IF(level, boolean_expression)
 
-// 'Conditional' stream log + system error code.
+// 'Conditional' stream log + system error code pointer.
 #define G3DPLOGE_IF(level, error_code_ptr_expression) \
   G3PLOGE_IF(level, error_code_ptr_expression)
+
+// 'Conditional' stream log + system error code.
+#define G3DPLOGE2_IF(level, error_code) G3PLOGE2_IF(level, error_code)
 
 /** For details please see this
  * REFERENCE: http://www.cppreference.com/wiki/io/c/printf_format
@@ -326,22 +342,25 @@ And here is possible output
   else                                            \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
-// Conditional log printf syntax
+// Conditional log printf syntax.
 #define G3DLOGF_IF(level, boolean_expression, printf_like_message, ...) \
   if (false == (boolean_expression) || !g3::logLevel(level))            \
     WB_ATTRIBUTE_LIKELY {}                                              \
   else                                                                  \
     INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
-// 'Design By Contract' stream API. For Broken Contracts:
-//         unit testing: it will throw std::runtime_error when a contract breaks
-//         I.R.L : it will exit the application by using fatal signal SIGABRT
+// 'Design By Contract' stream API.  Broken Contracts will exit the
+// application by using fatal signal SIGABRT.
+//
+// Unit testing: it will throw std::runtime_error when a contract breaks I.R.L :
+// it will exit the application by using fatal signal SIGABRT.
 #define G3DCHECK(boolean_expression) G3CHECK(boolean_expression)
 
-// 'Design By Contract' stream API + error code. Broken Contracts will exit the
-// application by using fatal signal SIGABRT
-//  For unit testing, you can override the fatal handling using
-//  setFatalExitHandler(...). See tes_io.cpp for examples
+// 'Design By Contract' stream API + error code.  Broken Contracts will exit the
+// application by using fatal signal SIGABRT.
+//
+// For unit testing, you can override the fatal handling using
+// setFatalExitHandler(...).  See tes_io.cpp for examples.
 #define G3DPCHECK_E(boolean_expression, error_code) \
   G3PCHECK_E(boolean_expression, error_code)
 
