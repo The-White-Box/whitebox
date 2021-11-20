@@ -93,7 +93,7 @@ class ScopedThreadName {
       : thread_{n.thread_},
         old_thread_name_{std::move(n.old_thread_name_)},
         error_code_{n.error_code_} {
-    n.error_code_ = std::error_code{EINVAL, std::system_category()};
+    n.error_code_ = std2::posix_last_error_code(EINVAL);
 
     G3DCHECK(thread_ == get_handle())
         << "Thread name should be moved for original thread.";

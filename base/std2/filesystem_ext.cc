@@ -17,6 +17,7 @@
 #include "base/win/windows_light.h"
 #endif
 
+#include "base/std2/string_view_ext.h"
 #include "base/std2/system_error_ext.h"
 
 namespace {
@@ -65,7 +66,7 @@ GetExecutablePath() noexcept {
 namespace wb::base::std2::filesystem {
 
 /**
- * Gets path to invoking executable directory.
+ * @brief Gets path to invoking executable directory.
  * @return Path to executable directory.
  */
 [[nodiscard]] WB_BASE_API result<std::filesystem::path>
@@ -87,24 +88,57 @@ get_executable_directory() noexcept {
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
     if (native_last_errno() == ERROR_INSUFFICIENT_BUFFER) {
-      return std::error_code{implicit_cast<int>(ERROR_INSUFFICIENT_BUFFER),
-                             std::system_category()};
+      return std2::system_last_error_code(ERROR_INSUFFICIENT_BUFFER);
     }
 
     file_path.resize(file_name_path_size);
 
     const size_t last_separator_pos{
         file_path.rfind(std::filesystem::path::preferred_separator)};
-    return std::filesystem::path{
-        last_separator_pos != std::wstring::npos
-            ? file_path.substr(0, last_separator_pos + 1)
-            : file_path};
+    return std::filesystem::path{last_separator_pos != std::wstring::npos
+                                     ? file_path.substr(0, last_separator_pos)
+                                     : file_path};
   }
 
   return system_last_error_code();
 #else
 #error "Please define get_executable_directory for your OS."
 #endif
+}
+
+/**
+ * @brief Extract short exe name from command line.
+ * @param command_line Command line.
+ * @return Short exe name.
+ */
+[[nodiscard]] WB_BASE_API std::optional<std::string_view>
+get_short_exe_name_from_command_line(std::string_view command_line) noexcept {
+#ifdef WB_OS_WIN
+  // Assume \"x:\zzzzz\yyyy.exe\" www on Windows.
+  if (std2::starts_with(command_line, '"')) {
+    const size_t end_exe_double_quote_idx{command_line.find('"', 1U)};
+    const size_t backslash_before_name_idx{command_line.rfind(
+        std::filesystem::path::preferred_separator, end_exe_double_quote_idx)};
+
+    if (end_exe_double_quote_idx != std::string_view::npos &&
+        backslash_before_name_idx != std::string_view::npos) {
+      return command_line.substr(
+          backslash_before_name_idx + 1,
+          end_exe_double_quote_idx - backslash_before_name_idx - 1);
+    }
+  }
+#endif  // WB_OS_WIN
+
+  // Has path separator.
+  if (const size_t backslash_before_name_idx{
+          command_line.rfind(std::filesystem::path::preferred_separator)};
+      backslash_before_name_idx != std::string_view::npos) {
+    return command_line.substr(
+        backslash_before_name_idx + 1,
+        command_line.size() - backslash_before_name_idx - 1);
+  }
+
+  return {};
 }
 
 }  // namespace wb::base::std2::filesystem

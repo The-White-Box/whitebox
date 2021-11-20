@@ -32,13 +32,25 @@ GTEST_TEST(ThreadExtTests, this_thread_get_handle) {
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTests, get_thread_name) {
+#ifdef WB_OS_WIN
+  std2::native_thread_name thread_name{L"get_thread_name"};
+#elif defined(WB_OS_POSIX)
   std2::native_thread_name thread_name{"get_thread_name"};
+#else
+#error "Please define native_thread_name for your platform."
+#endif
 
   EXPECT_EQ(std2::ok_code, std2::this_thread::set_name(thread_name));
   EXPECT_EQ(std2::ok_code,
             std2::get_thread_name(std2::this_thread::get_handle(), thread_name));
 
+#ifdef WB_OS_WIN
+  EXPECT_EQ(thread_name, std2::native_thread_name{L"get_thread_name"});
+#elif defined(WB_OS_POSIX)
   EXPECT_EQ(thread_name, std2::native_thread_name{"get_thread_name"});
+#else
+#error "Please define native_thread_name for your platform."
+#endif
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
