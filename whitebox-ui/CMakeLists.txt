@@ -11,12 +11,19 @@ set(WB_WHITEBOX_UI_BINARY_DIR   ${CMAKE_CURRENT_BINARY_DIR})
 set(WB_WHITEBOX_UI_TARGET_NAME  "whitebox-ui")
 
 set(WB_WHITEBOX_UI_LINK_OPTIONS "")
-set(WB_WHITEBOX_UI_LINK_DEPS fmt g3log mimalloc wb::whitebox-base)
+set(WB_WHITEBOX_UI_LINK_DEPS
+  fmt
+  g3log
+  mimalloc
+  wb::whitebox-base)
 if (NOT WB_OS_WIN)
   list(APPEND WB_WHITEBOX_UI_LINK_DEPS "SDL2::SDL2" "SDL2::image")
 endif()
 
-set(WB_WHITEBOX_UI_RUNTIME_DEPS g3log mimalloc wb::whitebox-base)
+set(WB_WHITEBOX_UI_RUNTIME_DEPS
+  g3log
+  mimalloc
+  wb::whitebox-base)
 if (NOT WB_OS_WIN)
   list(APPEND WB_WHITEBOX_UI_RUNTIME_DEPS "SDL2::SDL2" "SDL2::image")
 else()
