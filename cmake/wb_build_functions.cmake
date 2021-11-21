@@ -53,6 +53,7 @@ function(wb_cxx_executable)
 
   # Used in generated files.
   set(WB_CURRENT_TARGET_NAME ${target_name})
+  set(WB_CURRENT_TARGET_DESCRIPTION ${target_description})
 
   # Used in generated files.
   if (WB_OS_WIN)
@@ -193,6 +194,7 @@ function(wb_cxx_shared_library)
 
   # Used in generated files.
   set(WB_CURRENT_TARGET_NAME ${target_name})
+  set(WB_CURRENT_TARGET_DESCRIPTION ${target_description})
 
   # Used in generated files.
   if (WB_OS_WIN)

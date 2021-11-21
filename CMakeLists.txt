@@ -286,6 +286,13 @@ if (WB_COMPILER_MSVC)
   # semantics are not enabled.  Specify /EHsc.
   target_compile_options(g3log PRIVATE /EHsc)
 endif()
+if (WB_OS_WIN)
+  # Adds VERSION resource.
+  wb_add_version_resource_to_dll_target(
+    g3log
+    deps/g3log
+    "G3log is an asynchronous, crash-safe logger.  See THIRD_PARTY for details.")
+endif()
 
 if (WB_BUILD_TESTS)
   # Prevent overriding the parent project's compiler/linker settings.
@@ -370,6 +377,13 @@ target_compile_options(absl_time_zone PRIVATE /EHsc /guard:ehcont)
 target_link_options(absl_time_zone PRIVATE /guard:ehcont)
 
 add_subdirectory("deps/mimalloc")
+if (WB_OS_WIN)
+  # Adds VERSION resource.
+  wb_add_version_resource_to_dll_target(
+    mimalloc
+    deps/mimalloc
+    "Mimalloc is a general purpose allocator with excellent performance characteristics.  See THIRD_PARTY for details.")
+endif()
 
 if (NOT WB_OS_WIN)
   set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)

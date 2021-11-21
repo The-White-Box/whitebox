@@ -26,7 +26,7 @@
   WB_STRINGIFY(WB_APP_VER_FILE_VERSION_INFO)
 
 // App file description.
-#define WB_PRODUCT_FILE_DESCRIPTION_STRING "@PROJECT_DESCRIPTION@"
+#define WB_PRODUCT_FILE_DESCRIPTION_STRING "@WB_CURRENT_TARGET_DESCRIPTION@"
 
 #ifdef _WIN32
 // App file internal name.  Should be the original filename, without
