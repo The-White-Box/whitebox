@@ -6,7 +6,13 @@
 WhiteBox is an open-source Source 1 rework project that aims to build a safer,
 faster, and more feature-rich Source 1 apps.
 
-To check out the source code locally, use `git clone --recurse-submodules`.
+To check out the source code locally, don't use `git clone`!  Instead,
+follow [the instructions on how to get the code](docs/get_the_code.md).
+
+Documentation in the source is rooted in [docs/README.md](docs/README.md).
+
+If you found a bug, please file it at
+https://github.com/The-White-Box/whitebox/issues.
 
 Valve, the Valve logo, Half-Life, the Half-Life logo, the Lambda logo, Steam,
 the Steam logo, Team Fortress, the Team Fortress logo, Opposing Force, Day of
