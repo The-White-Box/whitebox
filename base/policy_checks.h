@@ -52,10 +52,10 @@
 
 // C++ Version Check
 
-// Enforce C++20 as the minimum.
+// Enforce C++17 as the minimum.
 #if defined(__cplusplus)
-#if __cplusplus < 202004
-#error "C++ versions less than C++20 are not supported."
+#if __cplusplus < 201703L
+#error "C++ versions less than C++17 are not supported."
 #endif
 #endif
 

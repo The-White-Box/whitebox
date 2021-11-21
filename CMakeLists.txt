@@ -368,13 +368,15 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
   endif()
 endforeach()
 
-# absl_civil_time is special and requires PRIVATE options.
-target_compile_options(absl_civil_time PRIVATE /EHsc /guard:ehcont)
-target_link_options(absl_civil_time PRIVATE /guard:ehcont)
+if (WB_COMPILER_MSVC)
+  # absl_civil_time is special and requires PRIVATE options.
+  target_compile_options(absl_civil_time PRIVATE /EHsc /guard:ehcont)
+  target_link_options(absl_civil_time PRIVATE /guard:ehcont)
 
-# absl_time_zone is special and requires PRIVATE options.
-target_compile_options(absl_time_zone PRIVATE /EHsc /guard:ehcont)
-target_link_options(absl_time_zone PRIVATE /guard:ehcont)
+  # absl_time_zone is special and requires PRIVATE options.
+  target_compile_options(absl_time_zone PRIVATE /EHsc /guard:ehcont)
+  target_link_options(absl_time_zone PRIVATE /guard:ehcont)
+endif()
 
 add_subdirectory("deps/mimalloc")
 if (WB_OS_WIN)
