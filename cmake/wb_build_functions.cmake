@@ -55,14 +55,7 @@ function(wb_cxx_executable)
   set(WB_CURRENT_TARGET_NAME ${target_name})
   set(WB_CURRENT_TARGET_DESCRIPTION ${target_description})
 
-  # Used in generated files.
-  if (WB_OS_WIN)
-    set(WB_CURRENT_TARGET_SUFFIX ".exe")
-  elseif (WB_OS_LINUX)
-    set(WB_CURRENT_TARGET_SUFFIX "")
-  elseif (NOT WB_OS_MACOS)
-    set(WB_CURRENT_TARGET_SUFFIX "")
-  endif()
+  wb_exe_suffix(WB_CURRENT_TARGET_SUFFIX)
 
   # First find all test sources and header files.
   wb_auto_sources(header_files "*.h" "RECURSE" "${target_source_dir}")
@@ -197,13 +190,7 @@ function(wb_cxx_shared_library)
   set(WB_CURRENT_TARGET_DESCRIPTION ${target_description})
 
   # Used in generated files.
-  if (WB_OS_WIN)
-    set(WB_CURRENT_TARGET_SUFFIX ".dll")
-  elseif (WB_OS_LINUX)
-    set(WB_CURRENT_TARGET_SUFFIX ".so")
-  elseif (NOT WB_OS_MACOS)
-    set(WB_CURRENT_TARGET_SUFFIX ".dylib")
-  endif()
+  wb_shared_library_suffix(WB_CURRENT_TARGET_SUFFIX)
 
   # First find all test sources and header files.
   wb_auto_sources(header_files "*.h" "RECURSE" "${target_source_dir}")

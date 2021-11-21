@@ -355,6 +355,36 @@ function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPEND
   endif()
 endfunction()
 
+# Gets executable suffix.
+#
+# wb_exe_suffix("suffix")
+function(wb_exe_suffix RETURN_VALUE)
+  if (WB_OS_WIN)
+    set(suffix ".exe")
+  elseif (WB_OS_LINUX)
+    set(suffix "")
+  elseif (WB_OS_MACOS)
+    set(suffix "")
+  endif()
+
+  set(${RETURN_VALUE} ${suffix} PARENT_SCOPE)
+endfunction()
+
+# Gets shared library suffix.
+#
+# wb_shared_library_suffix("suffix")
+function(wb_shared_library_suffix RETURN_VALUE)
+  if (WB_OS_WIN)
+    set(suffix ".dll")
+  elseif (WB_OS_LINUX)
+    set(suffix ".so")
+  elseif (WB_OS_MACOS)
+    set(suffix ".dylib")
+  endif()
+
+  set(${RETURN_VALUE} ${suffix} PARENT_SCOPE)
+endfunction()
+
 # Adds VERSION resource to Win32 DLL target.
 #
 # wb_add_version_resource_to_dll_target("My target" "Target bin dir path" "Target description")
@@ -365,13 +395,7 @@ function(wb_add_version_resource_to_dll_target THE_TARGET THE_TARGET_DIR_PATH TH
   set(WB_CURRENT_TARGET_NAME ${THE_TARGET})
   set(WB_CURRENT_TARGET_DESCRIPTION ${THE_TARGET_DESCRIPTION})
 
-  if (WB_OS_WIN)
-    set(WB_CURRENT_TARGET_SUFFIX ".dll")
-  elseif (WB_OS_LINUX)
-    set(WB_CURRENT_TARGET_SUFFIX ".so")
-  elseif (NOT WB_OS_MACOS)
-    set(WB_CURRENT_TARGET_SUFFIX ".dylib")
-  endif()
+  wb_shared_library_suffix(WB_CURRENT_TARGET_SUFFIX)
 
   # Generate VERSION config headers.
   configure_file(
