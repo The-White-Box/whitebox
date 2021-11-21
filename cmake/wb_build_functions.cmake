@@ -97,14 +97,14 @@ function(wb_cxx_executable)
     # Generate visual styles manifest as requires project info.
     configure_file(
       ${manifests_dir}/enable-visual-styles.manifest.cmake
-      ${WB_BINARY_DIR}/gen/enable-visual-styles.manifest
+      ${target_binary_dir}/gen/enable-visual-styles.manifest
     )
 
     target_sources(${target_name}
       PRIVATE
         half_life_2_win.rc
         ${manifests_dir}/dpi-aware.manifest
-        ${WB_BINARY_DIR}/gen/enable-visual-styles.manifest
+        ${target_binary_dir}/gen/enable-visual-styles.manifest
         ${manifests_dir}/supported-os.manifest
         ${manifests_dir}/ultra-high-scroll-resolution.manifest
         ${manifests_dir}/utf-8-code-page.manifest
@@ -227,7 +227,7 @@ function(wb_cxx_shared_library)
   )
 
   add_library(${target_name} SHARED ${source_files} ${header_files})
-  # alias target for in-tree builds
+  # Alias target for in-tree builds.
   add_library("wb::${target_name}" ALIAS ${target_name})
 
   # Include the root and with generated info directories.
