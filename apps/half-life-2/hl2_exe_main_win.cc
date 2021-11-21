@@ -6,7 +6,12 @@
 
 #include <system_error>
 
+#include "apps/args_win.h"
 #include "base/base_switches.h"
+#include "base/deps/abseil/flags/flag.h"
+#include "base/deps/abseil/flags/parse.h"
+#include "base/deps/abseil/flags/usage.h"
+#include "base/deps/abseil/strings/str_cat.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/intl/lookup.h"
 #include "base/intl/scoped_process_locale.h"
@@ -42,19 +47,36 @@ WB_ATTRIBUTE_DLL_EXPORT DWORD NvOptimusEnablement = 0x00000001;
 WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
 
+ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
+          "Insecure.  Allow to load NOT SIGNED module targets.  There is no "
+          "guarantee unsigned module doing nothing harmful.  Use at your own "
+          "risk, ex. for debugging or mods.");
+
 namespace {
 
 /**
  * @brief Creates internationalization lookup.
- * @param user_locale User locale.
+ * @param scoped_process_locale Process locale.
  * @return Internationalization lookup.
  */
 [[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
-    const std::string& user_locale) noexcept {
-  auto intl_lookup_result{
-      wb::base::intl::LookupWithFallback::New({user_locale})};
-  auto intl_lookup =
-      std::get_if<wb::base::intl::LookupWithFallback>(&intl_lookup_result);
+    const wb::base::intl::ScopedProcessLocale& scoped_process_locale) noexcept {
+  using namespace wb::base::intl;
+
+  const std::optional<std::string> maybe_user_locale{
+      scoped_process_locale.GetCurrentLocale()};
+  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
+      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
+      << locales::kUtf8Locale << "' for UI, fallback to '"
+      << locales::kFallbackLocale << "'.";
+
+  const std::string user_locale{
+      maybe_user_locale.value_or(locales::kFallbackLocale)};
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
+              << " locale for UI.";
+
+  auto intl_lookup_result{LookupWithFallback::New({user_locale})};
+  auto intl_lookup = std::get_if<LookupWithFallback>(&intl_lookup_result);
 
   G3LOG_IF(FATAL, !intl_lookup)
       << "Unable to create localization strings lookup for locale "
@@ -76,39 +98,29 @@ namespace {
 /**
  * @brief Load and run boot manager.
  * @param instance App instance.
- * @param command_line Command line.
+ * @param args Command line args.
+ * @param positional_flags Command line args which are not part of any parsed
+ * flags.
  * @param show_window_flags Show window flags.
+ * @param intl Localization lookup.
  * @return App exit code.
  */
-int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
-                   _In_ int show_window_flags) noexcept {
+int BootmgrStartup(
+    _In_ HINSTANCE instance, _In_ const wb::apps::win::Args& args,
+    _In_ std::vector<char*> positional_flags, _In_ int show_window_flags,
+    _In_ const wb::base::intl::LookupWithFallback& intl) noexcept {
   using namespace wb::base;
-
-  // Start with specifying UTF-8 locale for all user-facing data.
-  const intl::ScopedProcessLocale scoped_process_locale{
-      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const std::optional<std::string> maybe_user_locale{
-      scoped_process_locale.GetCurrentLocale()};
-  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
-      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
-      << intl::locales::kUtf8Locale << "' for UI, fallback to '"
-      << intl::locales::kFallbackLocale << "'.";
-
-  const std::string user_locale{
-      maybe_user_locale.value_or(intl::locales::kFallbackLocale)};
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
-              << " locale for UI.";
-  const auto intl = CreateIntl(user_locale);
 
   // Search for DLLs in the secure order to prevent DLL plant attacks.
   std::error_code rc{win::get_error(::SetDefaultDllDirectories(
       LOAD_LIBRARY_SEARCH_SYSTEM32 | LOAD_LIBRARY_SEARCH_USER_DIRS))};
-  G3PLOGE_IF(WARNING, rc ? &rc : nullptr)
+  G3PLOGE2_IF(WARNING, rc)
       << "Can't enable secure DLL search order, attacker can plant DLLs with "
          "malicious code.";
 
-  const auto app_path = win::GetApplicationDirectory(instance);
-  if (const auto* error = std2::get_error(app_path)) WB_ATTRIBUTE_UNLIKELY {
+  const auto app_path_result = win::GetApplicationDirectory(instance);
+  if (const auto* error = std2::get_error(app_path_result))
+    WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
@@ -122,13 +134,16 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
                      "deep (> 1024)?"));
     }
 
-  const std::string boot_manager_path{std::get<std::string>(app_path) +
-                                      "whitebox-boot-manager.dll"};
-  const unsigned boot_manager_flags{
-      LOAD_WITH_ALTERED_SEARCH_PATH |
-      (win::MustBeSignedDllLoadTarget(command_line)
-           ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
-           : 0U)};
+  const auto app_path = std2::get_result(app_path_result);
+  G3DCHECK(!!app_path);
+
+  const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
+  const bool insecure_allow_unsigned_module_target{
+      absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
+  const unsigned boot_manager_flags{LOAD_WITH_ALTERED_SEARCH_PATH |
+                                    (!insecure_allow_unsigned_module_target
+                                         ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
+                                         : 0U)};
 
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_flags);
@@ -144,9 +159,19 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
       if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
         WB_ATTRIBUTE_LIKELY {
           return (*boot_manager_main)(
-              {instance, command_line, WB_PRODUCT_FILE_DESCRIPTION_STRING,
-               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
-               WB_HALF_LIFE_2_IDI_SMALL_ICON, intl});
+              {instance,
+               args.values(),
+               args.count(),
+               WB_PRODUCT_FILE_DESCRIPTION_STRING,
+               show_window_flags,
+               WB_HALF_LIFE_2_IDI_MAIN_ICON,
+               WB_HALF_LIFE_2_IDI_SMALL_ICON,
+               {
+                   .positional_flags = std::move(positional_flags),
+                   .insecure_allow_unsigned_module_target =
+                       insecure_allow_unsigned_module_target,
+               },
+               intl});
         }
 
       wb::ui::FatalDialog(
@@ -183,22 +208,65 @@ int BootmgrStartup(_In_ HINSTANCE instance, _In_ LPCSTR command_line,
  * @return App exit code.
  */
 int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
-                   _In_ LPSTR command_line, _In_ int show_window_flags) {
+                   _In_ [[maybe_unused]] char* command_line,
+                   _In_ int show_window_flags) {
   using namespace wb::base;
   using namespace wb::base::win;
 
 #ifdef _DEBUG
   // Simplifies debugging experience, no need to sign targets.
-  std::string debug_command_line{command_line};
-  debug_command_line.append(" ");
-  debug_command_line.append(switches::insecure::kAllowUnsignedModuleTargetFlag);
+  // Should never use GetCommandLine{A, W} anywhere in the app, or abstraction
+  // leaks.
+  char* full_command_line_ansi{::GetCommandLineA()};
+  std::string debug_full_command_line_ansi{full_command_line_ansi};
+  debug_full_command_line_ansi.append(
+      " --insecure_allow_unsigned_module_target");
+  full_command_line_ansi = debug_full_command_line_ansi.data();
 
-  command_line = debug_command_line.data();
+  wchar_t* full_command_line_wide{::GetCommandLineW()};
+  std::wstring debug_full_command_line_wide{full_command_line_wide};
+  debug_full_command_line_wide.append(
+      L" --insecure_allow_unsigned_module_target");
+  full_command_line_wide = debug_full_command_line_wide.data();
+#else
+  const char* full_command_line_ansi{::GetCommandLineA()};
+  const wchar_t* full_command_line_wide{::GetCommandLineW()};
 #endif
 
   // Initialize g3log logging library first as logs are used extensively.
   const deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
-      ::GetCommandLineA(), wb::build::settings::kPathToMainLogFile};
+      full_command_line_ansi, wb::build::settings::kPathToMainLogFile};
+
+  // Start with specifying UTF-8 locale for all user-facing data.
+  const intl::ScopedProcessLocale scoped_process_locale{
+      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
+  const auto intl = CreateIntl(scoped_process_locale);
+
+  // Initialize command line flags.
+  auto args_parse_result =
+      wb::apps::win::Args::FromCommandLine(full_command_line_wide);
+  if (const auto* error = std2::get_error(args_parse_result))
+    WB_ATTRIBUTE_UNLIKELY {
+      wb::ui::FatalDialog(
+          intl::l18n_fmt(intl, "{0} - Error",
+                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          *error,
+          intl::l18n(intl,
+                     "Please ensure you have enough free memory and use "
+                     "command line correctly."),
+          MakeFatalContext(intl),
+          intl::l18n(intl,
+                     "Can't parse command line flags.  See log for details."));
+    }
+
+  auto args = std2::get_result(args_parse_result);
+  G3DCHECK(!!args);
+
+  absl::SetProgramUsageMessage(absl::StrCat(
+      WB_PRODUCT_FILE_DESCRIPTION_STRING ".  Sample usage:\n", args->argv0()));
+  // TODO(dimhotepus): std::cout, std::cerr -> UI + G3Log.
+  std::vector<char*> positional_flags{
+      absl::ParseCommandLine(args->count(), args->values())};
 
   // Calling thread will handle critical errors, does not show general
   // protection fault error box and message box when OpenFile failed to find
@@ -238,5 +306,6 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 
-  return BootmgrStartup(instance, command_line, show_window_flags);
+  return BootmgrStartup(instance, *args, std::move(positional_flags),
+                        show_window_flags, intl);
 }

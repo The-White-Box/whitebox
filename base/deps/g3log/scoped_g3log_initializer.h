@@ -7,12 +7,14 @@
 #ifndef WB_BASE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
 #define WB_BASE_DEPS_G3LOG_SCOPED_G3LOG_INITIALIZER_H_
 
-#include <filesystem>
-#include <optional>
+#include <cassert>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <string_view>
 
 #include "base/base_macroses.h"
+#include "base/std2/filesystem_ext.h"
 #include "base/std2/string_view_ext.h"
 #include "build/build_config.h"
 #include "g3log_config.h"
@@ -45,39 +47,37 @@ class ScopedG3LogInitializer {
         file_sink_handle_{log_worker_->addDefaultLogger(
             GetExecutableNameFromLogPrefix(log_prefix), path_to_log_file, "")},
         console_sink_handle_{log_worker_->addSink(
-            std::make_unique<ConsoleSink>(), &ConsoleSink::ReceiveLogMessage)} {
-    /** Should be called at very first startup of the software with \ref
-     * g3LogWorker pointer. Ownership of the \ref g3LogWorker is the
-     * responsibility of the caller */
-    g3::initializeLogging(log_worker_.get());
-    /** Install signal handler that catches FATAL C-runtime or OS signals
-     See the wikipedia site for details http://en.wikipedia.org/wiki/SIGFPE
-     See the this site for example usage:
-     http://www.tutorialspoint.com/cplusplus/cpp_signal_handling
-     SIGABRT  ABORT (ANSI), abnormal termination
-     SIGFPE   Floating point exception (ANSI)
-     SIGILL   ILlegal instruction (ANSI)
-     SIGSEGV  Segmentation violation i.e. illegal memory reference
-     SIGTERM  TERMINATION (ANSI)  */
+            std::make_unique<ConsoleSink>(), &ConsoleSink::ReceiveLogMessage)},
+        g3_initializer_{log_worker_.get()},
+        g3_io_streams_redirector_{} {
+    // Install signal handler that catches FATAL C-runtime or OS signals
+    // See the wikipedia site for details http://en.wikipedia.org/wiki/SIGFPE
+    // See this site for example usage:
+    // http://www.tutorialspoint.com/cplusplus/cpp_signal_handling
+    // SIGABRT  ABORT (ANSI), abnormal termination
+    // SIGFPE   Floating point exception (ANSI)
+    // SIGILL   ILlegal instruction (ANSI)
+    // SIGSEGV  Segmentation violation i.e. illegal memory reference
+    // SIGTERM  TERMINATION (ANSI)
     g3::installCrashHandler();
-    /** setFatalPreLoggingHook() provides an optional extra step before the
-     * fatalExitHandler is called
-     *
-     * Set a function-hook before a fatal message will be sent to the logger
-     * i.e. this is a great place to put a break point, either in your debugger
-     * or programmatically to catch LOG(FATAL), CHECK(...) or an OS fatal event
-     * (exception or signal) This will be reset to default (does nothing) at
-     * initializeLogging(...);
-     *
-     * Example usage:
-     * Windows: g3::setFatalPreLoggingHook([]{__debugbreak();}); // remember
-     * #include <intrin.h> WARNING: '__debugbreak()' when not running in Debug
-     * in your Visual Studio IDE will likely trigger a recursive crash if used
-     * here. It should only be used when debugging in your Visual Studio IDE.
-     * Recursive crashes are handled but are unnecessary.
-     *
-     * Linux:   g3::setFatalPreLoggingHook([]{ raise(SIGTRAP); });
-     */
+    // setFatalPreLoggingHook() provides an optional extra step before the
+    // fatalExitHandler is called
+    //
+    // Set a function-hook before a fatal message will be sent to the logger
+    // i.e. this is a great place to put a break point, either in your debugger
+    // or programmatically to catch LOG(FATAL), CHECK(...) or an OS fatal event
+    // (exception or signal) This will be reset to default (does nothing) at
+    // initializeLogging(...);
+    //
+    // Example usage:
+    // Windows: g3::setFatalPreLoggingHook([]{__debugbreak();});
+    // Remember #include <intrin.h>
+    // WARNING: '__debugbreak()' when not running in Debug in your Visual Studio
+    // IDE will likely trigger a recursive crash if used here.  It should only
+    // be used when debugging in your Visual Studio IDE.  Recursive crashes are
+    // handled but are unnecessary.
+    //
+    // Linux:   g3::setFatalPreLoggingHook([]{ raise(SIGTRAP); });
 #if !defined(NDEBUG)
 #if defined(WB_OS_POSIX)
     g3::setFatalPreLoggingHook([] { raise(SIGTRAP); });
@@ -92,17 +92,102 @@ class ScopedG3LogInitializer {
   /**
    * @brief Shut down g3log.
    */
-  ~ScopedG3LogInitializer() {
-    // If the LogWorker is initialized then at scope exit the
-    // g3::shutDownLogging() will be called.  This is important since it
-    // protects from LOG calls from static or other entities that will go out of
-    // scope at a later time.
-    //
-    // It can also be called manually:
-    g3::internal::shutDownLogging();
-  }
+  ~ScopedG3LogInitializer() noexcept = default;
 
  private:
+  /**
+   * @brief g3log initializer.
+   */
+  struct G3LogInitializer {
+    G3LogInitializer(g3::LogWorker* log_worker) {
+      /** Should be called at very first startup of the software with \ref
+       * g3LogWorker pointer. Ownership of the \ref g3LogWorker is the
+       * responsibility of the caller */
+      g3::initializeLogging(log_worker);
+    }
+
+    WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(G3LogInitializer);
+
+    ~G3LogInitializer() noexcept {
+      // If the LogWorker is initialized then at scope exit the
+      // g3::shutDownLogging() will be called.  This is important since it
+      // protects from LOG calls from static or other entities that will go out
+      // of scope at a later time.
+      g3::internal::shutDownLogging();
+    }
+  };
+
+  /**
+   * @brief Counting stream buffer.
+   */
+  class countingstreambuf : public std::streambuf {
+   public:
+    explicit countingstreambuf(std::streambuf* buffer) noexcept
+        : buffer_{buffer}, size_{} {
+      // Can't use g3log as it is not initialized yet.
+      assert(buffer);
+    }
+
+    WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(countingstreambuf);
+
+    int_type overflow(int c) override {
+      if (traits_type::eof() != c) ++size_;
+
+      return buffer_->sputc(static_cast<char>(c));
+    }
+
+    int sync() override { return buffer_->pubsync(); }
+
+    /**
+     * @brief Gets count of chars in stream.
+     * @return Count of chars in stream.
+     */
+    [[nodiscard]] std::streamsize count() const noexcept { return size_; }
+
+   private:
+    std::streambuf* buffer_;
+    std::streamsize size_;
+  };
+
+  /**
+   * @brief g3log cout / cerr redirector.
+   */
+  struct G3IoStreamsRedirector {
+    G3IoStreamsRedirector()
+        : cout_{std::ios_base::out},
+          cerr_{std::ios_base::out},
+          cout_stream_buf_{cout_.rdbuf()},
+          cerr_stream_buf_{cerr_.rdbuf()},
+          old_cout_stream_buf_{std::cout.rdbuf(&cout_stream_buf_)},
+          old_cerr_stream_buf_{std::cerr.rdbuf(&cerr_stream_buf_)} {}
+
+    WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(G3IoStreamsRedirector);
+
+    ~G3IoStreamsRedirector() noexcept {
+      std::cerr.rdbuf(old_cerr_stream_buf_);
+      std::cout.rdbuf(old_cout_stream_buf_);
+
+      if (cerr_stream_buf_.count() != 0) {
+        // cerr will write to WARNING.
+        INTERNAL_LOG_MESSAGE(WARNING).stream().swap(cerr_);
+      }
+
+      if (cout_stream_buf_.count() != 0) {
+        // cout will write to INFO.
+        INTERNAL_LOG_MESSAGE(INFO).stream().swap(cout_);
+      }
+    }
+
+    std::ostringstream cout_;
+    std::ostringstream cerr_;
+
+    countingstreambuf cout_stream_buf_;
+    countingstreambuf cerr_stream_buf_;
+
+    std::streambuf* old_cout_stream_buf_;
+    std::streambuf* old_cerr_stream_buf_;
+  };
+
   /**
    * @brief Log worker.
    */
@@ -115,38 +200,17 @@ class ScopedG3LogInitializer {
    * @brief Console sink handle.
    */
   wb::base::un<g3::SinkHandle<ConsoleSink>> console_sink_handle_;
+  /**
+   * @brief g3log initializer.
+   */
+  G3LogInitializer g3_initializer_;
+
+  [[maybe_unused]] std::byte pad_[7];
 
   /**
-   * @brief Extracts full executable name from log prefix.
-   * @param log_prefix Log prefix.
-   * @return Full (with extension) executable name.
+   * @brief g3log cout / cerr redirector.  Depends on g3_initializer_.
    */
-  static std::optional<std::string_view> GetFullExecutableName(
-      std::string_view log_prefix) noexcept {
-    // Assume \"x:\zzzzz\yyyy.exe\" www on Windows.
-    if (std2::starts_with(log_prefix, '"')) {
-      const size_t end_exe_double_quote_idx{log_prefix.find('"', 1U)};
-      const size_t backslash_before_name_idx{
-          log_prefix.rfind(std::filesystem::path::preferred_separator,
-                           end_exe_double_quote_idx)};
-
-      if (end_exe_double_quote_idx != std::string_view::npos &&
-          backslash_before_name_idx != std::string_view::npos) {
-        return log_prefix.substr(
-            backslash_before_name_idx + 1,
-            end_exe_double_quote_idx - backslash_before_name_idx - 1);
-      }
-    }
-    // Has path separator.
-    if (const size_t backslash_before_name_idx{
-            log_prefix.rfind(std::filesystem::path::preferred_separator)};
-        backslash_before_name_idx != std::string_view::npos) {
-      return log_prefix.substr(
-          backslash_before_name_idx + 1,
-          log_prefix.size() - backslash_before_name_idx - 1);
-    }
-    return {};
-  }
+  G3IoStreamsRedirector g3_io_streams_redirector_;
 
   /**
    * @brief Trim .exe from executable name.
@@ -174,7 +238,8 @@ class ScopedG3LogInitializer {
                            ? log_prefix.substr(lasts_slash_idx + 1)
                            : log_prefix};
 #else
-    const auto maybe_exe_name = GetFullExecutableName(log_prefix);
+    const auto maybe_exe_name =
+        std2::filesystem::get_short_exe_name_from_command_line(log_prefix);
     return std::string{maybe_exe_name.has_value()
                            ? TrimExeExtension(maybe_exe_name.value())
                            : log_prefix};

@@ -1,6 +1,8 @@
 // Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
+//
+// Fatal dialog.  Shows OS-specific UI dialog and exits the app.
 
 #ifndef WB_WHITEBOX_UI_FATAL_DIALOG_H_
 #define WB_WHITEBOX_UI_FATAL_DIALOG_H_
@@ -16,7 +18,7 @@
 namespace wb::ui {
 
 /**
- * @brief Special os context for fatal dialog.
+ * @brief OS-specific context for fatal dialog.
  */
 struct FatalDialogContext {
 #ifdef WB_OS_WIN
@@ -65,7 +67,7 @@ struct FatalDialogContext {
  * @param title Title.
  * @param rc Error code for technical details.
  * @param main_instruction_message Main instruction message.
- * @param context OS specific context.
+ * @param context OS-specific context.
  * @param content_message Content message.
  * @return void.
  */

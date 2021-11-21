@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/base_macroses.h"
+#include "base/deps/abseil/strings/str_cat.h"
 #include "build/build_config.h"
 
 namespace wb::hal::hid {
@@ -159,17 +160,16 @@ struct KeyboardInput {
 [[nodiscard]] inline std::string to_string(
     const KeyboardInput &keyboard_input) {
   std::string result;
-  result.reserve(256);
 
   using std::to_string;
 
-  result += "Make Code: " +
-            (keyboard_input.make_code != KeyboardInput::kOverrunMakeCode
-                 ? to_string(keyboard_input.make_code)
-                 : "Overrun");
-  result += " | Key Flags: " + to_string(keyboard_input.key_flags);
-  result += " | Virtual Key: " + to_string(keyboard_input.virtual_key);
-  result += " | Message: " + to_string(keyboard_input.message);
+  absl::StrAppend(&result, "Make Code: ",
+                  (keyboard_input.make_code != KeyboardInput::kOverrunMakeCode
+                       ? to_string(keyboard_input.make_code)
+                       : "Overrun"),
+                  " | Key Flags: ", to_string(keyboard_input.key_flags),
+                  " | Virtual Key: ", keyboard_input.virtual_key,
+                  " | Message: ", keyboard_input.message);
 
   return result;
 }

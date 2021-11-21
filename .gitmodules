@@ -16,3 +16,6 @@
 [submodule "deps/fmt"]
 	path = deps/fmt
 	url = git@github.com:The-White-Box/fmt.git
+[submodule "deps/abseil"]
+	path = deps/abseil
+	url = git@github.com:The-White-Box/abseil-cpp.git

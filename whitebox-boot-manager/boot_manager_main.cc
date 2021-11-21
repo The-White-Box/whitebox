@@ -90,7 +90,7 @@ void BootHeapMemoryAllocator() noexcept {
     // Terminate the app if system detected heap corruption.
     const auto error_code =
         wb::base::win::memory::EnableTerminationOnHeapCorruption();
-    G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
+    G3PLOGE2_IF(WARNING, error_code)
         << "Can't enable 'Terminate on Heap corruption' os feature, continue "
            "without it.";
   }
@@ -98,7 +98,7 @@ void BootHeapMemoryAllocator() noexcept {
   {
     // Optimize heap caches now.
     const auto error_code = wb::base::win::memory::OptimizeHeapResourcesNow();
-    G3PLOGE_IF(WARNING, error_code ? &error_code : nullptr)
+    G3PLOGE2_IF(WARNING, error_code)
         << "Can't optimize heap resources caches, some memory will not be "
            "freed.";
   }
@@ -179,7 +179,7 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
 #ifdef WB_OS_WIN
   const unsigned kernel_load_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
-      (win::MustBeSignedDllLoadTarget(bootmgr_args.command_line)
+      (!bootmgr_args.command_line_flags.insecure_allow_unsigned_module_target
            ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
            : 0U)};
 #else
@@ -396,8 +396,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
 
         const auto bump_thread_priority_rc = controller->SetPriority(
             win::mmcss::ScopedMmcssThreadPriority::kHigh);
-        G3PLOGE_IF(WARNING,
-                   bump_thread_priority_rc ? &bump_thread_priority_rc : nullptr)
+        G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
             << "Can't get system responsiveness setting used by Multimedia "
                "Class Scheduler Service for the thread.";
       }

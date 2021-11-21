@@ -31,7 +31,7 @@ namespace wb::base::intl {
 /**
  * @brief Lookup implementation.
  */
-class Lookup::LookupImpl {
+class Lookup::LookupImpl final {
  public:
   ~LookupImpl() noexcept = default;
 
@@ -166,6 +166,12 @@ class Lookup::LookupImpl {
                       "stop existing copy or return to the game."),
                  "Can't run multiple copies of '{0}' at once.  Please, stop "
                  "existing copy or return to the game."},
+                {hash("Can't parse command line flags.  See log for details."),
+                 "Can't parse command line flags.  See log for details."},
+                {hash("Please ensure you have enough free memory and use "
+                      "command line correctly."),
+                 "Please ensure you have enough free memory and use command "
+                 "line correctly."},
             },
             StringLayout::LeftToRight}}};
       }

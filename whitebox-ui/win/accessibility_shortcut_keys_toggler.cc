@@ -71,7 +71,8 @@ namespace wb::ui::win {
  * @brief Windows accessibility shortcut keys toggler implementation.  See
  * https://docs.microsoft.com/en-us/windows/desktop/dxtecharts/disabling-shortcut-keys-in-games#disable-the-accessibility-shortcut-keys
  */
-class AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl {
+class AccessibilityShortcutKeysToggler::AccessibilityShortcutKeysTogglerImpl
+    final {
  public:
   /**
    * @brief Creates windows accessibility shortcut keys Toggler.

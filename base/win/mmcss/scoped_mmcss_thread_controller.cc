@@ -25,7 +25,7 @@
 
 namespace wb::base::win::mmcss {
 
-class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl {
+class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl final {
  public:
   ScopedMmcssThreadControllerImpl(
       const ScopedMmcssThreadTask& first_task,

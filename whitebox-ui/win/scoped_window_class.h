@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Scoped window class.
+// Scoped UI window class.
 
 #ifndef WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_CLASS_H_
 #define WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_CLASS_H_

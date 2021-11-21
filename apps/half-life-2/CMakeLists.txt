@@ -12,8 +12,15 @@ set(WB_HALF_LIFE2_TARGET_NAME  "half-life-2")
 
 set(WB_HALF_LIFE2_LINK_OPTIONS "")
 
-set(WB_HALF_LIFE2_LINK_DEPS fmt g3log mimalloc
-  wb::whitebox-base wb::whitebox-ui)
+set(WB_HALF_LIFE2_LINK_DEPS
+  absl::flags
+  absl::flags_parse
+  absl::strings
+  fmt
+  g3log
+  mimalloc
+  wb::whitebox-base
+  wb::whitebox-ui)
 if (WB_OS_WIN)
   # _com_ptr_t support.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "comsuppw")
@@ -26,16 +33,26 @@ elseif (WB_OS_MACOS)
 endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS
-    g3log mimalloc
-    wb::whitebox-boot-manager
-    wb::whitebox-base
-    wb::whitebox-hid-driver
-    wb::whitebox-kernel
-    wb::whitebox-ui)
+  g3log
+  mimalloc
+  wb::whitebox-base
+  wb::whitebox-boot-manager
+  wb::whitebox-hid-driver
+  wb::whitebox-kernel
+  wb::whitebox-ui)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS wb::whitebox-base SDL2::SDL2)
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS SDL2::SDL2)
   list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS
-    "png" "wb::whitebox-base" "SDL2::SDL2" "SDL2::image")
+    "png" "SDL2::SDL2" "SDL2::image")
+endif()
+
+if (WB_OS_WIN)
+  # Delay load DLLs we use in rare call paths.
+  list(APPEND WB_HALF_LIFE2_LINK_OPTIONS
+    "/DELAYLOAD:Dbghelp.dll")
+  # Dbghelp for abseil related sym stuff.
+  # Delayimp for DLL delay load support.
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS Dbghelp Delayimp)
 endif()
 
 wb_cxx_executable(
@@ -49,6 +66,15 @@ wb_cxx_executable(
   LINK_DEPS     ${WB_HALF_LIFE2_LINK_DEPS}
   RUNTIME_DEPS  ${WB_HALF_LIFE2_RUNTIME_DEPS}
 )
+
+if (WB_OS_WIN)
+  # Command line args.
+  target_sources(${WB_HALF_LIFE2_TARGET_NAME}
+    PRIVATE
+      ${WB_ROOT_DIR}/apps/args_win.cc
+      ${WB_ROOT_DIR}/apps/args_win.h
+  )
+endif()
 
 if (NOT WB_OS_WIN)
   wb_copy_target_asset_to_target_bin_dir(${WB_HALF_LIFE2_TARGET_NAME}

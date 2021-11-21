@@ -16,7 +16,7 @@ namespace wb::ui::win {
 /**
  * @brief Implementation of scoped window painter.
  */
-class ScopedWindowPaint::ScopedWindowPaintImpl {
+class ScopedWindowPaint::ScopedWindowPaintImpl final {
  public:
   /**
    * @brief Creates scoped paint window context.

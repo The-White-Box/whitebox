@@ -10,6 +10,7 @@
 #include <string>
 
 #include "base/base_macroses.h"
+#include "base/deps/abseil/strings/str_cat.h"
 
 namespace wb::hal::hid {
 
@@ -314,22 +315,22 @@ struct MouseInput {
  */
 [[nodiscard]] inline std::string to_string(const MouseInput &mouse_input) {
   std::string result;
-  result.reserve(256);
+
+  const bool has_wheel_delta{
+      (mouse_input.button_flags & MouseButtonTransitionState::kVerticalWheel) ==
+          MouseButtonTransitionState::kVerticalWheel ||
+      (mouse_input.button_flags &
+       MouseButtonTransitionState::kHorizontalWheel) ==
+          MouseButtonTransitionState::kHorizontalWheel};
 
   using std::to_string;
 
-  result += "State: " + to_string(mouse_input.mouse_state);
-  result += " | Buttons: " + to_string(mouse_input.button_flags);
-  result += ((mouse_input.button_flags &
-              MouseButtonTransitionState::kVerticalWheel) ==
-                 MouseButtonTransitionState::kVerticalWheel ||
-             (mouse_input.button_flags &
-              MouseButtonTransitionState::kHorizontalWheel) ==
-                 MouseButtonTransitionState::kHorizontalWheel)
-                ? (" | Wheel Data: " + to_string(mouse_input.button_data))
-                : "";
-  result += " | Last X: " + to_string(mouse_input.last_x);
-  result += " | Last Y: " + to_string(mouse_input.last_y);
+  absl::StrAppend(
+      &result, "State: ", to_string(mouse_input.mouse_state),
+      " | Buttons: ", to_string(mouse_input.button_flags),
+      has_wheel_delta ? absl::StrCat(" | Wheel Data: ", mouse_input.button_data)
+                      : "",
+      " | Last X: ", mouse_input.last_x, " | Last Y: ", mouse_input.last_y);
 
   return result;
 }

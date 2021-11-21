@@ -38,9 +38,16 @@ endif()
 
 # Package information.
 set(PACKAGE_NAME      "WhiteBox")
+
+find_package(Git)
+
 if (NOT DEFINED PACKAGE_VERSION)
+  if (NOT Git_FOUND)
+    message(FATAL "[common]: Unable to extract Git software version - no Git.")
+  endif()
+
   if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-    message("[common]: Extracting Git software version.")
+    message(STATUS "[common]: Extracting Git software version.")
     execute_process(COMMAND cmd /c "git rev-list --branches HEAD | find /v " " /c" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   else()
     message(STATUS "[common]: Extracting Git software version.")
@@ -139,7 +146,6 @@ endif()
 ## Find common dependencies.
 
 # Git.
-find_package(Git)
 if (Git_FOUND)
   message(STATUS
     "[common]: Git version ${GIT_VERSION_STRING} found at '${GIT_EXECUTABLE}'.")
@@ -289,7 +295,7 @@ if (WB_BUILD_TESTS)
 
   # Disallow macro name clamps.
   target_compile_definitions(gtest
-    PUBLIC
+    PRIVATE
       GTEST_DONT_DEFINE_FAIL=1
       GTEST_DONT_DEFINE_SUCCEED=1
       GTEST_DONT_DEFINE_TEST=1
@@ -299,11 +305,69 @@ if (WB_BUILD_TESTS)
     # Prevent MSVC linker warning as error for __except + /guard:ehcont.
     target_compile_options(gtest PRIVATE /guard:ehcont)
     target_link_options(gtest PRIVATE /guard:ehcont)
+    target_compile_options(gmock PRIVATE /guard:ehcont)
+    target_link_options(gmock PRIVATE /guard:ehcont)
+    target_compile_options(gmock_main PRIVATE /guard:ehcont)
+    target_link_options(gmock_main PRIVATE /guard:ehcont)
   elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
     # Prevent linker warning "reloc which may overflow at runtime" (-fPIC).
     target_compile_options(gtest PRIVATE -fPIC)
+    target_compile_options(gmock PRIVATE -fPIC)
   endif()
 endif()
+
+# Abseil libraries require C++11 as the current minimum standard.
+# Top-level application CMake projects should ensure a consistent C++
+# standard for all compiled sources by setting CMAKE_CXX_STANDARD.
+set(ABSL_PROPAGATE_CXX_STD ON)
+# Abseil depends on gtest.
+set(BUILD_TESTING ${WB_BUILD_TESTS})
+if (BUILD_TESTING)
+  # Abseil will use gtest / gmock targets from source tree.
+  set(ABSL_USE_EXTERNAL_GOOGLETEST ON)
+  set(ABSL_FIND_GOOGLETEST OFF)
+endif()
+add_subdirectory("deps/abseil")
+# Get all abseil targets to add overrides.
+wb_get_all_targets(wb_all_abseil_targets "deps/abseil")
+# Ensure all abseil targets use expected options & macroses.
+foreach(wb_abseil_target_name ${wb_all_abseil_targets})
+  if (${wb_abseil_target_name} MATCHES "absl_" AND
+      NOT ${wb_abseil_target_name} STREQUAL "absl_civil_time" AND
+      NOT ${wb_abseil_target_name} STREQUAL "absl_time_zone")
+    if (WB_COMPILER_MSVC)
+      # Prevent warning C4530: C++ exception handler used, but unwind
+      # semantics are not enabled.  Specify /EHsc.
+      target_compile_options(${wb_abseil_target_name}
+        INTERFACE
+          /EHsc
+          /guard:ehcont)
+      # Prevent error LNK2047: module contains C++ EH or complex EH metadata
+      # but was not compiled with /guard:ehcont.
+      target_link_options(${wb_abseil_target_name}
+        INTERFACE
+          /guard:ehcont)
+    endif()
+
+    if (WB_BUILD_TESTS)
+      # Abseil uses macroses without GTEST_ prefix.
+      target_compile_definitions(${wb_abseil_target_name}
+        INTERFACE
+          GTEST_DONT_DEFINE_FAIL=0
+          GTEST_DONT_DEFINE_SUCCEED=0
+          GTEST_DONT_DEFINE_TEST=0
+      )
+    endif()
+  endif()
+endforeach()
+
+# absl_civil_time is special and requires PRIVATE options.
+target_compile_options(absl_civil_time PRIVATE /EHsc /guard:ehcont)
+target_link_options(absl_civil_time PRIVATE /guard:ehcont)
+
+# absl_time_zone is special and requires PRIVATE options.
+target_compile_options(absl_time_zone PRIVATE /EHsc /guard:ehcont)
+target_link_options(absl_time_zone PRIVATE /guard:ehcont)
 
 add_subdirectory("deps/mimalloc")
 
@@ -355,13 +419,20 @@ wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
-  if (NOT ${WB_TARGET_NAME} MATCHES "clean-cmake" AND
+  if (NOT ${WB_TARGET_NAME} MATCHES "absl_" AND
+      NOT ${WB_TARGET_NAME} MATCHES "clean-cmake" AND
+      # Abseil
+      NOT ${WB_TARGET_NAME} MATCHES "Continuous" AND
+      # Abseil
+      NOT ${WB_TARGET_NAME} MATCHES "Experimental" AND
       NOT ${WB_TARGET_NAME} MATCHES "fmt" AND
       NOT ${WB_TARGET_NAME} MATCHES "genfiles" AND
       NOT ${WB_TARGET_NAME} MATCHES "genprebuilt" AND
       NOT ${WB_TARGET_NAME} MATCHES "gensym" AND
       NOT ${WB_TARGET_NAME} MATCHES "genvers" AND
       NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
+      # Abseil
+      NOT ${WB_TARGET_NAME} MATCHES "Nightly" AND
       NOT ${WB_TARGET_NAME} MATCHES "sdl-build-options" AND
       NOT ${WB_TARGET_NAME} MATCHES "symbol-check" AND
       NOT ${WB_TARGET_NAME} MATCHES "uninstall")

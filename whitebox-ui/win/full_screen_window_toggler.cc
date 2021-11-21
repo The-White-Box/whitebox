@@ -19,7 +19,7 @@ namespace wb::ui::win {
 /**
  * @brief Actual implementation of window full/narrow screen toggler.
  */
-class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
+class FullScreenWindowToggler::FullScreenWindowTogglerImpl final {
  public:
   FullScreenWindowTogglerImpl(_In_ HWND window,
                               _In_ LONG default_window_style) noexcept
@@ -66,7 +66,8 @@ class FullScreenWindowToggler::FullScreenWindowTogglerImpl {
   [[nodiscard]] bool SetWindowStyle(_In_ LONG_PTR window_style) const noexcept {
     using namespace wb::base;
 
-    wb::base::win::error_handling::ScopedThreadLastError restore_last_error_on_out;
+    wb::base::win::error_handling::ScopedThreadLastError
+        restore_last_error_on_out;
 
     // To determine success or failure, clear the last error information by
     // calling SetLastError with 0, then call SetWindowLongPtr.  Function

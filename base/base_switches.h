@@ -7,18 +7,11 @@
 #ifndef WB_BASE_BASE_SWITCHES_H_
 #define WB_BASE_BASE_SWITCHES_H_
 
-namespace wb::base::switches {
+#include "base/deps/abseil/flags/declare.h"
 
-namespace insecure {
-
-/**
- * @brief Allow to load NOT SIGNED module targets.
- */
-constexpr char kAllowUnsignedModuleTargetFlag[]{
-    "--insecure-allow-unsigned-module-target"};
-
-}  // namespace insecure
-
-}  // namespace wb::base::switches
+// Insecure.  Allow to load NOT SIGNED module targets.  There is no guarantee
+// unsigned module doing nothing harmful.  Use at your own risk, ex. for
+// debugging or mods.
+ABSL_DECLARE_FLAG(bool, insecure_allow_unsigned_module_target);
 
 #endif  // !WB_BASE_BASE_SWITCHES_H_

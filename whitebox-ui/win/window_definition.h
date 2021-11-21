@@ -2,7 +2,7 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Base UI window.
+// UI window definition.
 
 #ifndef WB_WHITEBOX_UI_WIN_WINDOW_DEFINITION_H_
 #define WB_WHITEBOX_UI_WIN_WINDOW_DEFINITION_H_
@@ -21,7 +21,7 @@ namespace wb::ui::win {
 
 /**
  * @brief Use default position for window.
-*/
+ */
 constexpr inline int kUseDefaultPosition{(int)0x80000000};
 
 /**

@@ -23,6 +23,7 @@ class WB_WHITEBOX_UI_API AccessibilityShortcutKeysToggler {
    * @return nothing.
    */
   AccessibilityShortcutKeysToggler() noexcept;
+
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(AccessibilityShortcutKeysToggler);
   AccessibilityShortcutKeysToggler(AccessibilityShortcutKeysToggler&&) noexcept;
   AccessibilityShortcutKeysToggler& operator=(

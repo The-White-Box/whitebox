@@ -105,7 +105,8 @@ SetProcessMitigationPolicy(TPolicy& policy) noexcept {
 /**
  * @brief Impementation for enabler of process mitigation policies in scope.
  */
-class ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl {
+class ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl
+    final {
  public:
   ScopedProcessMitigationPoliciesImpl() noexcept;
 

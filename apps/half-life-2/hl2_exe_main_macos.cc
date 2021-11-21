@@ -23,6 +23,9 @@
 #include <system_error>
 
 #include "app_version_config.h"
+#include "base/deps/abseil/flags/parse.h"
+#include "base/deps/abseil/flags/usage.h"
+#include "base/deps/abseil/strings/str_cat.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
@@ -35,15 +38,27 @@ namespace {
 
 /**
  * @brief Creates internationalization lookup.
- * @param user_locale User locale.
+ * @param scoped_process_locale Process locale.
  * @return Internationalization lookup.
  */
 [[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
-    const std::string& user_locale) noexcept {
-  auto intl_lookup_result{
-      wb::base::intl::LookupWithFallback::New({user_locale})};
-  auto intl_lookup =
-      std::get_if<wb::base::intl::LookupWithFallback>(&intl_lookup_result);
+    const wb::base::intl::ScopedProcessLocale& scoped_process_locale) noexcept {
+  using namespace wb::base::intl;
+
+  const std::optional<std::string> maybe_user_locale{
+      scoped_process_locale.GetCurrentLocale()};
+  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
+      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
+      << locales::kUtf8Locale << "' for UI, fallback to '"
+      << locales::kFallbackLocale << "'.";
+
+  const std::string user_locale{
+      maybe_user_locale.value_or(locales::kFallbackLocale)};
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
+              << " locale for UI.";
+
+  auto intl_lookup_result{LookupWithFallback::New({user_locale})};
+  auto intl_lookup = std::get_if<LookupWithFallback>(&intl_lookup_result);
 
   G3LOG_IF(FATAL, !intl_lookup)
       << "Unable to create localization strings lookup for locale "
@@ -58,21 +73,14 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       argv[0], wb::build::settings::kPathToMainLogFile};
 
+  absl::SetProgramUsageMessage(absl::StrCat(
+      WB_PRODUCT_FILE_DESCRIPTION_STRING ".  Sample usage:\n", argv[0]));
+  std::vector<char*> positional_flags{absl::ParseCommandLine(argc, argv)};
+
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const std::optional<std::string> maybe_user_locale{
-      scoped_process_locale.GetCurrentLocale()};
-  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
-      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
-      << intl::locales::kUtf8Locale << "' for UI, fallback to '"
-      << intl::locales::kFallbackLocale << "'.";
-
-  const std::string user_locale{
-      maybe_user_locale.value_or(intl::locales::kFallbackLocale)};
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
-              << " locale for UI.";
-  const auto intl = CreateIntl(user_locale);
+  const auto intl = CreateIntl(scoped_process_locale);
 
   uint32_t exec_path_size{0};
   int rv{_NSGetExecutablePath(nullptr, &exec_path_size)};
@@ -142,7 +150,11 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto boot_manager_main =
       std::get<BootManagerMainFunction>(bootmgr_entry_result);
 
-  rv = boot_manager_main(argc, argv);
+  rv = boot_manager_main(argc, argv,
+                         {
+                             .positional_flags = std::move(positional_flags),
+                             .insecure_allow_unsigned_module_target = false,
+                         });
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.

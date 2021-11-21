@@ -12,7 +12,12 @@ set(WB_BOOTMGR_TARGET_NAME  "whitebox-boot-manager")
 
 set(WB_BOOTMGR_LINK_OPTIONS "")
 
-set(WB_BOOTMGR_LINK_DEPS g3log mimalloc wb::whitebox-base wb::whitebox-ui)
+set(WB_BOOTMGR_LINK_DEPS
+  absl::strings
+  g3log
+  mimalloc
+  wb::whitebox-base
+  wb::whitebox-ui)
 if (WB_OS_WIN)
   list(APPEND WB_BOOTMGR_LINK_DEPS "Winmm")
 elseif (WB_OS_LINUX)
@@ -23,8 +28,12 @@ elseif (WB_OS_MACOS)
   list(APPEND WB_BOOTMGR_LINK_DEPS "dl;rt;c++fs")
 endif()
 
-set(WB_BOOTMGR_RUNTIME_DEPS g3log mimalloc
-  wb::whitebox-base wb::whitebox-kernel wb::whitebox-ui)
+set(WB_BOOTMGR_RUNTIME_DEPS
+  g3log
+  mimalloc
+  wb::whitebox-base
+  wb::whitebox-kernel
+  wb::whitebox-ui)
 
 wb_cxx_shared_library(
   TARGET        ${WB_BOOTMGR_TARGET_NAME}

@@ -12,8 +12,13 @@ set(WB_WHITEBOX_KERNEL_TARGET_NAME  "whitebox-kernel")
 
 set(WB_WHITEBOX_KERNEL_LINK_OPTIONS "")
 set(WB_WHITEBOX_KERNEL_LINK_DEPS
-  fmt g3log mimalloc
-  wb::whitebox-base wb::whitebox-hid-driver wb::whitebox-ui)
+  absl::strings
+  fmt
+  g3log
+  mimalloc
+  wb::whitebox-base
+  wb::whitebox-hid-driver
+  wb::whitebox-ui)
 if (WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
 else ()
@@ -21,8 +26,11 @@ else ()
 endif ()
 
 set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS
-  g3log mimalloc
-  wb::whitebox-base wb::whitebox-hid-driver wb::whitebox-ui)
+  g3log
+  mimalloc
+  wb::whitebox-base
+  wb::whitebox-hid-driver
+  wb::whitebox-ui)
 if (NOT WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS "SDL2::SDL2" "SDL2::image")
 endif ()

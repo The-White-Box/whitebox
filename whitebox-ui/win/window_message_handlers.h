@@ -13,12 +13,12 @@
   case (message):                        \
     return HANDLE_##message((hwnd), (wParam), (lParam), (lpRefData), (fn))
 
-/* void Cls_OnTaskDialogConstructed(HWND dialog, LONG_PTR ref_data) */
+// void Cls_OnTaskDialogConstructed(HWND dialog, LONG_PTR ref_data)
 #define HANDLE_TDN_DIALOG_CONSTRUCTED(hwnd, wParam, lParam, lpRefData, fn) \
   ((fn)((hwnd), (lpRefData)), S_OK)
 
-/* void Cls_OnTaskDialogHyperlinkClicked(HWND dialog, LONG_PTR ref_data, const
-   wchar_t *url) */
+// void Cls_OnTaskDialogHyperlinkClicked(HWND dialog, LONG_PTR ref_data, const
+// wchar_t *url)
 #define HANDLE_TDN_HYPERLINK_CLICKED(hwnd, wParam, lParam, lpRefData, fn) \
   ((fn)((hwnd), (lpRefData), (LPCWSTR)(LPARAM)(lParam)), S_OK)
 
