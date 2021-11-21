@@ -24,19 +24,22 @@ namespace wb::base::win {
  */
 enum class Version {
   PRE_WIN10 = 0,    // Not supported.
-  WIN10 = 7,        // Threshold 1: Version 1507, Build 10240.
-  WIN10_TH2 = 8,    // Threshold 2: Version 1511, Build 10586.
-  WIN10_RS1 = 9,    // Redstone 1: Version 1607, Build 14393.
-  WIN10_RS2 = 10,   // Redstone 2: Version 1703, Build 15063.
-  WIN10_RS3 = 11,   // Redstone 3: Version 1709, Build 16299.
-  WIN10_RS4 = 12,   // Redstone 4: Version 1803, Build 17134.
-  WIN10_RS5 = 13,   // Redstone 5: Version 1809, Build 17763.
-  WIN10_19H1 = 14,  // 19H1: Version 1903, Build 18362.
-  WIN10_19H2 = 15,  // 19H2: Version 1909, Build 18363.
-  WIN10_20H1 = 16,  // 20H1: Build 19041.
-  WIN10_20H2 = 17,  // 20H2: Build 19042.
-  WIN10_21H1 = 18,  // 21H1: Build 19043.
-  WIN11_21H2 = 19,  // Windows 11 21H2: Build 22000.
+
+  WIN10 = 7,        // Windows 10. Threshold 1: Version 1507, Build 10240.
+  WIN10_TH2 = 8,    // Windows 10. Threshold 2: Version 1511, Build 10586.
+  WIN10_RS1 = 9,    // Windows 10. Redstone 1: Version 1607, Build 14393.
+  WIN10_RS2 = 10,   // Windows 10. Redstone 2: Version 1703, Build 15063.
+  WIN10_RS3 = 11,   // Windows 10. Redstone 3: Version 1709, Build 16299.
+  WIN10_RS4 = 12,   // Windows 10. Redstone 4: Version 1803, Build 17134.
+  WIN10_RS5 = 13,   // Windows 10. Redstone 5: Version 1809, Build 17763.
+  WIN10_19H1 = 14,  // Windows 10. 19H1: Version 1903, Build 18362.
+  WIN10_19H2 = 15,  // Windows 10. 19H2: Version 1909, Build 18363.
+  WIN10_20H1 = 16,  // Windows 10. 20H1: Build 19041.
+  WIN10_20H2 = 17,  // Windows 10. 20H2: Build 19042.
+  WIN10_21H1 = 18,  // Windows 10. 21H1: Build 19043.
+  WIN10_21H2 = 19,  // Windows 10. 21H2: Build 19044.
+
+  WIN11_21H2 = 20,  // Windows 11. 21H2: Build 22000.
   WIN_LAST,         // Indicates error condition.
 };
 
@@ -77,6 +80,8 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
       return s << "Windows 10 20H2";
     case Version::WIN10_21H1:
       return s << "Windows 10 21H1";
+    case Version::WIN10_21H2:
+      return s << "Windows 10 21H2";
     case Version::WIN11_21H2:
       return s << "Windows 11 21H2";
     case Version::WIN_LAST:
