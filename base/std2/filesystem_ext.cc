@@ -106,6 +106,7 @@ get_executable_directory() noexcept {
 #endif
 }
 
+#ifdef WB_OS_WIN
 /**
  * @brief Extract short exe name from command line.
  * @param command_line Command line.
@@ -140,5 +141,6 @@ get_short_exe_name_from_command_line(std::string_view command_line) noexcept {
 
   return {};
 }
+#endif  // WB_OS_WIN
 
 }  // namespace wb::base::std2::filesystem

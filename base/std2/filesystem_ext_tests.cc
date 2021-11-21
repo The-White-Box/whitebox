@@ -23,7 +23,7 @@ class ScopedChangeCurrentPath {
    * @brief Changes current path in scope.
    * @param new_path New current path for scope.
    */
-  ScopedChangeCurrentPath(const std::filesystem::path &new_path)
+  explicit ScopedChangeCurrentPath(const std::filesystem::path &new_path)
       : original_current_path_{std::filesystem::current_path(rc_)} {
     EXPECT_EQ(std::error_code{}, rc_);
     std::filesystem::current_path(new_path, rc_);
@@ -70,6 +70,7 @@ GTEST_TEST(FilesystemExtTests, get_executable_directory) {
       << "Should get executable directory, not current path.";
 }
 
+#ifdef WB_OS_WIN
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(FilesystemExtTests, get_short_exe_name_from_command_line) {
   EXPECT_EQ(std::nullopt, filesystem::get_short_exe_name_from_command_line(""));
@@ -80,7 +81,6 @@ GTEST_TEST(FilesystemExtTests, get_short_exe_name_from_command_line) {
   EXPECT_EQ(std::nullopt, filesystem::get_short_exe_name_from_command_line(
                               "some_very_large_executable_file_to_run"));
 
-#ifdef WB_OS_WIN
   EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
             filesystem::get_short_exe_name_from_command_line(
                 "some\\very\\long\\executable.exe"));
@@ -101,26 +101,5 @@ GTEST_TEST(FilesystemExtTests, get_short_exe_name_from_command_line) {
   EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
             filesystem::get_short_exe_name_from_command_line(
                 R"("some\\very\\long\\executable.exe" " " ")"));
-#elif defined(WB_OS_POSIX)
-  EXPECT_EQ(std::optional<std::string_view>{"executable"},
-            filesystem::get_short_exe_name_from_command_line(
-                "some/very/long/executable"));
-  EXPECT_EQ(std::nullopt, filesystem::get_short_exe_name_from_command_line(
-                              R"("some/very/long/executable")"));
-  EXPECT_EQ(std::nullopt, filesystem::get_short_exe_name_from_command_line(
-                              R"("some/very/long/executable" --some_arg)"));
-  EXPECT_EQ(
-      std::nullopt,
-      filesystem::get_short_exe_name_from_command_line(
-          R"("some/very/long/executable.exe" --some_arg --some-other-arg)"));
-  EXPECT_EQ(
-      std::nullopt,
-      filesystem::get_short_exe_name_from_command_line(
-          R"("some/very/long/executable.exe" "--some_arg" --some-other-arg)"));
-  EXPECT_EQ(std::nullopt, filesystem::get_short_exe_name_from_command_line(
-                              R"("some/very/long/executable.exe" " " ")"));
-#else  // WB_OS_POSIX
-#error \
-    "Please define filesystem::get_short_exe_name_from_command_line test for your os."
-#endif  // !WB_OS_WIN
 }
+#endif  // !WB_OS_WIN

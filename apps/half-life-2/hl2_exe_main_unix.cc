@@ -103,15 +103,12 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
       if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
         WB_ATTRIBUTE_LIKELY {
-          return (*boot_manager_main)(
-              {WB_PRODUCT_FILE_DESCRIPTION_STRING,
-               argv,
-               argc,
-               {
-                   .positional_flags = std::move(positional_flags),
-                   .insecure_allow_unsigned_module_target = false,
-               },
-               intl});
+          const wb::boot_manager::CommandLineFlags command_line_flags{
+              .positional_flags = std::move(positional_flags),
+              .insecure_allow_unsigned_module_target = false,
+          };
+          return (*boot_manager_main)({WB_PRODUCT_FILE_DESCRIPTION_STRING, argv,
+                                       argc, command_line_flags, intl});
         }
 
       wb::ui::FatalDialog(

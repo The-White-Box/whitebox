@@ -13,6 +13,7 @@
 
 #include "base/base_api.h"
 #include "base/std2/system_error_ext.h"
+#include "build/compiler_config.h"
 
 namespace wb::base::std2::filesystem {
 
@@ -23,6 +24,7 @@ namespace wb::base::std2::filesystem {
 [[nodiscard]] WB_BASE_API result<std::filesystem::path>
 get_executable_directory() noexcept;
 
+#ifdef WB_OS_WIN
 /**
  * @brief Extract short exe name from command line.
  * @param command_line Command line.
@@ -30,6 +32,7 @@ get_executable_directory() noexcept;
  */
 [[nodiscard]] WB_BASE_API std::optional<std::string_view>
 get_short_exe_name_from_command_line(std::string_view command_line) noexcept;
+#endif
 
 }  // namespace wb::base::std2::filesystem
 

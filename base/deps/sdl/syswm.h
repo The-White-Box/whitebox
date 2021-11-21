@@ -55,6 +55,8 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
       return s << "Haiku";
     case SDL_SYSWM_KMSDRM:
       return s << "DRM/KMS";
+    case SDL_SYSWM_RISCOS:
+      return s << "RiscOS";
     default:
       // type != SDL_SYSWM_UNKNOWN is always true,  This is used to prevent
       // compiler from complaining about constant in if condition.

@@ -116,6 +116,8 @@ struct BootmgrArgs {
    * @brief Small app icon id.
    */
   int small_icon_id;
+#else
+  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(argc)];
 #endif
 
   /**

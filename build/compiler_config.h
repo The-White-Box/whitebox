@@ -682,6 +682,12 @@
 #define WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE() _Pragma("GCC diagnostic push")
 
 /*
+ * @brief Disables GCC / Clang double-promotion warning.
+ */
+#define WB_GCC_DISABLE_DOUBLE_PROMOTION_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wdouble-promotion\"")
+
+/*
  * @brief Disables GCC / Clang old-style-cast warning.
  */
 #define WB_GCC_DISABLE_OLD_STYLE_CAST_WARNING() \
@@ -698,6 +704,12 @@
  */
 #define WB_GCC_DISABLE_MISSING_NORETURN_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wmissing-noreturn\"")
+
+/*
+ * @brief Disables GCC / Clang sign-conversion warning.
+ */
+#define WB_GCC_DISABLE_SIGN_CONVERSION_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wsign-conversion\"")
 
 /*
  * @brief Disables GCC / Clang switch-default warning.
@@ -810,6 +822,11 @@
 /*
  * @brief Do nothing.
  */
+#define WB_GCC_DISABLE_DOUBLE_PROMOTION_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_GCC_DISABLE_OLD_STYLE_CAST_WARNING()
 
 /*
@@ -821,6 +838,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_MISSING_NORETURN_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_SIGN_CONVERSION_WARNING()
 
 /*
  * @brief Do nothing.
