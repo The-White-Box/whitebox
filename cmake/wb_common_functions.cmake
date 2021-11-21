@@ -318,6 +318,15 @@ function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
     WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
     COMMENT "Copy $<TARGET_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
   )
+  if (WB_OS_WIN)
+    add_custom_command(
+      TARGET ${THE_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_PDB_FILE:${THE_DEPENDENCY}> $<TARGET_FILE_DIR:${THE_TARGET}>
+      DEPENDS ${THE_DEPENDENCY}
+      WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
+      COMMENT "Copy $<TARGET_PDB_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+    )
+  endif()
 endfunction()
 
 # Copy all target dependencies + optionally mimalloc redirect.
