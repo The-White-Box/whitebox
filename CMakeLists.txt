@@ -4,41 +4,48 @@
 
 cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
-option(WB_BUILD_TESTS "Build tests or not." OFF)
+# Controls either WhiteBox tests be build or not.
+option(WB_BUILD_TESTS "Build WhiteBox tests or not." OFF)
+
+if (WB_BUILD_TESTS)
+  enable_testing()
+endif()
 
 # Compiler id for Apple Clang is now AppleClang.
 if (POLICY CMP0025)
   cmake_policy(SET CMP0025 NEW)
-endif ()
+endif()
 
 # Include file check macros honor CMAKE_REQUIRED_LIBRARIES.
 if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
-endif ()
+endif()
 
 # option() honor variables.
 if (POLICY CMP0077)
   cmake_policy(SET CMP0077 NEW)
-endif ()
+endif()
 
 # target_link_libraries() allows use with targets in other directories.
 if (POLICY CMP0079)
   cmake_policy(SET CMP0079 NEW)
-endif ()
+endif()
 
+# Setup root directory of the WhiteBox project.
 set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}" CACHE STRING
-  "Directory root of the project.")
+  "Directory root of the WhiteBox project.")
 
-# Includes.
+# CMake should find its new includes.
 if (CMAKE_MODULE_PATH)
   set(CMAKE_MODULE_PATH "${WB_ROOT_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 else()
   set(CMAKE_MODULE_PATH "${WB_ROOT_DIR}/cmake")
 endif()
 
-# Package information.
-set(PACKAGE_NAME      "WhiteBox")
+## Package information.
+set(PACKAGE_NAME   "WhiteBox")
 
+# Git is required to build software version via Git.
 find_package(Git)
 
 if (NOT DEFINED PACKAGE_VERSION)
@@ -57,7 +64,7 @@ if (NOT DEFINED PACKAGE_VERSION)
   set(PACKAGE_VER_PATCH 0)
   math(EXPR PACKAGE_VER_TWEAK ${WB_GIT_VERSION})
   message(STATUS
-    "[common]: Build version from Git as <patch.tweak>: ${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}.")
+    "[common]: Build version from Git (patch.tweak): ${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}.")
 
   set(PACKAGE_VER_MAJOR 1)
   set(PACKAGE_VER_MINOR 0)
@@ -65,9 +72,9 @@ if (NOT DEFINED PACKAGE_VERSION)
   set(PACKAGE_VERSION
     "${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MINOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}")
 endif()
-set(PACKAGE_STRING    "${PACKAGE_NAME} ${PACKAGE_VERSION}")
-set(PACKAGE_TARNAME   "${PACKAGE_NAME}-${PACKAGE_VERSION}")
-set(PACKAGE_BUGREPORT "https://github.com/The-White-Box/whitebox/issues")
+set(PACKAGE_STRING     "${PACKAGE_NAME} ${PACKAGE_VERSION}")
+set(PACKAGE_TARNAME    "${PACKAGE_NAME}-${PACKAGE_VERSION}")
+set(PACKAGE_BUGREPORT  "https://github.com/The-White-Box/whitebox/issues")
 
 project(${PACKAGE_NAME}
   VERSION ${PACKAGE_VER_MAJOR}.${PACKAGE_VER_MAJOR}.${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}
@@ -76,10 +83,12 @@ project(${PACKAGE_NAME}
 message(STATUS "[common]: CMake version: ${CMAKE_VERSION}.")
 message(STATUS "[common]: ${PACKAGE_NAME} version: ${PACKAGE_VERSION}.")
 
+## Common variables.
+
 set(WB_BINARY_DIR "${CMAKE_BINARY_DIR}" CACHE STRING
-  "Directory of the project binaries output.")
+  "Directory of the WhiteBox binaries output.")
 set(WB_SYSTEM_NAME "${CMAKE_SYSTEM_NAME}" CACHE STRING
-  "Name of the build system.")
+  "Name of the WhiteBox build system.")
 
 if (${WB_SYSTEM_NAME} STREQUAL "Darwin")
   set(WB_OS_MACOS ON CACHE BOOL "MacOS is build system.")
@@ -100,9 +109,9 @@ else()
 endif()
 
 set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING
-  "Name of the product.")
+  "Name of the WhiteBox product.")
 
-# Minimum standard level.
+# Minimum standard level is C++20.
 set(CMAKE_CXX_STANDARD 20)
 # On g++ this ensures: -std=c++20 and not -std=gnu++20
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -143,9 +152,8 @@ else()
   set(WB_COMPILER_MSVC OFF CACHE BOOL "Compiler is NOT MSVC.")
 endif()
 
-## Find common dependencies.
+## Common dependencies.
 
-# Git.
 if (Git_FOUND)
   message(STATUS
     "[common]: Git version ${GIT_VERSION_STRING} found at '${GIT_EXECUTABLE}'.")
@@ -187,6 +195,8 @@ if (XCODE_VERSION)
   message(STATUS
     "[common]: ${PACKAGE_NAME} using XCode version: ${XCODE_VERSION}.")
 endif()
+
+## Compiler / linker options.
 
 if (WB_COMPILER_CLANG)
   # Clang or AppleClang.
@@ -239,7 +249,8 @@ message(STATUS "[common]: ${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
 message(STATUS
   "[common]: ${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
 
-# Compiler features detection.
+## Compiler features detection.
+
 wb_check_cxx_compiles("
   #include <iostream>
   int main(int argc, char **argv) {
@@ -266,12 +277,13 @@ if (WB_OS_WIN)
   add_definitions(-DNOMINMAX)
 endif()
 
-## Include sub-projects.
-# Dependencies.
+## Product dependencies.
+
+# fmt.
 add_subdirectory("deps/fmt")
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
-  # semantics are not enabled.  Specify /EHsc.
+  # semantics are not enabled.
   target_compile_options(fmt PRIVATE /EHsc)
   # Prevent MSVC linker warning as error for __except + /guard:ehcont.
   target_compile_options(fmt PRIVATE /guard:ehcont)
@@ -280,27 +292,29 @@ elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
   target_compile_options(fmt PRIVATE -fPIC)
 endif()
 
+# g3log.
 add_subdirectory("deps/g3log")
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
-  # semantics are not enabled.  Specify /EHsc.
+  # semantics are not enabled.
   target_compile_options(g3log PRIVATE /EHsc)
 endif()
 if (WB_OS_WIN)
-  # Adds VERSION resource.
+  # Adds VERSION resource to g3log.
   wb_add_version_resource_to_dll_target(
     g3log
     deps/g3log
     "G3log is an asynchronous, crash-safe logger.  See THIRD_PARTY for details.")
 endif()
 
+# gtest / gmock.
 if (WB_BUILD_TESTS)
   # Prevent overriding the parent project's compiler/linker settings.
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
   add_subdirectory("deps/googletest")
 
-  # Disallow macro name clamps.
+  # Do not define macroses which can clash with other libs.
   target_compile_definitions(gtest
     PRIVATE
       GTEST_DONT_DEFINE_FAIL=1
@@ -311,11 +325,13 @@ if (WB_BUILD_TESTS)
   if (WB_COMPILER_MSVC)
     # Prevent MSVC linker warning as error for __except + /guard:ehcont.
     target_compile_options(gtest PRIVATE /guard:ehcont)
-    target_link_options(gtest PRIVATE /guard:ehcont)
+    target_link_options(gtest    PRIVATE /guard:ehcont)
+
     target_compile_options(gmock PRIVATE /guard:ehcont)
-    target_link_options(gmock PRIVATE /guard:ehcont)
+    target_link_options(gmock    PRIVATE /guard:ehcont)
+
     target_compile_options(gmock_main PRIVATE /guard:ehcont)
-    target_link_options(gmock_main PRIVATE /guard:ehcont)
+    target_link_options(gmock_main    PRIVATE /guard:ehcont)
   elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
     # Prevent linker warning "reloc which may overflow at runtime" (-fPIC).
     target_compile_options(gtest PRIVATE -fPIC)
@@ -323,16 +339,19 @@ if (WB_BUILD_TESTS)
   endif()
 endif()
 
-# Abseil libraries require C++11 as the current minimum standard.
-# Top-level application CMake projects should ensure a consistent C++
-# standard for all compiled sources by setting CMAKE_CXX_STANDARD.
-set(ABSL_PROPAGATE_CXX_STD ON)
+# abseil.
+
+# Abseil libraries require C++11 as the current minimum standard.  Top-level
+# application CMake projects should ensure a consistent C++ standard for all
+# compiled sources by setting CMAKE_CXX_STANDARD.
+set(ABSL_PROPAGATE_CXX_STD  ON)
+set(WB_ABSL_BUILD_TESTS     OFF "Directory of the WhiteBox binaries output.")
 # Abseil depends on gtest.
-set(BUILD_TESTING ${WB_BUILD_TESTS})
+set(BUILD_TESTING ${WB_ABSL_BUILD_TESTS})
 if (BUILD_TESTING)
   # Abseil will use gtest / gmock targets from source tree.
-  set(ABSL_USE_EXTERNAL_GOOGLETEST ON)
-  set(ABSL_FIND_GOOGLETEST OFF)
+  set(ABSL_USE_EXTERNAL_GOOGLETEST  ON)
+  set(ABSL_FIND_GOOGLETEST          OFF)
 endif()
 add_subdirectory("deps/abseil")
 # Get all abseil targets to add overrides.
@@ -343,17 +362,17 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
       NOT ${wb_abseil_target_name} STREQUAL "absl_civil_time" AND
       NOT ${wb_abseil_target_name} STREQUAL "absl_time_zone")
     if (WB_COMPILER_MSVC)
-      # Prevent warning C4530: C++ exception handler used, but unwind
-      # semantics are not enabled.  Specify /EHsc.
-      target_compile_options(${wb_abseil_target_name}
-        INTERFACE
-          /EHsc
-          /guard:ehcont)
-      # Prevent error LNK2047: module contains C++ EH or complex EH metadata
-      # but was not compiled with /guard:ehcont.
-      target_link_options(${wb_abseil_target_name}
-        INTERFACE
-          /guard:ehcont)
+      # Warning C4530: C++ exception handler used, but unwind semantics are not
+      # enabled.
+      target_compile_options(${wb_abseil_target_name} INTERFACE
+        /EHsc /guard:ehcont)
+      # LNK2047: module contains C++ EH or complex EH metadata but was not
+      # compiled with /guard:ehcont.
+      target_link_options(${wb_abseil_target_name} INTERFACE /guard:ehcont)
+    elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+      # Can't create dynamic relocation R_X86_64_32 against local symbol in
+      # readonly segment.
+      target_compile_options(${wb_abseil_target_name} INTERFACE -fPIC)
     endif()
 
     if (WB_BUILD_TESTS)
@@ -371,12 +390,19 @@ endforeach()
 if (WB_COMPILER_MSVC)
   # absl_civil_time is special and requires PRIVATE options.
   target_compile_options(absl_civil_time PRIVATE /EHsc /guard:ehcont)
-  target_link_options(absl_civil_time PRIVATE /guard:ehcont)
+  target_link_options(absl_civil_time    PRIVATE /guard:ehcont)
 
   # absl_time_zone is special and requires PRIVATE options.
   target_compile_options(absl_time_zone PRIVATE /EHsc /guard:ehcont)
-  target_link_options(absl_time_zone PRIVATE /guard:ehcont)
+  target_link_options(absl_time_zone    PRIVATE /guard:ehcont)
+elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+  # Can't create dynamic relocation R_X86_64_32 against local symbol in readonly
+  # segment.
+  target_compile_options(absl_civil_time PRIVATE -fPIC)
+  target_compile_options(absl_time_zone  PRIVATE -fPIC)
 endif()
+
+# mimalloc.
 
 add_subdirectory("deps/mimalloc")
 if (WB_OS_WIN)
@@ -387,9 +413,12 @@ if (WB_OS_WIN)
     "Mimalloc is a general purpose allocator with excellent performance characteristics.  See THIRD_PARTY for details.")
 endif()
 
+# SDL2 / sdl_image.
+
 if (NOT WB_OS_WIN)
   set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)
   set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
+
   add_subdirectory(deps/sdl)
 
   if (WB_CXX_COMPILER_ID STREQUAL "AppleClang")
@@ -397,75 +426,108 @@ if (NOT WB_OS_WIN)
     target_compile_definitions(SDL2 PUBLIC _DARWIN_C_SOURCE=1)
   endif()
 
-  set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared SDL_image library" FORCE)
   set(PNG_SHARED ON CACHE BOOL "Build shared lib" FORCE)
   set(PNG_STATIC OFF CACHE BOOL "Build static lib" FORCE)
   set(PNG_TESTS  OFF CACHE BOOL "Build libpng tests" FORCE)
+
   add_subdirectory(deps/sdl_image)
 
   if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
-    # Prevent linker error can't create dynamic relocation R_X86_64_64 against
-    # symbol: XXX in readonly segment (-fPIC).
+    # Linker error can't create dynamic relocation R_X86_64_64 against symbol:
+    # XXX in readonly segment (-fPIC).
     target_compile_options(jpeg PRIVATE -fPIC)
   endif()
 endif()
 
-# Libraries.
+## Libraries.
+
 add_subdirectory("base")
 add_subdirectory("whitebox-boot-manager")
 
-# Hardware Abstraction Layer.
+## Hardware Abstraction Layer.
+
 add_subdirectory("hal/drivers/hid")
 
-# Kernel.
+## Kernel.
+
 add_subdirectory("whitebox-kernel")
 add_subdirectory("whitebox-ui")
 
-# Apps.
+## Apps.
+
 add_subdirectory("apps/half-life-2")
 
-if (WB_BUILD_TESTS)
-  enable_testing()
-endif()
+## Other stuff.
 
 # Get all targets to add mimalloc allocators overrides.
 wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
 # Ensure all dependencies reuse same memory allocators.
-foreach(WB_TARGET_NAME ${WB_ALL_TARGETS})
+foreach(wb_target_name ${WB_ALL_TARGETS})
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
-  if (NOT ${WB_TARGET_NAME} MATCHES "absl_" AND
-      NOT ${WB_TARGET_NAME} MATCHES "clean-cmake" AND
+  if (NOT ${wb_target_name} MATCHES "absl_" AND
+      NOT ${wb_target_name} MATCHES "clean-cmake" AND
       # Abseil
-      NOT ${WB_TARGET_NAME} MATCHES "Continuous" AND
+      NOT ${wb_target_name} MATCHES "Continuous" AND
       # Abseil
-      NOT ${WB_TARGET_NAME} MATCHES "Experimental" AND
-      NOT ${WB_TARGET_NAME} MATCHES "fmt" AND
-      NOT ${WB_TARGET_NAME} MATCHES "genfiles" AND
-      NOT ${WB_TARGET_NAME} MATCHES "genprebuilt" AND
-      NOT ${WB_TARGET_NAME} MATCHES "gensym" AND
-      NOT ${WB_TARGET_NAME} MATCHES "genvers" AND
-      NOT ${WB_TARGET_NAME} MATCHES "mimalloc" AND
+      NOT ${wb_target_name} MATCHES "Experimental" AND
+      NOT ${wb_target_name} MATCHES "fmt" AND
+      NOT ${wb_target_name} MATCHES "genfiles" AND
+      NOT ${wb_target_name} MATCHES "genprebuilt" AND
+      NOT ${wb_target_name} MATCHES "gensym" AND
+      NOT ${wb_target_name} MATCHES "genvers" AND
+      NOT ${wb_target_name} MATCHES "mimalloc" AND
       # Abseil
-      NOT ${WB_TARGET_NAME} MATCHES "Nightly" AND
-      NOT ${WB_TARGET_NAME} MATCHES "sdl-build-options" AND
-      NOT ${WB_TARGET_NAME} MATCHES "symbol-check" AND
-      NOT ${WB_TARGET_NAME} MATCHES "uninstall")
+      NOT ${wb_target_name} MATCHES "Nightly" AND
+      NOT ${wb_target_name} MATCHES "sdl-build-options" AND
+      NOT ${wb_target_name} MATCHES "symbol-check" AND
+      NOT ${wb_target_name} MATCHES "uninstall")
     # Include the directories with the new files.
-    target_include_directories(${WB_TARGET_NAME}
-        PRIVATE ${WB_ROOT_DIR} "${WB_ROOT_DIR}/deps/mimalloc/include")
+    target_include_directories(${wb_target_name}
+      PRIVATE
+        ${WB_ROOT_DIR}
+        "${WB_ROOT_DIR}/deps/mimalloc/include")
 
     # Add new / delete allocator overrides.
-    target_sources(${WB_TARGET_NAME}
+    target_sources(${wb_target_name}
       PRIVATE
         ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
     )
 
     # Add mimalloc to handle allocators.
-    target_link_libraries(${WB_TARGET_NAME} PRIVATE mimalloc)
+    target_link_libraries(${wb_target_name} PRIVATE mimalloc)
 
     # mimalloc should be copied by each target individually as haven't found way
     # to it here.
+  endif()
+
+  # Abseil has special handling.
+  if (NOT WB_OS_WIN AND
+      ${wb_target_name} MATCHES "absl_" AND
+      # ASAN intercepts new / delete.
+      NOT ${wb_target_name} MATCHES "absl_leak_check_test" AND
+      NOT ${wb_target_name} MATCHES "absl_disabled_leak_check_test")
+    get_target_property(wb_target_type ${wb_target_name} TYPE)
+
+    if (NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY")
+      # Include the directories with the new files.
+      target_include_directories(${wb_target_name}
+        PRIVATE
+          ${WB_ROOT_DIR}
+          "${WB_ROOT_DIR}/deps/mimalloc/include")
+
+      # Add new / delete allocator overrides.
+      target_sources(${wb_target_name}
+        PRIVATE
+          ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
+      )
+
+      # Add mimalloc to handle allocators.
+      target_link_libraries(${wb_target_name} PRIVATE mimalloc)
+
+      # mimalloc should be copied by each target individually as haven't found way
+      # to it here.
+    endif()
   endif()
 endforeach()
