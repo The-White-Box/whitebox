@@ -47,7 +47,7 @@ class Lookup::LookupImpl final {
       if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
           locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
         return LookupResult<un<Lookup::LookupImpl>>{un<
-            Lookup::LookupImpl>{new Lookup::LookupImpl{
+            Lookup::LookupImpl>{new (std::nothrow) Lookup::LookupImpl{
             MessagesById{
         //-V509,
 #ifdef WB_OS_WIN

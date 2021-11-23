@@ -72,7 +72,7 @@ namespace wb::ui {
 #endif
 
     if (rc.has_value()) {
-      const auto errc = rc.value();
+      const auto errc = *rc;
 #ifdef WB_OS_POSIX
       error_message += "\n\n";
       error_message += HumanizeMessageSentence(errc.message());

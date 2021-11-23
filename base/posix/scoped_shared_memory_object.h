@@ -164,10 +164,8 @@ class ScopedSharedMemoryObject {
            "null-terminated string of up to NAME_MAX (i.e., 255) "
            "characters consisting of an initial slash, followed by one "
            "or more characters, none of which are slashes.";
-    G3CHECK(!((open_flags & ScopedSharedMemoryObjectFlags::kReadonly) ==
-                  ScopedSharedMemoryObjectFlags::kReadonly &&
-              (open_flags & ScopedSharedMemoryObjectFlags::kTruncate) ==
-                  ScopedSharedMemoryObjectFlags::kTruncate))
+    G3CHECK((open_flags & ScopedSharedMemoryObjectFlags::kTruncate) !=
+            ScopedSharedMemoryObjectFlags::kTruncate)
         << "POSIX leaves the behavior of the combination of O_RDONLY and "
            "O_TRUNC unspecified.";
 

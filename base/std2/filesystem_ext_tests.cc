@@ -24,7 +24,7 @@ class ScopedChangeCurrentPath {
    * @param new_path New current path for scope.
    */
   explicit ScopedChangeCurrentPath(const std::filesystem::path &new_path)
-      : original_current_path_{std::filesystem::current_path(rc_)} {
+      : rc_{}, original_current_path_{std::filesystem::current_path(rc_)} {
     EXPECT_EQ(std::error_code{}, rc_);
     std::filesystem::current_path(new_path, rc_);
     EXPECT_EQ(std::error_code{}, rc_);
@@ -41,13 +41,13 @@ class ScopedChangeCurrentPath {
 
  private:
   /**
-   * @brief Original current path.
-   */
-  const std::filesystem::path original_current_path_;
-  /**
    * @brief Error code for current path change.
    */
   std::error_code rc_;
+  /**
+   * @brief Original current path.
+   */
+  const std::filesystem::path original_current_path_;
 };
 
 }  // namespace

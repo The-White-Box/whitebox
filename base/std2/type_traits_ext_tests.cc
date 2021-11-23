@@ -89,7 +89,7 @@ GTEST_TEST(TypeTraitsExtTests, IsChar) {
   static_assert(!is_char<short>::value);
   static_assert(!is_char<int>::value);
   static_assert(!is_char<unsigned>::value);
-  static_assert(!is_char<long>::value);
+  static_assert(!is_char<long>::value); //-V126
   static_assert(!is_char<const int>::value);
   static_assert(!is_char<const volatile int>::value);
 
@@ -138,7 +138,7 @@ GTEST_TEST(TypeTraitsExtTests, IsCharV) {
   static_assert(!is_char_v<short>);
   static_assert(!is_char_v<int>);
   static_assert(!is_char_v<unsigned>);
-  static_assert(!is_char_v<long>);
+  static_assert(!is_char_v<long>); //-V126
   static_assert(!is_char_v<const int>);
   static_assert(!is_char_v<const volatile int>);
 
