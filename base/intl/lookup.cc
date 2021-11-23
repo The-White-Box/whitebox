@@ -7,10 +7,10 @@
 #include "base/intl/lookup.h"
 
 #include <array>
-#include <cstddef>
 #include <unordered_map>
 
 #include "base/deps/g3log/g3log.h"
+#include "base/intl/l18n.h"
 
 namespace {
 
@@ -46,8 +46,8 @@ class Lookup::LookupImpl final {
       // TODO(dimhotepus): Load locales.
       if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
           locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
-        return LookupResult<un<Lookup::LookupImpl>>{un<
-            Lookup::LookupImpl>{new (std::nothrow) Lookup::LookupImpl{
+        return LookupResult<un<Lookup::LookupImpl>>{un<Lookup::LookupImpl>{new (
+            std::nothrow) Lookup::LookupImpl{
             MessagesById{
         //-V509,
 #ifdef WB_OS_WIN
@@ -144,11 +144,9 @@ class Lookup::LookupImpl final {
                 },
                 {
                     hash("SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                         "initialization "
-                         "failed.\n\n{3}."),
+                         "initialization failed.\n\n{3}."),
                     "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                    "initialization "
-                    "failed.\n\n{3}.",
+                    "initialization failed.\n\n{3}.",
                 },
                 {hash("SDL image parser initialization failed for image types "
                       "{0}.\n\n{1}."),
@@ -266,55 +264,5 @@ Lookup::Lookup(un<LookupImpl> impl) noexcept : impl_{std::move(impl)} {}
 Lookup::~Lookup() noexcept = default;
 
 Lookup::Lookup(Lookup&& l) noexcept : impl_{std::move(l.impl_)} {}
-
-LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
-    : lookup_{std::move(l.lookup_)},
-      fallback_string_{std::move(l.fallback_string_)} {}
-
-[[nodiscard]] LookupResult<LookupWithFallback> LookupWithFallback::New(
-    const std::set<std::string_view>& locale_ids,
-    std::string fallback_string) noexcept {
-  auto lookup_result = Lookup::New(locale_ids);
-  if (auto* lookup = std::get_if<Lookup>(&lookup_result)) WB_ATTRIBUTE_LIKELY {
-      return LookupResult<LookupWithFallback>{
-          LookupWithFallback(std::move(*lookup), std::move(fallback_string))};
-    }
-
-  const auto* status = std::get_if<Status>(&lookup_result);
-  G3DCHECK(!!status);
-  return LookupResult<LookupWithFallback>{*status};
-}
-
-[[nodiscard]] const std::string& LookupWithFallback::String(
-    uint64_t message_id) const noexcept {
-  auto result = lookup_.String(message_id);
-  if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-    WB_ATTRIBUTE_LIKELY { return *string; }
-
-  G3LOG(WARNING) << "Missed localization string for " << message_id
-                 << " message id.";
-  return fallback_string_;
-}
-
-[[nodiscard]] std::string LookupWithFallback::Format(
-    uint64_t message_id, fmt::format_args format_args) const noexcept {
-  auto result = lookup_.Format(message_id, format_args);
-  if (const auto* string = std::get_if<std::string>(&result))
-    WB_ATTRIBUTE_LIKELY { return fmt::vformat(*string, format_args); }
-
-  G3LOG(WARNING) << "Missed localization string for " << message_id
-                 << " message id.";
-  return fallback_string_;
-}
-
-[[nodiscard]] WB_ATTRIBUTE_CONST StringLayout
-LookupWithFallback::Layout() const noexcept {
-  return lookup_.Layout();
-}
-
-LookupWithFallback::LookupWithFallback(Lookup lookup,
-                                       std::string fallback_string) noexcept
-    : lookup_{std::move(lookup)},
-      fallback_string_{std::move(fallback_string)} {}
 
 }  // namespace wb::base::intl

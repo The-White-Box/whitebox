@@ -19,7 +19,7 @@
 #ifndef WB_BASE_INTL_LOOKUP_H_
 #define WB_BASE_INTL_LOOKUP_H_
 
-#include <cstdint>
+#include <cstdint>  // uint64_t
 #include <memory>
 #include <set>
 #include <string>
@@ -101,7 +101,7 @@ class WB_BASE_API Lookup {
    * @return Localized string.
    */
   [[nodiscard]] LookupResult<Ref<const std::string>> String(
-      uint64_t message_id) const noexcept;
+      std::uint64_t message_id) const noexcept;
 
   /**
    * @brief Gets localized formatted string by message id.
@@ -110,7 +110,7 @@ class WB_BASE_API Lookup {
    * @return Localized string.
    */
   [[nodiscard]] LookupResult<std::string> Format(
-      uint64_t message_id, fmt::format_args format_args) const noexcept;
+      std::uint64_t message_id, fmt::format_args format_args) const noexcept;
 
   /**
    * @brief Gets string layout.
@@ -135,147 +135,6 @@ class WB_BASE_API Lookup {
    */
   WB_CLANG_EXPLICIT Lookup(un<LookupImpl> impl) noexcept;
 };
-
-/**
- * @brief Fallback string.
- */
-constexpr char kFallbackString[]{"N/A"};
-
-/**
- * @brief The API used to look up localized messages by their unique message ID.
- */
-class WB_BASE_API LookupWithFallback {
- public:
-  LookupWithFallback() noexcept = delete;
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(LookupWithFallback);
-
-  LookupWithFallback(LookupWithFallback&&) noexcept;
-  LookupWithFallback& operator=(LookupWithFallback&&) noexcept = delete;
-
-  /**
-   * @brief Creates new lookup by locale ids.  If no string found
-   * |fallback_string| is used as fallback.
-   * @param locale_ids Set of locale ids, order by descending preference.
-   * @param fallback_string String to return if requested one not found.
-   * @return Lookup.
-   */
-  [[nodiscard]] static LookupResult<LookupWithFallback> New(
-      const std::set<std::string_view>& locale_ids,
-      std::string fallback_string = kFallbackString) noexcept;
-
-  /**
-   * @brief Gets localized string by message id.  Returns fallback string if one
-   * not found.
-   * @param message_id Message id.
-   * @return Localized string.
-   */
-  [[nodiscard]] const std::string& String(uint64_t message_id) const noexcept;
-
-  /**
-   * @brief Gets localized formatted string by message id.
-   * @param message_id Message id.
-   * @param format_args Message format args.
-   * @return Localized string.
-   */
-  [[nodiscard]] std::string Format(uint64_t message_id,
-                                   fmt::format_args format_args) const noexcept;
-
-  /**
-   * @brief Gets string layout.
-   * @return StringLayout.
-   */
-  [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Layout() const noexcept;
-
- private:
-  Lookup lookup_;
-  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-    // Private member is not accessible to the DLL's client, including inline
-    // functions.
-    WB_MSVC_DISABLE_WARNING(4251)
-    std::string fallback_string_;
-  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
-
-  /**
-   * @brief Creates lookup with fallback.
-   * @param lookup Lookup.
-   * @param fallback_string Fallback string.
-   * @return nothing.
-   */
-  LookupWithFallback(Lookup lookup, std::string fallback_string) noexcept;
-};
-
-/**
- * Small hasher for i18n purposes.
- */
-class I18nStringViewHash {
- public:
-  /**
-   * Creates string_view hash for i18n.
-   */
-  constexpr I18nStringViewHash() noexcept = default;
-
-  /**
-   * Computes string_view hash.
-   * @param s string_view
-   * @param index start position of |s| to compute hash from till |s.size()|.
-   * @return Hash.
-   */
-  [[nodiscard]] WB_ATTRIBUTE_CONST constexpr uint64_t operator()(
-      std::string_view s, size_t index = 0) const noexcept {
-    return index < s.size()
-               ? (static_cast<uint64_t>(primes[index % std::size(primes)]) *
-                  (index + 1) * static_cast<uint64_t>(s[index])) ^
-                     (this->operator()(s, index + 1))
-               : 0;
-  }
-
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(I18nStringViewHash);
-
- private:
-  /**
-   * @brief Primes to use in hash computation.
-   */
-  constexpr static unsigned short primes[]{
-      2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,
-      53,  59,  61,  67,  71,  73,  79,  83,  89,  97,  101, 103, 107, 109, 113,
-      127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197,
-      199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281,
-      283, 293, 307, 311, 313, 317, 331, 337, 347, 349, 353, 359, 367, 373, 379,
-      383, 389, 397, 401, 409, 419, 421, 431, 433, 439, 443, 449, 457, 461, 463,
-      467, 479, 487, 491, 499, 503, 509, 521, 523, 541, 547, 557, 563, 569, 571,
-      577, 587, 593, 599, 601, 607, 613, 617, 619, 631, 641, 643, 647, 653, 659,
-      661, 673, 677, 683, 691, 701, 709, 719};
-  static_assert(sizeof(primes) == 256U,
-                "Should use small primes set to fit CPU cache.");
-};
-
-/**
- * Localizes |string|.
- * @param lookup Localization lookup.
- * @param string String to localize.
- * @return Localized string.
- */
-[[nodiscard]] inline const std::string& l18n(
-    const LookupWithFallback& lookup, std::string_view&& string) noexcept {
-  const uint64_t hash{I18nStringViewHash{}(string)};
-  return lookup.String(hash);
-}
-
-/**
- * Localizes |string| with format args |args|.
- * @param lookup Localization lookup.
- * @param string String to localize.
- * @param args Format args.
- * @return Localized string.
- */
-template <typename... TArgs>
-[[nodiscard]] inline std::string l18n_fmt(const LookupWithFallback& lookup,
-                                          std::string_view&& string,
-                                          TArgs&&... args) noexcept {
-  const uint64_t hash{I18nStringViewHash{}(string)};
-  return lookup.Format(hash,
-                       fmt::make_format_args(std::forward<TArgs>(args)...));
-}
 
 }  // namespace wb::base::intl
 

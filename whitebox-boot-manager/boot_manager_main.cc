@@ -11,6 +11,7 @@
 #include "app_version_config.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
+#include "base/intl/l18n.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"

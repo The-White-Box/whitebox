@@ -29,6 +29,7 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/deps/sdl/message_box.h"
+#include "base/intl/l18n.h"
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "build/static_settings_config.h"

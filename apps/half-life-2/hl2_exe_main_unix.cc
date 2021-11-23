@@ -10,6 +10,7 @@
 #include "base/deps/abseil/strings/str_cat.h"
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
+#include "base/intl/l18n.h"
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"

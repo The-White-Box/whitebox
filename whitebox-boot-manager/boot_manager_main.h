@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "base/deps/g3log/g3log.h"
-#include "base/intl/lookup.h"
+#include "base/intl/lookup_with_fallback.h"
 #include "build/build_config.h"
 #include "whitebox-boot-manager/api.h"
 

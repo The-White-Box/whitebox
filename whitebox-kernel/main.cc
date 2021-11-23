@@ -8,6 +8,7 @@
 
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/intl/l18n.h"
 #include "whitebox-ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
