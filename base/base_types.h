@@ -53,19 +53,6 @@ static_assert(sizeof(f64) == 8,
               "f64 should be 8 bytes length. "
               "Please, define 8 bytes double for your platform.");
 
-// char.
-using ch = char;
-static_assert(sizeof(ch) == 1,
-              "char should be 1 byte length. "
-              "Please, define 1 byte char for your platform.");
-
-// char16_t.
-using ch16 = char16_t;
-// char32_t.
-using ch32 = char32_t;
-// wchar_t.
-using wch = wchar_t;
-
 }  // namespace wb
 
 #endif  // !WB_BASE_BASE_TYPES_H_

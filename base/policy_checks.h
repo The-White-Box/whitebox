@@ -6,12 +6,14 @@
 // and library versions.
 //
 // Derived from abseil base/policy_checks.h.
-// See https://github.com/abseil/abseil-cpp/blob/master/absl/base/policy_checks.h
+// See
+// https://github.com/abseil/abseil-cpp/blob/master/absl/base/policy_checks.h
 
 #ifndef WB_BASE_POLICY_CHECKS_H_
 #define WB_BASE_POLICY_CHECKS_H_
 
 #include <climits>  // CHAR_BIT, INT_MAX
+#include <limits>   // std::numeric_limits
 
 // Operating System Checks
 
@@ -72,5 +74,23 @@
 #if INT_MAX < 2147483647
 #error "WhiteBox assumes that int is at least 4 bytes."
 #endif
+
+// WhiteBox currently assumes 4 bytes float.
+static_assert(sizeof(float) == 4,  //-V112
+              "float should be 4 bytes length. "
+              "Please, define 4 bytes float for your platform.");
+
+// WhiteBox currently assumes 8 bytes double.
+static_assert(sizeof(double) == 8,
+              "double should be 8 bytes length. "
+              "Please, define 8 bytes double for your platform.");
+
+// WhiteBox expects IEEE 754 float.
+static_assert(std::numeric_limits<float>::is_iec559,
+              "float should be IEEE 754 / IEC 559");
+
+// WhiteBox expects IEEE 754 double.
+static_assert(std::numeric_limits<double>::is_iec559,
+              "float should be IEEE 754 / IEC 559");
 
 #endif  // !WB_BASE_POLICY_CHECKS_H_
