@@ -4,7 +4,7 @@
 //
 // Provides an API for looking up localized message strings.
 
-#include "lookup.h"
+#include "lookup_with_fallback.h"
 //
 #include "l18n.h"
 //
@@ -25,10 +25,10 @@ hash(std::string_view &&string) noexcept {
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(LookupTest, NewUnknownLocale) {
+GTEST_TEST(LookupWithFallbackTest, NewUnknownLocale) {
   using namespace wb::base::intl;
 
-  const auto result = Lookup::New({"unknown-locale"});
+  const auto result = LookupWithFallback::New({"unknown-locale"});
   const Status *status{std::get_if<Status>(&result)};
 
   ASSERT_NE(nullptr, status);
@@ -36,73 +36,60 @@ GTEST_TEST(LookupTest, NewUnknownLocale) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(LookupTest, NewEnUsUtf8Locale) {
+GTEST_TEST(LookupWithFallbackTest, NewEnUsUtf8Locale) {
   using namespace wb::base::intl;
 
-  const auto result = Lookup::New({"en_US.UTF-8"});
-  const Lookup *lookup{std::get_if<Lookup>(&result)};
+  const std::string kTestFallbackString{"Fallback"};
+
+  const auto result =
+      LookupWithFallback::New({"en_US.UTF-8"}, kTestFallbackString);
+  const LookupWithFallback *lookup{std::get_if<LookupWithFallback>(&result)};
 
   ASSERT_NE(nullptr, lookup);
   EXPECT_EQ(StringLayout::LeftToRight, lookup->Layout());
 
   {
-    auto localized =
+    const auto localized =
         lookup->String(hash("Unable to create main '{0}' window."));
-    const auto *string_ptr{
-        std::get_if<Lookup::Ref<const std::string>>(&localized)};
 
-    ASSERT_NE(nullptr, string_ptr);
-
-    const std::string &string{*string_ptr};
-    EXPECT_EQ(std::string{"Unable to create main '{0}' window."}, string);
+    EXPECT_EQ(std::string{"Unable to create main '{0}' window."}, localized);
   }
 
   {
-    auto non_localized = lookup->String(hash("Unknown string."));
-    const Status *status{std::get_if<Status>(&non_localized)};
+    const auto non_localized = lookup->String(hash("Unknown string."));
 
-    ASSERT_NE(nullptr, status);
-    EXPECT_EQ(Status::kUnavailable, *status);
+    EXPECT_EQ(kTestFallbackString, non_localized);
   }
 
   {
     auto formatted = lookup->Format(hash("Unable to create main '{0}' window."),
                                     fmt::make_format_args("WhiteBox"));
-    const auto *formatted_ptr{std::get_if<std::string>(&formatted)};
 
-    ASSERT_NE(nullptr, formatted_ptr);
     EXPECT_EQ(std::string{"Unable to create main 'WhiteBox' window."},
-              *formatted_ptr);
+              formatted);
   }
 
   {
     auto formatted_too_many_args =
         lookup->Format(hash("Unable to create main '{0}' window."),
-                       fmt::make_format_args("WhiteBox", "Additional arg"));
-    const auto *formatted_ptr{
-        std::get_if<std::string>(&formatted_too_many_args)};
+                       fmt::make_format_args("WhiteBox", "Addiitonal arg"));
 
-    ASSERT_NE(nullptr, formatted_ptr);
     EXPECT_EQ(std::string{"Unable to create main 'WhiteBox' window."},
-              *formatted_ptr);
+              formatted_too_many_args);
   }
 
   {
     auto non_formatted = lookup->Format(hash("Unknown string '{0}'."),
                                         fmt::make_format_args("WhiteBox"));
-    const Status *status{std::get_if<Status>(&non_formatted)};
 
-    ASSERT_NE(nullptr, status);
-    EXPECT_EQ(Status::kUnavailable, *status);
+    EXPECT_EQ(kTestFallbackString, non_formatted);
   }
 
   {
     auto non_formatted_too_many_args =
         lookup->Format(hash("Unknown string '{0}'."),
                        fmt::make_format_args("WhiteBox", "Additional arg"));
-    const Status *status{std::get_if<Status>(&non_formatted_too_many_args)};
 
-    ASSERT_NE(nullptr, status);
-    EXPECT_EQ(Status::kUnavailable, *status);
+    EXPECT_EQ(kTestFallbackString, non_formatted_too_many_args);
   }
 }
