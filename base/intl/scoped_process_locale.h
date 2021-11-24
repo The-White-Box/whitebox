@@ -150,14 +150,6 @@ class ScopedProcessLocale {
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedProcessLocale);
 
   /**
-   * Is new locale applied?
-   * @return true if it is, false otherwise.
-   */
-  [[nodiscard]] bool is_succeeded() const noexcept {
-    return !new_locale_.empty();
-  }
-
-  /**
    * Gets current locale.
    * @return optional with current locale, nullopt when no current locale found.
    */
