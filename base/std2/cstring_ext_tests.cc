@@ -11,7 +11,7 @@
 using namespace wb::base::std2;
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(CStringExtTests, BitwiseMemset) {
+GTEST_TEST(CStringExtTest, BitwiseMemset) {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values[] = {1, 2, 3};
 
@@ -27,7 +27,7 @@ GTEST_TEST(CStringExtTests, BitwiseMemset) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(CStringExtTests, BitwiseCompare) {
+GTEST_TEST(CStringExtTest, BitwiseCompare) {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values1[] = {1, 1, 3};
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -43,7 +43,7 @@ GTEST_TEST(CStringExtTests, BitwiseCompare) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(CStringExtTests, BitwiseCopy) {
+GTEST_TEST(CStringExtTest, BitwiseCopy) {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values1[] = {0, 0, 0};
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)

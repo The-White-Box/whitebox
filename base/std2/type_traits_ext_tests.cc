@@ -21,7 +21,7 @@ struct B {
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(TypeTraitsExtTests, IsFunctionPointer) {
+GTEST_TEST(TypeTraitsExtTest, IsFunctionPointer) {
   static_assert(!is_function_pointer<A>::value);
   static_assert(!is_function_pointer<decltype(&B::fun)>::value);
   static_assert(!is_function_pointer<void>::value);
@@ -51,7 +51,7 @@ GTEST_TEST(TypeTraitsExtTests, IsFunctionPointer) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(TypeTraitsExtTests, IsFunctionPointerV) {
+GTEST_TEST(TypeTraitsExtTest, IsFunctionPointerV) {
   static_assert(!is_function_pointer_v<A>);
   static_assert(!is_function_pointer_v<decltype(&B::fun)>);
   static_assert(!is_function_pointer_v<void>);
@@ -82,7 +82,7 @@ GTEST_TEST(TypeTraitsExtTests, IsFunctionPointerV) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(TypeTraitsExtTests, IsChar) {
+GTEST_TEST(TypeTraitsExtTest, IsChar) {
   static_assert(!is_char<A>::value);
   static_assert(!is_char<decltype(&B::fun)>::value);
   static_assert(!is_char<void>::value);
@@ -131,7 +131,7 @@ GTEST_TEST(TypeTraitsExtTests, IsChar) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(TypeTraitsExtTests, IsCharV) {
+GTEST_TEST(TypeTraitsExtTest, IsCharV) {
   static_assert(!is_char_v<A>);
   static_assert(!is_char_v<decltype(&B::fun)>);
   static_assert(!is_char_v<void>);

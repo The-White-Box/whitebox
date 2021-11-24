@@ -15,7 +15,7 @@
 using namespace wb::base;
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTests, native_last_errno) {
+GTEST_TEST(SystemErrorExtTest, native_last_errno) {
 #ifdef WB_OS_WIN
   ::SetLastError(ERROR_ACCESS_DENIED);
   EXPECT_EQ(ERROR_ACCESS_DENIED, std2::native_last_errno());
@@ -56,7 +56,7 @@ GTEST_TEST(SystemErrorExtTests, native_last_errno) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTests, posix_last_error_code) {
+GTEST_TEST(SystemErrorExtTest, posix_last_error_code) {
   errno = EPERM;
   EXPECT_EQ(std::error_code(EPERM, std::generic_category()),
             std2::posix_last_error_code());
@@ -70,7 +70,7 @@ GTEST_TEST(SystemErrorExtTests, posix_last_error_code) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTests, system_last_error_code) {
+GTEST_TEST(SystemErrorExtTest, system_last_error_code) {
 #ifdef WB_OS_WIN
   ::SetLastError(ERROR_ACCESS_DENIED);
   EXPECT_EQ(std::error_code(static_cast<int>(ERROR_ACCESS_DENIED),
@@ -96,7 +96,7 @@ GTEST_TEST(SystemErrorExtTests, system_last_error_code) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTests, get_error) {
+GTEST_TEST(SystemErrorExtTest, get_error) {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   std2::result<int> r1{12};
   EXPECT_EQ(nullptr, std2::get_error(r1));
@@ -108,7 +108,7 @@ GTEST_TEST(SystemErrorExtTests, get_error) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTests, get_result) {
+GTEST_TEST(SystemErrorExtTest, get_result) {
   const auto rc = std::error_code{EAGAIN, std::generic_category()};
   const std2::result<int> r1{rc};
   EXPECT_EQ(nullptr, std2::get_result(r1));

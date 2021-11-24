@@ -17,7 +17,7 @@
 using namespace wb::base::std2;
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTests, StartsWithHasEmptyString) {
+GTEST_TEST(StringViewExtTest, StartsWithHasEmptyString) {
   EXPECT_FALSE(starts_with("", '\0'));
   EXPECT_FALSE(starts_with("", ' '));
   EXPECT_FALSE(starts_with("", 'a'));
@@ -28,7 +28,7 @@ GTEST_TEST(StringViewExtTests, StartsWithHasEmptyString) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTests, StartsWithValue) {
+GTEST_TEST(StringViewExtTest, StartsWithValue) {
   EXPECT_FALSE(starts_with("a", '\0'));
   EXPECT_FALSE(starts_with("abc", 'b'));
   EXPECT_FALSE(starts_with("abc", 'c'));
@@ -41,7 +41,7 @@ GTEST_TEST(StringViewExtTests, StartsWithValue) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTests, EndsWithHasEmptyString) {
+GTEST_TEST(StringViewExtTest, EndsWithHasEmptyString) {
   EXPECT_FALSE(ends_with("", '\0'));
   EXPECT_FALSE(ends_with("", ' '));
   EXPECT_FALSE(ends_with("", 'a'));
@@ -52,7 +52,7 @@ GTEST_TEST(StringViewExtTests, EndsWithHasEmptyString) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTests, EndsWithHasValue) {
+GTEST_TEST(StringViewExtTest, EndsWithHasValue) {
   EXPECT_FALSE(ends_with("a", '\0'));
   EXPECT_FALSE(ends_with("abc", 'b'));
   EXPECT_FALSE(ends_with("abc", 'a'));
@@ -65,7 +65,7 @@ GTEST_TEST(StringViewExtTests, EndsWithHasValue) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTests, EndsWithStringHasEmptyString) {
+GTEST_TEST(StringViewExtTest, EndsWithStringHasEmptyString) {
   EXPECT_TRUE(ends_with("", ""));
   EXPECT_FALSE(ends_with("", " "));
   EXPECT_FALSE(ends_with("", "a"));
@@ -76,7 +76,7 @@ GTEST_TEST(StringViewExtTests, EndsWithStringHasEmptyString) {
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTests, EndsWithStringHasValue) {
+GTEST_TEST(StringViewExtTest, EndsWithStringHasValue) {
   EXPECT_TRUE(ends_with("a", ""));
   EXPECT_FALSE(ends_with("abc", "b"));
   EXPECT_FALSE(ends_with("abc", "ab"));

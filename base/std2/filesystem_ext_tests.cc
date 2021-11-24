@@ -53,7 +53,7 @@ class ScopedChangeCurrentPath {
 }  // namespace
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(FilesystemExtTests, get_executable_directory) {
+GTEST_TEST(FilesystemExtTest, get_executable_directory) {
   std::error_code rc;
   auto binary_path = std::filesystem::current_path(rc);
   EXPECT_EQ(std::error_code{}, rc)
