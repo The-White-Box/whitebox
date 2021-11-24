@@ -238,7 +238,8 @@ inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     return s << "Time";
   }
 
-  return s;
+  return s << "<Unknown locale category: "
+           << wb::base::underlying_cast(category) << ">";
 }
 
 #endif  // !WB_BASE_INTL_SCOPED_PROCESS_LOCALE_H_
