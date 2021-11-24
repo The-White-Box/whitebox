@@ -108,6 +108,12 @@ else()
   set(WB_OS_WIN OFF CACHE BOOL "Windows is NOT build system.")
 endif()
 
+if (WB_OS_MACOS OR WB_OS_LINUX)
+  set(WB_OS_POSIX ON CACHE BOOL "POSIX compatible os is build system.")
+else()
+  set(WB_OS_POSIX OFF CACHE BOOL "POSIX compatible os is NOT build system.")
+endif()
+
 set(WB_PRODUCT_NAME "WhiteBox Games Collection" CACHE STRING
   "Name of the WhiteBox product.")
 
