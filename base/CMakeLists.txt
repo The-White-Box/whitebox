@@ -55,7 +55,11 @@ wb_cxx_shared_library(
 )
 
 if (WB_BUILD_TESTS)
-  set(WB_BASE_TESTS_LINK_DEPS g3log mimalloc wb::whitebox-base)
+  set(WB_BASE_TESTS_LINK_DEPS
+    fmt
+    g3log
+    mimalloc
+    wb::whitebox-base)
 
   if (WB_OS_WIN)
     # _com_ptr_t support.
