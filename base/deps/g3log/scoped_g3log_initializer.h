@@ -205,7 +205,7 @@ class ScopedG3LogInitializer {
    */
   G3LogInitializer g3_initializer_;
 
-  [[maybe_unused]] std::byte pad_[7];
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[7];
 
   /**
    * @brief g3log cout / cerr redirector.  Depends on g3_initializer_.

@@ -191,7 +191,7 @@ class ScopedSharedMemoryObject {
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedSharedMemoryObject);
 
   ~ScopedSharedMemoryObject() noexcept {
-    G3DCHECK(!name_.empty() && descriptor_ >= 0 ||
+    G3DCHECK((!name_.empty() && descriptor_ >= 0) ||
              (name_.empty() && descriptor_ < 0));
 
     if (!name_.empty()) {
@@ -219,8 +219,9 @@ class ScopedSharedMemoryObject {
    */
   native_handle_type descriptor_;
 
-  [[maybe_unused]] std::array<std::byte, sizeof(char *) - sizeof(descriptor_)>
-      pad_;
+  WB_ATTRIBUTE_UNUSED_FIELD
+      std::array<std::byte, sizeof(char *) - sizeof(descriptor_)>
+          pad_;
 
   /**
    * Create shared memory object.

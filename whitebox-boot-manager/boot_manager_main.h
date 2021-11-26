@@ -39,7 +39,7 @@ struct CommandLineFlags {
    */
   bool insecure_allow_unsigned_module_target;
 
-  [[maybe_unused]] std::byte
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte
       pad_[sizeof(char *) - sizeof(insecure_allow_unsigned_module_target)];
 };
 
@@ -117,7 +117,7 @@ struct BootmgrArgs {
    */
   int small_icon_id;
 #else
-  [[maybe_unused]] std::byte pad_[sizeof(char *) - sizeof(argc)];
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[sizeof(char *) - sizeof(argc)];
 #endif
 
   /**
