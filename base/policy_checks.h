@@ -79,18 +79,16 @@
 static_assert(sizeof(float) == 4,  //-V112
               "float should be 4 bytes length. "
               "Please, define 4 bytes float for your platform.");
+// WhiteBox expects IEEE 754 float.
+static_assert(std::numeric_limits<float>::is_iec559,
+              "float should be IEEE 754 / IEC 559");
 
 // WhiteBox currently assumes 8 bytes double.
 static_assert(sizeof(double) == 8,
               "double should be 8 bytes length. "
               "Please, define 8 bytes double for your platform.");
-
-// WhiteBox expects IEEE 754 float.
-static_assert(std::numeric_limits<float>::is_iec559,
-              "float should be IEEE 754 / IEC 559");
-
 // WhiteBox expects IEEE 754 double.
 static_assert(std::numeric_limits<double>::is_iec559,
-              "float should be IEEE 754 / IEC 559");
+              "double should be IEEE 754 / IEC 559");
 
 #endif  // !WB_BASE_POLICY_CHECKS_H_
