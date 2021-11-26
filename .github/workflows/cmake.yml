@@ -126,4 +126,4 @@ jobs:
 
       - name: Test
         working-directory: ${{ github.workspace }}/out
-        run: ctest -C ${{ matrix.build }}
+        run: ctest -C ${{ matrix.build }} --output-on-failure
