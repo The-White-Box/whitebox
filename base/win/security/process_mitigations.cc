@@ -207,6 +207,7 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
 , old_uss_policy_to_new_errc_ {}
 #endif
 {
+  // NOLINTNEXTLINE(misc-misplaced-const)
   const HANDLE current_process{::GetCurrentProcess()};
 
   if (!GetProcessMitigationPolicy(current_process,

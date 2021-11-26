@@ -57,6 +57,7 @@ class ScopedMmcssThreadController::ScopedMmcssThreadControllerImpl final {
   /**
    * @brief Task handle.
    */
+  // NOLINTNEXTLINE(misc-misplaced-const)
   const HANDLE task_handle_;
 
   /**
