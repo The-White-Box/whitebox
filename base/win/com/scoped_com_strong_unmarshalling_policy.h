@@ -66,14 +66,6 @@ class ScopedComStrongUnmarshallingPolicy {
     }
   }
 
-  /**
-   * @brief COM unmarshalling policy set result.
-   * @return Error code.
-   */
-  [[nodiscard]] std::error_code error_code() const noexcept {
-    return error_code_;
-  }
-
  private:
   /**
    * @brief COM global options.
@@ -114,6 +106,14 @@ class ScopedComStrongUnmarshallingPolicy {
     }
 
     G3DCHECK(!error_code());
+  }
+
+  /**
+   * @brief COM unmarshalling policy set result.
+   * @return Error code.
+   */
+  [[nodiscard]] std::error_code error_code() const noexcept {
+    return error_code_;
   }
 };
 

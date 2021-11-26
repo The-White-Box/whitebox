@@ -64,14 +64,6 @@ class ScopedComFatalExceptionHandler {
     }
   }
 
-  /**
-   * @brief Error code.
-   * @return Error code.
-   */
-  [[nodiscard]] std::error_code error_code() const noexcept {
-    return error_code_;
-  }
-
  private:
   /**
    * @brief Global COM options.
@@ -111,6 +103,14 @@ class ScopedComFatalExceptionHandler {
     }
 
     G3DCHECK(!error_code());
+  }
+
+  /**
+   * @brief Error code.
+   * @return Error code.
+   */
+  [[nodiscard]] std::error_code error_code() const noexcept {
+    return error_code_;
   }
 };
 
