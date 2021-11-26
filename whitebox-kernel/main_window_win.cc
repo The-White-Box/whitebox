@@ -13,6 +13,7 @@
 
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
+#include "base/intl/l18n.h"
 #include "build/static_settings_config.h"
 #include "hal/drivers/hid/raw_input_win.h"
 #include "whitebox-ui/fatal_dialog.h"

@@ -15,6 +15,7 @@
 #endif
 
 #ifdef WB_OS_WIN
+#include "base/intl/l18n.h"
 #include "whitebox-ui/win/task_dialog.h"
 #endif
 

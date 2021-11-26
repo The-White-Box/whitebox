@@ -12,7 +12,7 @@
 #include <system_error>
 
 #include "base/base_macroses.h"
-#include "base/intl/lookup.h"
+#include "base/intl/lookup_with_fallback.h"
 #include "whitebox-ui/api.h"
 
 namespace wb::ui {

@@ -2,10 +2,10 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Initializes COM in scope.
+// Initializes COM for thread in scope.
 
-#ifndef WB_BASE_WIN_COM_SCOPED_COM_INITIALIZER_H_
-#define WB_BASE_WIN_COM_SCOPED_COM_INITIALIZER_H_
+#ifndef WB_BASE_WIN_COM_SCOPED_THREAD_COM_INITIALIZER_H_
+#define WB_BASE_WIN_COM_SCOPED_THREAD_COM_INITIALIZER_H_
 
 #include <sal.h>
 
@@ -28,9 +28,9 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT void CoUninitialize(void);
 namespace wb::base::win::com {
 
 /**
- * @brief COM initilizer flags.
+ * @brief COM initializer flags.
  */
-enum class ScopedComInitializerFlags : unsigned long {
+enum class ScopedThreadComInitializerFlags : unsigned long {
   /**
    * @brief Initializes the thread for apartment-threaded object concurrency.
    */
@@ -55,32 +55,33 @@ enum class ScopedComInitializerFlags : unsigned long {
  * @param right Right.
  * @return Left | Right.
  */
-[[nodiscard]] constexpr ScopedComInitializerFlags operator|(
-    ScopedComInitializerFlags left, ScopedComInitializerFlags right) noexcept {
-  return static_cast<ScopedComInitializerFlags>(underlying_cast(left) |
-                                                underlying_cast(right));
+[[nodiscard]] constexpr ScopedThreadComInitializerFlags operator|(
+    ScopedThreadComInitializerFlags left,
+    ScopedThreadComInitializerFlags right) noexcept {
+  return static_cast<ScopedThreadComInitializerFlags>(underlying_cast(left) |
+                                                      underlying_cast(right));
 }
 
 /**
- * @brief Initializes Component Object Model at scope level.
+ * @brief Initializes Component Object Model for thread at scope level.
  */
-class ScopedComInitializer {
+class ScopedThreadComInitializer {
  public:
   /**
    * @brief Initializes COM with |coinit| flags for scope.
    * @param flags Flags.
-   * @return ScopedComInitializer
+   * @return ScopedThreadComInitializer
    */
-  static std2::result<ScopedComInitializer> New(
-      const ScopedComInitializerFlags flags) noexcept {
-    auto init = ScopedComInitializer{flags};
-
+  static std2::result<ScopedThreadComInitializer> New(
+      const ScopedThreadComInitializerFlags flags) noexcept {
+    auto init = ScopedThreadComInitializer{flags};
     return !init.error_code()
-               ? std2::result<ScopedComInitializer>{std::move(init)}
-               : std2::result<ScopedComInitializer>{init.error_code()};
+               ? std2::result<ScopedThreadComInitializer>{std::move(init)}
+               : std2::result<ScopedThreadComInitializer>{init.error_code()};
   }
 
-  ScopedComInitializer(ScopedComInitializer&& i) noexcept : error_code_ {
+  ScopedThreadComInitializer(ScopedThreadComInitializer&& i) noexcept
+      : error_code_ {
     std::move(i.error_code_)
   }
 #ifndef NDEBUG
@@ -91,14 +92,14 @@ class ScopedComInitializer {
     i.error_code_ = std::error_code{EINVAL, std::generic_category()};
   }
 
-  ScopedComInitializer& operator=(ScopedComInitializer&&) = delete;
+  ScopedThreadComInitializer& operator=(ScopedThreadComInitializer&&) = delete;
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedComInitializer);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedThreadComInitializer);
 
   /*
    * @brief Shut down COM.
    */
-  ~ScopedComInitializer() noexcept {
+  ~ScopedThreadComInitializer() noexcept {
 #ifndef NDEBUG
     const std::thread::id this_thread_id{std::this_thread::get_id()};
     // COM should be freed on the same thread as it was initialized.
@@ -129,7 +130,8 @@ class ScopedComInitializer {
    * @param flags Flags.
    * @return nothing.
    */
-  explicit ScopedComInitializer(const ScopedComInitializerFlags flags) noexcept
+  explicit ScopedThreadComInitializer(
+      const ScopedThreadComInitializerFlags flags) noexcept
       : error_code_ {
     get_error(::CoInitializeEx(nullptr, underlying_cast(flags)))
   }
@@ -149,4 +151,4 @@ class ScopedComInitializer {
 
 }  // namespace wb::base::win::com
 
-#endif  // !WB_BASE_WIN_COM_SCOPED_COM_INITIALIZER_H_
+#endif  // !WB_BASE_WIN_COM_SCOPED_THREAD_COM_INITIALIZER_H_

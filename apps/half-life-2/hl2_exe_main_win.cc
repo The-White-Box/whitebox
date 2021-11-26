@@ -18,8 +18,8 @@
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "base/win/com/scoped_com_fatal_exception_handler.h"
-#include "base/win/com/scoped_com_initializer.h"
 #include "base/win/com/scoped_com_strong_unmarshalling_policy.h"
+#include "base/win/com/scoped_thread_com_initializer.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_thread_error_mode.h"
 #include "base/win/windows_light.h"
@@ -285,10 +285,10 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
 
   // Initialize COM.  Required as ui::ShowDialogBox may call ShellExecute which
   // can delegate execution to shell extensions that are activated using COM.
-  const auto scoped_com_initializer = com::ScopedComInitializer::New(
-      com::ScopedComInitializerFlags::kApartmentThreaded |
-      com::ScopedComInitializerFlags::kDisableOle1Dde |
-      com::ScopedComInitializerFlags::kSpeedOverMemory);
+  const auto scoped_com_initializer = com::ScopedThreadComInitializer::New(
+      com::ScopedThreadComInitializerFlags::kApartmentThreaded |
+      com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
+      com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
   G3PLOGE_IF(WARNING, std2::get_error(scoped_com_initializer))
       << "Component Object Model initialization failed, continue without COM.";
 
