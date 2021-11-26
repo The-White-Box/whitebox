@@ -729,6 +729,12 @@
 #define WB_GCC_DISABLE_UNDEF_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wundef\"")
 
+/*
+ * @brief Disables GCC / Clang useless-cast.
+ */
+#define WB_GCC_DISABLE_USELESS_CAST_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wuseless-cast\"")
+
 #if defined(WB_COMPILER_GCC)
 
 /**
@@ -858,6 +864,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_UNDEF_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_USELESS_CAST_WARNING()
 
 /*
  * @brief Do nothing.
