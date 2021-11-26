@@ -351,10 +351,9 @@ endif()
 # application CMake projects should ensure a consistent C++ standard for all
 # compiled sources by setting CMAKE_CXX_STANDARD.
 set(ABSL_PROPAGATE_CXX_STD  ON)
-set(WB_ABSL_BUILD_TESTS     OFF "Directory of the WhiteBox binaries output.")
+set(WB_ABSL_BUILD_TESTS     OFF "Enable Abseil tests.")
 # Abseil depends on gtest.
-set(BUILD_TESTING ${WB_ABSL_BUILD_TESTS})
-if (BUILD_TESTING)
+if (WB_ABSL_BUILD_TESTS)
   # Abseil will use gtest / gmock targets from source tree.
   set(ABSL_USE_EXTERNAL_GOOGLETEST  ON)
   set(ABSL_FIND_GOOGLETEST          OFF)
