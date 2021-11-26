@@ -53,7 +53,7 @@ GTEST_TEST(LookupTest, NewEnUsUtf8Locale) {
 
     ASSERT_NE(nullptr, string_ptr);
 
-    const std::string &string{*string_ptr};
+    const std::string &string{static_cast<const std::string &>(*string_ptr)};
     EXPECT_EQ(std::string{"Unable to create main '{0}' window."}, string);
   }
 

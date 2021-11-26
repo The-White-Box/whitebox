@@ -7,6 +7,11 @@
 #include "l18n.h"
 //
 #include "base/deps/fmt/format.h"
+
+#ifdef WB_OS_WIN
+#include "base/win/windows_light.h"
+#endif
+
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
