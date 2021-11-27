@@ -30,17 +30,17 @@
 
 extern "C" {
 // Starting with the Release 302 drivers, application developers can direct the
-// Optimus driver at runtime to use the High Performance Graphics to render any
-// application–even those applications for which there is no existing
+// Nvidia Optimus driver at runtime to use the High Performance Graphics to
+// render any application–even those applications for which there is no existing
 // application profile.
 //
 // See
 // https://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
 WB_ATTRIBUTE_DLL_EXPORT DWORD NvOptimusEnablement = 0x00000001;
 
-// This will select the high performance GPU as long as no profile exists that
-// assigns the application to another GPU.  Please make sure to use a 13.35 or
-// newer driver.  Older drivers do not support this.
+// This will select the high performance AMD GPU as long as no profile exists
+// that assigns the application to another GPU.  Please make sure to use a 13.35
+// or newer driver.  Older drivers do not support this.
 //
 // See
 // https://community.amd.com/t5/firepro-development/can-an-opengl-app-default-to-the-discrete-gpu-on-an-enduro/td-p/279440
@@ -283,10 +283,11 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
 
   // Initialize COM.  Required as ui::ShowDialogBox may call ShellExecute which
   // can delegate execution to shell extensions that are activated using COM.
-  const auto scoped_thread_com_initializer = com::ScopedThreadComInitializer::New(
-      com::ScopedThreadComInitializerFlags::kApartmentThreaded |
-      com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
-      com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
+  const auto scoped_thread_com_initializer =
+      com::ScopedThreadComInitializer::New(
+          com::ScopedThreadComInitializerFlags::kApartmentThreaded |
+          com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
+          com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
   G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_com_initializer))
       << "Component Object Model initialization failed, continue without COM.";
 
