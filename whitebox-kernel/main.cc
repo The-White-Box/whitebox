@@ -46,12 +46,18 @@ namespace {
 
   // NOLINTNEXTLINE(performance-no-int-to-ptr): System header define.
   const auto cursor = LoadCursor(nullptr, IDC_ARROW);
-  return wb::ui::win::WindowDefinition{
-      kernel_args.instance, window_title, kernel_args.main_icon_id,
-      kernel_args.small_icon_id, cursor,
-      // TODO(dimhotepus): Remove when use Vulkan renderer?
-      reinterpret_cast<HBRUSH>(GetStockObject(NULL_BRUSH)), WS_OVERLAPPEDWINDOW,
-      0, CW_USEDEFAULT, CW_USEDEFAULT, width, height};
+  return wb::ui::win::WindowDefinition{kernel_args.instance,
+                                       window_title,
+                                       kernel_args.main_icon_id,
+                                       kernel_args.small_icon_id,
+                                       cursor,
+                                       nullptr,
+                                       WS_OVERLAPPEDWINDOW,
+                                       0,
+                                       CW_USEDEFAULT,
+                                       CW_USEDEFAULT,
+                                       width,
+                                       height};
 }
 
 /**

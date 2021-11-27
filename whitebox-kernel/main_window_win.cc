@@ -229,7 +229,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
         {
           RECT paint_rc{scoped_window_paint->PaintInfo().rcPaint};
 
-          scoped_window_paint->BlitPattern(paint_rc, BLACKNESS);
+          scoped_window_paint->BlitPattern(paint_rc, WHITENESS);
           scoped_window_paint->TextDraw(
               input_data.c_str(), -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);

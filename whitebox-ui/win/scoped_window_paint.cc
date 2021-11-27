@@ -77,7 +77,7 @@ class ScopedWindowPaint::ScopedWindowPaintImpl final {
                    unsigned long raster_operation) const noexcept {
     G3DCHECK(!!device_context_);
 
-    const bool is_succeeded{::PatBlt(device_context_, rc.left, rc.bottom,
+    const bool is_succeeded{::PatBlt(device_context_, rc.left, rc.top,
                                      rc.right - rc.left, rc.bottom - rc.top,
                                      raster_operation) != FALSE};
     G3DCHECK(is_succeeded);

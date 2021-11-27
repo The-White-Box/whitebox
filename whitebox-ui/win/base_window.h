@@ -68,9 +68,9 @@ class WB_WHITEBOX_UI_API BaseWindow {
     std::error_code rc{
         RegisterWindowClass<TDerivedWindow>(definition, class_style, window)};
     if (!rc) {
+      const std::string class_name{TDerivedWindow::ClassName(definition.name)};
       rc = get_error(::CreateWindowExA(
-          definition.ex_style,
-          TDerivedWindow::ClassName(definition.name).c_str(), definition.name,
+          definition.ex_style, class_name.c_str(), definition.name,
           definition.style, definition.x_pos, definition.y_pos,
           definition.width, definition.height, definition.parent_window,
           definition.menu, definition.instance, window.get()));
@@ -159,7 +159,8 @@ class WB_WHITEBOX_UI_API BaseWindow {
       G3CHECK(!!window);
 
       {
-        wb::base::win::error_handling::ScopedThreadLastError restore_last_error_on_out;
+        wb::base::win::error_handling::ScopedThreadLastError
+            restore_last_error_on_out;
 
         // To determine success or failure, clear the last error information by
         // calling SetLastError with 0, then call SetWindowLongPtr.  Function
