@@ -15,6 +15,7 @@
 #endif
 
 #include "base/deps/googletest/gtest/gtest.h"
+#include "base/tests/g3log_death_utils_tests.h"
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
@@ -81,28 +82,15 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
                 << "MiB.\n";
     }
 
-    // Memory is freed automatically as dead test is running in distinct
-    // process.
-    // Makes test run faster.
+    // Memory is freed automatically as dead test is running in a distinct
+    // process.  Makes test finish faster.
   };
 
-#ifdef NDEBUG
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
-  constexpr int kExitCodeForSigAbrt{3};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr char kMessage[]{
-      "Failed to allocate memory bytes via new.  Please, ensure you "
-      "have enough RAM to run the app.  Stopping the app."};
-#else
-  // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
-  constexpr int kExitCodeForSigAbrt{static_cast<int>(STATUS_ACCESS_VIOLATION)};
-  // In debug mode message is not printed.
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr char kMessage[]{""};
-#endif
+  const auto test_result =
+      wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
+          "Failed to allocate memory bytes via new.  Please, ensure you "
+          "have enough RAM to run the app.  Stopping the app.");
 
-  EXPECT_EXIT(triggerOom(), testing::ExitedWithCode(kExitCodeForSigAbrt),
-              kMessage);
+  EXPECT_EXIT(triggerOom(), test_result.exit_predicate, test_result.message);
 }
 #endif

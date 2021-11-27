@@ -7,6 +7,7 @@
 #include "scoped_process_terminate_handler.h"
 //
 #include "base/deps/googletest/gtest/gtest.h"
+#include "base/tests/g3log_death_utils_tests.h"
 
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
@@ -38,40 +39,10 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
   const ScopedProcessTerminateHandler scoped_process_terminate_handler{
       DefaultProcessTerminateHandler};
 
+  const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(
+      "Terminate called.  Stopping the app.");
   const auto triggerTerminate = []() { std::terminate(); };
 
-#ifdef WB_OS_WIN
-#ifdef NDEBUG
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
-  constexpr int kExitCodeForSigAbrt{3};
-  constexpr char kMessage[]{"Terminate called.  Stopping the app."};
-#else
-  // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
-  constexpr int kExitCodeForSigAbrt{static_cast<int>(STATUS_ACCESS_VIOLATION)};
-  // In debug mode message is not printed.
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr char kMessage[]{""};
-#endif
-#else
-#ifdef NDEBUG
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
-  constexpr int kExitCodeForSigAbrt{3};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr char kMessage[]{"Terminate called.  Stopping the app."};
-#else
-  constexpr int kExitCodeForSigAbrt{SIGTRAP};
-  // In debug mode message is not printed.
-  const std::string kMessage;
-#endif
-#endif
-
-#ifdef WB_OS_WIN
-  EXPECT_EXIT(triggerTerminate(), testing::ExitedWithCode(kExitCodeForSigAbrt),
-              kMessage);
-#else
-  EXPECT_EXIT(triggerTerminate(), testing::KilledBySignal(kExitCodeForSigAbrt),
-              kMessage);
-#endif
+  EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
+              test_result.message);
 }

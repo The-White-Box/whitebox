@@ -13,6 +13,7 @@
 #endif
 
 #include "base/deps/googletest/gtest/gtest.h"
+#include "base/tests/g3log_death_utils_tests.h"
 
 using namespace wb::base::std2;
 
@@ -96,23 +97,22 @@ GTEST_TEST(StringViewExtTest, EndsWithStringHasValue) {
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
-#ifdef WB_OS_WIN
-  EXPECT_EXIT((void)!!ends_with("", nullptr),
-              testing::ExitedWithCode(STATUS_ACCESS_VIOLATION), "");
-  EXPECT_EXIT((void)!!ends_with("a", nullptr),
-              testing::ExitedWithCode(STATUS_ACCESS_VIOLATION), "");
-#else
-  [[maybe_unused]] volatile bool ensure_result_used{false};
 
-  EXPECT_EXIT(ensure_result_used = ends_with("", nullptr),
-              testing::KilledBySignal(SIGTRAP), "");
-  EXPECT_EXIT(ensure_result_used = ends_with("a", nullptr),
-              testing::KilledBySignal(SIGTRAP), "");
-#endif
+  const auto test_result =
+      wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult("");
+
+  EXPECT_EXIT((void)!!ends_with("", nullptr), test_result.exit_predicate,
+              test_result.message);
+  EXPECT_EXIT((void)!!ends_with("a", nullptr), test_result.exit_predicate,
+              test_result.message);
+  EXPECT_EXIT((void)!!ends_with("abc", nullptr), test_result.exit_predicate,
+              test_result.message);
 }
 #else
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithStringWhenNullptr) {
+  EXPECT_FALSE(ends_with(std::string{""}, nullptr));
+  EXPECT_FALSE(ends_with(std::string{"a"}, nullptr));
   EXPECT_FALSE(ends_with(std::string{"abc"}, nullptr));
 }
 #endif

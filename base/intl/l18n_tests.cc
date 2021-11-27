@@ -7,6 +7,7 @@
 #include "l18n.h"
 //
 #include "base/deps/fmt/format.h"
+#include "base/tests/g3log_death_utils_tests.h"
 
 #ifdef WB_OS_WIN
 #include "base/win/windows_light.h"
@@ -76,48 +77,21 @@ GTEST_TEST(L18nTest, l18nFmtLookups) {
 GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   using namespace wb::base;
   using namespace wb::base::intl;
-  
+
   GTEST_FLAG_SET(death_test_style, "threadsafe");
-  
+
   const auto result = LookupWithFallback::New({"en_US.UTF-8"});
   const LookupWithFallback *lookup{std::get_if<LookupWithFallback>(&result)};
 
   ASSERT_NE(nullptr, lookup);
 
-  const auto triggerTerminate = [&]() { (void)l18n_fmt(*lookup, "Can't load boot manager '{0}'."); };
+  const auto triggerTerminate = [&]() {
+    (void)l18n_fmt(*lookup, "Can't load boot manager '{0}'.");
+  };
 
-#ifdef WB_OS_WIN
-#ifdef NDEBUG
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
-  constexpr int kExitCodeForSigAbrt{3};
-  constexpr char kMessage[]{"argument not found"};
-#else
-  // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
-  constexpr int kExitCodeForSigAbrt{static_cast<int>(STATUS_ACCESS_VIOLATION)};
-  // In debug mode message is not printed.
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr char kMessage[]{""};
-#endif
-#else
-#ifdef NDEBUG
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
-  constexpr int kExitCodeForSigAbrt{3};
-  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-  constexpr char kMessage[]{"argument not found"};
-#else
-  constexpr int kExitCodeForSigAbrt{SIGTRAP};
-  // In debug mode message is not printed.
-  const std::string kMessage;
-#endif
-#endif
+  const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(
+      "argument not found");
 
-#ifdef WB_OS_WIN
-  EXPECT_EXIT(triggerTerminate(), testing::ExitedWithCode(kExitCodeForSigAbrt),
-              kMessage);
-#else
-  EXPECT_EXIT(triggerTerminate(), testing::KilledBySignal(kExitCodeForSigAbrt),
-              kMessage);
-#endif
+  EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
+              test_result.message);
 }
