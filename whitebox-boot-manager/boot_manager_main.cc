@@ -30,7 +30,7 @@
 #include "base/win/memory/scoped_new_handler.h"
 #include "base/win/memory/scoped_new_mode.h"
 #include "base/win/mmcss/scoped_mmcss_thread_controller.h"
-#include "base/win/scoped_minimum_timer_resolution.h"
+#include "base/win/scoped_timer_resolution.h"
 #include "base/win/security/process_mitigations.h"
 #include "base/win/windows_version.h"
 #include "build/static_settings_config.h"
@@ -356,14 +356,14 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
 #ifdef WB_OS_WIN
   // Set minimum timers resolution to good enough, but not too power hungry.
   const auto scoped_minimum_timer_resolution =
-      win::ScopedMinimumTimerResolution::New(std::chrono::milliseconds{
-          wb::build::settings::kMinimumTimerResolutionMs});
+      win::ScopedTimerResolution::New(std::chrono::milliseconds{
+          bootmgr_args.command_line_flags.periodic_timer_resolution_ms});
   G3LOG_IF(WARNING, !!std::get_if<unsigned>(&scoped_minimum_timer_resolution))
       << "Failed to set minimum periodic timers resolution to "
-      << wb::build::settings::kMinimumTimerResolutionMs
-      << "ms, will run with default system one: ("
+      << bootmgr_args.command_line_flags.periodic_timer_resolution_ms
+      << "ms, will run with default system one.  Error code: "
       << std::get<unsigned>(scoped_minimum_timer_resolution)
-      << "ms).  See "
+      << ".  See "
          "https://docs.microsoft.com/en-us/windows/win32/api/timeapi/"
          "nf-timeapi-timebeginperiod";
 

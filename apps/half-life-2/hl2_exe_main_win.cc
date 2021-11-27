@@ -7,7 +7,6 @@
 #include <system_error>
 
 #include "apps/args_win.h"
-#include "base/base_switches.h"
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/flags/usage.h"
@@ -22,9 +21,9 @@
 #include "base/win/com/scoped_thread_com_initializer.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_thread_error_mode.h"
-#include "base/win/windows_light.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
+#include "hl2_exe_flags.h"
 #include "resource_win.h"
 #include "whitebox-boot-manager/boot_manager_main.h"
 #include "whitebox-ui/fatal_dialog.h"
@@ -47,11 +46,6 @@ WB_ATTRIBUTE_DLL_EXPORT DWORD NvOptimusEnablement = 0x00000001;
 // https://community.amd.com/t5/firepro-development/can-an-opengl-app-default-to-the-discrete-gpu-on-an-enduro/td-p/279440
 WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
 }
-
-ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
-          "Insecure.  Allow to load NOT SIGNED module targets.  There is no "
-          "guarantee unsigned module doing nothing harmful.  Use at your own "
-          "risk, ex. for debugging or mods.");
 
 namespace {
 
@@ -139,6 +133,9 @@ int BootmgrStartup(
   G3DCHECK(!!app_path);
 
   const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
+  const wb::apps::half_life_2::PeriodicTimerResolution
+      periodic_timer_resolution{
+          absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
   const bool insecure_allow_unsigned_module_target{
       absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
   const unsigned boot_manager_flags{LOAD_WITH_ALTERED_SEARCH_PATH |
@@ -169,6 +166,7 @@ int BootmgrStartup(
                WB_HALF_LIFE_2_IDI_SMALL_ICON,
                {
                    .positional_flags = std::move(positional_flags),
+                   .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
                    .insecure_allow_unsigned_module_target =
                        insecure_allow_unsigned_module_target,
                },

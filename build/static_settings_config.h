@@ -25,12 +25,6 @@ constexpr char kPathToMainLogFile[]{"/tmp/"};
 #error "Please define path to main log file for your platform."
 #endif
 
-/**
- * @brief Minimum timers resolution in milliseconds.  Good enough, but not too
- * power hungry.
- */
-constexpr unsigned kMinimumTimerResolutionMs{8U};
-
 namespace ui {
 namespace window {
 namespace dimensions {

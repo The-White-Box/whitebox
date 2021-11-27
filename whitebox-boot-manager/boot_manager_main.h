@@ -33,14 +33,33 @@ struct CommandLineFlags {
    */
   std::vector<char *> positional_flags;
 
+#ifdef WB_OS_WIN
   /**
-   * @brief Allow to load unsigned module targets.  Makes app less secure, use
-   * at your own risk.
+   * @brief Changes minimal resolution (ms) of the Windows periodic timer.
+   * Setting a higher resolution can improve the accuracy of time-out intervals
+   * in wait functions.  However, it can also reduce overall system performance,
+   * because the thread scheduler switches tasks more often.  High resolutions
+   * can also prevent the CPU power management system from entering power-saving
+   * modes.  Setting a higher resolution does not improve the accuracy of the
+   * high-resolution performance counter.
+   */
+  uint32_t periodic_timer_resolution_ms;
+#endif
+
+  /**
+   * @brief Insecure.  Allow to load NOT SIGNED module targets.  There is no
+   * guarantee unsigned module doing nothing harmful.  Use at your own risk, ex.
+   * for debugging or mods.
    */
   bool insecure_allow_unsigned_module_target;
 
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(char *) - sizeof(insecure_allow_unsigned_module_target)] = {};
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[
+#ifdef WB_OS_WIN
+      sizeof(periodic_timer_resolution_ms) -
+#else
+      sizeof(char *) -
+#endif
+      sizeof(insecure_allow_unsigned_module_target)] = {};
 };
 
 /**

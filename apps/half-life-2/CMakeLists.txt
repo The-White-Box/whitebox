@@ -22,8 +22,8 @@ set(WB_HALF_LIFE2_LINK_DEPS
   wb::whitebox-base
   wb::whitebox-ui)
 if (WB_OS_WIN)
-  # _com_ptr_t support.
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS "comsuppw")
+  # _com_ptr_t support / winmm.
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS "comsuppw;Winmm")
 elseif (WB_OS_LINUX)
   # dlopen, filesystem.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs")

@@ -1,0 +1,72 @@
+// Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
+// Use of this source code is governed by a 3-Clause BSD license that can be
+// found in the LICENSE file.
+//
+// Half-Life 2 executable command line flags.
+
+#ifndef WB_APPS_HALF_LIFE_2_HL2_EXE_FLAGS_H_
+#define WB_APPS_HALF_LIFE_2_HL2_EXE_FLAGS_H_
+
+#include <cstdint>      // uint32_t
+#include <string>       // string
+#include <string_view>  // string_view
+
+#include "base/deps/abseil/flags/declare.h"  // ABSL_DECLARE_FLAG
+#include "build/build_config.h"              // WB_OS_WIN
+
+namespace wb::apps::half_life_2 {
+
+#ifdef WB_OS_WIN
+/**
+ * @brief Periodic timer resolution.
+ */
+struct PeriodicTimerResolution {
+  explicit PeriodicTimerResolution(uint32_t ms_) noexcept : ms{ms_} {}
+
+  /**
+   * @brief Resolution in milliseconds.
+   */
+  uint32_t ms;  // Valid range is [1..XXXXXX]
+};
+
+/**
+ * @brief Returns a textual flag value corresponding to the
+ * PeriodicTimerResolution.
+ * @param p PeriodicTimerResolution
+ * @return Textual flag value.
+ */
+std::string AbslUnparseFlag(PeriodicTimerResolution p);
+
+/**
+ * @brief Parses a PeriodicTimerResolution from the command line flag value
+ * `text`.
+ * @param text Command line flag value.
+ * @param p PeriodicTimerResolution.
+ * @param error Parse flag error.
+ * @return true and sets `*p` on success; returns false and sets `*error` on
+ * failure.
+ */
+bool AbslParseFlag(std::string_view text, PeriodicTimerResolution* p,
+                   std::string* error);
+#endif  // WB_OS_WIN
+
+}  // namespace wb::apps::half_life_2
+
+#ifdef WB_OS_WIN
+// Insecure.  Allow to load NOT SIGNED module targets.  There is no guarantee
+// unsigned module doing nothing harmful.  Use at your own risk, ex. for
+// debugging or mods.
+ABSL_DECLARE_FLAG(bool, insecure_allow_unsigned_module_target);
+
+// Changes minimal resolution (ms) of the Windows periodic timer.  Setting a
+// higher resolution can improve the accuracy of time-out intervals in wait
+// functions.  However, it can also reduce overall system performance, because
+// the thread scheduler switches tasks more often.  High resolutions can also
+// prevent the CPU power management system from entering power-saving modes.
+// Setting a higher resolution does not improve the accuracy of the
+// high-resolution performance counter.
+ABSL_DECLARE_FLAG(wb::apps::half_life_2::PeriodicTimerResolution,
+                  periodic_timer_resolution_ms);
+#endif  // WB_OS_WIN
+
+#endif  // !WB_APPS_HALF_LIFE_2_HL2_EXE_FLAGS_H_
