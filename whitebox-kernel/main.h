@@ -13,6 +13,7 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/lookup_with_fallback.h"
 #include "build/build_config.h"
+#include "whitebox-boot-manager/command_line_flags.h"
 
 #ifdef WB_OS_WIN
 /**
@@ -30,26 +31,26 @@ struct KernelArgs {
 #ifdef WB_OS_WIN
   KernelArgs(const char *app_description_, HINSTANCE instance_,
              int show_window_flags_, int main_icon_id_, int small_icon_id_,
+             const wb::boot_manager::CommandLineFlags &command_line_flags_,
              const base::intl::LookupWithFallback &intl_) noexcept
       : app_description{app_description_},
         instance{instance_},
         show_window_flags{show_window_flags_},
         main_icon_id{main_icon_id_},
         small_icon_id{small_icon_id_},
+        command_line_flags{command_line_flags_},
         intl{intl_} {
     G3DCHECK(!!app_description_);
     G3DCHECK(!!instance_);
   }
 #else
-  KernelArgs(const char *app_description_, char **argv_, const int argc_,
+  KernelArgs(const char *app_description_,
+             const wb::boot_manager::CommandLineFlags &command_line_flags_,
              const base::intl::LookupWithFallback &intl_) noexcept
       : app_description{app_description_},
-        argv{argv_},
-        argc{argc_},
+        command_line_flags{command_line_flags_},
         intl{intl_} {
     G3DCHECK(!!app_description_);
-    G3DCHECK(!!argc_);
-    G3DCHECK(!!argv_);
   }
 #endif
 
@@ -75,18 +76,12 @@ struct KernelArgs {
    * @brief Small app icon id.
    */
   int small_icon_id;
-#else
-  /**
-   * App arguments.
-   */
-  char **argv;
-  /**
-   * App arguments count.
-   */
-  const int argc;
 #endif
 
-  std::byte pad[4];
+  /**
+   * @brief Command line flags.
+   */
+  const boot_manager::CommandLineFlags &command_line_flags;
 
   /**
    * @brief Localization service.

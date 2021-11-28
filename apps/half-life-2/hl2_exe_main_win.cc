@@ -25,7 +25,7 @@
 #include "build/static_settings_config.h"
 #include "hl2_exe_flags.h"
 #include "resource_win.h"
-#include "whitebox-boot-manager/boot_manager_main.h"
+#include "whitebox-boot-manager/main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
 extern "C" {
@@ -158,8 +158,6 @@ int BootmgrStartup(
         WB_ATTRIBUTE_LIKELY {
           return (*boot_manager_main)(
               {instance,
-               args.values(),
-               args.count(),
                WB_PRODUCT_FILE_DESCRIPTION_STRING,
                show_window_flags,
                WB_HALF_LIFE_2_IDI_MAIN_ICON,

@@ -15,7 +15,7 @@
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "build/static_settings_config.h"
-#include "whitebox-boot-manager/boot_manager_main.h"
+#include "whitebox-boot-manager/main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
 namespace {
@@ -108,8 +108,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
               .positional_flags = std::move(positional_flags),
               .insecure_allow_unsigned_module_target = false,
           };
-          return (*boot_manager_main)({WB_PRODUCT_FILE_DESCRIPTION_STRING, argv,
-                                       argc, command_line_flags, intl});
+          return (*boot_manager_main)(
+              {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, intl});
         }
 
       wb::ui::FatalDialog(

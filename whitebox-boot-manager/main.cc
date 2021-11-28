@@ -4,7 +4,7 @@
 //
 // Boot manager main entry point.
 
-#include "boot_manager_main.h"
+#include "main.h"
 
 #include <filesystem>
 
@@ -208,7 +208,7 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
                bootmgr_args.small_icon_id, bootmgr_args.intl});
 #else
           return (*kernel_main)({bootmgr_args.app_description,
-                                 bootmgr_args.argv, bootmgr_args.argc,
+                                 bootmgr_args.command_line_flags,
                                  bootmgr_args.intl});
 #endif
         }

@@ -33,7 +33,7 @@
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "build/static_settings_config.h"
-#include "whitebox-boot-manager/boot_manager_main.h"
+#include "whitebox-boot-manager/main.h"
 
 namespace {
 
@@ -150,12 +150,12 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   const auto boot_manager_main =
       std::get<BootManagerMainFunction>(bootmgr_entry_result);
-
-  rv = boot_manager_main(argc, argv,
-                         {
-                             .positional_flags = std::move(positional_flags),
-                             .insecure_allow_unsigned_module_target = false,
-                         });
+  const wb::boot_manager::CommandLineFlags command_line_flags{
+      .positional_flags = std::move(positional_flags),
+      .insecure_allow_unsigned_module_target = false,
+  };
+  rv = boot_manager_main(WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags,
+                         intl);
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.
