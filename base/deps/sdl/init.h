@@ -21,7 +21,7 @@ namespace wb::sdl {
 /**
  * @brief SDL initializer flags.  See SDL_INIT_* fro details.
  */
-enum class SdlInitializerFlags : Uint32 {
+enum class SDLInitializerFlags : Uint32 {
   kNone = 0U,
   kTimer = SDL_INIT_TIMER,
   kAudio = SDL_INIT_AUDIO,
@@ -36,47 +36,47 @@ enum class SdlInitializerFlags : Uint32 {
 };
 
 /**
- * @brief operator | for SdlInitializerFlags.
- * @param left SdlInitializerFlags.
- * @param right SdlInitializerFlags.
+ * @brief operator | for SDLInitializerFlags.
+ * @param left SDLInitializerFlags.
+ * @param right SDLInitializerFlags.
  * @return left | right.
  */
-[[nodiscard]] constexpr SdlInitializerFlags operator|(
-    SdlInitializerFlags left, SdlInitializerFlags right) noexcept {
-  return static_cast<SdlInitializerFlags>(base::underlying_cast(left) |
+[[nodiscard]] constexpr SDLInitializerFlags operator|(
+    SDLInitializerFlags left, SDLInitializerFlags right) noexcept {
+  return static_cast<SDLInitializerFlags>(base::underlying_cast(left) |
                                           base::underlying_cast(right));
 }
 
 /**
  * SDL initializer.
  */
-class SdlInitializer {
+class SDLInitializer {
  public:
   /**
    * Creates SDL initializer.
-   * @param flags SdlInitializerFlags.
+   * @param flags SDLInitializerFlags.
    * @return SDL initializer.
    */
-  static SdlResult<SdlInitializer> New(SdlInitializerFlags flags) noexcept {
-    SdlInitializer initializer{flags};
+  static result<SDLInitializer> New(SDLInitializerFlags flags) noexcept {
+    SDLInitializer initializer{flags};
     return initializer.error_code().is_succeeded()
-               ? SdlResult<SdlInitializer>{std::move(initializer)}
-               : SdlResult<SdlInitializer>{initializer.error_code()};
+               ? result<SDLInitializer>{std::move(initializer)}
+               : result<SDLInitializer>{initializer.error_code()};
   }
   /**
    * Move constructor.
    * @param s Type to move frpm.
    */
-  SdlInitializer(SdlInitializer &&s) noexcept
+  SDLInitializer(SDLInitializer &&s) noexcept
       : init_rc_{s.init_rc_}, flags_{s.flags_} {
-    s.init_rc_ = SdlError::Failure();
-    s.flags_ = SdlInitializerFlags::kNone;
+    s.init_rc_ = error::Failure();
+    s.flags_ = SDLInitializerFlags::kNone;
   }
-  SdlInitializer &operator=(SdlInitializer &&) noexcept = delete;
+  SDLInitializer &operator=(SDLInitializer &&) noexcept = delete;
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlInitializer);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SDLInitializer);
 
-  ~SdlInitializer() noexcept {
+  ~SDLInitializer() noexcept {
     if (init_rc_.is_succeeded()) {
       ::SDL_Quit();
     }
@@ -86,21 +86,21 @@ class SdlInitializer {
   /**
    * SDL init return code.
    */
-  SdlError init_rc_;
+  error init_rc_;
   /**
    * SDL initializer flags.
    */
-  SdlInitializerFlags flags_;
+  SDLInitializerFlags flags_;
 
   WB_ATTRIBUTE_UNUSED_FIELD
   std::array<std::byte, sizeof(char *) - sizeof(flags_)> pad_;
 
   /**
    * @brief Creates SDL initializer.
-   * @param flags SdlInitializerFlags.
+   * @param flags SDLInitializerFlags.
    */
-  explicit SdlInitializer(SdlInitializerFlags flags) noexcept
-      : init_rc_{SdlError::FromReturnCode(
+  explicit SDLInitializer(SDLInitializerFlags flags) noexcept
+      : init_rc_{error::FromReturnCode(
             ::SDL_Init(wb::base::underlying_cast(flags)))},
         flags_{flags} {}
 
@@ -108,7 +108,7 @@ class SdlInitializer {
    * Init result.
    * @return SDL error.
    */
-  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
+  [[nodiscard]] error error_code() const noexcept { return init_rc_; }
 };
 
 }  // namespace wb::sdl

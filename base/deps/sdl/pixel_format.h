@@ -23,13 +23,13 @@ namespace wb::sdl {
 /**
  * SDL pixel format.
  */
-enum class SdlPixelFormatFlag : Uint32 {};
+enum class PixelFormatFlag : Uint32 {};
 
 /**
  * SDL pixel format.
  */
-class SdlPixelFormat {
-  friend class SdlSurface;
+class PixelFormat {
+  friend class Surface;
 
  public:
   /**
@@ -37,22 +37,22 @@ class SdlPixelFormat {
    * @param value SDL pixel format value.
    * @return SDL pixel format.
    */
-  [[nodiscard]] static SdlResult<SdlPixelFormat> New(
-      SdlPixelFormatFlag value) noexcept {
-    SdlPixelFormat format{value};
+  [[nodiscard]] static result<PixelFormat> New(PixelFormatFlag value) noexcept {
+    PixelFormat format{value};
     return format.error_code().is_succeeded()
-               ? SdlResult<SdlPixelFormat>{std::move(format)}
-               : SdlResult<SdlPixelFormat>{format.error_code()};
+               ? result<PixelFormat>{std::move(format)}
+               : result<PixelFormat>{format.error_code()};
   }
-  
-  SdlPixelFormat(SdlPixelFormat &&f) noexcept : format_{f.format_}, init_rc_{f.init_rc_} {
+
+  PixelFormat(PixelFormat &&f) noexcept
+      : format_{f.format_}, init_rc_{f.init_rc_} {
     f.format_ = nullptr;
   }
-  SdlPixelFormat& operator=(SdlPixelFormat &&f) noexcept = delete;
+  PixelFormat &operator=(PixelFormat &&f) noexcept = delete;
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlPixelFormat);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(PixelFormat);
 
-  ~SdlPixelFormat() noexcept {
+  ~PixelFormat() noexcept {
     if (format_) {
       ::SDL_FreeFormat(format_);
       format_ = nullptr;
@@ -67,21 +67,21 @@ class SdlPixelFormat {
   /**
    * SDL init result.
    */
-  SdlError init_rc_;
+  error init_rc_;
 
   /**
    * Creates SDL pixel format.
    * @param value Pixel format value.
    */
-  explicit SdlPixelFormat(SdlPixelFormatFlag value) noexcept
+  explicit PixelFormat(PixelFormatFlag value) noexcept
       : format_{::SDL_AllocFormat(base::underlying_cast(value))},
-        init_rc_{format_ ? SdlError::Success() : SdlError::Failure()} {}
+        init_rc_{format_ ? error::Success() : error::Failure()} {}
 
   /**
    * @brief Init result.
    * @return SDL error.
    */
-  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
+  [[nodiscard]] error error_code() const noexcept { return init_rc_; }
 };
 
 }  // namespace wb::sdl

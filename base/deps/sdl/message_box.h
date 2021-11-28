@@ -45,9 +45,9 @@ enum class MessageBoxFlags : Uint32 {
  * @param message Message.
  * @return SDL error.
  */
-inline SdlError ShowSimpleMessageBox(MessageBoxFlags flags, const char* title,
-                                     const char* message) noexcept {
-  return SdlError::FromReturnCode(::SDL_ShowSimpleMessageBox(
+inline error ShowSimpleMessageBox(MessageBoxFlags flags, const char* title,
+                                  const char* message) noexcept {
+  return error::FromReturnCode(::SDL_ShowSimpleMessageBox(
       base::underlying_cast(flags), title, message, nullptr));
 }
 

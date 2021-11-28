@@ -21,14 +21,14 @@ namespace wb::sdl {
 /**
  * @brief SDL error.
  */
-struct SdlError {
+struct error {
   /**
    * Creates SDL error from SDL return code.
    * @param rc SDL API return code.
    * @return SDL error.
    */
-  [[nodiscard]] static SdlError FromReturnCode(int rc) noexcept {
-    return SdlError{.message = rc == 0 ? nullptr : ::SDL_GetError()};
+  [[nodiscard]] static error FromReturnCode(int rc) noexcept {
+    return error{.message = rc == 0 ? nullptr : ::SDL_GetError()};
   }
 
   /**
@@ -36,24 +36,24 @@ struct SdlError {
    * @param rc SDL API bool return code.
    * @return SDL error.
    */
-  [[nodiscard]] static SdlError FromReturnBool(SDL_bool rc) noexcept {
-    return SdlError{.message = rc == SDL_TRUE ? nullptr : ::SDL_GetError()};
+  [[nodiscard]] static error FromReturnBool(SDL_bool rc) noexcept {
+    return error{.message = rc == SDL_TRUE ? nullptr : ::SDL_GetError()};
   }
 
   /**
    * @brief Creates successful SDL result.
    * @return SDL error.
    */
-  static SdlError Success() noexcept { return SdlError{}; }
+  static error Success() noexcept { return error{}; }
 
   /**
    * @brief Creates failed SDL result from last SDL error.  If no last error,
    * synthetic one is returned.
    * @return SDL error.
    */
-  static SdlError Failure(const char* message = ::SDL_GetError()) noexcept {
-    return SdlError{
-        .message = message && message[0] ? message : "N/A <missed SDL error>"};
+  static error Failure(const char* message = ::SDL_GetError()) noexcept {
+    return error{.message = message && message[0] ? message
+                                                  : "N/A <missed SDL error>"};
   }
 
   /**
@@ -79,13 +79,13 @@ struct SdlError {
 };
 
 /**
- * @brief Allows to use operator << for streaming SdlError.
+ * @brief Allows to use operator << for streaming error.
  * @param s Stream.
- * @param error SdlError.
+ * @param error error.
  * @return Stream.
  */
 inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
-                        const SdlError& error) {
+                        const error& error) {
   return s << (error.is_failed() ? error.message : "");
 }
 
@@ -93,7 +93,7 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
  * @brief SDL result.
  */
 template <typename TResult>
-using SdlResult = std::variant<TResult, SdlError>;
+using result = std::variant<TResult, error>;
 
 /**
  * @brief Get error code from SDL result.
@@ -102,9 +102,9 @@ using SdlResult = std::variant<TResult, SdlError>;
  * @return error code pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr const SdlError* get_error(
-    const SdlResult<TResult>& rc) noexcept {
-  return std::get_if<SdlError>(&rc);
+[[nodiscard]] constexpr const error* get_error(
+    const result<TResult>& rc) noexcept {
+  return std::get_if<error>(&rc);
 }
 
 /**
@@ -114,7 +114,7 @@ template <typename TResult>
  * @return SDL result success pointer or nullptr.
  */
 template <typename TResult>
-[[nodiscard]] constexpr TResult* get_result(SdlResult<TResult>& rc) noexcept {
+[[nodiscard]] constexpr TResult* get_result(result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
 
@@ -126,7 +126,7 @@ template <typename TResult>
  */
 template <typename TResult>
 [[nodiscard]] constexpr const TResult* get_result(
-    const SdlResult<TResult>& rc) noexcept {
+    const result<TResult>& rc) noexcept {
   return std::get_if<TResult>(&rc);
 }
 
@@ -134,9 +134,9 @@ template <typename TResult>
 
 FMT_BEGIN_NAMESPACE
 template <>
-struct formatter<wb::sdl::SdlError> : formatter<std::string> {
+struct formatter<wb::sdl::error> : formatter<std::string> {
   template <typename FormatContext>
-  auto format(const wb::sdl::SdlError& error, FormatContext& ctx) {
+  auto format(const wb::sdl::error& error, FormatContext& ctx) {
     std::stringstream s{std::ios_base::out};
     s << error;
     return fmt::formatter<std::string>::format(s.str(), ctx);

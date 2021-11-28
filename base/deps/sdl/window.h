@@ -20,7 +20,7 @@ namespace wb::sdl {
 /**
  * @brief SDL window flags.
  */
-enum class SdlWindowFlags : Uint32 {
+enum class WindowFlags : Uint32 {
   kNone = 0U,
 
   kFullscreen = SDL_WINDOW_FULLSCREEN, /**< fullscreen window */
@@ -70,33 +70,33 @@ enum class SdlWindowFlags : Uint32 {
 };
 
 /**
- * @brief operator | for SdlWindowFlags.
- * @param left SdlWindowFlags.
- * @param right SdlWindowFlags.
+ * @brief operator | for WindowFlags.
+ * @param left WindowFlags.
+ * @param right WindowFlags.
  * @return left | right.
  */
-[[nodiscard]] constexpr SdlWindowFlags operator|(
-    SdlWindowFlags left, SdlWindowFlags right) noexcept {
-  return static_cast<SdlWindowFlags>(base::underlying_cast(left) |
-                                     base::underlying_cast(right));
+[[nodiscard]] constexpr WindowFlags operator|(WindowFlags left,
+                                              WindowFlags right) noexcept {
+  return static_cast<WindowFlags>(base::underlying_cast(left) |
+                                  base::underlying_cast(right));
 }
 
 /**
- * @brief operator & for SdlWindowFlags.
- * @param left SdlWindowFlags.
- * @param right SdlWindowFlags.
+ * @brief operator & for WindowFlags.
+ * @param left WindowFlags.
+ * @param right WindowFlags.
  * @return left & right.
  */
-[[nodiscard]] constexpr SdlWindowFlags operator&(
-    SdlWindowFlags left, SdlWindowFlags right) noexcept {
-  return static_cast<SdlWindowFlags>(base::underlying_cast(left) &
-                                     base::underlying_cast(right));
+[[nodiscard]] constexpr WindowFlags operator&(WindowFlags left,
+                                              WindowFlags right) noexcept {
+  return static_cast<WindowFlags>(base::underlying_cast(left) &
+                                  base::underlying_cast(right));
 }
 
 /**
  * SDL window.
  */
-class SdlWindow {
+class Window {
  public:
   /**
    * @brief Creates SDL window.
@@ -105,49 +105,49 @@ class SdlWindow {
    * @param y Y position.
    * @param width Width.
    * @param height Height.
-   * @param flags SdlWindowFlags.
+   * @param flags WindowFlags.
    * @return SDL window.
    */
-  static SdlResult<SdlWindow> New(const char *title, int x, int y, int width,
-                                  int height, SdlWindowFlags flags) noexcept {
-    SdlWindow window{::SDL_CreateWindow(title, x, y, width, height,
-                                        base::underlying_cast(flags)),
-                     flags};
+  static result<Window> New(const char *title, int x, int y, int width,
+                            int height, WindowFlags flags) noexcept {
+    Window window{::SDL_CreateWindow(title, x, y, width, height,
+                                     base::underlying_cast(flags)),
+                  flags};
     G3DCHECK(!!window.window_)
-        << "SDL_CreateWindow failed with error: " << SdlError::Failure();
-    return window.window_ ? SdlResult<SdlWindow>{std::move(window)}
-                          : SdlResult<SdlWindow>{SdlError::Failure()};
+        << "SDL_CreateWindow failed with error: " << error::Failure();
+    return window.window_ ? result<Window>{std::move(window)}
+                          : result<Window>{error::Failure()};
   }
-  SdlWindow(SdlWindow &&w) noexcept : window_{w.window_}, flags_{w.flags_} {
+  Window(Window &&w) noexcept : window_{w.window_}, flags_{w.flags_} {
     w.window_ = nullptr;
   }
-  SdlWindow &operator=(SdlWindow &&w) noexcept {
+  Window &operator=(Window &&w) noexcept {
     std::swap(window_, w.window_);
     std::swap(flags_, w.flags_);
     return *this;
   }
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlWindow);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(Window);
 
-  ~SdlWindow() noexcept {
+  ~Window() noexcept {
     if (window_) {
       ::SDL_DestroyWindow(window_);
       window_ = nullptr;
     }
   }
 
-  [[nodiscard]] SdlError GetPlatformInfo(
+  [[nodiscard]] error GetPlatformInfo(
       ::SDL_SysWMinfo &platform_info) const noexcept {
     G3DCHECK(!!window_);
 
     base::std2::BitwiseMemset(platform_info, 0);
     platform_info.version = GetLinkTimeVersion();
 
-    return SdlError::FromReturnBool(
+    return error::FromReturnBool(
         ::SDL_GetWindowWMInfo(window_, &platform_info));
   }
 
-  void SetIcon(const SdlSurface &icon) const noexcept {
+  void SetIcon(const Surface &icon) const noexcept {
     G3DCHECK(!!window_);
 
     ::SDL_SetWindowIcon(window_, icon.surface_);
@@ -167,7 +167,7 @@ class SdlWindow {
   /**
    * @brief SDL window flags.
    */
-  SdlWindowFlags flags_;
+  WindowFlags flags_;
 
   WB_ATTRIBUTE_UNUSED_FIELD
   std::array<std::byte, sizeof(char *) - sizeof(flags_)> pad_;
@@ -175,9 +175,9 @@ class SdlWindow {
   /**
    * Creates SDL window.
    * @param window SDL window.
-   * @param flags SdlWindowFlags.
+   * @param flags WindowFlags.
    */
-  SdlWindow(SDL_Window *window, SdlWindowFlags flags) noexcept
+  Window(SDL_Window *window, WindowFlags flags) noexcept
       : window_{window}, flags_{flags} {}
 };
 

@@ -20,7 +20,7 @@ WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 /**
  * @brief Allows to use operator << for streaming SDL_SYSWM_TYPE.
  * @param s Stream.
- * @param error SdlError.
+ * @param error error.
  * @return Stream.
  */
 inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,

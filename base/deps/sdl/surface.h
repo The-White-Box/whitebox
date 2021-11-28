@@ -23,7 +23,7 @@ namespace wb::sdl {
 /**
  * SDL surface mask.
  */
-struct SdlSurfaceMask {
+struct SurfaceMask {
   /**
    * Red channel mask.
    */
@@ -45,9 +45,9 @@ struct SdlSurfaceMask {
 /**
  * SDL surface.
  */
-class SdlSurface {
-  friend class ScopedSdlSurfaceLock;
-  friend class SdlWindow;
+class Surface {
+  friend class ScopedSurfaceLock;
+  friend class Window;
 
  public:
   /**
@@ -58,12 +58,12 @@ class SdlSurface {
    * @param mask RGB mask.
    * @return SDL surface.
    */
-  [[nodiscard]] static SdlResult<SdlSurface> FromRgb(
-      int width, int height, int depth, const SdlSurfaceMask &mask) noexcept {
-    SdlSurface surface{width, height, depth, mask};
+  [[nodiscard]] static result<Surface> FromRgb(
+      int width, int height, int depth, const SurfaceMask &mask) noexcept {
+    Surface surface{width, height, depth, mask};
     return surface.error_code().is_succeeded()
-               ? SdlResult<SdlSurface>{std::move(surface)}
-               : SdlResult<SdlSurface>{surface.error_code()};
+               ? result<Surface>{std::move(surface)}
+               : result<Surface>{surface.error_code()};
   }
 
   /**
@@ -72,12 +72,12 @@ class SdlSurface {
    * @param image_path Image file path.
    * @return SDL surface.
    */
-  [[nodiscard]] static SdlResult<SdlSurface> FromImage(
+  [[nodiscard]] static result<Surface> FromImage(
       const char *image_path) noexcept {
-    SdlSurface surface{image_path};
+    Surface surface{image_path};
     return surface.error_code().is_succeeded()
-               ? SdlResult<SdlSurface>{std::move(surface)}
-               : SdlResult<SdlSurface>{surface.error_code()};
+               ? result<Surface>{std::move(surface)}
+               : result<Surface>{surface.error_code()};
   }
 
   /**
@@ -86,30 +86,29 @@ class SdlSurface {
    * @param format Pixel format.
    * @return SDL surface.
    */
-  [[nodiscard]] static SdlResult<SdlSurface> FromSurface(
-      SdlSurface &source, const SdlPixelFormat &format) noexcept {
-    SdlSurface surface{source, format};
+  [[nodiscard]] static result<Surface> FromSurface(
+      Surface &source, const PixelFormat &format) noexcept {
+    Surface surface{source, format};
     return surface.error_code().is_succeeded()
-               ? SdlResult<SdlSurface>{std::move(surface)}
-               : SdlResult<SdlSurface>{surface.error_code()};
+               ? result<Surface>{std::move(surface)}
+               : result<Surface>{surface.error_code()};
   }
 
-  SdlSurface(SdlSurface &&s) noexcept
-      : surface_{s.surface_}, init_rc_{s.init_rc_} {
+  Surface(Surface &&s) noexcept : surface_{s.surface_}, init_rc_{s.init_rc_} {
     s.surface_ = nullptr;
-    s.init_rc_ = SdlError::Failure();
+    s.init_rc_ = error::Failure();
   }
 
-  SdlSurface &operator=(SdlSurface &&) = delete;
+  Surface &operator=(Surface &&) = delete;
 
-  ~SdlSurface() noexcept {
+  ~Surface() noexcept {
     if (surface_) {
       ::SDL_FreeSurface(surface_);
       surface_ = nullptr;
     }
   }
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlSurface);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(Surface);
 
  private:
   /**
@@ -119,7 +118,7 @@ class SdlSurface {
   /**
    * SDL surface init result.
    */
-  SdlError init_rc_;
+  error init_rc_;
 
   /**
    * Creates surface from RGB data.
@@ -129,11 +128,10 @@ class SdlSurface {
    * @param mask RGB mask.
    * @return nothing.
    */
-  SdlSurface(int width, int height, int depth,
-             const SdlSurfaceMask &mask) noexcept
+  Surface(int width, int height, int depth, const SurfaceMask &mask) noexcept
       : surface_{::SDL_CreateRGBSurface(0U, width, height, depth, mask.red,
                                         mask.green, mask.blue, mask.alpha)},
-        init_rc_{surface_ ? SdlError::Success() : SdlError::Failure()} {
+        init_rc_{surface_ ? error::Success() : error::Failure()} {
     G3DCHECK(!!surface_) << "SDL_CreateRGBSurface(" << width << ", " << height
                          << ", " << depth
                          << ") failed with error: " << error_code();
@@ -145,9 +143,9 @@ class SdlSurface {
    * @param image_path Image file path.
    * @return nothing.
    */
-  explicit SdlSurface(const char *image_path) noexcept
+  explicit Surface(const char *image_path) noexcept
       : surface_{::IMG_Load(image_path)},
-        init_rc_{surface_ ? SdlError::Success() : SdlError::Failure()} {
+        init_rc_{surface_ ? error::Success() : error::Failure()} {
     G3DCHECK(!!surface_) << "IMG_Load(" << image_path
                          << ") failed with error: " << error_code();
   }
@@ -158,9 +156,9 @@ class SdlSurface {
    * @param format Pixel format.
    * @return nothing.
    */
-  SdlSurface(SdlSurface &source, const SdlPixelFormat &format) noexcept
+  Surface(Surface &source, const PixelFormat &format) noexcept
       : surface_{::SDL_ConvertSurface(source.surface_, format.format_, 0U)},
-        init_rc_{surface_ ? SdlError::Success() : SdlError::Failure()} {
+        init_rc_{surface_ ? error::Success() : error::Failure()} {
     G3DCHECK(!!surface_) << "SDL_ConvertSurface(" << format.format_
                          << ") failed with error: " << error_code();
   }
@@ -169,29 +167,29 @@ class SdlSurface {
    * @brief Init result.
    * @return SDL error.
    */
-  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
+  [[nodiscard]] error error_code() const noexcept { return init_rc_; }
 };
 
 /**
  * Locks surface in scope.
  */
-class ScopedSdlSurfaceLock {
+class ScopedSurfaceLock {
  public:
   /**
    * Creates scoped surface lock.
    * @param surface Surface to lock.
    */
-  explicit ScopedSdlSurfaceLock(SdlSurface &surface) noexcept
+  explicit ScopedSurfaceLock(Surface &surface) noexcept
       : surface_{surface.surface_} {
     G3DCHECK(!!surface_);
 
     if (SDL_MUSTLOCK(surface_)) {
       const int rc{::SDL_LockSurface(surface_)};
       G3CHECK(rc == 0) << "SDL surface lock failed w/e "
-                       << SdlError::FromReturnCode(rc);
+                       << error::FromReturnCode(rc);
     }
   }
-  ~ScopedSdlSurfaceLock() noexcept {
+  ~ScopedSurfaceLock() noexcept {
     G3DCHECK(!!surface_);
 
     if (SDL_MUSTLOCK(surface_)) {
@@ -200,7 +198,7 @@ class ScopedSdlSurfaceLock {
     surface_ = nullptr;
   }
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedSdlSurfaceLock);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedSurfaceLock);
 
  private:
   /**

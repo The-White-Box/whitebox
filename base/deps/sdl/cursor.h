@@ -18,7 +18,7 @@ namespace wb::sdl {
 /**
  * @brief SDL system cursor.
  */
-enum class SdlSystemCursor : std::underlying_type_t<SDL_SystemCursor> {
+enum class SystemCursor : std::underlying_type_t<SDL_SystemCursor> {
   kArrow = SDL_SYSTEM_CURSOR_ARROW,         /**< Arrow */
   kIBeam = SDL_SYSTEM_CURSOR_IBEAM,         /**< I-beam */
   kWait = SDL_SYSTEM_CURSOR_WAIT,           /**< Wait */
@@ -43,52 +43,52 @@ enum class SdlSystemCursor : std::underlying_type_t<SDL_SystemCursor> {
 /**
  * @brief SDL cursor.
  */
-class SdlCursor {
+class Cursor {
  public:
   /**
    * @brief Create system cursor.
-   * @param system_cursor SdlSystemCursor.
+   * @param system_cursor SystemCursor.
    * @return
    */
-  [[nodiscard]] static SdlResult<SdlCursor> FromSystem(
-      SdlSystemCursor system_cursor) noexcept {
-    SdlCursor cursor{system_cursor};
+  [[nodiscard]] static result<Cursor> FromSystem(
+      SystemCursor system_cursor) noexcept {
+    Cursor cursor{system_cursor};
     return cursor.error_code().is_succeeded()
-               ? SdlResult<SdlCursor>{std::move(cursor)}
-               : SdlResult<SdlCursor>{cursor.error_code()};
+               ? result<Cursor>{std::move(cursor)}
+               : result<Cursor>{cursor.error_code()};
   }
 
   /**
    * @brief Create system cursor.
-   * @param system_cursor SdlSystemCursor.
+   * @param system_cursor SystemCursor.
    * @return
    */
-  [[nodiscard]] static SdlResult<SdlCursor> FromActive() noexcept {
-    SdlCursor cursor;
+  [[nodiscard]] static result<Cursor> FromActive() noexcept {
+    Cursor cursor;
     return cursor.error_code().is_succeeded()
-               ? SdlResult<SdlCursor>{std::move(cursor)}
-               : SdlResult<SdlCursor>{cursor.error_code()};
+               ? result<Cursor>{std::move(cursor)}
+               : result<Cursor>{cursor.error_code()};
   }
 
   /**
    * @brief Empty cursor placeholder.
    * @return Empty cursor placeholder.
    */
-  [[nodiscard]] static SdlCursor Empty() noexcept { return SdlCursor{false}; }
+  [[nodiscard]] static Cursor Empty() noexcept { return Cursor{false}; }
 
-  SdlCursor(SdlCursor &&c) noexcept : cursor_{c.cursor_}, init_rc_{c.init_rc_} {
+  Cursor(Cursor &&c) noexcept : cursor_{c.cursor_}, init_rc_{c.init_rc_} {
     c.cursor_ = nullptr;
-    c.init_rc_ = SdlError::Failure();
+    c.init_rc_ = error::Failure();
   }
-  SdlCursor &operator=(SdlCursor &&c) noexcept {
+  Cursor &operator=(Cursor &&c) noexcept {
     std::swap(cursor_, c.cursor_);
     std::swap(init_rc_, c.init_rc_);
     return *this;
   }
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlCursor);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(Cursor);
 
-  ~SdlCursor() noexcept {
+  ~Cursor() noexcept {
     if (cursor_) {
       ::SDL_FreeCursor(cursor_);
       cursor_ = nullptr;
@@ -105,89 +105,88 @@ class SdlCursor {
 
  private:
   ::SDL_Cursor *cursor_;
-  SdlError init_rc_;
+  error init_rc_;
 
   /**
    * @brief Create system SDL cursor.
    * @param system_cursor System cursor.
    */
-  explicit SdlCursor(SdlSystemCursor system_cursor) noexcept
+  explicit Cursor(SystemCursor system_cursor) noexcept
       : cursor_{::SDL_CreateSystemCursor(
             base::enum_cast<SDL_SystemCursor>(system_cursor))},
-        init_rc_{cursor_ ? SdlError::Success() : SdlError::Failure()} {}
+        init_rc_{cursor_ ? error::Success() : error::Failure()} {}
 
   /**
    * @brief Create active cursor.
    */
-  SdlCursor() noexcept
+  Cursor() noexcept
       : cursor_{::SDL_GetCursor()},
         // Active cursor may be nullptr if no mouse.
-        init_rc_{SdlError::Success()} {}
+        init_rc_{error::Success()} {}
 
   /**
    * @brief Create empty cursor.
    */
-  explicit SdlCursor(bool) noexcept
-      : cursor_{nullptr}, init_rc_{SdlError::Success()} {}
+  explicit Cursor(bool) noexcept
+      : cursor_{nullptr}, init_rc_{error::Success()} {}
 
   /**
    * @brief Error code.
    * @return Error code.
    */
-  [[nodiscard]] SdlError error_code() const noexcept { return init_rc_; }
+  [[nodiscard]] error error_code() const noexcept { return init_rc_; }
 };
 
 /**
  * Changes cursor in scope.
  */
-class ScopedSdlCursor {
+class ScopedCursor {
  public:
   /**
    * @brief Scoped SDL cursor.
    * @param new_cursor Cursor to use in scope.
    */
-  explicit ScopedSdlCursor(SdlCursor &&new_cursor) noexcept
-      : old_cursor_{SdlCursor::FromActive()},
-        new_cursor_{std::move(new_cursor)} {
+  explicit ScopedCursor(Cursor &&new_cursor) noexcept
+      : old_cursor_{Cursor::FromActive()}, new_cursor_{std::move(new_cursor)} {
     new_cursor_.MakeActive();
   }
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedSdlCursor);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedCursor);
 
-  ScopedSdlCursor(ScopedSdlCursor &&c) noexcept
+  ScopedCursor(ScopedCursor &&c) noexcept
       : old_cursor_(std::move(c.old_cursor_)),
         new_cursor_{std::move(c.new_cursor_)} {
-    c.old_cursor_ = SdlResult<SdlCursor>{SdlError::Failure("Empty")};
-    c.new_cursor_ = SdlCursor::Empty();
+    c.old_cursor_ = result<Cursor>{error::Failure("Empty")};
+    c.new_cursor_ = Cursor::Empty();
   }
-  ScopedSdlCursor &operator=(ScopedSdlCursor &&c) noexcept = delete;
+  ScopedCursor &operator=(ScopedCursor &&c) noexcept = delete;
 
-  ~ScopedSdlCursor() noexcept {
+  ~ScopedCursor() noexcept {
     if (auto *old_cursor = get_result(old_cursor_)) WB_ATTRIBUTE_LIKELY {
         old_cursor->MakeActive();
       }
   }
 
  private:
-  SdlResult<SdlCursor> old_cursor_;
-  SdlCursor new_cursor_;
+  result<Cursor> old_cursor_;
+  Cursor new_cursor_;
 };
 
 /**
  * @brief Tries to change cursor to system one in scope.
  * @param new_cursor_in_scope New system cursor.
- * @return ScopedSdlCursor.
+ * @return ScopedCursor.
  */
-[[nodiscard]] inline wb::base::un<wb::sdl::ScopedSdlCursor> CreateScopedCursor(
-    wb::sdl::SdlSystemCursor new_cursor_in_scope) noexcept {
+[[nodiscard]] inline wb::base::un<wb::sdl::ScopedCursor> CreateScopedCursor(
+    wb::sdl::SystemCursor new_cursor_in_scope) noexcept {
   using namespace wb::sdl;
 
-  auto new_cursor = SdlCursor::Empty();
-  auto system_cursor = SdlCursor::FromSystem(new_cursor_in_scope);
+  auto new_cursor = Cursor::Empty();
+  auto system_cursor = Cursor::FromSystem(new_cursor_in_scope);
   if (auto *cursor = get_result(system_cursor)) WB_ATTRIBUTE_LIKELY {
       new_cursor = std::move(*cursor);
     }
-  return std::make_unique<ScopedSdlCursor>(std::move(new_cursor));
+  return std::make_unique<ScopedCursor>(std::move(new_cursor));
 }
 
 }  // namespace wb::sdl

@@ -7,47 +7,69 @@
 #ifndef WB_WHITEBOX_KERNEL_MAIN_WINDOW_UNIX_H_
 #define WB_WHITEBOX_KERNEL_MAIN_WINDOW_UNIX_H_
 
-#include <string>
+#include <utility>  // std::move
 
+#include "base/base_macroses.h"
 #include "base/deps/sdl/window.h"
 
 namespace wb::kernel {
 
+/**
+ * Main window via SDL.
+ */
 class MainWindow {
  public:
-  [[nodiscard]] static sdl::SdlResult<MainWindow> New(const std::string &title,
-                                                      int width,
-                                                      int height) noexcept {
-    auto sdl_window = sdl::SdlWindow::New(title.c_str(), SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED, width, height,
-                                          GetWindowFlags());
-    if (auto *window = sdl::get_result(sdl_window)) WB_ATTRIBUTE_LIKELY {
-        return sdl::SdlResult<MainWindow>{MainWindow{std::move(*window)}};
-      }
-    return sdl::SdlResult<MainWindow>{*sdl::get_error(sdl_window)};
+  /**
+   * @brief Create main window.
+   * @param title Title.
+   * @param width Width.
+   * @param height Height.
+   * @param window_flags Window flags.
+   * @return Main window.
+   */
+  [[nodiscard]] static sdl::result<MainWindow> New(
+      const char* title, int width, int height,
+      sdl::WindowFlags window_flags) noexcept;
+
+  /**
+   * Move constructor.
+   * @param w Window to move construct from.
+   */
+  MainWindow(MainWindow&& w) noexcept : window_{std::move(w.window_)} {}
+
+  /**
+   * Move assignment operator.
+   * @param w Window to move assign from.
+   */
+  MainWindow& operator=(MainWindow&& w) noexcept {
+    std::swap(window_, w.window_);
+    return *this;
   }
+
+  /**
+   * Get underlying window UI platform info.
+   * @param platform_info Platform info.
+   * @return error if any.
+   */
+  [[nodiscard]] sdl::error GetPlatformInfo(
+      ::SDL_SysWMinfo& platform_info) const noexcept {
+    return window_.GetPlatformInfo(platform_info);
+  }
+
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(MainWindow);
 
  private:
-  sdl::SdlWindow window_;
+  /**
+   * SDL window.
+   */
+  sdl::Window window_;
 
-  explicit MainWindow(sdl::SdlWindow &&window) noexcept
+  /**
+   * Creates main window.
+   * @param window SDL window.
+   */
+  explicit MainWindow(sdl::Window&& window) noexcept
       : window_{std::move(window)} {}
-
-  static sdl::SdlWindowFlags GetWindowFlags() noexcept {
-    // TODO(dimhotepus): kAllowHighDpi requires usage of SDL_GetWindowSize() to
-    // query the client area's size in screen coordinates, and
-    // SDL_GL_GetDrawableSize() or SDL_GetRendererOutputSize() to query the
-    // drawable size in pixels.
-    return sdl::SdlWindowFlags::kResizable | sdl::SdlWindowFlags::kAllowHighDpi
-#if defined(WB_OS_LINUX)
-           | sdl::SdlWindowFlags::kUseVulkan
-#elif defined(WB_OS_MACOS)
-           | sdl::SdlWindowFlags::kUseMetal
-#else
-#error "Please, define SDL window flags for your platform."
-#endif
-        ;
-  }
 };
 
 }  // namespace wb::kernel

@@ -20,25 +20,25 @@ namespace wb::sdl_image {
 /**
  * SDL image initializer flags.
  */
-enum class SdlImageInitializerFlags : int;
+enum class SDLImageInitType : int;
 }  // namespace wb::sdl_image
 
 /**
- * operator << for SdlImageInitializerFlags.
+ * operator << for SDLImageInitType.
  * @param s Stream.
  * @param flags Flags.
  * @return Stream with dumped flags.
  */
 inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     std::basic_ostream<char, std::char_traits<char>> &s,
-    wb::sdl_image::SdlImageInitializerFlags flags);
+    wb::sdl_image::SDLImageInitType flags);
 
 namespace wb::sdl_image {
 
 /**
  * SDL image initializer flags.
  */
-enum class SdlImageInitializerFlags : int {
+enum class SDLImageInitType : int {
   kNone = 0x0,
   kJpg = IMG_INIT_JPG,
   kPng = IMG_INIT_PNG,
@@ -47,56 +47,55 @@ enum class SdlImageInitializerFlags : int {
 };
 
 /**
- * operator | for SdlImageInitializerFlags.
- * @param left SdlImageInitializerFlags
- * @param right SdlImageInitializerFlags.
+ * operator | for SDLImageInitType.
+ * @param left SDLImageInitType
+ * @param right SDLImageInitType.
  * @return Left | Right.
  */
-[[nodiscard]] constexpr SdlImageInitializerFlags operator|(
-    SdlImageInitializerFlags left, SdlImageInitializerFlags right) noexcept {
-  return static_cast<SdlImageInitializerFlags>(base::underlying_cast(left) |
-                                               base::underlying_cast(right));
+[[nodiscard]] constexpr SDLImageInitType operator|(
+    SDLImageInitType left, SDLImageInitType right) noexcept {
+  return static_cast<SDLImageInitType>(base::underlying_cast(left) |
+                                       base::underlying_cast(right));
 }
 
 /**
- * @brief operator & for SdlImageInitializerFlags.
- * @param left SdlImageInitializerFlags.
- * @param right SdlImageInitializerFlags.
+ * @brief operator & for SDLImageInitType.
+ * @param left SDLImageInitType.
+ * @param right SDLImageInitType.
  * @return left & right.
  */
-[[nodiscard]] constexpr SdlImageInitializerFlags operator&(
-    SdlImageInitializerFlags left, SdlImageInitializerFlags right) noexcept {
-  return static_cast<SdlImageInitializerFlags>(base::underlying_cast(left) &
-                                               base::underlying_cast(right));
+[[nodiscard]] constexpr SDLImageInitType operator&(
+    SDLImageInitType left, SDLImageInitType right) noexcept {
+  return static_cast<SDLImageInitType>(base::underlying_cast(left) &
+                                       base::underlying_cast(right));
 }
 
 /**
  * SDL image initializer.
  */
-class SdlImageInitializer {
+class SDLImageInit {
  public:
   /**
    * Creates SDL image initializer.
-   * @param flags SdlImageInitializerFlags.
+   * @param flags SDLImageInitType.
    * @return SDL image initializer.
    */
-  static sdl::SdlResult<SdlImageInitializer> New(
-      SdlImageInitializerFlags flags) noexcept {
-    SdlImageInitializer initializer{flags};
+  static sdl::result<SDLImageInit> New(SDLImageInitType flags) noexcept {
+    SDLImageInit initializer{flags};
     return initializer.error_code().is_succeeded()
-               ? sdl::SdlResult<SdlImageInitializer>{std::move(initializer)}
-               : sdl::SdlResult<SdlImageInitializer>{initializer.error_code()};
+               ? sdl::result<SDLImageInit>{std::move(initializer)}
+               : sdl::result<SDLImageInit>{initializer.error_code()};
   }
-  SdlImageInitializer(SdlImageInitializer &&s) noexcept
+  SDLImageInit(SDLImageInit &&s) noexcept
       : actual_flags_{s.actual_flags_}, init_rc_{s.init_rc_} {
-    s.actual_flags_ = base::underlying_cast(SdlImageInitializerFlags::kNone);
-    s.init_rc_ = sdl::SdlError::Failure("Moved");
+    s.actual_flags_ = base::underlying_cast(SDLImageInitType::kNone);
+    s.init_rc_ = sdl::error::Failure("Moved");
   }
-  SdlImageInitializer &operator=(SdlImageInitializer &&) noexcept = delete;
+  SDLImageInit &operator=(SDLImageInit &&) noexcept = delete;
 
-  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SdlImageInitializer);
+  WB_NO_COPY_CTOR_AND_ASSIGNMENT(SDLImageInit);
 
-  ~SdlImageInitializer() noexcept { ::IMG_Quit(); }
+  ~SDLImageInit() noexcept { ::IMG_Quit(); }
 
  private:
   /**
@@ -108,13 +107,13 @@ class SdlImageInitializer {
   /**
    * Init error code.
    */
-  sdl::SdlError init_rc_;
+  sdl::error init_rc_;
 
   /**
    * @brief Creates SDL image initializer.
-   * @param flags SdlImageInitializerFlags.
+   * @param flags SDLImageInitType.
    */
-  explicit SdlImageInitializer(SdlImageInitializerFlags flags) noexcept
+  explicit SDLImageInit(SDLImageInitType flags) noexcept
       : actual_flags_{::IMG_Init(base::underlying_cast(flags))},
         init_rc_{Initialize(flags, actual_flags_)} {
     G3DCHECK(init_rc_.is_succeeded())
@@ -127,65 +126,65 @@ class SdlImageInitializer {
    * @param actual_flags Actual flags.
    * @return Error code.
    */
-  [[nodiscard]] static sdl::SdlError Initialize(
-      SdlImageInitializerFlags expected_flags, int actual_flags) noexcept {
+  [[nodiscard]] static sdl::error Initialize(SDLImageInitType expected_flags,
+                                             int actual_flags) noexcept {
     const int ex_flags{base::underlying_cast(expected_flags)};
 
     if ((ex_flags & actual_flags) == ex_flags) {
-      return sdl::SdlError::Success();
+      return sdl::error::Success();
     }
 
-    return sdl::SdlError::Failure(
-        "Unable to initialize requested image types.");
+    return sdl::error::Failure("Unable to initialize requested image types.");
   }
 
   /**
    * @brief Init result.
    * @return SDL error.
    */
-  [[nodiscard]] sdl::SdlError error_code() const noexcept { return init_rc_; }
+  [[nodiscard]] sdl::error error_code() const noexcept { return init_rc_; }
 };
 
 }  // namespace wb::sdl_image
 
 /**
- * operator << for SdlImageInitializerFlags.
+ * operator << for SDLImageInitType.
  * @param s Stream.
  * @param flags Flags.
  * @return Stream with dumped flags.
  */
 inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     std::basic_ostream<char, std::char_traits<char>> &s,
-    wb::sdl_image::SdlImageInitializerFlags flags) {
-  if (flags == wb::sdl_image::SdlImageInitializerFlags::kNone)
-    WB_ATTRIBUTE_UNLIKELY { return s << "None"; }
+    wb::sdl_image::SDLImageInitType flags) {
+  if (flags == wb::sdl_image::SDLImageInitType::kNone) WB_ATTRIBUTE_UNLIKELY {
+      return s << "None";
+    }
 
-  if ((flags & wb::sdl_image::SdlImageInitializerFlags::kJpg) ==
-      wb::sdl_image::SdlImageInitializerFlags::kJpg) {
+  if ((flags & wb::sdl_image::SDLImageInitType::kJpg) ==
+      wb::sdl_image::SDLImageInitType::kJpg) {
     s << "JPEG ";
   }
 
-  if ((flags & wb::sdl_image::SdlImageInitializerFlags::kPng) ==
-      wb::sdl_image::SdlImageInitializerFlags::kPng) {
+  if ((flags & wb::sdl_image::SDLImageInitType::kPng) ==
+      wb::sdl_image::SDLImageInitType::kPng) {
     s << "PNG ";
   }
 
-  if ((flags & wb::sdl_image::SdlImageInitializerFlags::kTif) ==
-      wb::sdl_image::SdlImageInitializerFlags::kTif) {
+  if ((flags & wb::sdl_image::SDLImageInitType::kTif) ==
+      wb::sdl_image::SDLImageInitType::kTif) {
     s << "TIFF ";
   }
 
-  if ((flags & wb::sdl_image::SdlImageInitializerFlags::kWebp) ==
-      wb::sdl_image::SdlImageInitializerFlags::kWebp) {
+  if ((flags & wb::sdl_image::SDLImageInitType::kWebp) ==
+      wb::sdl_image::SDLImageInitType::kWebp) {
     s << "WEBP ";
   }
 
-  // (flags & wb::sdl_image::SdlImageInitializerFlags::kTif) ==
-  // wb::sdl_image::SdlImageInitializerFlags::kTif is always false,
+  // (flags & wb::sdl_image::SDLImageInitType::kTif) ==
+  // wb::sdl_image::SDLImageInitType::kTif is always false,
   // This is used to prevent compiler from complaining about constant in if
   // condition.
-  G3DCHECK((flags & wb::sdl_image::SdlImageInitializerFlags::kTif) ==
-           wb::sdl_image::SdlImageInitializerFlags::kTif)  //-V547
+  G3DCHECK((flags & wb::sdl_image::SDLImageInitType::kTif) ==
+           wb::sdl_image::SDLImageInitType::kTif)  //-V547
       << "Unknown image type (" << wb::base::underlying_cast(flags)
       << "), assume Unknown.";
 
