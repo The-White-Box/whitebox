@@ -201,6 +201,34 @@ int BootmgrStartup(
   }
 }
 
+/**
+ * @brief Parses command line flags.
+ * @param argc App arguments count.
+ * @param argv App arguments.
+ * @return Unparsed positional flags.
+ */
+[[nodiscard]] std::vector<char*> ParseCommandLine(int argc,
+                                                  char** argv) noexcept {
+  // Command line flags should be early initialized, but after logging (depends
+  // on it).
+  absl::SetProgramUsageMessage(
+      absl::StrCat(wb::apps::half_life_2::kUsageMessage, argv[0]));
+  std::vector<char*> positional_flags{absl::ParseCommandLine(argc, argv)};
+
+  std::string command_line;
+  for (int i{0}; i < argc; ++i) {
+    absl::StrAppend(&command_line, argv[i]);
+    if (i != argc - 1) {
+      absl::StrAppend(&command_line, " ");
+    }
+  }
+
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING " started as "
+              << command_line;
+
+  return positional_flags;
+}
+
 }  // namespace
 
 /**
@@ -245,31 +273,9 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
   const auto intl = CreateIntl(scoped_process_locale);
 
-  // Initialize command line flags.
-  auto args_parse_result =
-      wb::apps::win::Args::FromCommandLine(full_command_line_wide);
-  if (const auto* error = std2::get_error(args_parse_result))
-    WB_ATTRIBUTE_UNLIKELY {
-      wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          *error,
-          intl::l18n(intl,
-                     "Please ensure you have enough free memory and use "
-                     "command line correctly."),
-          MakeFatalContext(intl),
-          intl::l18n(intl,
-                     "Can't parse command line flags.  See log for details."));
-    }
-
-  auto args = std2::get_result(args_parse_result);
-  G3DCHECK(!!args);
-
-  absl::SetProgramUsageMessage(
-      absl::StrCat(wb::apps::half_life_2::kUsageMessage, args->argv0()));
-  // TODO(dimhotepus): std::cout, std::cerr -> UI + G3Log.
+  // Setup command line flags as they are used early.
   std::vector<char*> positional_flags{
-      absl::ParseCommandLine(args->count(), args->values())};
+      ParseCommandLine(args->count(), args->values())};
 
   // Calling thread will handle critical errors, does not show general
   // protection fault error box and message box when OpenFile failed to find

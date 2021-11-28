@@ -69,6 +69,34 @@ namespace {
   return std::move(*intl_lookup);
 }
 
+/**
+ * @brief Parses command line flags.
+ * @param argc App arguments count.
+ * @param argv App arguments.
+ * @return Unparsed positional flags.
+ */
+[[nodiscard]] std::vector<char*> ParseCommandLine(int argc,
+                                                  char** argv) noexcept {
+  // Command line flags should be early initialized, but after logging (depends
+  // on it).
+  absl::SetProgramUsageMessage(
+      absl::StrCat(wb::apps::half_life_2::kUsageMessage, argv[0]));
+  std::vector<char*> positional_flags{absl::ParseCommandLine(argc, argv)};
+
+  std::string command_line;
+  for (int i{0}; i < argc; ++i) {
+    absl::StrAppend(&command_line, argv[i]);
+    if (i != argc - 1) {
+      absl::StrAppend(&command_line, " ");
+    }
+  }
+
+  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING " started as "
+              << command_line;
+
+  return positional_flags;
+}
+
 }  // namespace
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
@@ -76,9 +104,8 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       argv[0], wb::build::settings::kPathToMainLogFile};
 
-  absl::SetProgramUsageMessage(
-      absl::StrCat(wb::apps::half_life_2::kUsageMessage, argv[0]));
-  std::vector<char*> positional_flags{absl::ParseCommandLine(argc, argv)};
+  // Setup command line flags as they are used early.
+  std::vector<char*> positional_flags{ParseCommandLine(argc, argv)};
 
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
