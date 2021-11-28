@@ -11,16 +11,28 @@
 #include <string>       // string
 #include <string_view>  // string_view
 
+#include "app_version_config.h"
 #include "base/deps/abseil/flags/declare.h"  // ABSL_DECLARE_FLAG
 #include "build/build_config.h"              // WB_OS_WIN
 
 namespace wb::apps::half_life_2 {
 
-#ifdef WB_OS_WIN
 /**
- * @brief Periodic timer resolution.
+ * @brief Usage message.
  */
-struct PeriodicTimerResolution {
+constexpr char kUsageMessage[] = WB_PRODUCT_FILE_DESCRIPTION_STRING
+    ". The player again picks up the crowbar of research\nscientist Gordon "
+    "Freeman, who finds himself on an alien-infested Earth being\npicked to "
+    "the bone, its resources depleted, its populace dwindling. Freeman is\n"
+    "thrust into the unenviable role of rescuing the world from the wrong "
+    "he\nunleashed back at Black Mesa. And a lot of people he cares about are "
+    "counting\non him.\n\nSample usage:\n";
+
+#ifdef WB_OS_WIN
+    /**
+     * @brief Periodic timer resolution.
+     */
+    struct PeriodicTimerResolution {
   explicit PeriodicTimerResolution(uint32_t ms_) noexcept : ms{ms_} {}
 
   /**

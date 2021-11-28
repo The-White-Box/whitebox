@@ -265,8 +265,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   auto args = std2::get_result(args_parse_result);
   G3DCHECK(!!args);
 
-  absl::SetProgramUsageMessage(absl::StrCat(
-      WB_PRODUCT_FILE_DESCRIPTION_STRING ".  Sample usage:\n", args->argv0()));
+  absl::SetProgramUsageMessage(
+      absl::StrCat(wb::apps::half_life_2::kUsageMessage, args->argv0()));
   // TODO(dimhotepus): std::cout, std::cerr -> UI + G3Log.
   std::vector<char*> positional_flags{
       absl::ParseCommandLine(args->count(), args->values())};

@@ -64,8 +64,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
 
   // Command line flags should be early initialized, but after logging (depends
   // on it).
-  absl::SetProgramUsageMessage(absl::StrCat(
-      WB_PRODUCT_FILE_DESCRIPTION_STRING ".  Sample usage:\n", argv[0]));
+  absl::SetProgramUsageMessage(
+      absl::StrCat(wb::apps::half_life_2::kUsageMessage, argv[0]));
   std::vector<char*> positional_flags{absl::ParseCommandLine(argc, argv)};
 
   // Start with specifying UTF-8 locale for all user-facing data.
