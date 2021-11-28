@@ -9,12 +9,12 @@
 
 #include <cassert>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <string_view>
 
 #include "base/base_macroses.h"
 #include "base/std2/filesystem_ext.h"
+#include "base/std2/counting_streambuf.h"
 #include "base/std2/string_view_ext.h"
 #include "build/build_config.h"
 #include "g3log_config.h"
@@ -56,7 +56,7 @@ class ScopedG3LogInitializer {
     // http://www.tutorialspoint.com/cplusplus/cpp_signal_handling
     // SIGABRT  ABORT (ANSI), abnormal termination
     // SIGFPE   Floating point exception (ANSI)
-    // SIGILL   ILlegal instruction (ANSI)
+    // SIGILL   Illegal instruction (ANSI)
     // SIGSEGV  Segmentation violation i.e. illegal memory reference
     // SIGTERM  TERMINATION (ANSI)
     g3::installCrashHandler();
@@ -99,7 +99,7 @@ class ScopedG3LogInitializer {
    * @brief g3log initializer.
    */
   struct G3LogInitializer {
-    G3LogInitializer(g3::LogWorker* log_worker) {
+    explicit G3LogInitializer(g3::LogWorker* log_worker) noexcept {
       /** Should be called at very first startup of the software with \ref
        * g3LogWorker pointer. Ownership of the \ref g3LogWorker is the
        * responsibility of the caller */
@@ -115,38 +115,6 @@ class ScopedG3LogInitializer {
       // of scope at a later time.
       g3::internal::shutDownLogging();
     }
-  };
-
-  /**
-   * @brief Counting stream buffer.
-   */
-  class countingstreambuf : public std::streambuf {
-   public:
-    explicit countingstreambuf(std::streambuf* buffer) noexcept
-        : buffer_{buffer}, size_{} {
-      // Can't use g3log as it is not initialized yet.
-      assert(buffer);
-    }
-
-    WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(countingstreambuf);
-
-    int_type overflow(int c) override {
-      if (traits_type::eof() != c) ++size_;
-
-      return buffer_->sputc(static_cast<char>(c));
-    }
-
-    int sync() override { return buffer_->pubsync(); }
-
-    /**
-     * @brief Gets count of chars in stream.
-     * @return Count of chars in stream.
-     */
-    [[nodiscard]] std::streamsize count() const noexcept { return size_; }
-
-   private:
-    std::streambuf* buffer_;
-    std::streamsize size_;
   };
 
   /**
@@ -181,8 +149,8 @@ class ScopedG3LogInitializer {
     std::ostringstream cout_;
     std::ostringstream cerr_;
 
-    countingstreambuf cout_stream_buf_;
-    countingstreambuf cerr_stream_buf_;
+    std2::countingstreambuf cout_stream_buf_;
+    std2::countingstreambuf cerr_stream_buf_;
 
     std::streambuf* old_cout_stream_buf_;
     std::streambuf* old_cerr_stream_buf_;
