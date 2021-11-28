@@ -138,6 +138,10 @@ int BootmgrStartup(
           absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
   const bool insecure_allow_unsigned_module_target{
       absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
+  const wb::apps::half_life_2::WindowWidth main_window_width{
+      absl::GetFlag(FLAGS_main_window_width)};
+  const wb::apps::half_life_2::WindowHeight main_window_height{
+      absl::GetFlag(FLAGS_main_window_height)};
   const unsigned boot_manager_flags{LOAD_WITH_ALTERED_SEARCH_PATH |
                                     (!insecure_allow_unsigned_module_target
                                          ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
@@ -165,6 +169,8 @@ int BootmgrStartup(
                {
                    .positional_flags = std::move(positional_flags),
                    .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
+                   .main_window_width = main_window_width.size,
+                   .main_window_height = main_window_height.size,
                    .insecure_allow_unsigned_module_target =
                        insecure_allow_unsigned_module_target,
                },

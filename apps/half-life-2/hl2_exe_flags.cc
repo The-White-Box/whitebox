@@ -6,12 +6,13 @@
 
 #include "hl2_exe_flags.h"
 
-#include "base/deps/abseil/flags/declare.h"
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/strings/str_cat.h"
+#include "build/static_settings_config.h"
 
 #ifdef WB_OS_WIN
+#include "base/deps/g3log/g3log.h"
 #include "base/win/windows_light.h"
 //
 #include <timeapi.h>
@@ -50,7 +51,89 @@ bool AbslParseFlag(std::string_view text, PeriodicTimerResolution* p,
 }
 #endif  // WB_OS_WIN
 
+std::string AbslUnparseFlag(WindowWidth w) {
+  // Delegate to the usual unparsing for int.
+  return absl::UnparseFlag(w.size);
+}
+
+bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error) {
+  // Convert from text to uint16_t using the uint16_t-flag parser.
+  if (!absl::ParseFlag(text, &w->size, error)) {
+    return false;
+  }
+
+#ifdef WB_OS_WIN
+  const int minimum_window_width_raw{
+      // GetSystemMetrics returns 0 on failure.
+      std::max(::GetSystemMetrics(SM_CYMIN),
+               wb::build::settings::ui::window::dimensions::kMinWidth)};
+  G3CHECK(minimum_window_width_raw <=
+          static_cast<int>(std::numeric_limits<uint16_t>::max()));
+  const uint16_t minimum_window_width{
+      static_cast<uint16_t>(minimum_window_width_raw)};
+#else
+  const uint16_t minimum_window_width{
+      wb::build::settings::ui::window::dimensions::kMinWidth};
+#endif
+
+  constexpr uint16_t maximum_window_width{std::numeric_limits<uint16_t>::max()};
+
+  if (w->size < minimum_window_width || w->size > maximum_window_width) {
+    *error = absl::StrCat("not in range [", minimum_window_width, ",",
+                          maximum_window_width, "]");
+    return false;
+  }
+
+  return true;
+}
+
+std::string AbslUnparseFlag(WindowHeight h) {
+  // Delegate to the usual unparsing for int.
+  return absl::UnparseFlag(h.size);
+}
+
+bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
+  // Convert from text to uint16_t using the uint16_t-flag parser.
+  if (!absl::ParseFlag(text, &h->size, error)) {
+    return false;
+  }
+
+#ifdef WB_OS_WIN
+  const int minimum_window_height_raw{
+      // GetSystemMetrics returns 0 on failure.
+      std::max(::GetSystemMetrics(SM_CXMIN),
+               wb::build::settings::ui::window::dimensions::kMinHeight)};
+  G3CHECK(minimum_window_height_raw <=
+          static_cast<int>(std::numeric_limits<uint16_t>::max()));
+  const uint16_t minimum_window_height{
+      static_cast<uint16_t>(minimum_window_height_raw)};
+#else
+  const uint16_t minimum_window_height{
+      wb::build::settings::ui::window::dimensions::kMinHeight};
+#endif
+
+  constexpr uint16_t maximum_window_height{
+      std::numeric_limits<uint16_t>::max()};
+
+  if (h->size < minimum_window_height || h->size > maximum_window_height) {
+    *error = absl::StrCat("not in range [", minimum_window_height, ",",
+                          maximum_window_height, "]");
+    return false;
+  }
+
+  return true;
+}
+
 }  // namespace wb::apps::half_life_2
+
+// Main window width in pixels.
+ABSL_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width,
+          wb::apps::half_life_2::WindowWidth{800U},
+          "Initial width of the main window in pixels.");
+
+ABSL_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height,
+          wb::apps::half_life_2::WindowHeight{600U},
+          "Initial height of the main window in pixels.");
 
 #ifdef WB_OS_WIN
 ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,

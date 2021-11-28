@@ -23,6 +23,7 @@
 #include <system_error>
 
 #include "app_version_config.h"
+#include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/flags/usage.h"
 #include "base/deps/abseil/strings/str_cat.h"
@@ -33,6 +34,7 @@
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "build/static_settings_config.h"
+#include "hl2_exe_flags.h"
 #include "whitebox-boot-manager/main.h"
 
 namespace {
@@ -150,10 +152,18 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   const auto boot_manager_main =
       std::get<BootManagerMainFunction>(bootmgr_entry_result);
+
+  const wb::apps::half_life_2::WindowWidth main_window_width{
+      absl::GetFlag(FLAGS_main_window_width)};
+  const wb::apps::half_life_2::WindowHeight main_window_height{
+      absl::GetFlag(FLAGS_main_window_height)};
   const wb::boot_manager::CommandLineFlags command_line_flags{
       .positional_flags = std::move(positional_flags),
+      .main_window_width = main_window_width.size,
+      .main_window_height = main_window_height.size,
       .insecure_allow_unsigned_module_target = false,
   };
+
   rv = boot_manager_main(WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags,
                          intl);
 

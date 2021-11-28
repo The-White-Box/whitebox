@@ -5,6 +5,7 @@
 // The entry point for *nix Half-Life 2 process.
 
 #include "app_version_config.h"
+#include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/flags/usage.h"
 #include "base/deps/abseil/strings/str_cat.h"
@@ -15,6 +16,7 @@
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "build/static_settings_config.h"
+#include "hl2_exe_flags.h"
 #include "whitebox-boot-manager/main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
@@ -58,6 +60,7 @@ namespace {
  */
 int BootmgrStartup(int argc, char** argv) noexcept {
   using namespace wb::base;
+  using namespace wb::ui;
 
   // Command line flags should be early initialized, but after logging (depends
   // on it).
@@ -104,33 +107,39 @@ int BootmgrStartup(int argc, char** argv) noexcept {
           boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
       if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
         WB_ATTRIBUTE_LIKELY {
+          const wb::apps::half_life_2::WindowWidth main_window_width{
+              absl::GetFlag(FLAGS_main_window_width)};
+          const wb::apps::half_life_2::WindowHeight main_window_height{
+              absl::GetFlag(FLAGS_main_window_height)};
           const wb::boot_manager::CommandLineFlags command_line_flags{
               .positional_flags = std::move(positional_flags),
+              .main_window_width = main_window_width.size,
+              .main_window_height = main_window_height.size,
               .insecure_allow_unsigned_module_target = false,
           };
           return (*boot_manager_main)(
               {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, intl});
         }
 
-      wb::ui::FatalDialog(
+      FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           std::get<std::error_code>(boot_manager_entry),
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          wb::ui::FatalDialogContext{intl.Layout()},
+          FatalDialogContext{intl.Layout()},
           intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
                          kBootManagerMainName, boot_manager_path));
     }
   else {
-    wb::ui::FatalDialog(
+    FatalDialog(
         intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
         std::get<std::error_code>(boot_manager_library),
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
-        wb::ui::FatalDialogContext{intl.Layout()},
+        FatalDialogContext{intl.Layout()},
         intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
                        boot_manager_path));
   }

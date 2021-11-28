@@ -50,7 +50,73 @@ bool AbslParseFlag(std::string_view text, PeriodicTimerResolution* p,
                    std::string* error);
 #endif  // WB_OS_WIN
 
+/**
+ * @brief Window size.
+ */
+struct WindowSize {
+  explicit WindowSize(uint16_t size_) noexcept : size{size_} {}
+
+  /**
+   * @brief Size in pixels.
+   */
+  uint16_t size;
+};
+
+/**
+ * @brief Window width.
+ */
+struct WindowWidth : WindowSize {
+  using WindowSize::WindowSize;
+};
+
+/**
+ * @brief Returns a textual flag value corresponding to the WindowWidth.
+ * @param w WindowWidth
+ * @return Textual flag value.
+ */
+std::string AbslUnparseFlag(WindowWidth w);
+
+/**
+ * @brief Parses a WindowWidth from the command line flag value `text`.
+ * @param text Command line flag value.
+ * @param w WindowDimension.
+ * @param error Parse flag error.
+ * @return true and sets `*p` on success; returns false and sets `*error` on
+ * failure.
+ */
+bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error);
+
+/**
+ * @brief Window height.
+ */
+struct WindowHeight : WindowSize {
+  using WindowSize::WindowSize;
+};
+
+/**
+ * @brief Returns a textual flag value corresponding to the WindowHeight.
+ * @param h WindowHeight
+ * @return Textual flag value.
+ */
+std::string AbslUnparseFlag(WindowHeight h);
+
+/**
+ * @brief Parses a WindowHeight from the command line flag value `text`.
+ * @param text Command line flag value.
+ * @param h WindowDimension.
+ * @param error Parse flag error.
+ * @return true and sets `*p` on success; returns false and sets `*error` on
+ * failure.
+ */
+bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error);
+
 }  // namespace wb::apps::half_life_2
+
+// Initial width of the main window in pixels.
+ABSL_DECLARE_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width);
+
+// Initial height of the main window in pixels.
+ABSL_DECLARE_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height);
 
 #ifdef WB_OS_WIN
 // Insecure.  Allow to load NOT SIGNED module targets.  There is no guarantee

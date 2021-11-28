@@ -169,16 +169,14 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   using namespace wb::base;
   using namespace wb::kernel;
 
-  // TODO(dimhotepus): Get screen size and use it if less than our minimal.
-  constexpr int window_width{1024};
-  constexpr int window_height{768};
-
   const auto& intl = kernel_args.intl;
 
 #ifdef WB_OS_WIN
   const wb::ui::win::WindowDefinition window_definition{
-      CreateMainWindowDefinition(kernel_args, kernel_args.app_description,
-                                 window_width, window_height)};
+      CreateMainWindowDefinition(
+          kernel_args, kernel_args.app_description,
+          kernel_args.command_line_flags.main_window_width,
+          kernel_args.command_line_flags.main_window_height)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
   auto window_result = wb::ui::win::BaseWindow::New<MainWindow>(
@@ -261,7 +259,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   const auto sdl_window = SdlWindow::New(
       kernel_args.app_description, SDL_WINDOWPOS_CENTERED,
-      SDL_WINDOWPOS_CENTERED, window_width, window_height, window_flags);
+      SDL_WINDOWPOS_CENTERED, kernel_args.command_line_flags.main_window_width,
+      kernel_args.command_line_flags.main_window_height, window_flags);
   const auto* window = get_result(sdl_window);
   if (!window) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(

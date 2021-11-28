@@ -38,6 +38,16 @@ struct CommandLineFlags {
 #endif
 
   /**
+   * @brief Initial width of the main window in pixels.
+   */
+  uint16_t main_window_width;
+
+  /**
+   * @brief Initial height of the main window in pixels.
+   */
+  uint16_t main_window_height;
+
+  /**
    * @brief Insecure.  Allow to load NOT SIGNED module targets.  There is no
    * guarantee unsigned module doing nothing harmful.  Use at your own risk, ex.
    * for debugging or mods.
@@ -48,7 +58,7 @@ struct CommandLineFlags {
 #ifdef WB_OS_WIN
       sizeof(periodic_timer_resolution_ms) -
 #else
-      sizeof(char *) -
+      sizeof(uint32_t) -
 #endif
       sizeof(insecure_allow_unsigned_module_target)] = {};
 };

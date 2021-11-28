@@ -26,6 +26,8 @@ constexpr char kPathToMainLogFile[]{"/tmp/"};
 #endif
 
 namespace ui::window::dimensions {
+// https://www.microsoft.com/en-us/windows/windows-10-specifications
+// On Windows 10 minimum display dimensions are 800x600, so do not use more than.
 constexpr int kMinWidth{640};
 constexpr int kMinHeight{480};
 }  // namespace ui
