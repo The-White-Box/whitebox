@@ -129,11 +129,11 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
 // Main window width in pixels.
 ABSL_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width,
           wb::apps::half_life_2::WindowWidth{800U},
-          "Initial width of the main window in pixels.");
+          "main window initial width in pixels");
 
 ABSL_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height,
           wb::apps::half_life_2::WindowHeight{600U},
-          "Initial height of the main window in pixels.");
+          "main window initial height in pixels");
 
 #ifdef WB_OS_WIN
 ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
