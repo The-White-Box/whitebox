@@ -471,7 +471,9 @@ wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 foreach(wb_target_name ${WB_ALL_TARGETS})
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
-  if (NOT ${wb_target_name} MATCHES "absl_" AND
+  if (# ASAN intercepts new / delete.
+      NOT ${wb_target_name} MATCHES "absl_leak_check_test" AND
+      NOT ${wb_target_name} MATCHES "absl_disabled_leak_check_test" AND
       NOT ${wb_target_name} MATCHES "clean-cmake" AND
       # Abseil
       NOT ${wb_target_name} MATCHES "Continuous" AND
@@ -488,31 +490,6 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
       NOT ${wb_target_name} MATCHES "sdl-build-options" AND
       NOT ${wb_target_name} MATCHES "symbol-check" AND
       NOT ${wb_target_name} MATCHES "uninstall")
-    # Include the directories with the new files.
-    target_include_directories(${wb_target_name}
-      PRIVATE
-        ${WB_ROOT_DIR}
-        "${WB_ROOT_DIR}/deps/mimalloc/include")
-
-    # Add new / delete allocator overrides.
-    target_sources(${wb_target_name}
-      PRIVATE
-        ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
-    )
-
-    # Add mimalloc to handle allocators.
-    target_link_libraries(${wb_target_name} PRIVATE mimalloc)
-
-    # mimalloc should be copied by each target individually as haven't found way
-    # to it here.
-  endif()
-
-  # Abseil has special handling.
-  if (NOT WB_OS_WIN AND
-      ${wb_target_name} MATCHES "absl_" AND
-      # ASAN intercepts new / delete.
-      NOT ${wb_target_name} MATCHES "absl_leak_check_test" AND
-      NOT ${wb_target_name} MATCHES "absl_disabled_leak_check_test")
     get_target_property(wb_target_type ${wb_target_name} TYPE)
 
     if (NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY")
