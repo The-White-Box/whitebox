@@ -107,12 +107,12 @@ class ScopedEndError {
         .stream()
 
 // 'Conditional' stream log + system error code.
-#define G3PLOGE2_IF(level, error_code)                                       \
-  if (!g3::logLevel(level) || false == (!!error_code)) WB_ATTRIBUTE_LIKELY { \
-    }                                                                        \
-  else                                                                       \
-    wb::base::deps::g3log::ScopedEndError{                                   \
-        error_code, INTERNAL_LOG_MESSAGE(level).stream()}                    \
+#define G3PLOGE2_IF(level, error_code)                                         \
+  if (!g3::logLevel(level) || false == (!!(error_code))) WB_ATTRIBUTE_LIKELY { \
+    }                                                                          \
+  else                                                                         \
+    wb::base::deps::g3log::ScopedEndError{                                     \
+        error_code, INTERNAL_LOG_MESSAGE(level).stream()}                      \
         .stream()
 
 // 'Design By Contract' stream API.  Broken Contracts will exit the application

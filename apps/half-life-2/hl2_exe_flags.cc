@@ -19,6 +19,7 @@
 
 namespace wb::apps::half_life_2 {
 
+#ifdef WB_OS_WIN
 std::string AbslUnparseFlag(PeriodicTimerResolution p) {
   // Delegate to the usual unparsing for int.
   return absl::UnparseFlag(p.ms);
@@ -47,9 +48,11 @@ bool AbslParseFlag(std::string_view text, PeriodicTimerResolution* p,
       absl::StrCat("unable to check flag (error: ", rc, ") please, remove it");
   return false;
 }
+#endif  // WB_OS_WIN
 
 }  // namespace wb::apps::half_life_2
 
+#ifdef WB_OS_WIN
 ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
           "Insecure.  Allow to load NOT SIGNED module targets.  There is no "
           "guarantee unsigned module doing nothing harmful.  Use at your own "
@@ -66,3 +69,4 @@ ABSL_FLAG(
     "can also prevent the CPU power management system from entering "
     "power-saving modes.  Setting a higher resolution does not improve the "
     "accuracy of the high-resolution performance counter.");
+#endif  // WB_OS_WIN

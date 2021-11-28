@@ -9,10 +9,6 @@
 #include "base/deps/googletest/gtest/gtest.h"
 #include "base/tests/g3log_death_utils_tests.h"
 
-#ifdef WB_OS_WIN
-#include "base/win/windows_light.h"
-#endif
-
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedProcessTerminateHandlerTest, SetTerminateHandlerInScope) {
   using namespace wb::base;
@@ -29,6 +25,7 @@ GTEST_TEST(ScopedProcessTerminateHandlerTest, SetTerminateHandlerInScope) {
   EXPECT_NE(&DefaultProcessTerminateHandler, std::get_terminate());
 }
 
+#ifdef GTEST_HAS_DEATH_TEST
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
            TerminateTriggersTerminateHandler) {
@@ -46,3 +43,4 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
   EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
               test_result.message);
 }
+#endif

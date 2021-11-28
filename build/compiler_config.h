@@ -109,7 +109,7 @@
 #define WB_COMPILER_HAS_DEBUG 1
 #endif
 
-// Under Mac attributes detected as valid during sample compliation, but not
+// Under Mac attributes detected as valid during sample compilation, but not
 // in source tree :(
 // TODO(dimhotepus): Check on new Clang all is ok (13.0.0+).
 #if defined(WB_CPP_HAS_LIKELY_UNLIKELY_ATTRIBUTES) && !defined(WB_OS_MACOS)
@@ -729,12 +729,6 @@
 #define WB_GCC_DISABLE_UNDEF_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wundef\"")
 
-/*
- * @brief Disables GCC / Clang useless-cast.
- */
-#define WB_GCC_DISABLE_USELESS_CAST_WARNING() \
-  _Pragma("GCC diagnostic ignored \"-Wuseless-cast\"")
-
 #if defined(WB_COMPILER_GCC)
 
 /**
@@ -759,6 +753,12 @@
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=malloc\"")
 
+/*
+ * @brief Disables GCC / Clang useless-cast.
+ */
+#define WB_GCC_DISABLE_USELESS_CAST_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wuseless-cast\"")
+
 #else  // WB_COMPILER_CLANG
 
 /**
@@ -780,6 +780,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_USELESS_CAST_WARNING()
 
 #endif  // WB_COMPILER_GCC || WB_COMPILER_CLANG
 

@@ -5,12 +5,6 @@
 // <string_view> extensions.
 
 #include "string_view_ext.h"
-//
-#ifdef WB_OS_WIN
-#include "base/win/windows_light.h"
-#else
-#include <csignal>  // SIGTRAP
-#endif
 
 #include "base/deps/googletest/gtest/gtest.h"
 #include "base/tests/g3log_death_utils_tests.h"
@@ -93,6 +87,7 @@ GTEST_TEST(StringViewExtTest, EndsWithStringHasValue) {
   EXPECT_TRUE(ends_with(std::string{"abc"}, "abc"));
 }
 
+#if GTEST_HAS_DEATH_TEST
 #if WB_COMPILER_HAS_DEBUG
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
@@ -101,18 +96,20 @@ GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
   const auto test_result =
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult("");
 
-  EXPECT_EXIT((void)!!ends_with("", nullptr), test_result.exit_predicate,
-              test_result.message);
-  EXPECT_EXIT((void)!!ends_with("a", nullptr), test_result.exit_predicate,
-              test_result.message);
-  EXPECT_EXIT((void)!!ends_with("abc", nullptr), test_result.exit_predicate,
-              test_result.message);
+  EXPECT_EXIT([[maybe_unused]] const auto volatile v1 = ends_with("", nullptr),
+              test_result.exit_predicate, test_result.message);
+  EXPECT_EXIT([[maybe_unused]] const auto volatile v2 = ends_with("a", nullptr),
+              test_result.exit_predicate, test_result.message);
+  EXPECT_EXIT(
+      [[maybe_unused]] const auto volatile v3 = ends_with("abc", nullptr),
+      test_result.exit_predicate, test_result.message);
 }
-#else
+#else  // WB_COMPILER_HAS_DEBUG
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithStringWhenNullptr) {
   EXPECT_FALSE(ends_with(std::string{""}, nullptr));
   EXPECT_FALSE(ends_with(std::string{"a"}, nullptr));
   EXPECT_FALSE(ends_with(std::string{"abc"}, nullptr));
 }
-#endif
+#endif  // !WB_COMPILER_HAS_DEBUG
+#endif  // GTEST_HAS_DEATH_TEST

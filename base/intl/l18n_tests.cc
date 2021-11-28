@@ -7,14 +7,8 @@
 #include "l18n.h"
 //
 #include "base/deps/fmt/format.h"
-#include "base/tests/g3log_death_utils_tests.h"
-
-#ifdef WB_OS_WIN
-#include "base/win/windows_light.h"
-#endif
-
-//
 #include "base/deps/googletest/gtest/gtest.h"
+#include "base/tests/g3log_death_utils_tests.h"
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(L18nTest, CallOperatorHashes) {
@@ -73,6 +67,7 @@ GTEST_TEST(L18nTest, l18nFmtLookups) {
       << "Should ignore additional args.";
 }
 
+#ifdef GTEST_HAS_DEATH_TEST
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   using namespace wb::base;
@@ -95,3 +90,4 @@ GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
               test_result.message);
 }
+#endif

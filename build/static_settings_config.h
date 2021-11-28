@@ -25,13 +25,9 @@ constexpr char kPathToMainLogFile[]{"/tmp/"};
 #error "Please define path to main log file for your platform."
 #endif
 
-namespace ui {
-namespace window {
-namespace dimensions {
+namespace ui::window::dimensions {
 constexpr int kMinWidth{640};
 constexpr int kMinHeight{480};
-}  // namespace dimensions
-}  // namespace window
 }  // namespace ui
 
 }  // namespace wb::build::settings

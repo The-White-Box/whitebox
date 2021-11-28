@@ -5,17 +5,16 @@
 // Scoped handler when new operator fails to allocate memory.
 
 #include "scoped_new_handler.h"
-//
-#include <limits>
-#include <random>
-#include <vector>
 
 #ifdef WB_OS_WIN
-#include "base/win/windows_light.h"
+#include <limits>
+#include <random>
+
+#include "base/tests/g3log_death_utils_tests.h"
 #endif
+#include <vector>
 
 #include "base/deps/googletest/gtest/gtest.h"
-#include "base/tests/g3log_death_utils_tests.h"
 
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
@@ -33,7 +32,7 @@ GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
 }
 
 // On POSIX just receive SIGKILL on OOM and we have no way to handle it.
-#ifdef WB_OS_WIN
+#if defined(GTEST_HAS_DEATH_TEST) && defined(WB_OS_WIN)
 // NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");

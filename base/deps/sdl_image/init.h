@@ -180,7 +180,16 @@ inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     s << "WEBP ";
   }
 
-  return s;
+  // (flags & wb::sdl_image::SdlImageInitializerFlags::kTif) ==
+  // wb::sdl_image::SdlImageInitializerFlags::kTif is always false,
+  // This is used to prevent compiler from complaining about constant in if
+  // condition.
+  G3DCHECK((flags & wb::sdl_image::SdlImageInitializerFlags::kTif) ==
+           wb::sdl_image::SdlImageInitializerFlags::kTif)  //-V547
+      << "Unknown image type (" << wb::base::underlying_cast(flags)
+      << "), assume Unknown.";
+
+  return s << "UNKNOWN ";
 }
 
 #endif  // !WB_BASE_DEPS_SDL_IMAGE_INIT_H_

@@ -10,8 +10,6 @@
 #include <thread>
 #include <type_traits>
 
-#include "build/build_config.h"  // WB_OS_WIN
-
 #ifdef WB_OS_WIN
 #include "base/win/scoped_minimum_timer_resolution.h"
 #endif
