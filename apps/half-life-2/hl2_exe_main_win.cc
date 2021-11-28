@@ -10,6 +10,7 @@
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/flags/usage.h"
+#include "base/deps/abseil/flags/usage_config.h"
 #include "base/deps/abseil/strings/str_cat.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/intl/l18n.h"
@@ -202,6 +203,22 @@ int BootmgrStartup(
 }
 
 /**
+ * @brief Makes program version string.
+ * @param program_path Full path to program.
+ * @param version Program version.
+ * @return version string.
+ */
+[[nodiscard]] std::string VersionString(
+    const std::filesystem::path& program_path, std::string_view version) {
+  return absl::StrCat(program_path.filename().string(), " version ", version
+#ifndef NDEBUG
+                      ,
+                      " (Debug Build)\n"
+#endif
+  );
+}
+
+/**
  * @brief Parses command line flags.
  * @param argc App arguments count.
  * @param argv App arguments.
@@ -209,6 +226,11 @@ int BootmgrStartup(
  */
 [[nodiscard]] std::vector<char*> ParseCommandLine(int argc,
                                                   char** argv) noexcept {
+  // Set custom version message as we need more info.
+  absl::SetFlagsUsageConfig({.version_string = [path = argv[0]] {
+    return VersionString(std::filesystem::path{path},
+                         WB_PRODUCT_VERSION_INFO_STRING);
+  }});
   // Command line flags should be early initialized, but after logging (depends
   // on it).
   absl::SetProgramUsageMessage(
