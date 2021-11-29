@@ -56,7 +56,7 @@ struct CommandLineFlags {
 
   WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[
 #ifdef WB_OS_WIN
-      sizeof(periodic_timer_resolution_ms) -
+      sizeof(char*) -
 #else
       sizeof(uint32_t) -
 #endif

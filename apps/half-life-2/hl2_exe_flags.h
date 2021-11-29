@@ -29,10 +29,10 @@ constexpr char kUsageMessage[] = WB_PRODUCT_FILE_DESCRIPTION_STRING
     "counting\non him.\n\nSample usage:\n";
 
 #ifdef WB_OS_WIN
-    /**
-     * @brief Periodic timer resolution.
-     */
-    struct PeriodicTimerResolution {
+/**
+ * @brief Periodic timer resolution.
+ */
+struct PeriodicTimerResolution {
   explicit PeriodicTimerResolution(uint32_t ms_) noexcept : ms{ms_} {}
 
   /**
@@ -72,13 +72,18 @@ struct WindowSize {
    * @brief Size in pixels.
    */
   uint16_t size;
+
+  WindowSize(const WindowSize&) noexcept = default;
+  WindowSize(WindowSize&&) noexcept = default;
+  WindowSize& operator=(const WindowSize&) noexcept = default;
+  WindowSize& operator=(WindowSize&&) noexcept = default;
 };
 
 /**
  * @brief Window width.
  */
 struct WindowWidth : WindowSize {
-  using WindowSize::WindowSize;
+  explicit WindowWidth(uint16_t size_) noexcept : WindowSize{size_} {}
 };
 
 /**
@@ -102,7 +107,7 @@ bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error);
  * @brief Window height.
  */
 struct WindowHeight : WindowSize {
-  using WindowSize::WindowSize;
+  explicit WindowHeight(uint16_t size_) noexcept : WindowSize{size_} {}
 };
 
 /**

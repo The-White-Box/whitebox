@@ -205,7 +205,8 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
           return (*kernel_main)(
               {bootmgr_args.app_description, bootmgr_args.instance,
                bootmgr_args.show_window_flags, bootmgr_args.main_icon_id,
-               bootmgr_args.small_icon_id, bootmgr_args.intl});
+               bootmgr_args.small_icon_id, bootmgr_args.command_line_flags,
+               bootmgr_args.intl});
 #else
           return (*kernel_main)({bootmgr_args.app_description,
                                  bootmgr_args.command_line_flags,

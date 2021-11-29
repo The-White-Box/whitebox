@@ -94,7 +94,6 @@ namespace {
 /**
  * @brief Load and run boot manager.
  * @param instance App instance.
- * @param args Command line args.
  * @param positional_flags Command line args which are not part of any parsed
  * flags.
  * @param show_window_flags Show window flags.
@@ -102,8 +101,8 @@ namespace {
  * @return App exit code.
  */
 int BootmgrStartup(
-    _In_ HINSTANCE instance, _In_ const wb::apps::win::Args& args,
-    _In_ std::vector<char*> positional_flags, _In_ int show_window_flags,
+    _In_ HINSTANCE instance, _In_ std::vector<char*> positional_flags,
+    _In_ int show_window_flags,
     _In_ const wb::base::intl::LookupWithFallback& intl) noexcept {
   using namespace wb::base;
 
@@ -295,6 +294,26 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
   const auto intl = CreateIntl(scoped_process_locale);
 
+  // Initialize command line flags.
+  auto args_parse_result =
+      wb::apps::win::Args::FromCommandLine(full_command_line_wide);
+  if (const auto* error = std2::get_error(args_parse_result))
+    WB_ATTRIBUTE_UNLIKELY {
+      wb::ui::FatalDialog(
+          intl::l18n_fmt(intl, "{0} - Error",
+                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          *error,
+          intl::l18n(intl,
+                     "Please ensure you have enough free memory and use "
+                     "command line correctly."),
+          MakeFatalContext(intl),
+          intl::l18n(intl,
+                     "Can't parse command line flags.  See log for details."));
+    }
+
+  auto args = std2::get_result(args_parse_result);
+  G3DCHECK(!!args);
+
   // Setup command line flags as they are used early.
   std::vector<char*> positional_flags{
       ParseCommandLine(args->count(), args->values())};
@@ -338,6 +357,6 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 
-  return BootmgrStartup(instance, *args, std::move(positional_flags),
+  return BootmgrStartup(instance, std::move(positional_flags),
                         show_window_flags, intl);
 }

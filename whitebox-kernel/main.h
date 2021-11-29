@@ -76,6 +76,9 @@ struct KernelArgs {
    * @brief Small app icon id.
    */
   int small_icon_id;
+
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte
+      pad_[sizeof(char *) - sizeof(small_icon_id)];
 #endif
 
   /**
