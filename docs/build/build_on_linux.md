@@ -38,27 +38,24 @@ WhiteBox uses SDL library, which requires additional packages.  Please, follow
 [SDL Linux README](../../deps/sdl/docs/README-linux.md) to add the packages.
 
 Git will create the repository within a directory named `whitebox`.  Navigate
-into this directory and run all tests:
+into this directory and configure all projects (note `--preset` should specify
+suitable for you preset in format
+`<cpu_architecture>-<device>-linux-<compiler>-<build_type>` from
+CMakePresets.json):
 
 ```
 $ cd whitebox
-$ mkdir build && cd build
-$ cmake -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-  -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -Dgtest_hide_internal_symbols=ON \
-  -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=ON \
-  -DMI_BUILD_TESTS=ON -DMI_SECURE=ON -DWB_BUILD_TESTS=ON \
-  -DWB_CLANG_LANGUAGE_VERSION="c++20" -DWB_GCC_LANGUAGE_VERSION="c++20" \
-  -DWB_GCC_ENABLE_WARNING_WUNDEF=OFF ..
+$ cmake --preset x86_64-unknown-linux-clang-release
 ...
 -- Configuring done
 -- Generating done
 -- Build files have been written to: ${PWD}
 ```
 
-Now you can build the CMake target tests:
+Now you can build the CMake all target:
 
 ```
-$ cmake --build . --target all
+$ cmake --build --preset x86_64-unknown-linux-clang-release
 ...
 [100%] Linking CXX executable whitebox-base_tests
 [100%] Built target whitebox-base_tests
@@ -68,7 +65,7 @@ Once you have built the CMake tests, run them in parallel with the `ctest`
 command:
 
 ```
-$ ctest
+$ ctest --preset x86_64-unknown-linux-clang-release
 Test project ${PWD}
       Start  1: whitebox-base_tests
 ...

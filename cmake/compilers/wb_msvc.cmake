@@ -60,11 +60,11 @@ wb_define_strings_option(WB_MSVC_FAVORED_CPU_ARCHITECTURE
   "blend" "AMD64" "ATOM" "INTEL64")
 
 wb_define_strings_option(WB_MSVC_FLOATING_POINT_BEHAVIOR
-  "Specifies how the compiler treats floating-point expressions, optimizations, and exceptions"
+  "Specifies how the compiler treats floating-point expressions, optimizations, and exceptions."
   "precise" "strict" "fast")
 
 wb_define_strings_option(WB_MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR
-  "Specifies how any unmasked floating-point exceptions are raised at the exact point at which they occur, and that no additional floating-point exceptions are raised. WB_MSVC_FLOATING_POINT_BEHAVIOR:strict option enables except, and WB_MSVC_FLOATING_POINT_BEHAVIOR:precise does not.  The except option is not compatible with WB_MSVC_FLOATING_POINT_BEHAVIOR:fast."
+  "Specifies how any unmasked floating-point exceptions are raised at the exact point at which they occur, and that no additional floating-point exceptions are raised.  WB_MSVC_FLOATING_POINT_BEHAVIOR:strict option enables except, and WB_MSVC_FLOATING_POINT_BEHAVIOR:precise does not.  The except option is not compatible with WB_MSVC_FLOATING_POINT_BEHAVIOR:fast."
   "except-" "except")
 
 wb_define_strings_option(WB_MSVC_MINIMUM_CPU_ARCHITECTURE

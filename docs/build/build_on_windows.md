@@ -60,22 +60,24 @@ CMake's Ninja backend.
 
 Git will create the repository within a directory named `whitebox`.  Press
 `Win` key and type *Developer Command Prompt for VS 2019* to open one.  Then
-navigate into this directory and run all tests:
+navigate into this directory and configure all projects (note `--preset` should
+specify suitable for you preset in format
+`<cpu_architecture>-<cpu_vendor>_pc-windows-<compiler>-<build_type>` from
+CMakePresets.json):
 
 ```
-> cd /d %USERPROFILE%\source\whitebox
-> mkdir build && cd build
-> cmake -DADD_FATAL_EXAMPLE=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON -Dgtest_hide_internal_symbols=ON -DINSTALL_GTEST=OFF -DMI_BUILD_OBJECT=OFF -DMI_BUILD_STATIC=ON -DMI_BUILD_TESTS=ON -DMI_SECURE=ON -DWB_BUILD_TESTS=ON -DWB_MSVC_CXX_LANGUAGE_VERSION="c++latest" -DDEBUG_BREAK_AT_FATAL_SIGNAL=ON ..
+$ cd whitebox
+$ cmake --preset x86_64-intel_pc-windows-msvc-release
 ...
 -- Configuring done
 -- Generating done
 -- Build files have been written to: ${PWD}
 ```
 
-Now you can build the CMake target tests:
+Now you can build the CMake all target:
 
 ```
-> cmake --build . --target all
+$ cmake --build --preset x86_64-intel_pc-windows-msvc-release
 ...
 [100%] Linking CXX executable whitebox-base_tests
 [100%] Built target whitebox-base_tests
@@ -85,7 +87,7 @@ Once you have built the CMake tests, run them in parallel with the `ctest`
 command:
 
 ```
-> ctest
+$ ctest --preset x86_64-intel_pc-windows-msvc-release
 Test project ${PWD}
       Start  1: whitebox-base_tests
 ...
