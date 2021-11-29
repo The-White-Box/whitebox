@@ -10,8 +10,10 @@
 #include <thread>
 #include <type_traits>
 
+#include "build/build_config.h"
+
 #ifdef WB_OS_WIN
-#include "base/win/scoped_minimum_timer_resolution.h"
+#include "base/win/scoped_timer_resolution.h"
 #endif
 
 //
@@ -52,9 +54,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
   // Well, windows sleep precision can be not so high.  Need to increase it to
   // fluctuate no more than sample_time_deviation.
   const auto scoped_minimum_timer_resolution =
-      wb::base::win::ScopedMinimumTimerResolution::New(
+      wb::base::win::ScopedTimerResolution::New(
           sample_time_deviation);
-  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedMinimumTimerResolution>(
+  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedTimerResolution>(
       &scoped_minimum_timer_resolution));
 #endif
 
@@ -92,9 +94,9 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
   // Well, windows sleep precision can be not so high.  Need to increase it to
   // fluctuate no more than sample_time_deviation.
   const auto scoped_minimum_timer_resolution =
-      wb::base::win::ScopedMinimumTimerResolution::New(
+      wb::base::win::ScopedTimerResolution::New(
           sample_time_deviation);
-  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedMinimumTimerResolution>(
+  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedTimerResolution>(
       &scoped_minimum_timer_resolution));
 #endif
 

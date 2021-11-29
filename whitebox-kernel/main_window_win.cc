@@ -194,22 +194,21 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
   G3DCHECK(!!window);
 
   using namespace wb::base;
+  using namespace std::chrono_literals;
 
   render_sampling_profiler_.Sample();
 
+  if (!is_window_active_ || ::IsIconic(window)) WB_ATTRIBUTE_UNLIKELY {
+      // Inactive or iconic, do not draw too much system power.
+      std::this_thread::sleep_for(30ms);
+    }
+
+  // Simulate render.
   {
-    auto scoped_window_paint_result =
-        wb::ui::win::ScopedWindowPaint::New(window);
-
-    using namespace std::chrono_literals;
-
-    if (const auto *scoped_window_paint =
-            std2::get_result(scoped_window_paint_result);
-        scoped_window_paint && is_window_active_ && !::IsIconic(window)) {
-      // TODO(dimhotepus): Repaint.
-
-      {
-        /*const auto get_fps_as_float = [](auto time_between_samples) noexcept {
+    auto scoped_window_paint = wb::ui::win::ScopedWindowPaint::New(window);
+    if (const auto *painter = std2::get_result(scoped_window_paint); painter)
+      WB_ATTRIBUTE_LIKELY {
+        const auto samples_2_fps = [](auto time_between_samples) noexcept {
           const auto elapsed_since_last_frame_mks =
               std::chrono::duration_cast<std::chrono::microseconds>(
                   time_between_samples)
@@ -220,28 +219,24 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
                      : 0;
         };
 
-        const float fps{get_fps_as_float(
+        const float fps{samples_2_fps(
             render_sampling_profiler_.GetTimeBetweenLastSamples())};
+        constexpr float kFpsMaxCap{200};
 
-        char fps_text[128];
-        sprintf_s(fps_text, "%.2f FPS", fps);*/
+        if (fps <= kFpsMaxCap) {
+          std::string message;
+          absl::StrAppend(&message, "FPS: ", fps, " ", input_data);
 
-        {
-          RECT paint_rc{scoped_window_paint->PaintInfo().rcPaint};
+          RECT paint_rc{painter->PaintInfo().rcPaint};
 
-          scoped_window_paint->BlitPattern(paint_rc, WHITENESS);
-          scoped_window_paint->TextDraw(
-              input_data.c_str(), -1, &paint_rc,
+          painter->BlitPattern(paint_rc, WHITENESS);
+          painter->TextDraw(
+              message.c_str(), -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+        } else {
+          std::this_thread::sleep_for(4ms);
         }
       }
-
-      // Simulate render.
-      std::this_thread::sleep_for(6ms);
-    } else {
-      // Inactive or iconic, do not draw too much system power.
-      std::this_thread::sleep_for(30ms);
-    }
   }
 
   // Generate continuous stream of WM_PAINT to render with up to display
@@ -270,22 +265,23 @@ void MainWindow::OnGetWindowSizeBounds(_In_ HWND,
 void MainWindow::OnWindowDestroy(_In_ HWND) noexcept { ::PostQuitMessage(0); }
 
 void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
-  using namespace wb::base::win;
+  using namespace wb::base;
 
   if (enable) {
     // Change window to normal size, should enable DWM MMCSS to
     // speed up window composition.
-    auto scoped_toggle_dwm_mmcs_result = mmcss::ScopedMmcssToggleDwm::New(true);
-    if (auto *scheduler =
-            base::std2::get_result(scoped_toggle_dwm_mmcs_result)) {
-      auto *memory = new unsigned char[sizeof(mmcss::ScopedMmcssToggleDwm)];
+    auto scoped_toggle_dwm_mmcs_result =
+        win::mmcss::ScopedMmcssToggleDwm::New(true);
+    if (auto *scheduler = std2::get_result(scoped_toggle_dwm_mmcs_result)) {
+      auto *memory =
+          new unsigned char[sizeof(win::mmcss::ScopedMmcssToggleDwm)];
 
       // Trick with placement new + move.
       scoped_mmcss_toggle_dwm_.reset(
-          new (reinterpret_cast<mmcss::ScopedMmcssToggleDwm *>(memory))
-              mmcss::ScopedMmcssToggleDwm{std::move(*scheduler)});
+          new (reinterpret_cast<win::mmcss::ScopedMmcssToggleDwm *>(memory))
+              win::mmcss::ScopedMmcssToggleDwm{std::move(*scheduler)});
     } else {
-      const auto *rc = base::std2::get_error(scoped_toggle_dwm_mmcs_result);
+      const auto *rc = std2::get_error(scoped_toggle_dwm_mmcs_result);
       G3DCHECK(!!rc);
       G3PLOG_E(WARNING, *rc)
           << "Unable to enable Desktop Window Manager (DWM) Multimedia Class "

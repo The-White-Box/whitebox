@@ -29,7 +29,7 @@ option(WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS   "If enabled, thr
 option(WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS               "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
 option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, build against the static, rather than the dynamic, runtime." OFF)
 option(WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_ANSI                 "If enabled, uses *W (UTF-16) WinAPI instead of *A ANSI." OFF)
-option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, uses secure tempalte overloads to ex. replace the strcpy call to strcpy_s, which prevents buffer overruns.  See https://docs.microsoft.com/en-us/cpp/c-runtime-library/secure-template-overloads" ON)
+option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, uses secure template overloads to ex. replace the strcpy call to strcpy_s, which prevents buffer overruns.  See https://docs.microsoft.com/en-us/cpp/c-runtime-library/secure-template-overloads" ON)
 
 wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to use in Clang-Tidy."
@@ -37,7 +37,7 @@ wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
 
 wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
-  "c++17" "c++latest")
+  "c++latest" "c++17")
 
 wb_define_strings_option(WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS
   "Used to enable and disable the run-time error checks feature in DEBUG, in conjunction with the runtime_checks pragma."
