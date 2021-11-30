@@ -63,7 +63,7 @@ Git will create the repository within a directory named `whitebox`.  Press
 navigate into this directory and configure all projects (note `--preset` should
 specify suitable for you preset in format
 `<cpu_architecture>-<cpu_vendor>_pc-windows-<compiler>-<build_type>` from
-CMakePresets.json):
+[CMakePresets.json](../../CMakePresets.json)):
 
 ```
 $ cd whitebox
