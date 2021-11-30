@@ -7,7 +7,7 @@
 #ifndef WB_BASE_DEPS_SDL_WINDOW_H_
 #define WB_BASE_DEPS_SDL_WINDOW_H_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
 #include "base/deps/sdl/surface.h"

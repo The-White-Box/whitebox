@@ -23,8 +23,8 @@
 #include <string>
 #include <string_view>
 
-#include "base/base_api.h"
-#include "base/base_macroses.h"
+#include "base/config.h"
+#include "base/macroses.h"
 #include "base/deps/fmt/core.h"
 #include "base/intl/lookup_with_fallback.h"
 #include "build/compiler_config.h"

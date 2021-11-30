@@ -7,9 +7,9 @@
 #ifndef WB_WHITEBOX_UI_WIN_FULL_SCREEN_WINDOW_TOGGLER_H_
 #define WB_WHITEBOX_UI_WIN_FULL_SCREEN_WINDOW_TOGGLER_H_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "build/compiler_config.h"
-#include "whitebox-ui/api.h"
+#include "whitebox-ui/config.h"
 
 using HWND = struct HWND__ *;
 

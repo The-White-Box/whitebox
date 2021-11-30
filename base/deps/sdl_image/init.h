@@ -10,7 +10,7 @@
 #include <cstddef>  // std::byte
 #include <ostream>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
 #include "deps/sdl_image/SDL_image.h"

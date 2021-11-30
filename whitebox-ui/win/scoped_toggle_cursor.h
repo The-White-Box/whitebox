@@ -7,7 +7,7 @@
 #ifndef WB_WHITEBOX_UI_WIN_SCOPED_TOGGLE_CURSOR_H_
 #define WB_WHITEBOX_UI_WIN_SCOPED_TOGGLE_CURSOR_H_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "build/compiler_config.h"
 
 WB_ATTRIBUTE_DLL_IMPORT int __stdcall ShowCursor(_In_ int bShow);

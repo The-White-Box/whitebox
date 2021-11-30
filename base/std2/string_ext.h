@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "base/base_api.h"
+#include "base/config.h"
 #include "build/build_config.h"
 
 namespace wb::base::std2 {

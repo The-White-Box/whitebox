@@ -56,10 +56,11 @@ wb_cxx_shared_library(
 
 if (WB_BUILD_TESTS)
   set(WB_BASE_TESTS_LINK_DEPS
+    # Should be first as needs redirect first.
+    mimalloc
     absl::cleanup
     fmt
     g3log
-    mimalloc
     wb::whitebox-base)
 
   if (WB_OS_WIN)

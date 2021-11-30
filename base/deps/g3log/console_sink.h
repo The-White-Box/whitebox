@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "build/build_config.h"
 #include "g3log_config.h"
 

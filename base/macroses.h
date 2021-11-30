@@ -2,10 +2,10 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Provides common macroses & inline functions to use in relying apps.
+// Provides common macroses & inline functions.
 
-#ifndef WB_BASE_BASE_MACROSES_H_
-#define WB_BASE_BASE_MACROSES_H_
+#ifndef WB_BASE_MACROSES_H_
+#define WB_BASE_MACROSES_H_
 
 #include <memory>
 #include <type_traits>
@@ -85,4 +85,4 @@ using un = std::unique_ptr<T, Deleter>;
 
 }  // namespace wb::base
 
-#endif  // !WB_BASE_BASE_MACROSES_H_
+#endif  // !WB_BASE_MACROSES_H_

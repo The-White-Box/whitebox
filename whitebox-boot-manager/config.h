@@ -4,8 +4,8 @@
 //
 // Boot manager API macroses & utilities.
 
-#ifndef WB_WHITEBOX_BOOT_MANAGER_API_H_
-#define WB_WHITEBOX_BOOT_MANAGER_API_H_
+#ifndef WB_WHITEBOX_BOOT_MANAGER_CONFIG_H_
+#define WB_WHITEBOX_BOOT_MANAGER_CONFIG_H_
 
 #include "build/compiler_config.h"
 
@@ -17,4 +17,4 @@
 #define WB_BOOT_MANAGER_API WB_ATTRIBUTE_DLL_IMPORT
 #endif
 
-#endif  // !WB_WHITEBOX_BOOT_MANAGER_API_H_
+#endif  // !WB_WHITEBOX_BOOT_MANAGER_CONFIG_H_

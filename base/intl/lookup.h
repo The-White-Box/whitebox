@@ -26,8 +26,8 @@
 #include <string_view>
 #include <variant>
 
-#include "base/base_api.h"
-#include "base/base_macroses.h"
+#include "base/config.h"
+#include "base/macroses.h"
 #include "base/deps/fmt/core.h"
 #include "build/compiler_config.h"
 

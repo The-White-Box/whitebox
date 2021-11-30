@@ -9,7 +9,7 @@
 
 #include <ostream>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/config.h"

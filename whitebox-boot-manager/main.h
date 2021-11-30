@@ -13,7 +13,7 @@
 #include "base/intl/lookup_with_fallback.h"
 #include "build/build_config.h"
 #include "command_line_flags.h"
-#include "whitebox-boot-manager/api.h"
+#include "config.h"
 
 #ifdef WB_OS_WIN
 /**

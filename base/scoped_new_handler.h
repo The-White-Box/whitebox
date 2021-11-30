@@ -11,7 +11,7 @@
 #include <cstdlib>  // exit.
 #include <new>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base {

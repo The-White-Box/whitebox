@@ -7,7 +7,7 @@
 #ifndef WB_WHITEBOX_UI_WIN_SCOPED_CHANGE_CURSOR_H_
 #define WB_WHITEBOX_UI_WIN_SCOPED_CHANGE_CURSOR_H_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "build/compiler_config.h"
 
 using HICON = struct HICON__*;

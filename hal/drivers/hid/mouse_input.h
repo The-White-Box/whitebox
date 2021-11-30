@@ -9,7 +9,7 @@
 
 #include <string>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/abseil/strings/str_cat.h"
 
 namespace wb::hal::hid {

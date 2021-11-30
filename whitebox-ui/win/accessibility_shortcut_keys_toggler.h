@@ -7,9 +7,9 @@
 #ifndef WB_WHITEBOX_UI_WIN_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
 #define WB_WHITEBOX_UI_WIN_ACCESSIBILITY_SHORTCUT_KEYS_TOGGLER_H_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "build/compiler_config.h"
-#include "whitebox-ui/api.h"
+#include "whitebox-ui/config.h"
 
 namespace wb::ui::win {
 

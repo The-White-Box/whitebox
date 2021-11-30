@@ -4,8 +4,8 @@
 //
 // Provides base module API macroses.
 
-#ifndef WB_BASE_BASE_API_H_
-#define WB_BASE_BASE_API_H_
+#ifndef WB_BASE_CONFIG_H_
+#define WB_BASE_CONFIG_H_
 
 #include "build/compiler_config.h"
 
@@ -17,4 +17,4 @@
 #define WB_BASE_API WB_ATTRIBUTE_DLL_IMPORT
 #endif
 
-#endif  // !WB_BASE_BASE_API_H_
+#endif  // !WB_BASE_CONFIG_H_

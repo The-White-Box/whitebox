@@ -12,7 +12,7 @@
 
 #include <ostream>
 
-#include "base/base_api.h"
+#include "base/config.h"
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base::win {

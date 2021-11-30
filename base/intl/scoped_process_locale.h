@@ -12,7 +12,7 @@
 #include <optional>
 #include <string>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 
 namespace wb::base::intl {

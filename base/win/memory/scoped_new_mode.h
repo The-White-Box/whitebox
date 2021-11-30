@@ -11,7 +11,7 @@
 
 #include <type_traits>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 
 namespace wb::base::win::memory {
 

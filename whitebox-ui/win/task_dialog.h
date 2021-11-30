@@ -14,9 +14,9 @@
 #include <string>
 #include <variant>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/std2/system_error_ext.h"
-#include "whitebox-ui/api.h"
+#include "whitebox-ui/config.h"
 
 using HWND = struct HWND__ *;
 

@@ -10,7 +10,7 @@
 #include <sal.h>          // _Check_return_
 #include <specstrings.h>  // _Post_equals_last_error_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "build/compiler_config.h"
 
 extern "C" WB_ATTRIBUTE_DLL_IMPORT _Check_return_

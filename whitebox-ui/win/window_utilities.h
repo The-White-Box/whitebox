@@ -14,7 +14,7 @@
 #include <string>
 #include <type_traits>
 
-#include "whitebox-ui/api.h"
+#include "whitebox-ui/config.h"
 
 using HWND = struct HWND__ *;
 

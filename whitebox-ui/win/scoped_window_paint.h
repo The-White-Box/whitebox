@@ -7,10 +7,10 @@
 #ifndef WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_PAINT_H_
 #define WB_WHITEBOX_UI_WIN_SCOPED_WINDOW_PAINT_H_
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"
-#include "whitebox-ui/api.h"
+#include "whitebox-ui/config.h"
 
 using HWND = struct HWND__*;
 using PAINTSTRUCT = struct tagPAINTSTRUCT;

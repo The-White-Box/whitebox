@@ -10,8 +10,8 @@
 #include <string>
 #include <thread>
 
-#include "base/base_api.h"
-#include "base/base_macroses.h"
+#include "base/config.h"
+#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/std2/system_error_ext.h"
 #include "build/compiler_config.h"

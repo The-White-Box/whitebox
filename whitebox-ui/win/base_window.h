@@ -13,12 +13,12 @@
 #include <memory>
 #include <type_traits>
 
-#include "base/base_macroses.h"
+#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/win/error_handling/scoped_thread_last_error.h"
 #include "base/win/system_error_ext.h"
 #include "build/compiler_config.h"
-#include "whitebox-ui/api.h"
+#include "whitebox-ui/config.h"
 #include "whitebox-ui/win/scoped_window_class.h"
 #include "whitebox-ui/win/window_definition.h"
 

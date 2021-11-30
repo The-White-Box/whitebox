@@ -9,7 +9,7 @@
 
 #include <system_error>
 
-#include "base/base_api.h"
+#include "base/config.h"
 
 namespace wb::base::win::memory {
 
