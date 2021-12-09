@@ -9,8 +9,8 @@
 
 #include <utility>  // std::move
 
-#include "base/base_macroses.h"
 #include "base/deps/sdl/window.h"
+#include "base/macroses.h"
 
 namespace wb::kernel {
 

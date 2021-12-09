@@ -67,7 +67,7 @@ namespace {
  * @param mutex_or_error Process shared mutex attribute or error.
  * @return Process shared mutex.
  */
-[[nodiscard]] wb::base::std2::result<base::posix::ScopedSharedMemoryObject>
+[[nodiscard]] wb::base::std2::result<wb::base::posix::ScopedSharedMemoryObject>
 CreateProcessMutex(const char* app_description) noexcept {
   using namespace wb::base::posix;
 
@@ -76,15 +76,15 @@ CreateProcessMutex(const char* app_description) noexcept {
       ScopedSharedMemoryObjectFlags::kCreate |
           ScopedSharedMemoryObjectFlags::kExclusive,
       ScopedAccessModeFlags::kOwnerRead);
-};
+}
 
 /**
  * @brief Get app instance status.
  * @param mutex_result Mutex.
  * @return App instance status.
  */
-[[nodiscard]] AppInstanceStatus CheckStatus(
-    const wb::base::std2::result<base::posix::ScopedSharedMemoryObject>&
+[[nodiscard]] wb::boot_manager::AppInstanceStatus CheckStatus(
+    const wb::base::std2::result<wb::base::posix::ScopedSharedMemoryObject>&
         mutex_or_error) noexcept {
   using namespace wb::base;
   using namespace wb::boot_manager;

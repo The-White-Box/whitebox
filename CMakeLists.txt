@@ -2,7 +2,7 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
 # Controls either WhiteBox tests be build or not.
 option(WB_BUILD_TESTS "Build WhiteBox tests or not." OFF)
@@ -60,7 +60,7 @@ if (NOT DEFINED PACKAGE_VERSION)
     message(STATUS "[common]: Extracting Git software version.")
     execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
-  
+
   set(PACKAGE_VER_PATCH 0)
   math(EXPR PACKAGE_VER_TWEAK ${WB_GIT_VERSION})
   message(STATUS
@@ -366,28 +366,63 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
   if (${wb_abseil_target_name} MATCHES "absl_" AND
       NOT ${wb_abseil_target_name} STREQUAL "absl_civil_time" AND
       NOT ${wb_abseil_target_name} STREQUAL "absl_time_zone")
-    if (WB_COMPILER_MSVC)
-      # Warning C4530: C++ exception handler used, but unwind semantics are not
-      # enabled.
-      target_compile_options(${wb_abseil_target_name} INTERFACE
-        /EHsc /guard:ehcont)
-      # LNK2047: module contains C++ EH or complex EH metadata but was not
-      # compiled with /guard:ehcont.
-      target_link_options(${wb_abseil_target_name} INTERFACE /guard:ehcont)
-    elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
-      # Can't create dynamic relocation R_X86_64_32 against local symbol in
-      # readonly segment.
-      target_compile_options(${wb_abseil_target_name} INTERFACE -fPIC)
-    endif()
+    get_target_property(wb_target_type ${wb_abseil_target_name} TYPE)
+    message(STATUS "${wb_abseil_target_name} of ${wb_target_type}")
 
-    if (WB_BUILD_TESTS)
-      # Abseil uses macroses without GTEST_ prefix.
-      target_compile_definitions(${wb_abseil_target_name}
-        INTERFACE
-          GTEST_DONT_DEFINE_FAIL=0
-          GTEST_DONT_DEFINE_SUCCEED=0
-          GTEST_DONT_DEFINE_TEST=0
-      )
+    if ("${wb_target_type}" STREQUAL "INTERFACE_LIBRARY")
+      if (WB_COMPILER_MSVC)
+        # Warning C4530: C++ exception handler used, but unwind semantics are not
+        # enabled.
+        target_compile_options(${wb_abseil_target_name}
+          INTERFACE
+            /EHsc
+            /guard:ehcont
+        )
+        # LNK2047: module contains C++ EH or complex EH metadata but was not
+        # compiled with /guard:ehcont.
+        target_link_options(${wb_abseil_target_name} INTERFACE /guard:ehcont)
+      elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+        # Can't create dynamic relocation R_X86_64_32 against local symbol in
+        # readonly segment.
+        target_compile_options(${wb_abseil_target_name} INTERFACE -fPIC)
+      endif()
+
+      if (WB_BUILD_TESTS)
+        # Abseil uses macroses without GTEST_ prefix.
+        target_compile_definitions(${wb_abseil_target_name}
+          INTERFACE
+            GTEST_DONT_DEFINE_FAIL=0
+            GTEST_DONT_DEFINE_SUCCEED=0
+            GTEST_DONT_DEFINE_TEST=0
+        )
+      endif()
+    else()
+      if (WB_COMPILER_MSVC)
+        # Warning C4530: C++ exception handler used, but unwind semantics are not
+        # enabled.
+        target_compile_options(${wb_abseil_target_name}
+          PRIVATE
+            /EHsc
+            /guard:ehcont
+        )
+        # LNK2047: module contains C++ EH or complex EH metadata but was not
+        # compiled with /guard:ehcont.
+        target_link_options(${wb_abseil_target_name} PRIVATE /guard:ehcont)
+      elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+        # Can't create dynamic relocation R_X86_64_32 against local symbol in
+        # readonly segment.
+        target_compile_options(${wb_abseil_target_name} PRIVATE -fPIC)
+      endif()
+
+      if (WB_BUILD_TESTS)
+        # Abseil uses macroses without GTEST_ prefix.
+        target_compile_definitions(${wb_abseil_target_name}
+          INTERFACE
+            GTEST_DONT_DEFINE_FAIL=0
+            GTEST_DONT_DEFINE_SUCCEED=0
+            GTEST_DONT_DEFINE_TEST=0
+        )
+      endif()
     endif()
   endif()
 endforeach()
@@ -437,10 +472,14 @@ if (NOT WB_OS_WIN)
 
   add_subdirectory(deps/sdl_image)
 
+  # SDL image forces other libraries to be build as shared.  Not that we want.
+  option(BUILD_SHARED_LIBS "Build the library as a shared library" OFF)
+
   if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
     # Linker error can't create dynamic relocation R_X86_64_64 against symbol:
     # XXX in readonly segment (-fPIC).
     target_compile_options(jpeg PRIVATE -fPIC)
+    target_compile_options(SDL2_image PRIVATE -fPIC)
   endif()
 endif()
 
@@ -469,47 +508,35 @@ wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
 # Ensure all dependencies reuse same memory allocators.
 foreach(wb_target_name ${WB_ALL_TARGETS})
+  get_target_property(wb_target_type ${wb_target_name} TYPE)
+
   # Do not add mimalloc / custom targets allocators to itself and some specific
   # actions.
   if (# ASAN intercepts new / delete.
       NOT ${wb_target_name} MATCHES "absl_leak_check_test" AND
       NOT ${wb_target_name} MATCHES "absl_disabled_leak_check_test" AND
-      NOT ${wb_target_name} MATCHES "clean-cmake" AND
-      # Abseil
-      NOT ${wb_target_name} MATCHES "Continuous" AND
-      # Abseil
-      NOT ${wb_target_name} MATCHES "Experimental" AND
-      NOT ${wb_target_name} MATCHES "fmt" AND
-      NOT ${wb_target_name} MATCHES "genfiles" AND
-      NOT ${wb_target_name} MATCHES "genprebuilt" AND
-      NOT ${wb_target_name} MATCHES "gensym" AND
-      NOT ${wb_target_name} MATCHES "genvers" AND
+      # Exclude itself.
       NOT ${wb_target_name} MATCHES "mimalloc" AND
-      # Abseil
-      NOT ${wb_target_name} MATCHES "Nightly" AND
-      NOT ${wb_target_name} MATCHES "sdl-build-options" AND
-      NOT ${wb_target_name} MATCHES "symbol-check" AND
-      NOT ${wb_target_name} MATCHES "uninstall")
-    get_target_property(wb_target_type ${wb_target_name} TYPE)
+      # Only code gen targets.
+      ((${wb_target_name} MATCHES "LIBRARY" AND
+        NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY") OR
+       ${wb_target_name} MATCHES "EXECUTABLE"))
+    # Include the directories with the new files.
+    target_include_directories(${wb_target_name}
+      PRIVATE
+        ${WB_ROOT_DIR}
+        "${WB_ROOT_DIR}/deps/mimalloc/include")
 
-    if (NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY")
-      # Include the directories with the new files.
-      target_include_directories(${wb_target_name}
-        PRIVATE
-          ${WB_ROOT_DIR}
-          "${WB_ROOT_DIR}/deps/mimalloc/include")
+    # Add new / delete allocator overrides.
+    target_sources(${wb_target_name}
+      PRIVATE
+        ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
+    )
 
-      # Add new / delete allocator overrides.
-      target_sources(${wb_target_name}
-        PRIVATE
-          ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
-      )
+    # Add mimalloc to handle allocators.
+    target_link_libraries(${wb_target_name} PRIVATE mimalloc)
 
-      # Add mimalloc to handle allocators.
-      target_link_libraries(${wb_target_name} PRIVATE mimalloc)
-
-      # mimalloc should be copied by each target individually as haven't found way
-      # to it here.
-    endif()
+    # mimalloc should be copied by each target individually as haven't found way
+    # to it here.
   endif()
 endforeach()

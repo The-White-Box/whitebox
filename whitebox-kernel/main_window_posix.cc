@@ -2,9 +2,9 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// App main window on *nix.
+// App main window on POSIX.
 
-#include "main_window_unix.h"
+#include "main_window_posix.h"
 
 #include <string>
 

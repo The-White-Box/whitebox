@@ -26,7 +26,7 @@
 #include "base/deps/sdl/window.h"
 #include "base/deps/sdl_image/init.h"
 #include "build/static_settings_config.h"
-#include "whitebox-kernel/main_window_unix.h"
+#include "whitebox-kernel/main_window_posix.h"
 #endif
 
 namespace {

@@ -8,7 +8,7 @@ There are instructions for other platforms linked from the
 * A 64-bit Intel/AMD machine with at least 8GB of RAM.  More than 16GB is highly
   recommended.
 * At least 10GB of free disk space.
-* You must have [Git](https://git-scm.com/) and [CMake 3.10+](https://cmake.org/)
+* You must have [Git](https://git-scm.com/) and [CMake 3.19+](https://cmake.org/)
   installed already (and `cmake` must point to a CMake binary).
 
 ## Getting the WhiteBox code

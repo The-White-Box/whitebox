@@ -4,7 +4,7 @@
 #
 # Base library project definition.
 
-cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 
 set(WB_BASE_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(WB_BASE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR})

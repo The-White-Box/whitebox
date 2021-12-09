@@ -16,7 +16,7 @@ There are instructions for other platforms linked from the
 
   to check whether you have it.  Building with a newer SDK usually works too
   (please fix it if it doesn't).
-* You must have Git and CMake 3.10+ installed already (and `cmake` must point
+* You must have Git and CMake 3.19+ installed already (and `cmake` must point
   to a CMake binary).
 * At least 10GB of free disk space.
 

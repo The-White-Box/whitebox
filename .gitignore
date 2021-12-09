@@ -360,3 +360,6 @@ RCa*
 .PVS-Studio/
 *.PVS-Studio.cfg
 *.PVS-Studio.i
+
+# CMake user presets.
+CMakeUserPresets.json
