@@ -133,6 +133,9 @@ template <typename TResult>
 }  // namespace wb::sdl
 
 FMT_BEGIN_NAMESPACE
+/**
+ * @brief Fmt formatter for wb::sdl::error.
+ */
 template <>
 struct formatter<wb::sdl::error> : formatter<std::string> {
   template <typename FormatContext>

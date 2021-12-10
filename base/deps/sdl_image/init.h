@@ -10,9 +10,10 @@
 #include <cstddef>  // std::byte
 #include <ostream>
 
-#include "base/macroses.h"
+#include "base/deps/fmt/format.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
+#include "base/macroses.h"
 #include "deps/sdl_image/SDL_image.h"
 
 namespace wb::sdl_image {
@@ -190,5 +191,20 @@ inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
 
   return s << "UNKNOWN ";
 }
+
+FMT_BEGIN_NAMESPACE
+/**
+ * @brief Fmt formatter for wb::sdl_image::SDLImageInitType.
+ */
+template <>
+struct formatter<wb::sdl_image::SDLImageInitType> : formatter<std::string> {
+  template <typename FormatContext>
+  auto format(wb::sdl_image::SDLImageInitType type, FormatContext &ctx) {
+    std::stringstream s{std::ios_base::out};
+    s << type;
+    return fmt::formatter<std::string>::format(s.str(), ctx);
+  }
+};
+FMT_END_NAMESPACE
 
 #endif  // !WB_BASE_DEPS_SDL_IMAGE_INIT_H_
