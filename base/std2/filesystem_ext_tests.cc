@@ -32,8 +32,13 @@ class ScopedChangeCurrentPath {
 
   ~ScopedChangeCurrentPath() noexcept {
     if (!rc_) {
-      std::filesystem::current_path(original_current_path_, rc_);
-      EXPECT_EQ(std::error_code{}, rc_);
+      try {
+        std::filesystem::current_path(original_current_path_, rc_);
+        EXPECT_EQ(std::error_code{}, rc_);
+      } catch (const std::exception &ex) {
+        EXPECT_FALSE(!!ex.what())
+            << "~ScopedChangeCurrentPath throws " << ex.what();
+      }
     }
   }
 

@@ -81,7 +81,7 @@ GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   ASSERT_NE(nullptr, lookup);
 
   const auto triggerTerminate = [&]() {
-    (void)l18n_fmt(*lookup, "Can't load boot manager '{0}'.");
+    (void)l18n_fmt(*lookup, "Can't load boot manager '{0}'.");  //-V530
   };
 
   const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(

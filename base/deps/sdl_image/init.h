@@ -104,7 +104,7 @@ class SDLImageInit {
    */
   int actual_flags_;
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(char *) - sizeof(actual_flags_)];
+      pad_[sizeof(char *) - sizeof(actual_flags_)];  //-V730_NOINIT
   /**
    * Init error code.
    */

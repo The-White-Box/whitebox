@@ -246,7 +246,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
   un<ScopedCursor> wait_cursor_while_app_starts{
-      CreateScopedCursor(SystemCursor::kWaitArrow)};
+      CreateScopedCursor(SystemCursor::kWaitArrow)};  //-V821
 
   G3LOG(INFO) << "SDL versions: build " << compiled_sdl_version << ", runtime "
               << linked_sdl_version << '.';

@@ -33,16 +33,17 @@ GTEST_TEST(ScopedProcessLocaleTest, SetAllUtf8LocaleAsCurrentInScope) {
     const ScopedProcessLocale scoped_process_locale{
         ScopedProcessLocaleCategory::kAll, locales::kUtf8Locale};
     const auto maybe_current_locale = scoped_process_locale.GetCurrentLocale();
+    if (maybe_current_locale.has_value()) {
+      const std::string in_scope_locale{GetCurrentLocale()};
+
+      EXPECT_EQ(in_scope_locale, maybe_current_locale.value().c_str());
+      EXPECT_NE(out_of_scope_locale1, maybe_current_locale.value().c_str());
+      EXPECT_TRUE(
+          maybe_current_locale.value().find("utf8") != std::string::npos ||
+          maybe_current_locale.value().find("UTF-8") != std::string::npos);
+    }
 
     ASSERT_TRUE(maybe_current_locale.has_value());
-
-    const std::string in_scope_locale{GetCurrentLocale()};
-
-    EXPECT_EQ(in_scope_locale, maybe_current_locale.value().c_str());
-    EXPECT_NE(out_of_scope_locale1, maybe_current_locale.value().c_str());
-    EXPECT_TRUE(
-        maybe_current_locale.value().find("utf8") != std::string::npos ||
-        maybe_current_locale.value().find("UTF-8") != std::string::npos);
   }
 
   const std::string out_of_scope_locale2{GetCurrentLocale()};

@@ -12,8 +12,8 @@
 #include <optional>
 #include <string>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 
 namespace wb::base::intl {
 
@@ -173,7 +173,8 @@ class ScopedProcessLocale {
    * Explicit padding.
    */
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(new_locale_) - sizeof(category_)];  //-V1055
+      pad_[sizeof(new_locale_) -  // NOLINT(bugprone-sizeof-container)
+           sizeof(category_)]{};  //-V730_NOINIT
 
   /**
    * Sets locale.

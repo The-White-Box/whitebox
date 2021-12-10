@@ -25,18 +25,15 @@ struct CharacterSet {
    * @brief Creates empty character set.
    * @return nothing.
    */
-  constexpr CharacterSet() noexcept {
-    for (auto &&ch : set) {
-      ch = false;
-    }
-  }
+  constexpr CharacterSet() noexcept : set{false, false} {}
 
   /**
    * @brief Creates character set from |char_set|.
-   * @param char_set 
+   * @param char_set
    * @return
    */
-  constexpr CharacterSet(std::string_view char_set) noexcept : CharacterSet{} {
+  explicit constexpr CharacterSet(std::string_view char_set) noexcept
+      : CharacterSet{} {
     for (auto ch : char_set) {
       set[static_cast<char_type>(ch)] = true;
     }
@@ -46,7 +43,7 @@ struct CharacterSet {
    * @brief Is character is character set?
    * @param ch Character to check in set.
    * @return true if |ch| belongs to character set, false otherwise.
-  */
+   */
   [[nodiscard]] constexpr bool HasChar(const char ch) const noexcept {
     return set[static_cast<char_type>(ch)];
   }
