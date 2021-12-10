@@ -472,8 +472,8 @@ if (NOT WB_OS_WIN)
 
   add_subdirectory(deps/sdl_image)
 
-  # SDL image forces other libraries to be build as shared.  Not that we want.
-  option(BUILD_SHARED_LIBS "Build the library as a shared library" OFF)
+  # SDL image TIFF dependency forces other libraries to be build as shared.  Not that we want.
+  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build the library as a shared library" FORCE)
 
   if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
     # Linker error can't create dynamic relocation R_X86_64_64 against symbol:

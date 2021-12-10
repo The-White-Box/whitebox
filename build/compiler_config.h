@@ -682,6 +682,12 @@
 #define WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE() _Pragma("GCC diagnostic push")
 
 /*
+ * @brief Disables GCC / Clang conversion warning.
+ */
+#define WB_GCC_DISABLE_CONVERSION_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wconversion\"")
+
+/*
  * @brief Disables GCC / Clang double-promotion warning.
  */
 #define WB_GCC_DISABLE_DOUBLE_PROMOTION_WARNING() \
@@ -710,6 +716,12 @@
  */
 #define WB_GCC_DISABLE_SIGN_CONVERSION_WARNING() \
   _Pragma("GCC diagnostic ignored \"-Wsign-conversion\"")
+
+/*
+ * @brief Disables GCC / Clang strict-aliasing warning.
+ */
+#define WB_GCC_DISABLE_STRICT_ALIASING_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wstrict-aliasing\"")
 
 /*
  * @brief Disables GCC / Clang switch-default warning.
@@ -754,6 +766,12 @@
   _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=malloc\"")
 
 /*
+ * @brief Disables GCC suggest-attribute=pure warning.
+ */
+#define WB_GCC_DISABLE_SUGGEST_PURE_ATTRIBUTE_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wsuggest-attribute=pure\"")
+
+/*
  * @brief Disables GCC / Clang useless-cast.
  */
 #define WB_GCC_DISABLE_USELESS_CAST_WARNING() \
@@ -780,6 +798,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_SUGGEST_PURE_ATTRIBUTE_WARNING()
 
 /*
  * @brief Do nothing.
@@ -833,6 +856,11 @@
 /*
  * @brief Do nothing.
  */
+#define WB_GCC_DISABLE_CONVERSION_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_GCC_DISABLE_DOUBLE_PROMOTION_WARNING()
 
 /*
@@ -854,6 +882,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_SIGN_CONVERSION_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_STRICT_ALIASING_WARNING()
 
 /*
  * @brief Do nothing.
@@ -883,7 +916,7 @@
 /*
  * @brief Do nothing.
  */
-#define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
+#define WB_GCC_DISABLE_SUGGEST_PURE_ATTRIBUTE_WARNING()
 
 /*
  * @brief Do nothing.

@@ -29,11 +29,11 @@
 #error "This package requires Visual Studio 2019 version 16.11 or higher."
 #endif
 
-// We support gcc 11.0 and later.
+// We support gcc 10.0 and later.
 // This minimum will go up.
 #if defined(__GNUC__) && !defined(__clang__)
-#if __GNUC__ < 11
-#error "This package requires gcc 11.0 or higher."
+#if __GNUC__ < 10
+#error "This package requires gcc 10.0 or higher."
 #endif
 #endif
 

@@ -13,8 +13,8 @@
 #include <string_view>
 
 #include "base/macroses.h"
-#include "base/std2/filesystem_ext.h"
 #include "base/std2/counting_streambuf.h"
+#include "base/std2/filesystem_ext.h"
 #include "base/std2/string_view_ext.h"
 #include "build/build_config.h"
 #include "g3log_config.h"
@@ -48,8 +48,9 @@ class ScopedG3LogInitializer {
             GetExecutableNameFromLogPrefix(log_prefix), path_to_log_file, "")},
         console_sink_handle_{log_worker_->addSink(
             std::make_unique<ConsoleSink>(), &ConsoleSink::ReceiveLogMessage)},
-        g3_initializer_{log_worker_.get()},
-        g3_io_streams_redirector_{} {
+        g3_initializer_{log_worker_.get()} /*,
+         g3_io_streams_redirector_{}*/
+  {
     // Install signal handler that catches FATAL C-runtime or OS signals
     // See the wikipedia site for details http://en.wikipedia.org/wiki/SIGFPE
     // See this site for example usage:
@@ -85,6 +86,9 @@ class ScopedG3LogInitializer {
     g3::setFatalPreLoggingHook([] { __debugbreak(); });
 #endif
 #endif
+
+    G3LOG(INFO) << "G3log will write logs to " << path_to_log_file
+                << GetExecutableNameFromLogPrefix(log_prefix);
   }
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedG3LogInitializer);
@@ -159,26 +163,28 @@ class ScopedG3LogInitializer {
   /**
    * @brief Log worker.
    */
-  wb::base::un<g3::LogWorker> log_worker_;
+  WB_ATTRIBUTE_UNUSED_FIELD wb::base::un<g3::LogWorker> log_worker_;
   /**
    * @brief File sink handle.
    */
-  wb::base::un<g3::FileSinkHandle> file_sink_handle_;
+  WB_ATTRIBUTE_UNUSED_FIELD wb::base::un<g3::FileSinkHandle> file_sink_handle_;
   /**
    * @brief Console sink handle.
    */
-  wb::base::un<g3::SinkHandle<ConsoleSink>> console_sink_handle_;
+  WB_ATTRIBUTE_UNUSED_FIELD wb::base::un<g3::SinkHandle<ConsoleSink>>
+      console_sink_handle_;
   /**
    * @brief g3log initializer.
    */
-  G3LogInitializer g3_initializer_;
+  WB_ATTRIBUTE_UNUSED_FIELD G3LogInitializer g3_initializer_;
 
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[7];
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[7] = {};
 
   /**
    * @brief g3log cout / cerr redirector.  Depends on g3_initializer_.
    */
-  G3IoStreamsRedirector g3_io_streams_redirector_;
+  // TODO(dimhotepus): Redirect cout / cerr to log?  Libraries may write to.
+  // WB_ATTRIBUTE_UNUSED_FIELD G3IoStreamsRedirector g3_io_streams_redirector_;
 
   /**
    * @brief Trim .exe from executable name.
