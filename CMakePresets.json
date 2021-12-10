@@ -84,6 +84,11 @@
       "cacheVariables": {
         "WB_MSVC_CXX_LANGUAGE_VERSION": "c++latest",
         "WB_MSVC_ENABLE_DEBUG_INLINING": "ON"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
       }
     },
     {

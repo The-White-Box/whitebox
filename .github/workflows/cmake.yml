@@ -97,16 +97,19 @@ jobs:
       - name: Build (MacOS)
         if: ${{ matrix.os == 'macos-latest' }}
         run: |
+          cmake --preset x86_64-apple-darwin-${{ matrix.build }}
           cmake --build --preset x86_64-apple-darwin-${{ matrix.build }}
 
       - name: Build (Ubuntu)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
+          cmake --preset x86_64-unknown-linux-gcc-${{ matrix.build }}
           cmake --build --preset x86_64-unknown-linux-gcc-${{ matrix.build }}
 
       - name: Build (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
+          cmake --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}
           cmake --build --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}
 
       - name: Test (MacOS)
