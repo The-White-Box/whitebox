@@ -35,7 +35,7 @@ namespace {
   const std::optional<std::string> maybe_user_locale{
       scoped_process_locale.GetCurrentLocale()};
   G3LOG_IF(WARNING, !maybe_user_locale.has_value())
-      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF8 locale '"
+      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF-8 locale '"
       << locales::kUtf8Locale << "' for UI, fallback to '"
       << locales::kFallbackLocale << "'.";
 
