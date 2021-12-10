@@ -383,15 +383,7 @@ endfunction()
 #
 # wb_shared_library_suffix("suffix")
 function(wb_shared_library_suffix RETURN_VALUE)
-  if (WB_OS_WIN)
-    set(suffix ".dll")
-  elseif (WB_OS_LINUX)
-    set(suffix ".so")
-  elseif (WB_OS_MACOS)
-    set(suffix ".dylib")
-  endif()
-
-  set(${RETURN_VALUE} ${suffix} PARENT_SCOPE)
+  set(${RETURN_VALUE} ${CMAKE_SHARED_LIBRARY_SUFFIX} PARENT_SCOPE)
 endfunction()
 
 # Adds VERSION resource to Win32 DLL target.
