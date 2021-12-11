@@ -189,19 +189,20 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     const wb::kernel::KernelArgs& kernel_args) {
   using namespace wb::base;
   using namespace wb::kernel;
-  using namespace wb::ui;
 
   const auto& intl = kernel_args.intl;
   const auto& command_line_flags = kernel_args.command_line_flags;
 
 #ifdef WB_OS_WIN
-  const win::WindowDefinition window_definition{
+  using namespace wb::ui::win;
+
+  const WindowDefinition window_definition{
       CreateMainWindowDefinition(kernel_args, kernel_args.app_description,
                                  command_line_flags.main_window_width,
                                  command_line_flags.main_window_height)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
-  auto window_result = win::BaseWindow::New<MainWindow>(
+  auto window_result = BaseWindow::New<MainWindow>(
       window_definition, window_class_style, intl);
   if (auto* window_ptr = std2::get_result(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {

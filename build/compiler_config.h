@@ -916,6 +916,11 @@
 /*
  * @brief Do nothing.
  */
+#define WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
 #define WB_GCC_DISABLE_SUGGEST_PURE_ATTRIBUTE_WARNING()
 
 /*
