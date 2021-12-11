@@ -115,6 +115,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
+        "WB_GCC_ENABLE_UNSAFE_MATH": "ON",
         "WB_GCC_ENABLE_WARNING_WUNDEF": "OFF",
         "WB_GCC_LANGUAGE_VERSION": "c++20",
         "WB_GCC_MINIMUM_CPU_ARCHITECTURE": "native"
@@ -129,6 +130,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
+        "WB_CLANG_ENABLE_UNSAFE_MATH": "ON",
         "WB_CLANG_LANGUAGE_VERSION": "c++20",
         "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
       }

@@ -15,7 +15,7 @@ option(WB_GCC_DEFINE__GLIBCXX_ASSERTIONS           "Define _GLIBCXX_ASSERTIONS m
 option(WB_GCC_DEFINE__GLIBCXX_SANITIZE_VECTOR      "Define _GLIBCXX_SANITIZE_VECTOR macro to annotate std::vector operations so that AddressSanitizer can detect invalid accesses to the unused capacity of a std::vector." ON)
 option(WB_GCC_ENABLE_ALL_WARNINGS                  "If enabled, pass -Wall to the GCC compiler." ON)
 option(WB_GCC_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
-option(WB_GCC_ENABLE_FAST_MATH                     "Enable fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math." OFF)
+option(WB_GCC_ENABLE_UNSAFE_MATH                   "Enable unsafe fast-math mode. This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.  See https://gcc.gnu.org/wiki/FloatingPointMath" OFF)
 option(WB_GCC_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
 option(WB_GCC_ENABLE_WARNING_WUNDEF                "If enabled, use -Wundef." ON)
 option(WB_GCC_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the GCC compiler." ON)
@@ -74,8 +74,43 @@ function(wb_apply_compile_options_to_target THE_TARGET)
     PRIVATE
       # Increased reliability of backtraces.
       -fasynchronous-unwind-tables
-      # Enable fast math.
-      $<$<BOOL:${WB_GCC_ENABLE_FAST_MATH}>:-ffast-math>
+      # Enable unsafe math optimizations.
+      $<$<BOOL:${WB_GCC_ENABLE_UNSAFE_MATH}>:
+        # Fast by default, for clarity.  Operations may be carried out in a
+        # wider precision than the types specified in the source if that would
+        # result in faster code, and it is unpredictable when rounding to the
+        # types specified in the source code takes place.
+        -fexcess-precision=fast
+        # Do not set errno after calling math functions that are executed with
+        # a single instruction, e.g., sqrt.  A program that relies on IEEE
+        # exceptions for math error handling may want to use this flag for speed
+        # while maintaining IEEE arithmetic compatibility.
+        -fno-math-errno
+        # Default, for clarity.  Enable transformations and optimizations that
+        # assume default floating-point rounding behavior.  This is
+        # (a) round-to-zero for all floating point to integer conversions, and
+        # (b) round-to-nearest for all other arithmetic truncations.
+        -fno-rounding-math
+        # Default, for clarity.  Compile code assuming that IEEE signaling NaNs
+        # may NOT generate user-visible traps during floating-point operations.
+        -fno-signaling-nans
+        # Allow optimizations for floating-point arithmetic that ignore the
+        # signedness of zero.  IEEE arithmetic specifies the behavior of
+        # distinct +0.0 and -0.0 values, which then prohibits simplification of
+        # expressions such as x+0.0 or 0.0*x (even with -ffinite-math-only).
+        -fno-signed-zeros
+        # Default, for clarity.  Disallow optimizations for floating-point
+        # arithmetic that
+        # (a) assume that arguments and results are valid and
+        # (b) may violate IEEE or ANSI standards.
+        -fno-unsafe-math-optimizations
+        # Allow the reciprocal of a value to be used instead of dividing by the
+        # value if this enables optimizations.  For example x / y can be
+        # replaced with x * (1/y), which is useful if (1/y) is subject to common
+        # subexpression elimination.  Note that this loses precision and
+        # increases the number of flops operating on the value.
+        -freciprocal-math
+      >
       # Enable table-based thread cancellation.
       -fexceptions
       # String and character constants in UTF-8 during execution.
@@ -340,6 +375,22 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         $<$<BOOL:${WB_GCC_ENABLE_LTO}>:${WB_GCC_ENABLE_LTO}>
         # Enable loop unrolling.
         $<$<BOOL:${WB_GCC_ENABLE_LOOPS_UNROLLING}>:-funroll-loops>
+        # Enable unsafe math optimizations.
+        $<$<BOOL:${WB_GCC_ENABLE_UNSAFE_MATH}>:
+          # Allow re-association of operands in series of floating-point
+          # operations.  This violates the ISO C and C++ language standard by
+          # possibly changing computation result.  NOTE: re-ordering may change
+          # the sign of zero as well as ignore NaNs and inhibit or create
+          # underflow or overflow.
+          -fassociative-math
+          # Compile code assuming that floating-point operations cannot generate
+          # user-visible traps.  These traps include division by zero, overflow,
+          # underflow, inexact result and invalid operation.  This option
+          # requires that -fno-signaling-nans be in effect.  Setting this option
+          # may allow faster code if one relies on “non-stop” IEEE arithmetic,
+          # for example.
+          -fno-trapping-math
+        >
       >
   )
 
