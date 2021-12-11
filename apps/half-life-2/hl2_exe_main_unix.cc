@@ -77,7 +77,7 @@ namespace {
  */
 [[nodiscard]] std::vector<char*> ParseCommandLine(int argc,
                                                   char** argv) noexcept {
-  absl::FlagsUsageConfig flags_usage_config = {
+  const absl::FlagsUsageConfig flags_usage_config = {
       .contains_helpshort_flags = {},
       .contains_help_flags = {},
       .contains_helppackage_flags = {},

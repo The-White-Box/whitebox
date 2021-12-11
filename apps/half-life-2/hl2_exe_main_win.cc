@@ -225,11 +225,18 @@ int BootmgrStartup(
  */
 [[nodiscard]] std::vector<char*> ParseCommandLine(int argc,
                                                   char** argv) noexcept {
+  const absl::FlagsUsageConfig flags_usage_config = {
+      .contains_helpshort_flags = {},
+      .contains_help_flags = {},
+      .contains_helppackage_flags = {},
+      .version_string =
+          [path = argv[0]] {
+            return VersionString(std::filesystem::path{path},
+                                 WB_PRODUCT_VERSION_INFO_STRING);
+          },
+      .normalize_filename = {}};
   // Set custom version message as we need more info.
-  absl::SetFlagsUsageConfig({.version_string = [path = argv[0]] {
-    return VersionString(std::filesystem::path{path},
-                         WB_PRODUCT_VERSION_INFO_STRING);
-  }});
+  absl::SetFlagsUsageConfig(flags_usage_config);
   // Command line flags should be early initialized, but after logging (depends
   // on it).
   absl::SetProgramUsageMessage(
