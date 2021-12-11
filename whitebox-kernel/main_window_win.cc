@@ -59,9 +59,10 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Mouse is ready.
     auto mouse_result = hal::hid::Mouse::New(window);
-    if (auto *mouse = std2::get_result(mouse_result)) {
-      mouse_.swap(*mouse);
-    } else {
+    if (auto *mouse = std2::get_result(mouse_result)) WB_ATTRIBUTE_LIKELY {
+        mouse_.swap(*mouse);
+      }
+    else {
       wb::ui::FatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(mouse_result),
@@ -78,9 +79,9 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Keyboard is ready.
     auto keyboard_result = hal::hid::Keyboard::New(window);
-    if (auto *keyboard = std2::get_result(keyboard_result)) {
-      keyboard_.swap(*keyboard);
-    } else {
+    if (auto *keyboard = std2::get_result(keyboard_result))
+      WB_ATTRIBUTE_LIKELY { keyboard_.swap(*keyboard); }
+    else {
       wb::ui::FatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(keyboard_result),
@@ -225,7 +226,8 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
 
         if (fps <= kFpsMaxCap) {
           std::string message;
-          absl::StrAppend(&message, "FPS: ", fps, " ", input_data);
+          absl::StrAppend(&message, "FPS: ", std::floor(fps * 10.0F) / 10.0F,
+                          " ", input_data);
 
           RECT paint_rc{painter->PaintInfo().rcPaint};
 
