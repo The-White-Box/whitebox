@@ -367,7 +367,6 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
       NOT ${wb_abseil_target_name} STREQUAL "absl_civil_time" AND
       NOT ${wb_abseil_target_name} STREQUAL "absl_time_zone")
     get_target_property(wb_target_type ${wb_abseil_target_name} TYPE)
-    message(STATUS "${wb_abseil_target_name} of ${wb_target_type}")
 
     if ("${wb_target_type}" STREQUAL "INTERFACE_LIBRARY")
       if (WB_COMPILER_MSVC)
@@ -518,9 +517,9 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
       # Exclude itself.
       NOT ${wb_target_name} MATCHES "mimalloc" AND
       # Only code gen targets.
-      ((${wb_target_name} MATCHES "LIBRARY" AND
+      ((${wb_target_type} MATCHES "LIBRARY" AND
         NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY") OR
-       ${wb_target_name} MATCHES "EXECUTABLE"))
+       ${wb_target_type} MATCHES "EXECUTABLE"))
     # Include the directories with the new files.
     target_include_directories(${wb_target_name}
       PRIVATE
