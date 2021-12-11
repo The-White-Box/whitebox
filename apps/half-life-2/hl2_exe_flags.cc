@@ -126,7 +126,6 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
 
 }  // namespace wb::apps::half_life_2
 
-// Main window width in pixels.
 ABSL_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width,
           wb::apps::half_life_2::WindowWidth{800U},
           "main window initial width in pixels");
@@ -137,7 +136,7 @@ ABSL_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height,
 
 #ifdef WB_OS_WIN
 ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
-          "Insecure.  Allow to load NOT SIGNED module targets.  There is no "
+          "insecure.  Allow to load NOT SIGNED module targets.  There is no "
           "guarantee unsigned module doing nothing harmful.  Use at your own "
           "risk, ex. for debugging or mods.");
 
@@ -145,7 +144,7 @@ ABSL_FLAG(
     wb::apps::half_life_2::PeriodicTimerResolution,
     periodic_timer_resolution_ms,
     wb::apps::half_life_2::PeriodicTimerResolution{8},
-    "Changes minimal resolution (ms) of the Windows periodic timer.  Setting a "
+    "changes minimal resolution (ms) of the Windows periodic timer.  Setting a "
     "higher resolution can improve the accuracy of time-out intervals in wait "
     "functions.  However, it can also reduce overall system performance, "
     "because the thread scheduler switches tasks more often.  High resolutions "
