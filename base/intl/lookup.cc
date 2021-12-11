@@ -46,8 +46,7 @@ class Lookup::LookupImpl final {
       // TODO(dimhotepus): Load locales.
       if (locale_ids.find("English_United States.utf8") != locale_ids.end() ||
           locale_ids.find("en_US.UTF-8") != locale_ids.end()) {
-        return LookupResult<un<Lookup::LookupImpl>>{un<Lookup::LookupImpl>{new (
-            std::nothrow) Lookup::LookupImpl{
+        return un<Lookup::LookupImpl>{new (std::nothrow) Lookup::LookupImpl{
             MessagesById{
         //-V509,
 #ifdef WB_OS_WIN
@@ -171,10 +170,10 @@ class Lookup::LookupImpl final {
                  "Please ensure you have enough free memory and use command "
                  "line correctly."},
             },
-            StringLayout::LeftToRight}}};
+            StringLayout::LeftToRight}};
       }
 
-      return LookupResult<un<Lookup::LookupImpl>>{Status::kArgumentError};
+      return Status::kArgumentError;
     }
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
@@ -182,14 +181,11 @@ class Lookup::LookupImpl final {
       uint64_t message_id) const noexcept {
     if (const auto& message = messages_by_id_.find(message_id);
         message != messages_by_id_.end())
-      WB_ATTRIBUTE_LIKELY {
-        return LookupResult<Lookup::Ref<const std::string>>{
-            std::ref(message->second)};
-      }
+      WB_ATTRIBUTE_LIKELY { return std::ref(message->second); }
 
     G3LOG(WARNING) << "Missed localization string for " << message_id
                    << " message id.";
-    return LookupResult<Lookup::Ref<const std::string>>{Status::kUnavailable};
+    return Status::kUnavailable;
   }
 
   [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Layout() const noexcept {
@@ -226,13 +222,11 @@ class Lookup::LookupImpl final {
     const std::set<std::string_view>& locale_ids) noexcept {
   auto impl_result = LookupImpl::New(locale_ids);
   if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result))
-    WB_ATTRIBUTE_LIKELY {
-      return LookupResult<Lookup>{Lookup{std::move(*impl)}};
-    }
+    WB_ATTRIBUTE_LIKELY { return Lookup{std::move(*impl)}; }
 
   const auto* status = std::get_if<Status>(&impl_result);
   G3DCHECK(!!status);
-  return LookupResult<Lookup>{*status};
+  return *status;
 }
 
 [[nodiscard]] LookupResult<Lookup::Ref<const std::string>> Lookup::String(
@@ -252,7 +246,7 @@ class Lookup::LookupImpl final {
 
   const auto* status = std::get_if<Status>(&result);
   G3DCHECK(!!status);
-  return LookupResult<std::string>{*status};
+  return *status;
 }
 
 [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Lookup::Layout() const noexcept {

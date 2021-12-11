@@ -31,13 +31,12 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     std::string fallback_string) noexcept {
   auto lookup_result = Lookup::New(locale_ids);
   if (auto* lookup = std::get_if<Lookup>(&lookup_result)) WB_ATTRIBUTE_LIKELY {
-      return LookupResult<LookupWithFallback>{
-          LookupWithFallback(std::move(*lookup), std::move(fallback_string))};
+      return LookupWithFallback(std::move(*lookup), std::move(fallback_string));
     }
 
   const auto* status = std::get_if<Status>(&lookup_result);
   G3DCHECK(!!status);
-  return LookupResult<LookupWithFallback>{*status};
+  return *status;
 }
 
 [[nodiscard]] const std::string& LookupWithFallback::String(
