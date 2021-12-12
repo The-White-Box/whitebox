@@ -79,7 +79,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # wider precision than the types specified in the source if that would
         # result in faster code, and it is unpredictable when rounding to the
         # types specified in the source code takes place.
-        -fexcess-precision=fast
+        # -fexcess-precision=fast
         # Do not set errno after calling math functions that are executed with
         # a single instruction, e.g., sqrt.  A program that relies on IEEE
         # exceptions for math error handling may want to use this flag for speed
@@ -92,7 +92,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         -fno-rounding-math
         # Default, for clarity.  Compile code assuming that IEEE signaling NaNs
         # may NOT generate user-visible traps during floating-point operations.
-        -fno-signaling-nans
+        # -fno-signaling-nans
         # Allow optimizations for floating-point arithmetic that ignore the
         # signedness of zero.  IEEE arithmetic specifies the behavior of
         # distinct +0.0 and -0.0 values, which then prohibits simplification of
