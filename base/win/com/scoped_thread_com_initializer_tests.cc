@@ -117,7 +117,7 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
 
   using namespace wb::base::win;
 
-  const auto triggerComConcurrencyModelChange = [&]() {
+  const auto triggerComConcurrencyModelChange = []() {
     APTTYPE apartment_type;
     APTTYPEQUALIFIER apartment_type_qualifier;
 

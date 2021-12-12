@@ -9,20 +9,21 @@
 
 #include "build/compiler_config.h"
 
-#define WB_BEGIN_GTEST_WARNING_OVERRIDE_SCOPE()    \
-  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()           \
-    WB_MSVC_DISABLE_WARNING(4625)                  \
-    WB_MSVC_DISABLE_WARNING(4626)                  \
-    WB_MSVC_DISABLE_WARNING(4668)                  \
-    WB_MSVC_DISABLE_WARNING(4820)                  \
-    WB_MSVC_DISABLE_WARNING(5026)                  \
-    WB_MSVC_DISABLE_WARNING(5027)                  \
-    WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE() \
-      WB_GCC_DISABLE_PADDED_WARNING()     \
+#define WB_BEGIN_GTEST_WARNING_OVERRIDE_SCOPE() \
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()        \
+    WB_MSVC_DISABLE_WARNING(4180)               \
+    WB_MSVC_DISABLE_WARNING(4625)               \
+    WB_MSVC_DISABLE_WARNING(4626)               \
+    WB_MSVC_DISABLE_WARNING(4668)               \
+    WB_MSVC_DISABLE_WARNING(4820)               \
+    WB_MSVC_DISABLE_WARNING(5026)               \
+    WB_MSVC_DISABLE_WARNING(5027)               \
+    WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()       \
+      WB_GCC_DISABLE_PADDED_WARNING()           \
       WB_GCC_DISABLE_UNDEF_WARNING()
 
 #define WB_END_GTEST_WARNING_OVERRIDE_SCOPE() \
-  WB_GCC_END_WARNING_OVERRIDE_SCOPE  \
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE           \
   ()                                          \
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE          \
   ()
