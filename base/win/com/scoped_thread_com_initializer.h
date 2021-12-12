@@ -14,8 +14,8 @@
 #include <thread>
 #include <type_traits>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/win/system_error_ext.h"
 
 using HRESULT = long;
@@ -103,7 +103,8 @@ class ScopedThreadComInitializer {
 #ifndef NDEBUG
     const std::thread::id this_thread_id{std::this_thread::get_id()};
     // COM should be freed on the same thread as it was initialized.
-    G3CHECK(this_thread_id == thread_id_);
+    G3CHECK(this_thread_id == thread_id_)
+        << "COM should be freed on the same thread as it was initialized.";
 #endif
 
     if (!error_code()) {
