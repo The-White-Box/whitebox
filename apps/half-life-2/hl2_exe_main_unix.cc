@@ -27,7 +27,7 @@ namespace {
  * @param argv App arguments.
  * @return App exit code.
  */
-int BootmgrStartup(int argc, char** argv) noexcept {
+int BootManagerStartup(int argc, char** argv) noexcept {
   using namespace wb::base;
   using namespace wb::ui;
 
@@ -41,7 +41,7 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const auto intl = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
+  const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
                                          scoped_process_locale);
 
   // Get not current directory, but directory from which exe is launched.
@@ -49,14 +49,14 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   auto app_path_result = std2::filesystem::get_executable_directory();
   if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
+          intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           *rc,
-          intl::l18n(intl,
+          intl::l18n(l18n,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          wb::ui::FatalDialogContext{intl.Layout()},
-          intl::l18n(intl,
+          wb::ui::FatalDialogContext{l18n.Layout()},
+          intl::l18n(l18n,
                      "Can't get current directory.  May be app located too "
                      "deep (> 1024)?"));
     }
@@ -89,29 +89,29 @@ int BootmgrStartup(int argc, char** argv) noexcept {
               .insecure_allow_unsigned_module_target = false,
           };
           return (*boot_manager_main)(
-              {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, intl});
+              {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, l18n});
         }
 
       FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
+          intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           std::get<std::error_code>(boot_manager_entry),
-          intl::l18n(intl,
+          intl::l18n(l18n,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          FatalDialogContext{intl.Layout()},
-          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
+          FatalDialogContext{l18n.Layout()},
+          intl::l18n_fmt(l18n, "Can't get '{0}' entry point from '{1}'.",
                          kBootManagerMainName, boot_manager_path));
     }
   else {
     FatalDialog(
-        intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
         std::get<std::error_code>(boot_manager_library),
-        intl::l18n(intl,
+        intl::l18n(l18n,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
-        FatalDialogContext{intl.Layout()},
-        intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
+        FatalDialogContext{l18n.Layout()},
+        intl::l18n_fmt(l18n, "Can't load boot manager '{0}'.",
                        boot_manager_path));
   }
 }
@@ -123,5 +123,5 @@ int main(int argc, char* argv[]) {
   const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       argv[0], wb::build::settings::kPathToMainLogFile};
 
-  return BootmgrStartup(argc, argv);
+  return BootManagerStartup(argc, argv);
 }

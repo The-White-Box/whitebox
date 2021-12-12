@@ -51,12 +51,12 @@ namespace {
 
 /**
  * @brief Makes fatal dialog context.
- * @param intl Localization service.
+ * @param l18n Localization service.
  * @return Fatal dialog context.
  */
 [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
-    const wb::base::intl::LookupWithFallback& intl) noexcept {
-  return {intl, intl.Layout(), WB_HALF_LIFE_2_IDI_MAIN_ICON,
+    const wb::base::intl::LookupWithFallback& l18n) noexcept {
+  return {l18n, l18n.Layout(), WB_HALF_LIFE_2_IDI_MAIN_ICON,
           WB_HALF_LIFE_2_IDI_SMALL_ICON};
 }
 
@@ -69,7 +69,7 @@ namespace {
  * @param intl Localization lookup.
  * @return App exit code.
  */
-int BootmgrStartup(
+int BootManagerStartup(
     _In_ HINSTANCE instance, _In_ std::vector<char*> positional_flags,
     _In_ int show_window_flags,
     _In_ const wb::base::intl::LookupWithFallback& intl) noexcept {
@@ -212,7 +212,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const auto intl = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
+  const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
                                          scoped_process_locale);
 
   // Initialize command line flags.
@@ -221,14 +221,14 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   if (const auto* error = std2::get_error(args_parse_result))
     WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
+          intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           *error,
-          intl::l18n(intl,
+          intl::l18n(l18n,
                      "Please ensure you have enough free memory and use "
                      "command line correctly."),
-          MakeFatalContext(intl),
-          intl::l18n(intl,
+          MakeFatalContext(l18n),
+          intl::l18n(l18n,
                      "Can't parse command line flags.  See log for details."));
     }
 
@@ -281,6 +281,6 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 
-  return BootmgrStartup(instance, std::move(positional_flags),
-                        show_window_flags, intl);
+  return BootManagerStartup(instance, std::move(positional_flags),
+                            show_window_flags, l18n);
 }

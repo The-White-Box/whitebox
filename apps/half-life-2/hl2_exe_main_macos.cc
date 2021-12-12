@@ -51,7 +51,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const auto intl = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
+  const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
                                          scoped_process_locale);
 
   uint32_t exec_path_size{0};
@@ -134,7 +134,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   };
 
   rv = boot_manager_main(WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags,
-                         intl);
+                         l18n);
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.
