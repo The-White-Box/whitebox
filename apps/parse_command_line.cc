@@ -72,7 +72,8 @@ namespace wb::apps {
     }
   }
 
-  G3LOG(INFO) << parser_config.app_name << " started as " << command_line;
+  G3LOG(INFO) << parser_config.app_name << " started as \"" << command_line
+              << "\".";
 
   return positional_flags;
 }

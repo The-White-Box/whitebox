@@ -88,7 +88,7 @@ class ScopedG3LogInitializer {
 #endif
 
     G3LOG(INFO) << "G3log will write logs to " << path_to_log_file
-                << GetExecutableNameFromLogPrefix(log_prefix);
+                << GetExecutableNameFromLogPrefix(log_prefix) << "*.log.";
   }
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedG3LogInitializer);
