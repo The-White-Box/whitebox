@@ -11,11 +11,12 @@
 #include "build/build_config.h"
 
 #if defined(WB_ARCH_CPU_X86_64)
+#include <pmmintrin.h>
 #include <xmmintrin.h>
 #endif
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "build/build_config.h"
 
 namespace wb::base {
@@ -44,7 +45,7 @@ enum class ScopedFloatingPointModeFlags : unsigned {
    * a compare between two denormals finds they're equal.  Arithmetic can easily
    * produce denormal results, though.  May be not supported by CPU.
    */
-  kDenormalsAreZero = 1U << 6U
+  kDenormalsAreZero = _MM_DENORMALS_ZERO_ON
 };
 
 /**
@@ -61,12 +62,25 @@ enum class ScopedFloatingPointModeFlags : unsigned {
 }
 
 /**
- * @brief Changes floating point behavior and reverts back when out of scope.
- * We assume target CPU supports writing to MXCSR register reserved bits (GP
- * fault otherwise).
+ * @brief Enable flush-to-zero (FTZ) [sets denormal results from floating-point
+ * calculations to zero] and denormals-are-zero (DAZ) [treats denormal values
+ * used as input to floating-point instructions as zero] flags and revert back
+ * when out of scope.  We assume target CPU supports writing to MXCSR register
+ * reserved bits (GP fault otherwise).
+ *
+ * In Intel® processors, the FTZ and DAZ flags in the MXCSR register are used to
+ * control floating-point calculations.  Intel® Streaming SIMD Extensions
+ * (Intel® SSE) and Intel® Advanced Vector Extensions (Intel® AVX) instructions,
+ * including scalar and vector instructions, benefit from enabling the FTZ and
+ * DAZ flags.  Floating-point computations using the Intel® SSE and Intel® AVX
+ * instructions are accelerated when the FTZ and DAZ flags are enabled.  This
+ * improves the application's performance.
  *
  * See Intel® 64 and IA-32 Architectures Software Developer’s Manual, Volume 1
  * 11.6.6 Guidelines for Writing to the MXCSR Register.
+ *
+ * See
+ * https://www.intel.com/content/www/us/en/develop/documentation/cpp-compiler-developer-guide-and-reference/top/compiler-reference/floating-point-operations/understanding-floating-point-operations/setting-the-ftz-and-daz-flags.html
  */
 class ScopedFloatingPointMode {
  public:
