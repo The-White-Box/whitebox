@@ -5,6 +5,7 @@
 // The entry point for *nix Half-Life 2 process.
 
 #include "app_version_config.h"
+#include "apps/i18n_creator.h"
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/flags/usage.h"
@@ -22,36 +23,6 @@
 #include "whitebox-ui/fatal_dialog.h"
 
 namespace {
-
-/**
- * @brief Creates internationalization lookup.
- * @param scoped_process_locale Process locale.
- * @return Internationalization lookup.
- */
-[[nodiscard]] wb::base::intl::LookupWithFallback CreateIntl(
-    const wb::base::intl::ScopedProcessLocale& scoped_process_locale) noexcept {
-  using namespace wb::base::intl;
-
-  const std::optional<std::string> maybe_user_locale{
-      scoped_process_locale.GetCurrentLocale()};
-  G3LOG_IF(WARNING, !maybe_user_locale.has_value())
-      << WB_PRODUCT_FILE_DESCRIPTION_STRING << " unable to use UTF-8 locale '"
-      << locales::kUtf8Locale << "' for UI, fallback to '"
-      << locales::kFallbackLocale << "'.";
-
-  const std::string user_locale{
-      maybe_user_locale.value_or(locales::kFallbackLocale)};
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING << " using " << user_locale
-              << " locale for UI.";
-
-  auto intl_lookup_result{LookupWithFallback::New({user_locale})};
-  auto intl_lookup = std::get_if<LookupWithFallback>(&intl_lookup_result);
-
-  G3LOG_IF(FATAL, !intl_lookup)
-      << "Unable to create localization strings lookup for locale "
-      << user_locale << ".";
-  return std::move(*intl_lookup);
-}
 
 /**
  * @brief Makes program version string.
@@ -125,7 +96,8 @@ int BootmgrStartup(int argc, char** argv) noexcept {
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const auto intl = CreateIntl(scoped_process_locale);
+  const auto intl = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
+                                         scoped_process_locale);
 
   // Get not current directory, but directory from which exe is launched.
   // Prevents DLL / SO planting attacks.

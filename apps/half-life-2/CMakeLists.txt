@@ -67,6 +67,12 @@ wb_cxx_executable(
   RUNTIME_DEPS  ${WB_HALF_LIFE2_RUNTIME_DEPS}
 )
 
+target_sources(${WB_HALF_LIFE2_TARGET_NAME}
+  PRIVATE
+    ${WB_ROOT_DIR}/apps/i18n_creator.cc
+    ${WB_ROOT_DIR}/apps/i18n_creator.h
+)
+
 if (WB_OS_WIN)
   # Command line args.
   target_sources(${WB_HALF_LIFE2_TARGET_NAME}
