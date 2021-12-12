@@ -64,8 +64,10 @@ class ScopedThreadInvalidParameterHandler {
   const _invalid_parameter_handler old_invalid_parameter_handler_;
 };
 
+namespace details {
+
 /**
- * @brief Ensure no reentrancy happened into scope happened.
+ * @brief Ensure no reentrancy happened into scope.
  */
 class ScopedInvalidParameterReentrancyGuard {
  public:
@@ -93,6 +95,8 @@ class ScopedInvalidParameterReentrancyGuard {
   bool& is_entered_;
 };
 
+}  // namespace details
+
 /**
  * @brief Default CRT invalid parameter handler.
  * @param expression Expression which caused failure.
@@ -110,8 +114,8 @@ class ScopedInvalidParameterReentrancyGuard {
 
   if (!is_entered_handler) {
     // Ensure we do not invoke this scope recursively.
-    ScopedInvalidParameterReentrancyGuard ensure_not_reenter_this_scope{
-        is_entered_handler};
+    details::ScopedInvalidParameterReentrancyGuard
+        ensure_not_reenter_this_scope{is_entered_handler};
 
     // Can fail with invalid parameter again, so guard below.
     sprintf_s(buffer, "%S.\nFile: %S (%u)\nExpression: %S.", function, file,

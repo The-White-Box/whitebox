@@ -73,7 +73,6 @@ class ScopedThreadErrorMode {
   static std2::result<ScopedThreadErrorMode> New(
       const ScopedThreadErrorModeFlags error_mode_flags) noexcept {
     auto mode = ScopedThreadErrorMode{error_mode_flags};
-
     return !mode.error_code()
                ? std2::result<ScopedThreadErrorMode>{std::move(mode)}
                : std2::result<ScopedThreadErrorMode>{mode.error_code()};
