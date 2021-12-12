@@ -8,10 +8,8 @@
 
 #include "apps/args_win.h"
 #include "apps/i18n_creator.h"
+#include "apps/parse_command_line.h"
 #include "base/deps/abseil/flags/flag.h"
-#include "base/deps/abseil/flags/parse.h"
-#include "base/deps/abseil/flags/usage.h"
-#include "base/deps/abseil/flags/usage_config.h"
 #include "base/deps/abseil/strings/str_cat.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/intl/l18n.h"
@@ -172,62 +170,6 @@ int BootmgrStartup(
   }
 }
 
-/**
- * @brief Makes program version string.
- * @param program_path Full path to program.
- * @param version Program version.
- * @return version string.
- */
-[[nodiscard]] std::string VersionString(
-    const std::filesystem::path& program_path, std::string_view version) {
-  return absl::StrCat(program_path.filename().string(), " version ", version
-#ifndef NDEBUG
-                      ,
-                      " (Debug Build)\n"
-#endif
-  );
-}
-
-/**
- * @brief Parses command line flags.
- * @param argc App arguments count.
- * @param argv App arguments.
- * @return Unparsed positional flags.
- */
-[[nodiscard]] std::vector<char*> ParseCommandLine(int argc,
-                                                  char** argv) noexcept {
-  const absl::FlagsUsageConfig flags_usage_config = {
-      .contains_helpshort_flags = {},
-      .contains_help_flags = {},
-      .contains_helppackage_flags = {},
-      .version_string =
-          [path = argv[0]] {
-            return VersionString(std::filesystem::path{path},
-                                 WB_PRODUCT_VERSION_INFO_STRING);
-          },
-      .normalize_filename = {}};
-  // Set custom version message as we need more info.
-  absl::SetFlagsUsageConfig(flags_usage_config);
-  // Command line flags should be early initialized, but after logging (depends
-  // on it).
-  absl::SetProgramUsageMessage(
-      absl::StrCat(wb::apps::half_life_2::kUsageMessage, argv[0]));
-  std::vector<char*> positional_flags{absl::ParseCommandLine(argc, argv)};
-
-  std::string command_line;
-  for (int i{0}; i < argc; ++i) {
-    absl::StrAppend(&command_line, argv[i]);
-    if (i != argc - 1) {
-      absl::StrAppend(&command_line, " ");
-    }
-  }
-
-  G3LOG(INFO) << WB_PRODUCT_FILE_DESCRIPTION_STRING " started as "
-              << command_line;
-
-  return positional_flags;
-}
-
 }  // namespace
 
 /**
@@ -294,8 +236,11 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   G3DCHECK(!!args);
 
   // Setup command line flags as they are used early.
-  std::vector<char*> positional_flags{
-      ParseCommandLine(args->count(), args->values())};
+  std::vector<char*> positional_flags{wb::apps::ParseCommandLine(
+      args->count(), args->values(),
+      {.app_name = WB_PRODUCT_FILE_DESCRIPTION_STRING,
+       .app_version = WB_PRODUCT_FILE_VERSION_INFO_STRING,
+       .app_usage = wb::apps::half_life_2::kUsageMessage})};
 
   // Calling thread will handle critical errors, does not show general
   // protection fault error box and message box when OpenFile failed to find
