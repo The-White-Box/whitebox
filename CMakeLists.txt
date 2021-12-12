@@ -505,37 +505,56 @@ add_subdirectory("apps/half-life-2")
 # Get all targets to add mimalloc allocators overrides.
 wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
-# Ensure all dependencies reuse same memory allocators.
+# Do some common stuff for all dependencies.
 foreach(wb_target_name ${WB_ALL_TARGETS})
   get_target_property(wb_target_type ${wb_target_name} TYPE)
 
-  # Do not add mimalloc / custom targets allocators to itself and some specific
-  # actions.
-  if (# ASAN intercepts new / delete.
-      NOT ${wb_target_name} MATCHES "absl_leak_check_test" AND
-      NOT ${wb_target_name} MATCHES "absl_disabled_leak_check_test" AND
-      # Exclude itself.
-      NOT ${wb_target_name} MATCHES "mimalloc" AND
-      # Only code gen targets.
-      ((${wb_target_type} MATCHES "LIBRARY" AND
+  # Only code gen targets.
+  if (((${wb_target_type} MATCHES "LIBRARY" AND
         NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY") OR
        ${wb_target_type} MATCHES "EXECUTABLE"))
-    # Include the directories with the new files.
-    target_include_directories(${wb_target_name}
-      PRIVATE
-        ${WB_ROOT_DIR}
-        "${WB_ROOT_DIR}/deps/mimalloc/include")
+    # Need to have pdbs on MSVC to simplify debugging.
+    if (WB_OS_WIN)
+      target_link_options(${wb_target_name}
+        PRIVATE
+          $<$<CONFIG:DEBUG>:
+            # Generate a partial PDB file that simply references the original object
+            # and library files.
+            $<IF:$<BOOL:${WB_MSVC_ENABLE_DEBUG_FAST_LINK}>,/DEBUG:FASTLINK,/DEBUG:FULL>
+          >
 
-    # Add new / delete allocator overrides.
-    target_sources(${wb_target_name}
-      PRIVATE
-        ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
-    )
+          ## Non-debug builds.
+          $<$<NOT:$<CONFIG:DEBUG>>:
+            # Generate full pdbs or not.
+            $<IF:$<BOOL:${WB_MSVC_ENABLE_RELEASE_DEBUG_INFO}>,/DEBUG:FULL,/DEBUG:NONE>
+          >
+      )
+    endif()
 
-    # Add mimalloc to handle allocators.
-    target_link_libraries(${wb_target_name} PRIVATE mimalloc)
+    # Do not add mimalloc / custom targets allocators to itself and some specific
+    # actions.
+    if (# ASAN intercepts new / delete.
+        NOT ${wb_target_name} MATCHES "absl_leak_check_test" AND
+        NOT ${wb_target_name} MATCHES "absl_disabled_leak_check_test" AND
+        # Exclude itself.
+        NOT ${wb_target_name} MATCHES "mimalloc")
+      # Include the directories with the new files.
+      target_include_directories(${wb_target_name}
+        PRIVATE
+          ${WB_ROOT_DIR}
+          "${WB_ROOT_DIR}/deps/mimalloc/include")
 
-    # mimalloc should be copied by each target individually as haven't found way
-    # to it here.
+      # Add new / delete allocator overrides.
+      target_sources(${wb_target_name}
+        PRIVATE
+          ${WB_ROOT_DIR}/base/memory/memory_allocators_overrides.cc
+      )
+
+      # Add mimalloc to handle allocators.
+      target_link_libraries(${wb_target_name} PRIVATE mimalloc)
+
+      # mimalloc should be copied by each target individually as haven't found way
+      # to it here.
+    endif()
   endif()
 endforeach()

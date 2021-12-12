@@ -17,7 +17,7 @@ option(WB_MSVC_ENABLE_ALL_WARNINGS                              "If enabled, pas
 option(WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS                "If enabled, use recommended Security Development Lifecycle (SDL) checks.  These checks change security-relevant warnings into errors, and set additional secure code-generation features.." ON)
 option(WB_MSVC_ENABLE_COROUTINE_SUPPORT                         "If enabled, enable compiler support for coroutines." ON)
 option(WB_MSVC_ENABLE_DEBUG_INLINING                            "If enabled, enable inlining in the debug configuration.  This allows /Zc:inline to be far more effective." OFF)
-option(WB_MSVC_ENABLE_FAST_LINK                                 "If enabled, pass /DEBUG:FASTLINK to the linker.  This makes linking faster, but the gtest integration for Visual Studio can't currently handle the .pdbs generated." OFF)
+option(WB_MSVC_ENABLE_DEBUG_FAST_LINK                           "If enabled, pass /DEBUG:FASTLINK to the linker.  This makes linking faster, but .pdbs miss some info to be run on another computer." OFF)
 option(WB_MSVC_ENABLE_GUARD_FOR_CONTROL_FLOW                    "If enabled, compiler/linker generate Control Flow Guard security checks." ON)
 option(WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION                 "If enabled, compiler/linker generate a sorted list of the relative virtual addresses (RVA) of all the valid exception handling continuation targets for a binary.  It's used during runtime for NtContinue and SetThreadContext instruction pointer validation." ON)
 option(WB_MSVC_ENABLE_INTRINSICS                                "If enabled, replaces some function calls with intrinsic or otherwise special forms.  Using the true intrinsic forms implies loss of IEEE exception handling, and loss of _matherr and errno functionality; the latter implies loss of ANSI conformance." ON)
@@ -25,6 +25,7 @@ option(WB_MSVC_ENABLE_LEAN_AND_MEAN_WINDOWS                     "If enabled, def
 option(WB_MSVC_ENABLE_LTCG                                      "If enabled, use Link Time Code Generation for Release builds." ON)
 option(WB_MSVC_ENABLE_PARALLEL_BUILD                            "If enabled, build multiple source files in parallel." ON)
 option(WB_MSVC_ENABLE_RTTI                                      "If enabled, adds code to check object types at run time (dynamic_cast, typeid)." ON)
+option(WB_MSVC_ENABLE_RELEASE_DEBUG_INFO                        "If enabled, generates .pdbs in Release mode." ON)
 option(WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS   "If enabled, threat complex static analysis warnings as errors." ON)
 option(WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS               "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
 option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, build against the static, rather than the dynamic, runtime." OFF)
@@ -484,8 +485,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         /OPT:NOREF,NOICF  # No (unreferenced data delete + same COMDAT folding).
         /INCREMENTAL      # Do incremental linking.
         # Generate a partial PDB file that simply references the original object
-        # and library files.
-        $<$<BOOL:${WB_MSVC_ENABLE_FAST_LINK}>:/DEBUG:FASTLINK>
+        # and library files or full one.
+        $<IF:$<BOOL:${WB_MSVC_ENABLE_DEBUG_FAST_LINK}>,/DEBUG:FASTLINK,/DEBUG:FULL>
       >
 
       ## Non-debug builds.
@@ -497,6 +498,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         $<$<BOOL:${WB_MSVC_ENABLE_LTCG}>:/INCREMENTAL:NO>
          # Remove unreferenced functions and data + identical COMDAT folding.
         /OPT:REF,ICF
+        # Generate full pdbs or not.
+        $<IF:$<BOOL:${WB_MSVC_ENABLE_RELEASE_DEBUG_INFO}>,/DEBUG:FULL,/DEBUG:NONE>
       >
   )
 
