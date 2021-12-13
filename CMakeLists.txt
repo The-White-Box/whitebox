@@ -368,34 +368,7 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
       NOT ${wb_abseil_target_name} STREQUAL "absl_time_zone")
     get_target_property(wb_target_type ${wb_abseil_target_name} TYPE)
 
-    if ("${wb_target_type}" STREQUAL "INTERFACE_LIBRARY")
-      if (WB_COMPILER_MSVC)
-        # Warning C4530: C++ exception handler used, but unwind semantics are not
-        # enabled.
-        target_compile_options(${wb_abseil_target_name}
-          INTERFACE
-            /EHsc
-            /guard:ehcont
-        )
-        # LNK2047: module contains C++ EH or complex EH metadata but was not
-        # compiled with /guard:ehcont.
-        target_link_options(${wb_abseil_target_name} INTERFACE /guard:ehcont)
-      elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
-        # Can't create dynamic relocation R_X86_64_32 against local symbol in
-        # readonly segment.
-        target_compile_options(${wb_abseil_target_name} INTERFACE -fPIC)
-      endif()
-
-      if (WB_BUILD_TESTS)
-        # Abseil uses macroses without GTEST_ prefix.
-        target_compile_definitions(${wb_abseil_target_name}
-          INTERFACE
-            GTEST_DONT_DEFINE_FAIL=0
-            GTEST_DONT_DEFINE_SUCCEED=0
-            GTEST_DONT_DEFINE_TEST=0
-        )
-      endif()
-    else()
+    if (NOT ("${wb_target_type}" STREQUAL "INTERFACE_LIBRARY"))
       if (WB_COMPILER_MSVC)
         # Warning C4530: C++ exception handler used, but unwind semantics are not
         # enabled.
@@ -513,6 +486,24 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
   if (((${wb_target_type} MATCHES "LIBRARY" AND
         NOT ${wb_target_type} MATCHES "INTERFACE_LIBRARY") OR
        ${wb_target_type} MATCHES "EXECUTABLE"))
+    # Ensure all libs use the same STL debug options.
+    if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+      target_compile_definitions(${wb_target_name}
+        PRIVATE
+          $<$<CONFIG:DEBUG>:
+            # Run-time bounds checking for C++ strings/containers.
+            $<$<OR:$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>,$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>>:_GLIBCXX_ASSERTIONS>
+            # Catch libstdc++ usage errors by enabling debug mode.  When defined,
+            # _GLIBCXX_ASSERTIONS is defined automatically
+            $<$<OR:$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>,$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>>:_GLIBCXX_DEBUG>
+            # When defined makes the debug mode extremely picky by making the use of
+            # libstdc++ extensions and libstdc++-specific behavior into errors.
+            $<$<OR:$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>,$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>>:_GLIBCXX_DEBUG_PEDANTIC>
+            # Enables special debugging checks meant to detect incorrect usage of the libc++ standard library.
+            $<$<NOT:$<STREQUAL:"${WB_CLANG_DEFINE__LIBCPP_DEBUG}","">>:_LIBCPP_DEBUG=${WB_CLANG_DEFINE__LIBCPP_DEBUG}>
+      >)
+    endif()
+
     # Need to have pdbs on MSVC to simplify debugging.
     if (WB_OS_WIN)
       target_link_options(${wb_target_name}
