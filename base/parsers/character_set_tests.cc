@@ -8,7 +8,7 @@
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CharacterSetTest, DefaultConstructor) {
   using namespace wb::base::parsers;
 
@@ -19,7 +19,7 @@ GTEST_TEST(CharacterSetTest, DefaultConstructor) {
   }
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CharacterSetTest, SetConstructor) {
   using namespace wb::base::parsers;
 
@@ -44,7 +44,7 @@ GTEST_TEST(CharacterSetTest, SetConstructor) {
   }
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CharacterSetTest, HasChar) {
   using namespace wb::base::parsers;
 

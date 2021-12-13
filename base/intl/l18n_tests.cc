@@ -68,7 +68,7 @@ GTEST_TEST(L18nTest, l18nFmtLookups) {
 }
 
 #ifdef GTEST_HAS_DEATH_TEST
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   using namespace wb::base;
   using namespace wb::base::intl;

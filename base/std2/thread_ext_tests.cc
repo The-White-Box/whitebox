@@ -14,7 +14,7 @@
 
 using namespace wb::base;
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_get_handle) {
   const std2::native_thread_handle actual_thread_handle{
       std2::this_thread::get_handle()};
@@ -30,7 +30,7 @@ GTEST_TEST(ThreadExtTest, this_thread_get_handle) {
   EXPECT_EQ(actual_thread_handle, expected_thread_handle);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, get_thread_name) {
 #ifdef WB_OS_WIN
   std2::native_thread_name thread_name{L"get_thread_name"};
@@ -53,7 +53,7 @@ GTEST_TEST(ThreadExtTest, get_thread_name) {
 #endif
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_set_name) {
 #ifdef WB_OS_WIN
   const std2::native_thread_name expected_thread_name{L"this_thread_set_name"};
@@ -73,7 +73,7 @@ GTEST_TEST(ThreadExtTest, this_thread_set_name) {
   EXPECT_EQ(actual_thread_name, expected_thread_name);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameScope) {
 #ifdef WB_OS_WIN
   const std2::native_thread_name expected_thread_name{
@@ -109,7 +109,7 @@ GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameScope) {
   EXPECT_NE(original_thread_name, expected_thread_name);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameMoveConstructor) {
 #ifdef WB_OS_WIN
   const std2::native_thread_name expected_thread_name{

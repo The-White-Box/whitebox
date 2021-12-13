@@ -11,11 +11,11 @@
 
 using namespace wb::base::std2;
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CountingStreamBufTest, Count) {
   countingstreambuf cout_streambuf{std::cout.rdbuf()};
 
-  const auto old_cout_streambuf = std::cout.rdbuf(&cout_streambuf);
+  auto* const old_cout_streambuf = std::cout.rdbuf(&cout_streambuf);
 
   const absl::Cleanup cout_streambuf_restorer = [old_cout_streambuf] {
     std::cout.rdbuf(old_cout_streambuf);
@@ -23,13 +23,13 @@ GTEST_TEST(CountingStreamBufTest, Count) {
 
   std::cout << "12345";
   EXPECT_EQ(cout_streambuf.count(), 5);
-  
+
   std::cout << "67890";
   EXPECT_EQ(cout_streambuf.count(), 10);
-  
+
   std::cout << "\t\n\r\a\b";
   EXPECT_EQ(cout_streambuf.count(), 15);
-  
+
   std::cout << std::endl;
   EXPECT_EQ(cout_streambuf.count(), 16);
 }

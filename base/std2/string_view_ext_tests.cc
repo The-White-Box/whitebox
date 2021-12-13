@@ -11,7 +11,7 @@
 
 using namespace wb::base::std2;
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, StartsWithHasEmptyString) {
   EXPECT_FALSE(starts_with("", '\0'));
   EXPECT_FALSE(starts_with("", ' '));
@@ -22,7 +22,7 @@ GTEST_TEST(StringViewExtTest, StartsWithHasEmptyString) {
   EXPECT_FALSE(starts_with(std::string{}, 'a'));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, StartsWithValue) {
   EXPECT_FALSE(starts_with("a", '\0'));
   EXPECT_FALSE(starts_with("abc", 'b'));
@@ -35,7 +35,7 @@ GTEST_TEST(StringViewExtTest, StartsWithValue) {
   EXPECT_TRUE(starts_with(std::string{"abc"}, 'a'));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithHasEmptyString) {
   EXPECT_FALSE(ends_with("", '\0'));
   EXPECT_FALSE(ends_with("", ' '));
@@ -46,7 +46,7 @@ GTEST_TEST(StringViewExtTest, EndsWithHasEmptyString) {
   EXPECT_FALSE(ends_with(std::string{}, 'a'));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithHasValue) {
   EXPECT_FALSE(ends_with("a", '\0'));
   EXPECT_FALSE(ends_with("abc", 'b'));
@@ -59,7 +59,7 @@ GTEST_TEST(StringViewExtTest, EndsWithHasValue) {
   EXPECT_TRUE(ends_with(std::string{"abc"}, 'c'));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithStringHasEmptyString) {
   EXPECT_TRUE(ends_with("", ""));
   EXPECT_FALSE(ends_with("", " "));
@@ -70,7 +70,7 @@ GTEST_TEST(StringViewExtTest, EndsWithStringHasEmptyString) {
   EXPECT_FALSE(ends_with(std::string{}, "a"));
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithStringHasValue) {
   EXPECT_TRUE(ends_with("a", ""));
   EXPECT_FALSE(ends_with("abc", "b"));
@@ -89,7 +89,7 @@ GTEST_TEST(StringViewExtTest, EndsWithStringHasValue) {
 
 #if GTEST_HAS_DEATH_TEST
 #if WB_COMPILER_HAS_DEBUG
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 
@@ -105,7 +105,7 @@ GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
       test_result.exit_predicate, test_result.message);
 }
 #else  // WB_COMPILER_HAS_DEBUG
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithStringWhenNullptr) {
   EXPECT_FALSE(ends_with(std::string{""}, nullptr));
   EXPECT_FALSE(ends_with(std::string{"a"}, nullptr));

@@ -27,7 +27,7 @@ inline auto& operator<<(
 
 }  // namespace wb::base::parsers::st
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   using namespace wb::base::parsers;
   using namespace wb::base::parsers::st;

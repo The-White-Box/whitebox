@@ -42,7 +42,7 @@ enum class Enum : unsigned int { kNone = 0U };
 
 }  // namespace
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, NoCopyConstructorAndAssignment) {
   static_assert(!std::is_copy_constructible_v<NotCopyable>,
                 "NotCopyable should be not copyable");
@@ -50,7 +50,7 @@ GTEST_TEST(BaseMacrosesTest, NoCopyConstructorAndAssignment) {
                 "NotCopyable should be not copy assignable");
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, NoMoveConstructorAndAssignment) {
   static_assert(!std::is_move_constructible_v<NotMovable>,
                 "NotMovable should be not movable");
@@ -58,7 +58,7 @@ GTEST_TEST(BaseMacrosesTest, NoMoveConstructorAndAssignment) {
                 "NotMovable should be not copy movable");
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, NoCopyMoveConstructorAndAssignment) {
   static_assert(!std::is_copy_constructible_v<NotCopyMovable>,
                 "NotCopyMovable should be not copyable");
@@ -71,7 +71,7 @@ GTEST_TEST(BaseMacrosesTest, NoCopyMoveConstructorAndAssignment) {
                 "NotCopyMovable should be not copy movable");
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, ImplicitCast) {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   static_assert(wb::base::implicit_cast<int>(12) == 12);
@@ -86,14 +86,14 @@ GTEST_TEST(BaseMacrosesTest, ImplicitCast) {
   static_assert(wb::base::implicit_cast<Base*>(&d) == &d);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, UnderlyingCast) {
   static_assert(std::is_same_v<unsigned int, decltype(wb::base::underlying_cast(
                                                  Enum::kNone))>);
   static_assert(wb::base::underlying_cast(Enum::kNone) == 0U);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(BaseMacrosesTest, UniquePtrAlias) {
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
   wb::base::un<int> v = std::make_unique<int>(36);

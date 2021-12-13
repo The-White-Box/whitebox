@@ -10,7 +10,7 @@
 
 using namespace wb::base::std2;
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CStringExtTest, BitwiseMemset) {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values[] = {1, 2, 3};
@@ -26,7 +26,7 @@ GTEST_TEST(CStringExtTest, BitwiseMemset) {
   EXPECT_EQ((*actual)[2], 0U);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CStringExtTest, BitwiseCompare) {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values1[] = {1, 1, 3};
@@ -42,7 +42,7 @@ GTEST_TEST(CStringExtTest, BitwiseCompare) {
   EXPECT_GT(BitwiseCompare(values1, values2), 0);
 }
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(CStringExtTest, BitwiseCopy) {
   // NOLINTNEXTLINE(modernize-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
   unsigned int values1[] = {0, 0, 0};

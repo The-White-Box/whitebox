@@ -21,7 +21,7 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _When_(lpModuleName == NULL, _Ret_notnull_)
     _When_(lpModuleName != NULL, _Ret_maybenull_) HMODULE
     __stdcall GetModuleHandleA(_In_opt_ const char* lpModuleName);
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
   // NOLINTNEXTLINE(performance-no-int-to-ptr): Required for test.
   const HINSTANCE mustBeInvalidInstance{reinterpret_cast<HINSTANCE>(
