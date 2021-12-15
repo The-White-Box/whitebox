@@ -24,6 +24,12 @@ struct CommandLineFlags {
    */
   std::vector<char *> positional_flags;
 
+  /**
+   * @brief How many memory cleanup & reallocation attempts to do when out of
+   * memory.
+   */
+  std::uint32_t attempts_to_retry_allocate_memory;
+
 #ifdef WB_OS_WIN
   /**
    * @brief Changes minimal resolution (ms) of the Windows periodic timer.
@@ -34,18 +40,18 @@ struct CommandLineFlags {
    * modes.  Setting a higher resolution does not improve the accuracy of the
    * high-resolution performance counter.
    */
-  uint32_t periodic_timer_resolution_ms;
+  std::uint32_t periodic_timer_resolution_ms;
 #endif
 
   /**
    * @brief Initial width of the main window in pixels.
    */
-  uint16_t main_window_width;
+  std::uint16_t main_window_width;
 
   /**
    * @brief Initial height of the main window in pixels.
    */
-  uint16_t main_window_height;
+  std::uint16_t main_window_height;
 
   /**
    * @brief Insecure.  Allow to load NOT SIGNED module targets.  There is no
@@ -54,13 +60,9 @@ struct CommandLineFlags {
    */
   bool insecure_allow_unsigned_module_target;
 
-  WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[
-#ifdef WB_OS_WIN
-      sizeof(char*) -
-#else
-      sizeof(uint32_t) -
-#endif
-      sizeof(insecure_allow_unsigned_module_target)] = {};
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte
+      pad_[sizeof(uint32_t) - sizeof(insecure_allow_unsigned_module_target)] =
+          {};
 };
 
 }  // namespace wb::boot_manager

@@ -12,18 +12,23 @@
 
 #include "base/tests/g3log_death_utils_tests.h"
 #endif
+
+#include <cerrno>
 #include <vector>
 
+#include "base/default_new_handler.h"
+#include "base/deps/abseil/cleanup/cleanup.h"
+#include "base/deps/g3log/g3log.h"
 #include "base/deps/googletest/gtest/gtest.h"
 
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
   using namespace wb::base;
 
   EXPECT_NE(&DefaultNewFailureHandler, std::get_new_handler());
 
   {
-    const ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler};
+    const ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler, 0U};
 
     EXPECT_EQ(&DefaultNewFailureHandler, std::get_new_handler());
   }
@@ -33,12 +38,20 @@ GTEST_TEST(ScopedNewHandlerTest, SetNewFailureHandlerInScope) {
 
 // On POSIX just receive SIGKILL on OOM and we have no way to handle it.
 #if defined(GTEST_HAS_DEATH_TEST) && defined(WB_OS_WIN)
-// NOLINTNEXTLINE(cert-err58-cpp, cppcoreguidelines-avoid-non-const-global-variables, cppcoreguidelines-owning-memory)
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 
-  const wb::base::ScopedNewHandler scoped_new_handler{
-      wb::base::DefaultNewFailureHandler};
+  using namespace wb::base;
+
+  ScopedNewHandler new_scoped_new_handler{DefaultNewFailureHandler, 3U};
+  ScopedNewHandler old_scoped_new_handler{
+      InstallGlobalScopedNewHandler(std::move(new_scoped_new_handler))};
+
+  const absl::Cleanup scoped_new_handler_restorer{
+      [h = std::move(old_scoped_new_handler)]() mutable {
+        InstallGlobalScopedNewHandler(std::move(h));
+      }};
 
   const auto triggerOom = []() noexcept {
     std::random_device random_device;
@@ -88,7 +101,8 @@ GTEST_TEST(ScopedNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
   const auto test_result =
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
           "Failed to allocate memory bytes via new.  Please, ensure you "
-          "have enough RAM to run the app.  Stopping the app.");
+          "have enough RAM to run the app.  Stopping the app.",
+          ENOMEM);
 
   EXPECT_EXIT(triggerOom(), test_result.exit_predicate, test_result.message);
 }

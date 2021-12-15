@@ -102,6 +102,8 @@ int BootManagerStartup(
   G3DCHECK(!!app_path);
 
   const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
+  const std::uint32_t attempts_to_retry_allocate_memory{
+      absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
   const wb::apps::half_life_2::PeriodicTimerResolution
       periodic_timer_resolution{
           absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
@@ -137,6 +139,8 @@ int BootManagerStartup(
                WB_HALF_LIFE_2_IDI_SMALL_ICON,
                {
                    .positional_flags = std::move(positional_flags),
+                   .attempts_to_retry_allocate_memory =
+                       attempts_to_retry_allocate_memory,
                    .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
                    .main_window_width = main_window_width.size,
                    .main_window_height = main_window_height.size,

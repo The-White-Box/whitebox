@@ -66,12 +66,12 @@ bool AbslParseFlag(std::string_view text, PeriodicTimerResolution* p,
  * @brief Window size.
  */
 struct WindowSize {
-  explicit WindowSize(uint16_t size_) noexcept : size{size_} {}
+  explicit WindowSize(std::uint16_t size_) noexcept : size{size_} {}
 
   /**
    * @brief Size in pixels.
    */
-  uint16_t size;
+  std::uint16_t size;
 
   WindowSize(const WindowSize&) noexcept = default;
   WindowSize(WindowSize&&) noexcept = default;
@@ -83,7 +83,7 @@ struct WindowSize {
  * @brief Window width.
  */
 struct WindowWidth : WindowSize {
-  explicit WindowWidth(uint16_t size_) noexcept : WindowSize{size_} {}
+  explicit WindowWidth(std::uint16_t size_) noexcept : WindowSize{size_} {}
 };
 
 /**
@@ -107,7 +107,7 @@ bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error);
  * @brief Window height.
  */
 struct WindowHeight : WindowSize {
-  explicit WindowHeight(uint16_t size_) noexcept : WindowSize{size_} {}
+  explicit WindowHeight(std::uint16_t size_) noexcept : WindowSize{size_} {}
 };
 
 /**
@@ -128,6 +128,9 @@ std::string AbslUnparseFlag(WindowHeight h);
 bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error);
 
 }  // namespace wb::apps::half_life_2
+
+// How many memory cleanup & reallocation attempts to do when out of memory.
+ABSL_DECLARE_FLAG(std::uint32_t, attempts_to_retry_allocate_memory);
 
 // Initial width of the main window in pixels.
 ABSL_DECLARE_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width);

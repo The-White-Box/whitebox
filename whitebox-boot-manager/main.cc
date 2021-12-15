@@ -9,10 +9,12 @@
 #include <filesystem>
 
 #include "app_version_config.h"
+#include "base/default_new_handler.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/intl/l18n.h"
 #include "base/scoped_floating_point_mode.h"
+#include "base/scoped_new_handler.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
@@ -27,7 +29,6 @@
 #include "base/win/error_handling/scoped_process_pure_call_handler.h"
 #include "base/win/error_handling/scoped_thread_invalid_parameter_handler.h"
 #include "base/win/memory/memory_utils.h"
-#include "base/win/memory/scoped_new_handler.h"
 #include "base/win/memory/scoped_new_mode.h"
 #include "base/win/mmcss/scoped_mmcss_thread_controller.h"
 #include "base/win/scoped_timer_resolution.h"
@@ -36,8 +37,6 @@
 #include "build/static_settings_config.h"
 #include "whitebox-kernel/main_window_win.h"
 #include "whitebox-ui/win/window_utilities.h"
-#else
-#include "base/scoped_new_handler.h"
 #endif
 
 namespace {
@@ -94,14 +93,6 @@ void BootHeapMemoryAllocator() noexcept {
     G3PLOGE2_IF(WARNING, error_code)
         << "Can't enable 'Terminate on Heap corruption' os feature, continue "
            "without it.";
-  }
-
-  {
-    // Optimize heap caches now.
-    const auto error_code = wb::base::win::memory::OptimizeHeapResourcesNow();
-    G3PLOGE2_IF(WARNING, error_code)
-        << "Can't optimize heap resources caches, some memory will not be "
-           "freed.";
   }
 #endif
 
@@ -247,6 +238,14 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
     const wb::boot_manager::BootmgrArgs& bootmgr_args) {
   using namespace wb::base;
 
+  // Handle new allocation failure.
+  ScopedNewHandler scoped_new_handler{
+      DefaultNewFailureHandler,
+      bootmgr_args.command_line_flags.attempts_to_retry_allocate_memory};
+  // Set it as global handler.  C++ API is too strict here and we can't pass
+  // state into void(void), so need global variable to access state in handler.
+  InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
+
   DumpSystemInformation(bootmgr_args.app_description);
 
 #ifdef WB_OS_WIN
@@ -288,15 +287,9 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
   // Handle pure virtual function call.
   const error_handling::ScopedProcessPureCallHandler
       scoped_process_pure_call_handler{error_handling::DefaultPureCallHandler};
-  // Handle new allocation failure.
-  const memory::ScopedNewHandler scoped_new_handler{
-      memory::DefaultNewFailureHandler};
   // Call new when malloc failed.
   const memory::ScopedNewMode scoped_new_mode{
       memory::ScopedNewModeFlag::CallNew};
-#else
-  // Handle new allocation failure.
-  const ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler};
 #endif
 
   // Handle terminate function call on the thread.

@@ -11,8 +11,8 @@
 #include <string>
 #include <type_traits>
 
-#include "base/macroses.h"
 #include "base/deps/googletest/gtest/gtest.h"
+#include "base/macroses.h"
 #include "build/build_config.h"
 
 namespace wb::base::tests_internal {
@@ -61,6 +61,16 @@ struct DeathTestResult {
 };
 
 #ifdef WB_OS_WIN
+
+#ifdef NDEBUG
+// Windows handle SIGABRT and exit with code 3.  See
+// https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
+constexpr int kDefaultDeathExitCode{3};
+#else  // NDEBUG
+// TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
+constexpr int kDefaultDeathExitCode{static_cast<int>(0xC0000005L)};
+#endif
+
 /**
  * @brief Creates death test result for g3log {D}CHECK failure.
  * @param message Exit message.
@@ -68,7 +78,8 @@ struct DeathTestResult {
  */
 [[nodiscard]] DeathTestResult<testing::ExitedWithCode>
 MakeG3LogCheckFailureDeathTestResult(
-    [[maybe_unused]] std::string message) noexcept;
+    [[maybe_unused]] std::string message,
+    int exit_code = kDefaultDeathExitCode) noexcept;
 #else
 /**
  * @brief Creates death test result for g3log {D}CHECK failure.

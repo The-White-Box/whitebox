@@ -122,12 +122,15 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto boot_manager_main =
       std::get<BootManagerMainFunction>(bootmgr_entry_result);
 
+  const std::uint32_t attempts_to_retry_allocate_memory{
+      absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
   const wb::apps::half_life_2::WindowWidth main_window_width{
       absl::GetFlag(FLAGS_main_window_width)};
   const wb::apps::half_life_2::WindowHeight main_window_height{
       absl::GetFlag(FLAGS_main_window_height)};
   const wb::boot_manager::CommandLineFlags command_line_flags{
       .positional_flags = std::move(positional_flags),
+      .attempts_to_retry_allocate_memory = attempts_to_retry_allocate_memory,
       .main_window_width = main_window_width.size,
       .main_window_height = main_window_height.size,
       .insecure_allow_unsigned_module_target = false,

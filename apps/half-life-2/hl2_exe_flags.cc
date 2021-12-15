@@ -126,13 +126,17 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
 
 }  // namespace wb::apps::half_life_2
 
+ABSL_FLAG(std::uint32_t, attempts_to_retry_allocate_memory, 3U,
+          "how many memory cleanup & reallocation attempts to do when out of "
+          "memory.");
+
 ABSL_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width,
           wb::apps::half_life_2::WindowWidth{800U},
-          "main window initial width in pixels");
+          "main window initial width in pixels.");
 
 ABSL_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height,
           wb::apps::half_life_2::WindowHeight{600U},
-          "main window initial height in pixels");
+          "main window initial height in pixels.");
 
 #ifdef WB_OS_WIN
 ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,

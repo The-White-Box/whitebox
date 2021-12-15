@@ -16,24 +16,20 @@ namespace wb::base::tests_internal {
 #else
 [[nodiscard]] DeathTestResult<testing::KilledBySignal>
 #endif
-MakeG3LogCheckFailureDeathTestResult(
-    [[maybe_unused]] std::string message) noexcept {
-#ifdef NDEBUG
+MakeG3LogCheckFailureDeathTestResult([[maybe_unused]] std::string message
 #ifdef WB_OS_WIN
-  // Windows handle SIGABRT and exit with code 3.  See
-  // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
-  constexpr int death_exit_code{3};
-#else
+                                     ,
+                                     int exit_code
+#endif
+                                     ) noexcept {
+#ifdef NDEBUG
+#ifndef WB_OS_WIN
   constexpr int death_signal_num{SIGABRT};
 #endif
 
   std::string death_message{std::move(message)};
 #else  // NDEBUG
-#ifdef WB_OS_WIN
-  // TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
-  constexpr unsigned long kStatusAccessViolation{0xC0000005L};
-  constexpr int death_exit_code{static_cast<int>(kStatusAccessViolation)};
-#else
+#ifndef WB_OS_WIN
   constexpr int death_signal_num{SIGTRAP};
 #endif
 
@@ -42,7 +38,7 @@ MakeG3LogCheckFailureDeathTestResult(
 #endif  // !NDEBUG
 
 #ifdef WB_OS_WIN
-  const auto exited_with_code = testing::ExitedWithCode{death_exit_code};
+  const auto exited_with_code = testing::ExitedWithCode{exit_code};
   return DeathTestResult<testing::ExitedWithCode>(exited_with_code,
                                                   std::move(death_message));
 #else

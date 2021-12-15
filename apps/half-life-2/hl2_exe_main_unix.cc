@@ -78,12 +78,16 @@ int BootManagerStartup(int argc, char** argv) noexcept {
           boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
       if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
         WB_ATTRIBUTE_LIKELY {
+          const std::uint32_t attempts_to_retry_allocate_memory{
+              absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
           const wb::apps::half_life_2::WindowWidth main_window_width{
               absl::GetFlag(FLAGS_main_window_width)};
           const wb::apps::half_life_2::WindowHeight main_window_height{
               absl::GetFlag(FLAGS_main_window_height)};
           const wb::boot_manager::CommandLineFlags command_line_flags{
               .positional_flags = std::move(positional_flags),
+              .attempts_to_retry_allocate_memory =
+                  attempts_to_retry_allocate_memory,
               .main_window_width = main_window_width.size,
               .main_window_height = main_window_height.size,
               .insecure_allow_unsigned_module_target = false,
