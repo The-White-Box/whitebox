@@ -2,7 +2,7 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 #
-# Bootmgr library project definition.
+# Boot manager library project definition.
 
 cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 

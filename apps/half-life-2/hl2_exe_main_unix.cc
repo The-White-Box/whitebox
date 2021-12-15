@@ -69,9 +69,9 @@ int BootManagerStartup(int argc, char** argv) noexcept {
       boot_manager_path, RTLD_LAZY | RTLD_LOCAL);
   if (const auto* boot_manager = std2::get_result(boot_manager_library))
     WB_ATTRIBUTE_LIKELY {
-      using BootManagerMain = decltype(&BootmgrMain);
+      using BootManagerMain = decltype(&BootManagerMain);
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      constexpr char kBootManagerMainName[]{"BootmgrMain"};
+      constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
       // Good, try to find and launch boot manager.
       const auto boot_manager_entry =

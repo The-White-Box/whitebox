@@ -104,9 +104,9 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   const auto boot_manager_module =
       std::get<ScopedSharedLibrary>(boot_manager_load_result);
-  constexpr char kBootManagerMainFunctionName[]{"BootmgrMain"};
+  constexpr char kBootManagerMainFunctionName[]{"BootManagerMain"};
 
-  using BootManagerMainFunction = decltype(&BootmgrMain);
+  using BootManagerMainFunction = decltype(&BootManagerMain);
 
   // Good, try to find and launch boot manager.
   const auto boot_manager_entry_result =

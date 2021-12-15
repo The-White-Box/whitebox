@@ -105,7 +105,7 @@ struct BootmgrArgs {
  * @param bootmgr_args Boot manager args.
  * @return 0 on success.
  */
-extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
+extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const wb::boot_manager::BootmgrArgs &bootmgr_args);
 
 #endif  // !WB_WHITEBOX_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_

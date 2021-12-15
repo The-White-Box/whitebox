@@ -230,11 +230,11 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
 }  // namespace
 
 /**
- * @brief Bootmgr entry point on Windows.
- * @param bootmgr_args Bootmgr args.
+ * @brief Boot manager entry point on Windows.
+ * @param bootmgr_args Boot manager args.
  * @return 0 on success.
  */
-extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootmgrMain(
+extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const wb::boot_manager::BootmgrArgs& bootmgr_args) {
   using namespace wb::base;
 

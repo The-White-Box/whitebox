@@ -122,13 +122,13 @@ int BootManagerStartup(
       boot_manager_path, boot_manager_flags);
   if (const auto* boot_manager = std2::get_result(boot_manager_library))
     WB_ATTRIBUTE_LIKELY {
-      using BootmgrMain = decltype(&BootmgrMain);
+      using BootManagerMain = decltype(&BootManagerMain);
       // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      constexpr char kBootManagerMainName[]{"BootmgrMain"};
+      constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
       // Good, try to find and launch boot manager.
       const auto boot_manager_entry =
-          boot_manager->GetAddressAs<BootmgrMain>(kBootManagerMainName);
+          boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
       if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
         WB_ATTRIBUTE_LIKELY {
           return (*boot_manager_main)(
