@@ -21,11 +21,11 @@ namespace wb::apps::half_life_2 {
  * @brief Usage message.
  */
 constexpr char kUsageMessage[] = WB_PRODUCT_FILE_DESCRIPTION_STRING
-    ". The player again picks up the crowbar of research\nscientist Gordon "
+    ".  The player again picks up the crowbar of research\nscientist Gordon "
     "Freeman, who finds himself on an alien-infested Earth being\npicked to "
-    "the bone, its resources depleted, its populace dwindling. Freeman is\n"
+    "the bone, its resources depleted, its populace dwindling.  Freeman is\n"
     "thrust into the unenviable role of rescuing the world from the wrong "
-    "he\nunleashed back at Black Mesa. And a lot of people he cares about are "
+    "he\nunleashed back at Black Mesa.  And a lot of people he cares about are "
     "counting\non him.\n\nSample usage:\n";
 
 #ifdef WB_OS_WIN
