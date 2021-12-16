@@ -4,11 +4,12 @@
 //
 // Ensures single app instance is running.
 
-#ifndef WB_WHITEBOX_BOOT_MANAGER_SCOPED_APP_INSTANCE_MANAGER_H_
-#define WB_WHITEBOX_BOOT_MANAGER_SCOPED_APP_INSTANCE_MANAGER_H_
+#ifndef WB_BASE_SCOPED_APP_INSTANCE_MANAGER_H_
+#define WB_BASE_SCOPED_APP_INSTANCE_MANAGER_H_
 
 #include <array>
 
+#include "base/config.h"
 #include "base/macroses.h"
 #include "base/std2/system_error_ext.h"
 #include "build/build_config.h"
@@ -19,7 +20,7 @@
 #include "base/posix/scoped_shared_memory_object.h"
 #endif
 
-namespace wb::boot_manager {
+namespace wb::base {
 
 /**
  * @brief App instance status.
@@ -42,7 +43,7 @@ enum class AppInstanceStatus {
 /**
  * @brief Manages application instances.
  */
-class ScopedAppInstanceManager {
+class WB_BASE_API ScopedAppInstanceManager {
  public:
   /**
    * @brief Create app instance manager.
@@ -63,16 +64,20 @@ class ScopedAppInstanceManager {
 
  private:
 #ifdef WB_OS_WIN
-  /**
-   * @brief Mutex to be acquired only by single app instance.
-   */
-  const base::std2::result<base::win::ScopedMutex> app_instance_mutex_;
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // Private member is not accessible to the DLL's client, including inline
+    // functions.
+    WB_MSVC_DISABLE_WARNING(4251)
+    /**
+     * @brief Mutex to be acquired only by single app instance.
+     */
+    const std2::result<win::ScopedMutex> app_instance_mutex_;
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 #elif defined(WB_OS_POSIX)
   /**
    * @brief Shared memory object to be acquired only by single app instance.
    */
-  const base::std2::result<base::posix::ScopedSharedMemoryObject>
-      app_instance_mutex_;
+  const std2::result<posix::ScopedSharedMemoryObject> app_instance_mutex_;
 #endif  // WB_OS_WIN
 
   /**
@@ -84,6 +89,6 @@ class ScopedAppInstanceManager {
   std::array<std::byte, sizeof(char*) - sizeof(status_)> pad_;  //-V1055
 };
 
-}  // namespace wb::boot_manager
+}  // namespace wb::base
 
-#endif  // !WB_WHITEBOX_BOOT_MANAGER_SCOPED_APP_INSTANCE_MANAGER_H_
+#endif  // !WB_BASE_SCOPED_APP_INSTANCE_MANAGER_H_

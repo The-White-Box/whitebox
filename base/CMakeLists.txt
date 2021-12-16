@@ -13,6 +13,7 @@ set(WB_BASE_TARGET_NAME "whitebox-base")
 set(WB_BASE_LINK_OPTIONS "")
 set(WB_BASE_LINK_DEPS
   absl::cleanup
+  absl::strings
   fmt
   g3log
   mimalloc)

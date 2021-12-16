@@ -13,13 +13,13 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/intl/l18n.h"
+#include "base/scoped_app_instance_manager.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_new_handler.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "build/build_config.h"
-#include "scoped_app_instance_manager.h"
 #include "whitebox-kernel/main.h"
 #include "whitebox-ui/fatal_dialog.h"
 
@@ -311,17 +311,16 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
 #endif
 
   // Check only single instance of the app is running.
-  const wb::boot_manager::ScopedAppInstanceManager scoped_app_instance_manager{
+  const ScopedAppInstanceManager scoped_app_instance_manager{
       bootmgr_args.app_description};
   const auto other_instance_status = scoped_app_instance_manager.GetStatus();
-  if (other_instance_status ==
-      wb::boot_manager::AppInstanceStatus::kAlreadyRunning) {
+  if (other_instance_status == AppInstanceStatus::kAlreadyRunning) {
 #ifdef WB_OS_WIN
     using namespace std::chrono_literals;
 
     const std::string window_class_name{
         wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
-    // Time to flash other instance window.
+    // Well, notify user about other instance window.
     wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
 #endif
 

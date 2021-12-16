@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include "base/deps/abseil/strings/str_cat.h"
+
 namespace {
 
 /**
@@ -18,12 +20,15 @@ namespace {
 [[nodiscard]] std::string MakeMutexName(const char* app_description) noexcept {
   G3DCHECK(!!app_description);
 
+  return absl::StrCat(
 #ifdef WB_OS_WIN
-  return "WhiteBox " + std::string{app_description} + " Singleton Mutex";
-#else
-  // Start with / to be portable.
-  return "/WhiteBox " + std::string{app_description} + " Singleton Mutex";
-#endif  // WB_OS_WIN
+      "WhiteBox "
+#else   // WB_OS_WIN
+      // Start with / to be portable.
+      "/WhiteBox "
+#endif  // !WB_OS_WIN
+      ,
+      app_description, " Singleton Mutex");
 }
 
 #ifdef WB_OS_WIN
@@ -32,15 +37,16 @@ namespace {
  * @param mutex_result Mutex.
  * @return App instance status.
  */
-[[nodiscard]] wb::boot_manager::AppInstanceStatus CheckStatus(
+[[nodiscard]] wb::base::AppInstanceStatus CheckStatus(
     const wb::base::std2::result<wb::base::win::ScopedMutex>&
         mutex_result) noexcept {
-  using namespace wb::boot_manager;
+  using namespace wb::base;
 
-  if (auto* mutex = wb::base::std2::get_result(mutex_result))
-    WB_ATTRIBUTE_LIKELY { return AppInstanceStatus::kNoOtherInstances; }
+  if (auto* mutex = std2::get_result(mutex_result)) WB_ATTRIBUTE_LIKELY {
+      return AppInstanceStatus::kNoOtherInstances;
+    }
 
-  const auto* rc = wb::base::std2::get_error(mutex_result);
+  const auto* rc = std2::get_error(mutex_result);
   G3DCHECK(!!rc);
 
   constexpr int kAccessDenied{5};
@@ -83,11 +89,10 @@ CreateProcessMutex(const char* app_description) noexcept {
  * @param mutex_result Mutex.
  * @return App instance status.
  */
-[[nodiscard]] wb::boot_manager::AppInstanceStatus CheckStatus(
+[[nodiscard]] wb::base::AppInstanceStatus CheckStatus(
     const wb::base::std2::result<wb::base::posix::ScopedSharedMemoryObject>&
         mutex_or_error) noexcept {
   using namespace wb::base;
-  using namespace wb::boot_manager;
 
   if (std2::get_result(mutex_or_error)) WB_ATTRIBUTE_LIKELY {
       // Shared process mutex is locked by current process, will be unlocked
@@ -113,15 +118,15 @@ CreateProcessMutex(const char* app_description) noexcept {
 
 }  // namespace
 
-namespace wb::boot_manager {
+namespace wb::base {
 
 ScopedAppInstanceManager::ScopedAppInstanceManager(
     const char* app_description) noexcept
 #ifdef WB_OS_WIN
-    : app_instance_mutex_{base::win::ScopedMutex::New(
+    : app_instance_mutex_{win::ScopedMutex::New(
           nullptr, MakeMutexName(app_description).c_str(),
-          base::win::ScopedMutexCreationFlag::kNone,
-          base::win::security::DefaultMutexAccessRights)},
+          win::ScopedMutexCreationFlag::kNone,
+          win::security::DefaultMutexAccessRights)},
       status_{CheckStatus(app_instance_mutex_)} {
 }
 #elif defined(WB_OS_POSIX)
@@ -130,4 +135,4 @@ ScopedAppInstanceManager::ScopedAppInstanceManager(
 }
 #endif
 
-}  // namespace wb::boot_manager
+}  // namespace wb::base
