@@ -13,7 +13,6 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/intl/l18n.h"
-#include "base/scoped_app_instance_manager.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_new_handler.h"
 #include "base/scoped_process_terminate_handler.h"
@@ -24,6 +23,7 @@
 #include "whitebox-ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
+#include "base/scoped_app_instance_manager.h"
 #include "base/std2/thread_ext.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_process_pure_call_handler.h"
@@ -310,32 +310,35 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // const std2::native_thread_name new_thread_name{"WhiteBoxMain"};
 #endif
 
-  // Check only single instance of the app is running.
+#ifdef WB_OS_WIN
+  // Check only single instance of the app is running.  Windows only here
+  // because on Linux / MacOS we want to show fatal dialog when app has icon,
+  // hense postpone check till SDL window created and app icon set.
   const ScopedAppInstanceManager scoped_app_instance_manager{
       bootmgr_args.app_description};
   const auto other_instance_status = scoped_app_instance_manager.GetStatus();
-  if (other_instance_status == AppInstanceStatus::kAlreadyRunning) {
-#ifdef WB_OS_WIN
-    using namespace std::chrono_literals;
+  if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
+    WB_ATTRIBUTE_UNLIKELY {
+      using namespace std::chrono_literals;
 
-    const std::string window_class_name{
-        wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
-    // Well, notify user about other instance window.
-    wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
+      const std::string window_class_name{
+          wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
+      // Well, notify user about other instance window.
+      wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
+
+      wb::ui::FatalDialog(
+          intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+          std2::posix_last_error_code(EEXIST),
+          intl::l18n_fmt(bootmgr_args.intl,
+                         "Sorry, only single '{0}' can run at a time.",
+                         bootmgr_args.app_description),
+          MakeFatalContext(bootmgr_args),
+          intl::l18n_fmt(bootmgr_args.intl,
+                         "Can't run multiple copies of '{0}' at once.  Please, "
+                         "stop existing copy or return to the game.",
+                         bootmgr_args.app_description));
+    }
 #endif
-
-    wb::ui::FatalDialog(
-        intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
-        std2::posix_last_error_code(EEXIST),
-        intl::l18n_fmt(bootmgr_args.intl,
-                       "Sorry, only single '{0}' can run at a time.",
-                       bootmgr_args.app_description),
-        MakeFatalContext(bootmgr_args),
-        intl::l18n_fmt(bootmgr_args.intl,
-                       "Can't run multiple copies of '{0}' at once.  Please, "
-                       "stop existing copy or return to the game.",
-                       bootmgr_args.app_description));
-  }
 
   // Setup heap memory allocator.
   BootHeapMemoryAllocator();

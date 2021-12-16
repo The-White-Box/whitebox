@@ -8,7 +8,9 @@
 
 #include <string>
 
+#include "base/scoped_app_instance_manager.h"
 #include "build/static_settings_config.h"
+#include "whitebox-ui/fatal_dialog.h"
 
 namespace {
 
@@ -51,6 +53,30 @@ namespace wb::kernel {
       using namespace wb::build::settings::ui::window;
 
       window->SetMinimumSizes(dimensions::kMinWidth, dimensions::kMinHeight);
+
+      using namespace wb::base;
+
+      // Check only single instance of the app is running.  Do it here because
+      // on Linux / MacOS we want to show fatal dialog when app has icon, hense
+      // postpone check till SDL window created and app icon set.
+      const ScopedAppInstanceManager scoped_app_instance_manager{title};
+      const auto other_instance_status =
+          scoped_app_instance_manager.GetStatus();
+      if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
+        WB_ATTRIBUTE_UNLIKELY {
+          wb::ui::FatalDialog(
+              intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+              std2::posix_last_error_code(EEXIST),
+              intl::l18n_fmt(bootmgr_args.intl,
+                             "Sorry, only single '{0}' can run at a time.",
+                             bootmgr_args.app_description),
+              MakeFatalContext(bootmgr_args),
+              intl::l18n_fmt(
+                  bootmgr_args.intl,
+                  "Can't run multiple copies of '{0}' at once.  Please, "
+                  "stop existing copy or return to the game.",
+                  bootmgr_args.app_description));
+        }
 
       return MainWindow{std::move(*window)};
     }
