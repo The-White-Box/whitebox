@@ -32,36 +32,18 @@ GTEST_TEST(ThreadExtTest, this_thread_get_handle) {
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, get_thread_name) {
-#ifdef WB_OS_WIN
-  std2::native_thread_name thread_name{L"get_thread_name"};
-#elif defined(WB_OS_POSIX)
   std2::native_thread_name thread_name{"get_thread_name"};
-#else
-#error "Please define native_thread_name for your platform."
-#endif
 
   EXPECT_EQ(std2::ok_code, std2::this_thread::set_name(thread_name));
-  EXPECT_EQ(std2::ok_code,
-            std2::get_thread_name(std2::this_thread::get_handle(), thread_name));
+  EXPECT_EQ(std2::ok_code, std2::get_thread_name(
+                               std2::this_thread::get_handle(), thread_name));
 
-#ifdef WB_OS_WIN
-  EXPECT_EQ(thread_name, std2::native_thread_name{L"get_thread_name"});
-#elif defined(WB_OS_POSIX)
   EXPECT_EQ(thread_name, std2::native_thread_name{"get_thread_name"});
-#else
-#error "Please define native_thread_name for your platform."
-#endif
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_set_name) {
-#ifdef WB_OS_WIN
-  const std2::native_thread_name expected_thread_name{L"this_thread_set_name"};
-#elif defined(WB_OS_POSIX)
   const std2::native_thread_name expected_thread_name{"small_name"};
-#else
-#error "Please define native_thread_name for your platform."
-#endif
 
   EXPECT_EQ(std2::ok_code, std2::this_thread::set_name(expected_thread_name));
 
@@ -75,15 +57,7 @@ GTEST_TEST(ThreadExtTest, this_thread_set_name) {
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameScope) {
-#ifdef WB_OS_WIN
-  const std2::native_thread_name expected_thread_name{
-      L"this_thread_ScopedThreadName"};
-#elif defined(WB_OS_POSIX)
-  const std2::native_thread_name expected_thread_name{
-      "ScopedName"};
-#else
-#error "Please define native_thread_name for your platform."
-#endif
+  const std2::native_thread_name expected_thread_name{"ScopedName"};
 
   std2::native_thread_name original_thread_name;
   EXPECT_EQ(std2::ok_code,
@@ -102,24 +76,16 @@ GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameScope) {
                                     new_thread_name));
     EXPECT_EQ(new_thread_name, expected_thread_name);
   }
-  
+
   EXPECT_EQ(std2::ok_code,
             std2::get_thread_name(std2::this_thread::get_handle(),
-                                  original_thread_name));  
+                                  original_thread_name));
   EXPECT_NE(original_thread_name, expected_thread_name);
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameMoveConstructor) {
-#ifdef WB_OS_WIN
-  const std2::native_thread_name expected_thread_name{
-      L"this_thread_ScopedThreadName"};
-#elif defined(WB_OS_POSIX)
-  const std2::native_thread_name expected_thread_name{
-      "ScopedName"};
-#else
-#error "Please define native_thread_name for your platform."
-#endif
+  const std2::native_thread_name expected_thread_name{"ScopedName"};
 
   std2::native_thread_name original_thread_name;
   EXPECT_EQ(std2::ok_code,
@@ -141,9 +107,9 @@ GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameMoveConstructor) {
                                     new_thread_name));
     EXPECT_EQ(new_thread_name, expected_thread_name);
   }
-  
+
   EXPECT_EQ(std2::ok_code,
             std2::get_thread_name(std2::this_thread::get_handle(),
-                                  original_thread_name));  
+                                  original_thread_name));
   EXPECT_NE(original_thread_name, expected_thread_name);
 }

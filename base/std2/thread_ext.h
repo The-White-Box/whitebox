@@ -27,17 +27,10 @@ namespace wb::base::std2 {
  */
 using native_thread_handle = std::thread::native_handle_type;
 
-#ifdef WB_OS_WIN
-/**
- * @brief Native thread name.
- */
-using native_thread_name = std::wstring;
-#else
 /**
  * @brief Native thread name.
  */
 using native_thread_name = std::string;
-#endif
 
 /**
  * @brief Gets current thread name.

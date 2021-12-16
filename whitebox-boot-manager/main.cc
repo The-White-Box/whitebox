@@ -297,7 +297,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
       DefaultProcessTerminateHandler};
 
 #ifdef WB_OS_WIN
-  const std2::native_thread_name new_thread_name{L"WhiteBoxMain"};
+  const std2::native_thread_name new_thread_name{"WhiteBoxMain"};
 
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name =

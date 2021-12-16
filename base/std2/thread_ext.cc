@@ -12,6 +12,7 @@
 #ifdef WB_OS_WIN
 #include <sal.h>
 
+#include "base/std2/string_ext.h"
 #include "base/win/memory/scoped_local_memory.h"
 #include "base/win/system_error_ext.h"
 
@@ -45,10 +46,10 @@ namespace wb::base::std2 {
   const win::memory::ScopedLocalMemory scoped_local_memory{wide_thread_name};
 
   if (!rc) WB_ATTRIBUTE_LIKELY {
-      thread_name = wide_thread_name;
+      thread_name = WideToUTF8(wide_thread_name);
     }
   else {
-    thread_name = L"";
+    thread_name = "";
   }
 
   return rc;
@@ -100,8 +101,9 @@ WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 [[nodiscard]] WB_BASE_API std::error_code set_name(
     const native_thread_name& thread_name) noexcept {
 #ifdef WB_OS_WIN
+  const auto api_thread_name{UTF8ToWide(thread_name)};
   return win::get_error(
-      ::SetThreadDescription(get_handle(), thread_name.c_str()));
+      ::SetThreadDescription(get_handle(), api_thread_name.c_str()));
 #elif defined(WB_OS_POSIX)
 #ifdef WB_OS_MACOS
   // The thread name is a meaningful C language string, whose length is

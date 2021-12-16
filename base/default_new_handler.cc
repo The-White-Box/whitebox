@@ -16,7 +16,6 @@
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/internals/scoped_new_handler_internal.h"
 #include "base/scoped_new_handler.h"
-#include "base/std2/string_ext.h"
 #include "base/std2/thread_ext.h"
 #include "build/compiler_config.h"
 
@@ -41,13 +40,7 @@ namespace {
   if (const auto rc = std2::get_thread_name(std2::this_thread::get_handle(),
                                             native_thread_name);
       !rc)
-    WB_ATTRIBUTE_LIKELY {
-#ifdef WB_OS_WIN
-      actual_thread_name = std2::WideToUTF8(native_thread_name);
-#else
-      actual_thread_name = native_thread_name;
-#endif
-    }
+    WB_ATTRIBUTE_LIKELY { actual_thread_name = native_thread_name; }
 
   return actual_thread_name.empty() ? kUnknownThreadName : actual_thread_name;
 };
