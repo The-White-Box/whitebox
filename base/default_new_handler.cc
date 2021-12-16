@@ -40,7 +40,7 @@ namespace {
   if (const auto rc = std2::get_thread_name(std2::this_thread::get_handle(),
                                             native_thread_name);
       !rc)
-    WB_ATTRIBUTE_LIKELY { actual_thread_name = native_thread_name; }
+    WB_ATTRIBUTE_LIKELY { actual_thread_name = std::move(native_thread_name); }
 
   return actual_thread_name.empty() ? kUnknownThreadName : actual_thread_name;
 };
