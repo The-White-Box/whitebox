@@ -6,12 +6,11 @@
 //
 // Usage example:
 //
-// const std::string &hello_message{intl::l18n(intl, "Hello, international
-// world!")};
+// const std::string &hello_message{lookup.String(122)};
 //
 // or
 //
-// const std::string greetings{intl::l18n_fmt(intl, "Hi, {0}!", user_name)};
+// const std::string greetings{lookup.Format(123, user_name)};
 //
 // Based on
 // https://cs.opensource.google/fuchsia/fuchsia/+/main:src/lib/intl/lookup/cpp/lookup.h
