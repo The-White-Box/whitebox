@@ -120,23 +120,20 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error);
 // How many memory cleanup & reallocation attempts to do when out of memory.
 ABSL_DECLARE_FLAG(std::uint32_t, attempts_to_retry_allocate_memory);
 
+#ifdef WB_OS_WIN
+// Insecure.  Allow to load NOT SIGNED module targets.  There is no guarantee
+// unsigned module doing nothing harmful.  Use at your own risk, ex. for
+// debugging or mods.
+ABSL_DECLARE_FLAG(bool, insecure_allow_unsigned_module_target);
+#endif  // WB_OS_WIN
+
 // Initial width of the main window in pixels.
 ABSL_DECLARE_FLAG(wb::apps::flags::WindowWidth, main_window_width);
 
 // Initial height of the main window in pixels.
 ABSL_DECLARE_FLAG(wb::apps::flags::WindowHeight, main_window_height);
 
-// Should dump heap allocator statistics on exit or not.  Included some process
-// info, like system / user elapsed time, peak working set size, hard page
-// faults, etc.
-ABSL_DECLARE_FLAG(bool, should_dump_heap_allocator_statistics_on_exit);
-
 #ifdef WB_OS_WIN
-// Insecure.  Allow to load NOT SIGNED module targets.  There is no guarantee
-// unsigned module doing nothing harmful.  Use at your own risk, ex. for
-// debugging or mods.
-ABSL_DECLARE_FLAG(bool, insecure_allow_unsigned_module_target);
-
 // Changes minimal resolution (ms) of the Windows periodic timer.  Setting a
 // higher resolution can improve the accuracy of time-out intervals in wait
 // functions.  However, it can also reduce overall system performance, because
@@ -147,5 +144,10 @@ ABSL_DECLARE_FLAG(bool, insecure_allow_unsigned_module_target);
 ABSL_DECLARE_FLAG(wb::apps::flags::PeriodicTimerResolution,
                   periodic_timer_resolution_ms);
 #endif  // WB_OS_WIN
+
+// Should dump heap allocator statistics on exit or not.  Included some process
+// info, like system / user elapsed time, peak working set size, hard page
+// faults, etc.
+ABSL_DECLARE_FLAG(bool, should_dump_heap_allocator_statistics_on_exit);
 
 #endif  // !WB_APPS_BASE_FLAGS_H_

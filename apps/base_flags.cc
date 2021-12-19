@@ -131,6 +131,13 @@ ABSL_FLAG(std::uint32_t, attempts_to_retry_allocate_memory, 3U,
           "how many memory cleanup & reallocation attempts to do when out of "
           "memory.");
 
+#ifdef WB_OS_WIN
+ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
+          "insecure.  Allow to load NOT SIGNED module targets.  There is no "
+          "guarantee unsigned module doing nothing harmful.  Use at your own "
+          "risk, ex. for debugging or mods.");
+#endif  // WB_OS_WIN
+
 ABSL_FLAG(wb::apps::flags::WindowWidth, main_window_width,
           wb::apps::flags::WindowWidth{800U},
           "main window initial width in pixels.");
@@ -139,17 +146,7 @@ ABSL_FLAG(wb::apps::flags::WindowHeight, main_window_height,
           wb::apps::flags::WindowHeight{600U},
           "main window initial height in pixels.");
 
-ABSL_FLAG(bool, should_dump_heap_allocator_statistics_on_exit, false,
-          "should dump heap allocator statistics on exit or not.  Included a "
-          "some process info, like system/user elapsed time, peak working "
-          "set size, hard page faults, etc.");
-
 #ifdef WB_OS_WIN
-ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
-          "insecure.  Allow to load NOT SIGNED module targets.  There is no "
-          "guarantee unsigned module doing nothing harmful.  Use at your own "
-          "risk, ex. for debugging or mods.");
-
 ABSL_FLAG(
     wb::apps::flags::PeriodicTimerResolution, periodic_timer_resolution_ms,
     wb::apps::flags::PeriodicTimerResolution{8},
@@ -161,3 +158,8 @@ ABSL_FLAG(
     "power-saving modes.  Setting a higher resolution does not improve the "
     "accuracy of the high-resolution performance counter.");
 #endif  // WB_OS_WIN
+
+ABSL_FLAG(bool, should_dump_heap_allocator_statistics_on_exit, false,
+          "should dump heap allocator statistics on exit or not.  Included a "
+          "some process info, like system/user elapsed time, peak working "
+          "set size, hard page faults, etc.");
