@@ -238,6 +238,9 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const wb::boot_manager::BootmgrArgs& bootmgr_args) {
   using namespace wb::base;
 
+  // Setup heap memory allocator.
+  BootHeapMemoryAllocator();
+
   // Handle new allocation failure.
   ScopedNewHandler scoped_new_handler{
       DefaultNewFailureHandler,
@@ -339,9 +342,6 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
                          bootmgr_args.app_description));
     }
 #endif
-
-  // Setup heap memory allocator.
-  BootHeapMemoryAllocator();
 
   // Ensure CPU floating point units convert denormals to zero and flush to zero
   // on underflow.
