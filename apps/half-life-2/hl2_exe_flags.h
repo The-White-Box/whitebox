@@ -138,6 +138,11 @@ ABSL_DECLARE_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width);
 // Initial height of the main window in pixels.
 ABSL_DECLARE_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height);
 
+// Should dump heap allocator statistics on exit or not.  Included some process
+// info, like system / user elapsed time, peak working set size, hard page
+// faults, etc.
+ABSL_DECLARE_FLAG(bool, should_dump_heap_allocator_statistics_on_exit);
+
 #ifdef WB_OS_WIN
 // Insecure.  Allow to load NOT SIGNED module targets.  There is no guarantee
 // unsigned module doing nothing harmful.  Use at your own risk, ex. for

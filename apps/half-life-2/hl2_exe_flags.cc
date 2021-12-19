@@ -130,6 +130,11 @@ ABSL_FLAG(std::uint32_t, attempts_to_retry_allocate_memory, 3U,
           "how many memory cleanup & reallocation attempts to do when out of "
           "memory.");
 
+ABSL_FLAG(bool, should_dump_heap_allocator_statistics_on_exit, false,
+          "should dump heap allocator statistics on exit or not.  Included a "
+          "some process info, like system/user elapsed time, peak working "
+          "set size, hard page faults, etc.");
+
 ABSL_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width,
           wb::apps::half_life_2::WindowWidth{800U},
           "main window initial width in pixels.");

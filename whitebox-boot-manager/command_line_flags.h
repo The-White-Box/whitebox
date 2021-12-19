@@ -60,9 +60,16 @@ struct CommandLineFlags {
    */
   bool insecure_allow_unsigned_module_target;
 
+  /**
+   * @brief Should dump heap allocator statistics on exit or not.  Included a
+   * bit of process info, like system/user elapsed time, peak working set size,
+   * hard page faults, etc.
+   */
+  bool should_dump_heap_allocator_statistics_on_exit;
+
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(uint32_t) - sizeof(insecure_allow_unsigned_module_target)] =
-          {};
+      pad_[sizeof(uint32_t) - sizeof(insecure_allow_unsigned_module_target) -
+           sizeof(should_dump_heap_allocator_statistics_on_exit)] = {};
 };
 
 }  // namespace wb::boot_manager

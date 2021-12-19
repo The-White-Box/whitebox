@@ -84,6 +84,9 @@ int BootManagerStartup(int argc, char** argv) noexcept {
               absl::GetFlag(FLAGS_main_window_width)};
           const wb::apps::half_life_2::WindowHeight main_window_height{
               absl::GetFlag(FLAGS_main_window_height)};
+          const bool should_dump_heap_allocator_statistics_on_exit{
+              absl::GetFlag(
+                  FLAGS_should_dump_heap_allocator_statistics_on_exit)};
           const wb::boot_manager::CommandLineFlags command_line_flags{
               .positional_flags = std::move(positional_flags),
               .attempts_to_retry_allocate_memory =
@@ -91,7 +94,8 @@ int BootManagerStartup(int argc, char** argv) noexcept {
               .main_window_width = main_window_width.size,
               .main_window_height = main_window_height.size,
               .insecure_allow_unsigned_module_target = false,
-          };
+              .should_dump_heap_allocator_statistics_on_exit =
+                  should_dump_heap_allocator_statistics_on_exit};
           return (*boot_manager_main)(
               {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, l18n});
         }

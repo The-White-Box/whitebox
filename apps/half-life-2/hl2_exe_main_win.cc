@@ -107,12 +107,14 @@ int BootManagerStartup(
   const wb::apps::half_life_2::PeriodicTimerResolution
       periodic_timer_resolution{
           absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
-  const bool insecure_allow_unsigned_module_target{
-      absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
   const wb::apps::half_life_2::WindowWidth main_window_width{
       absl::GetFlag(FLAGS_main_window_width)};
   const wb::apps::half_life_2::WindowHeight main_window_height{
       absl::GetFlag(FLAGS_main_window_height)};
+  const bool insecure_allow_unsigned_module_target{
+      absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
+  const bool should_dump_heap_allocator_statistics_on_exit{
+      absl::GetFlag(FLAGS_should_dump_heap_allocator_statistics_on_exit)};
   const unsigned boot_manager_flags{LOAD_WITH_ALTERED_SEARCH_PATH |
                                     (!insecure_allow_unsigned_module_target
                                          ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
@@ -137,16 +139,16 @@ int BootManagerStartup(
                show_window_flags,
                WB_HALF_LIFE_2_IDI_MAIN_ICON,
                WB_HALF_LIFE_2_IDI_SMALL_ICON,
-               {
-                   .positional_flags = std::move(positional_flags),
-                   .attempts_to_retry_allocate_memory =
-                       attempts_to_retry_allocate_memory,
-                   .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
-                   .main_window_width = main_window_width.size,
-                   .main_window_height = main_window_height.size,
-                   .insecure_allow_unsigned_module_target =
-                       insecure_allow_unsigned_module_target,
-               },
+               {.positional_flags = std::move(positional_flags),
+                .attempts_to_retry_allocate_memory =
+                    attempts_to_retry_allocate_memory,
+                .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
+                .main_window_width = main_window_width.size,
+                .main_window_height = main_window_height.size,
+                .insecure_allow_unsigned_module_target =
+                    insecure_allow_unsigned_module_target,
+                .should_dump_heap_allocator_statistics_on_exit =
+                    should_dump_heap_allocator_statistics_on_exit},
                intl});
         }
 
