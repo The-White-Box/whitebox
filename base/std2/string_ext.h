@@ -36,7 +36,7 @@ namespace wb::base::std2 {
  * @return C string or nullptr.
  */
 template <typename TElem>
-[[nodiscard]] WB_ATTRIBUTE_PURE inline const TElem *CStringOrNullptrIfEmpty(
+[[nodiscard]] WB_ATTRIBUTE_PURE inline const TElem *zstring_or_null_on_empty(
     const std::basic_string<TElem, std::char_traits<TElem>,
                             std::allocator<TElem>> &value) noexcept {
   return !value.empty() ? value.c_str() : nullptr;

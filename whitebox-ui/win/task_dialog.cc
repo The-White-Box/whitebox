@@ -8,8 +8,8 @@
 
 #include <cstdint>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/std2/string_ext.h"
 #include "base/win/system_error_ext.h"
 #include "base/win/windows_light.h"
@@ -227,11 +227,12 @@ WB_WHITEBOX_UI_API base::std2::result<DialogBoxButton> ShowDialogBox(
                                 DialogBoxButton::kCancel
                             ? IDCANCEL
                             : IDOK,
-      .pszExpandedInformation = std2::CStringOrNullptrIfEmpty(expanded_content),
+      .pszExpandedInformation =
+          std2::zstring_or_null_on_empty(expanded_content),
       .pszExpandedControlText =
-          std2::CStringOrNullptrIfEmpty(expanded_control_text),
+          std2::zstring_or_null_on_empty(expanded_control_text),
       .pszCollapsedControlText =
-          std2::CStringOrNullptrIfEmpty(collapsed_control_text),
+          std2::zstring_or_null_on_empty(collapsed_control_text),
       .pszFooterIcon = GetIconByKind(DialogBoxKind::kInformation),
       .pszFooter = footer.c_str(),
       .pfCallback = &ShowDialogBoxCallback,
