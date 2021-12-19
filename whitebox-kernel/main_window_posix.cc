@@ -65,17 +65,17 @@ namespace wb::kernel {
       if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
         WB_ATTRIBUTE_UNLIKELY {
           wb::ui::FatalDialog(
-              intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+              intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
               std2::posix_last_error_code(EEXIST),
-              intl::l18n_fmt(bootmgr_args.intl,
+              intl::l18n_fmt(boot_manager_args.intl,
                              "Sorry, only single '{0}' can run at a time.",
-                             bootmgr_args.app_description),
-              MakeFatalContext(bootmgr_args),
+                             boot_manager_args.app_description),
+              MakeFatalContext(boot_manager_args),
               intl::l18n_fmt(
-                  bootmgr_args.intl,
+                  boot_manager_args.intl,
                   "Can't run multiple copies of '{0}' at once.  Please, "
                   "stop existing copy or return to the game.",
-                  bootmgr_args.app_description));
+                  boot_manager_args.app_description));
         }
 
       return MainWindow{std::move(*window)};

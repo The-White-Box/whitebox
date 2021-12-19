@@ -106,16 +106,16 @@ void BootHeapMemoryAllocator() noexcept {
 
 /**
  * @brief Makes fatal dialog context.
- * @param bootmgr_args Boot manager arguments.
+ * @param boot_manager_args Boot manager arguments.
  * @return Fatal dialog context.
  */
 [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
-    const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
+    const wb::boot_manager::BootManagerArgs& boot_manager_args) noexcept {
 #ifdef WB_OS_POSIX
-  return wb::ui::FatalDialogContext{bootmgr_args.intl.Layout()};
+  return wb::ui::FatalDialogContext{boot_manager_args.intl.Layout()};
 #elif defined(WB_OS_WIN)
-  return {bootmgr_args.intl, bootmgr_args.intl.Layout(),
-          bootmgr_args.main_icon_id, bootmgr_args.small_icon_id};
+  return {boot_manager_args.intl, boot_manager_args.intl.Layout(),
+          boot_manager_args.main_icon_id, boot_manager_args.small_icon_id};
 #else
 #error "Please define MakeFatalContext for your platform."
 #endif
@@ -123,22 +123,22 @@ void BootHeapMemoryAllocator() noexcept {
 
 /**
  * Gets executable directory.
- * @param bootmgr_args Boot manager arguments.
+ * @param boot_manager_args Boot manager arguments.
  * @return Executable directory.
  */
 [[nodiscard]] std::filesystem::path GetExecutableDirectoryPath(
-    const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
+    const wb::boot_manager::BootManagerArgs& boot_manager_args) noexcept {
   using namespace wb::base;
 
   const auto app_path_result = std2::filesystem::get_executable_directory();
   if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
-      const auto& intl = bootmgr_args.intl;
+      const auto& intl = boot_manager_args.intl;
       wb::ui::FatalDialog(
           intl::l18n(intl, "Boot Manager - Error"), *rc,
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          MakeFatalContext(bootmgr_args),
+          MakeFatalContext(boot_manager_args),
           intl::l18n(
               intl,
               "Can't get current directory.  Unable to load the kernel."));
@@ -149,14 +149,15 @@ void BootHeapMemoryAllocator() noexcept {
 
 /**
  * @brief Load and run kernel.
- * @param bootmgr_args Boot manager args.
+ * @param boot_manager_args Boot manager args.
  * @param intl Localization lookup.
  * @return App exit code.
  */
-int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
+int KernelStartup(
+    const wb::boot_manager::BootManagerArgs& boot_manager_args) noexcept {
   using namespace wb::base;
 
-  const auto app_directory_path = GetExecutableDirectoryPath(bootmgr_args);
+  const auto app_directory_path = GetExecutableDirectoryPath(boot_manager_args);
 
 #ifdef WB_OS_WIN
   const std::string kernel_path{
@@ -171,14 +172,15 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
 #ifdef WB_OS_WIN
   const unsigned kernel_load_flags{
       LOAD_WITH_ALTERED_SEARCH_PATH |
-      (!bootmgr_args.command_line_flags.insecure_allow_unsigned_module_target
+      (!boot_manager_args.command_line_flags
+               .insecure_allow_unsigned_module_target
            ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
            : 0U)};
 #else
   const int kernel_load_flags{RTLD_LAZY | RTLD_LOCAL};
 #endif
 
-  const auto& intl = bootmgr_args.intl;
+  const auto& intl = boot_manager_args.intl;
   const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
   if (const auto* kernel_module = std2::get_result(kernel_library))
@@ -194,14 +196,14 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
         WB_ATTRIBUTE_LIKELY {
 #ifdef WB_OS_WIN
           return (*kernel_main)(
-              {bootmgr_args.app_description, bootmgr_args.instance,
-               bootmgr_args.show_window_flags, bootmgr_args.main_icon_id,
-               bootmgr_args.small_icon_id, bootmgr_args.command_line_flags,
-               bootmgr_args.intl});
+              {boot_manager_args.app_description, boot_manager_args.instance,
+               boot_manager_args.show_window_flags,
+               boot_manager_args.main_icon_id, boot_manager_args.small_icon_id,
+               boot_manager_args.command_line_flags, boot_manager_args.intl});
 #else
-          return (*kernel_main)({bootmgr_args.app_description,
-                                 bootmgr_args.command_line_flags,
-                                 bootmgr_args.intl});
+          return (*kernel_main)({boot_manager_args.app_description,
+                                 boot_manager_args.command_line_flags,
+                                 boot_manager_args.intl});
 #endif
         }
 
@@ -211,7 +213,7 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),
-          MakeFatalContext(bootmgr_args),
+          MakeFatalContext(boot_manager_args),
           intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
                          kKernelMainName, kernel_path));
     }
@@ -222,7 +224,7 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
-        MakeFatalContext(bootmgr_args),
+        MakeFatalContext(boot_manager_args),
         intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path));
   }
 }
@@ -231,11 +233,11 @@ int KernelStartup(const wb::boot_manager::BootmgrArgs& bootmgr_args) noexcept {
 
 /**
  * @brief Boot manager entry point on Windows.
- * @param bootmgr_args Boot manager args.
+ * @param boot_manager_args Boot manager args.
  * @return 0 on success.
  */
 extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
-    const wb::boot_manager::BootmgrArgs& bootmgr_args) {
+    const wb::boot_manager::BootManagerArgs& boot_manager_args) {
   using namespace wb::base;
 
   // Setup heap memory allocator.
@@ -244,12 +246,12 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Handle new allocation failure.
   ScopedNewHandler scoped_new_handler{
       DefaultNewFailureHandler,
-      bootmgr_args.command_line_flags.attempts_to_retry_allocate_memory};
+      boot_manager_args.command_line_flags.attempts_to_retry_allocate_memory};
   // Set it as global handler.  C++ API is too strict here and we can't pass
   // state into void(void), so need global variable to access state in handler.
   InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
-  DumpSystemInformation(bootmgr_args.app_description);
+  DumpSystemInformation(boot_manager_args.app_description);
 
 #ifdef WB_OS_WIN
   using namespace wb::base::win;
@@ -264,14 +266,14 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
   if (win::GetVersion() < win::Version::WIN10_19H1) WB_ATTRIBUTE_UNLIKELY {
       wb::ui::FatalDialog(
-          intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+          intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
           std2::system_last_error_code(ERROR_OLD_WIN_VERSION),
-          intl::l18n(bootmgr_args.intl,
+          intl::l18n(boot_manager_args.intl,
                      "Please, update Windows to Windows 10, version 1903 (May "
                      "19, 2019) or greater."),
-          MakeFatalContext(bootmgr_args),
+          MakeFatalContext(boot_manager_args),
           intl::l18n(
-              bootmgr_args.intl,
+              boot_manager_args.intl,
               "Windows is too old.  At least Windows 10, version 1903 (May 19, "
               "2019)+ required."));
     }
@@ -318,28 +320,28 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // because on Linux / MacOS we want to show fatal dialog when app has icon,
   // hense postpone check till SDL window created and app icon set.
   const ScopedAppInstanceManager scoped_app_instance_manager{
-      bootmgr_args.app_description};
+      boot_manager_args.app_description};
   const auto other_instance_status = scoped_app_instance_manager.GetStatus();
   if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
     WB_ATTRIBUTE_UNLIKELY {
       using namespace std::chrono_literals;
 
       const std::string window_class_name{
-          wb::kernel::MainWindow::ClassName(bootmgr_args.app_description)};
+          wb::kernel::MainWindow::ClassName(boot_manager_args.app_description)};
       // Well, notify user about other instance window.
       wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
 
       wb::ui::FatalDialog(
-          intl::l18n(bootmgr_args.intl, "Boot Manager - Error"),
+          intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
           std2::posix_last_error_code(EEXIST),
-          intl::l18n_fmt(bootmgr_args.intl,
+          intl::l18n_fmt(boot_manager_args.intl,
                          "Sorry, only single '{0}' can run at a time.",
-                         bootmgr_args.app_description),
-          MakeFatalContext(bootmgr_args),
-          intl::l18n_fmt(bootmgr_args.intl,
+                         boot_manager_args.app_description),
+          MakeFatalContext(boot_manager_args),
+          intl::l18n_fmt(boot_manager_args.intl,
                          "Can't run multiple copies of '{0}' at once.  Please, "
                          "stop existing copy or return to the game.",
-                         bootmgr_args.app_description));
+                         boot_manager_args.app_description));
     }
 #endif
 
@@ -353,10 +355,10 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Set minimum timers resolution to good enough, but not too power hungry.
   const auto scoped_minimum_timer_resolution =
       win::ScopedTimerResolution::New(std::chrono::milliseconds{
-          bootmgr_args.command_line_flags.periodic_timer_resolution_ms});
+          boot_manager_args.command_line_flags.periodic_timer_resolution_ms});
   G3LOG_IF(WARNING, !!std::get_if<unsigned>(&scoped_minimum_timer_resolution))
       << "Failed to set minimum periodic timers resolution to "
-      << bootmgr_args.command_line_flags.periodic_timer_resolution_ms
+      << boot_manager_args.command_line_flags.periodic_timer_resolution_ms
       << "ms, will run with default system one.  Error code: "
       << std::get<unsigned>(scoped_minimum_timer_resolution)
       << ".  See "
@@ -407,5 +409,5 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   }
 #endif
 
-  return KernelStartup(bootmgr_args);
+  return KernelStartup(boot_manager_args);
 }

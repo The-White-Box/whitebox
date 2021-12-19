@@ -27,12 +27,12 @@ namespace wb::boot_manager {
 /**
  * @brief Boot manager args.
  */
-struct BootmgrArgs {
+struct BootManagerArgs {
 #ifdef WB_OS_WIN
-  BootmgrArgs(HINSTANCE instance_, const char *app_description_,
-              int show_window_flags_, int main_icon_id_, int small_icon_id_,
-              const CommandLineFlags &command_line_flags_,
-              const wb::base::intl::LookupWithFallback &intl_)
+  BootManagerArgs(HINSTANCE instance_, const char *app_description_,
+                  int show_window_flags_, int main_icon_id_, int small_icon_id_,
+                  const CommandLineFlags &command_line_flags_,
+                  const wb::base::intl::LookupWithFallback &intl_)
       : instance{instance_},
         app_description{app_description_},
         show_window_flags{show_window_flags_},
@@ -44,9 +44,9 @@ struct BootmgrArgs {
     G3DCHECK(!!app_description);
   }
 #else
-  BootmgrArgs(const char *app_description_,
-              const CommandLineFlags &command_line_flags_,
-              const wb::base::intl::LookupWithFallback &intl_)
+  BootManagerArgs(const char *app_description_,
+                  const CommandLineFlags &command_line_flags_,
+                  const wb::base::intl::LookupWithFallback &intl_)
       : app_description{app_description_},
         command_line_flags{command_line_flags_},
         intl{intl_} {
@@ -95,17 +95,17 @@ struct BootmgrArgs {
    */
   const wb::base::intl::LookupWithFallback &intl;
 
-  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(BootmgrArgs);
+  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(BootManagerArgs);
 };
 
 }  // namespace wb::boot_manager
 
 /**
  * @brief Boot manager entry point on Windows.
- * @param bootmgr_args Boot manager args.
+ * @param boot_manager_args Boot manager args.
  * @return 0 on success.
  */
 extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
-    const wb::boot_manager::BootmgrArgs &bootmgr_args);
+    const wb::boot_manager::BootManagerArgs &boot_manager_args);
 
 #endif  // !WB_WHITEBOX_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_
