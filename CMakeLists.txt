@@ -424,6 +424,10 @@ if (WB_OS_WIN)
     deps/mimalloc
     "Mimalloc is a general purpose allocator with excellent performance characteristics.  See THIRD_PARTY for details.")
 endif()
+if (MI_SECURE)
+  # Inform we has mimalloc in secure mode.
+  add_definitions(-DWB_MI_SECURE)
+endif()
 
 # SDL2 / sdl_image.
 

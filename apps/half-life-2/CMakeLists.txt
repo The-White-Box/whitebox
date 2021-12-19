@@ -13,12 +13,13 @@ set(WB_HALF_LIFE2_TARGET_NAME  "half-life-2")
 set(WB_HALF_LIFE2_LINK_OPTIONS "")
 
 set(WB_HALF_LIFE2_LINK_DEPS
+  # Should be first as linker requires it.
+  mimalloc
   absl::flags
   absl::flags_parse
   absl::strings
   fmt
   g3log
-  mimalloc
   wb::whitebox-base
   wb::whitebox-ui)
 if (WB_OS_WIN)
@@ -33,8 +34,9 @@ elseif (WB_OS_MACOS)
 endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS
-  g3log
+  # Should be first as linker requires it.
   mimalloc
+  g3log
   wb::whitebox-base
   wb::whitebox-boot-manager
   wb::whitebox-hid-driver
@@ -48,8 +50,7 @@ endif()
 
 if (WB_OS_WIN)
   # Delay load DLLs we use in rare call paths.
-  list(APPEND WB_HALF_LIFE2_LINK_OPTIONS
-    "/DELAYLOAD:Dbghelp.dll")
+  list(APPEND WB_HALF_LIFE2_LINK_OPTIONS "/DELAYLOAD:Dbghelp.dll")
   # Dbghelp for abseil related sym stuff.
   # Delayimp for DLL delay load support.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS Dbghelp Delayimp)

@@ -13,9 +13,10 @@ set(WB_BOOTMGR_TARGET_NAME  "whitebox-boot-manager")
 set(WB_BOOTMGR_LINK_OPTIONS "")
 
 set(WB_BOOTMGR_LINK_DEPS
+  # Should be first as linker requires it.
+  mimalloc
   absl::strings
   g3log
-  mimalloc
   wb::whitebox-base
   wb::whitebox-ui)
 if (WB_OS_WIN)
@@ -29,8 +30,9 @@ elseif (WB_OS_MACOS)
 endif()
 
 set(WB_BOOTMGR_RUNTIME_DEPS
-  g3log
+  # Should be first as linker requires it.
   mimalloc
+  g3log
   wb::whitebox-base
   wb::whitebox-kernel
   wb::whitebox-ui)

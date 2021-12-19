@@ -18,6 +18,7 @@
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
+#include "base/std2/system_error_ext.h"
 #include "build/build_config.h"
 #include "whitebox-kernel/main.h"
 #include "whitebox-ui/fatal_dialog.h"
@@ -82,6 +83,64 @@ void DumpSystemInformation(const char* app_description) noexcept {
 }
 
 /**
+ * @brief Default mi-malloc output handler.  Function is called to output any
+ * information from mimalloc, like verbose or warning messages.
+ * @param msg Message to output.
+ * @param arg Argument that was passed at registration to hold extra state.
+ * @return void.
+ */
+void DefaultMiMallocOutput(const char* msg,
+                           [[maybe_unused]] void* arg) noexcept {
+  const bool is_warning_or_error{!!std::strstr(msg, "warning:") ||
+                                 !!std::strstr(msg, "error:")};
+
+  if (is_warning_or_error) {
+    G3LOG(WARNING) << "Mi-malloc warning: " << msg;
+  } else {
+    G3LOG(INFO) << "Mi-malloc output: " << msg;
+  }
+}
+
+/**
+ * @brief Default mi-malloc error handler.
+ * @param error_no The possible error codes are:
+ * * EAGAIN: Double free was detected (only in debug and secure mode).
+ * * EFAULT: Corrupted free list or meta-data was detected (only in debug and
+ * secure mode).
+ * * ENOMEM: Not enough memory available to satisfy the request.
+ * * EOVERFLOW: Too large a request, for example in mi_calloc(), the count and
+ * size parameters are too large.
+ * * EINVAL: Trying to free or re-allocate an invalid pointer.
+ * @param arg Extra argument that will be passed on to the error function.
+ * @return void.
+ */
+void DefaultMiMallocError(int error_no, [[maybe_unused]] void* arg) noexcept {
+  const auto error_code{wb::base::std2::system_last_error_code(error_no)};
+  G3PLOG_E(WARNING, error_code) << "Mi-malloc error: ";
+
+#ifndef NDEBUG
+  if (error_no == EFAULT) {
+#ifdef _MSC_VER
+    __debugbreak();
+#endif
+    abort();
+  }
+#endif
+
+#ifdef WB_MI_SECURE
+  if (error_no == EFAULT) {
+    // Abort on serious errors in secure mode (corrupted meta-data).
+    abort();
+  }
+#endif
+
+  // It as always legal to just return from the function in which case
+  // allocation functions generally return NULL or ignore the condition.  The
+  // default function only calls abort() when compiled in secure mode with an
+  // EFAULT error.
+}
+
+/**
  * @brief Setup heap allocator.
  */
 void BootHeapMemoryAllocator() noexcept {
@@ -101,6 +160,10 @@ void BootHeapMemoryAllocator() noexcept {
   mi_stats_reset();
 
   G3DLOG(INFO) << "Using mi-malloc memory allocator v." << mi_version() << ".";
+
+  // Log output / errors.
+  mi_register_output(DefaultMiMallocOutput, nullptr);
+  mi_register_error(DefaultMiMallocError, nullptr);
 #endif
 }
 

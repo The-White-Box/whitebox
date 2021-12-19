@@ -12,10 +12,11 @@ set(WB_WHITEBOX_KERNEL_TARGET_NAME  "whitebox-kernel")
 
 set(WB_WHITEBOX_KERNEL_LINK_OPTIONS "")
 set(WB_WHITEBOX_KERNEL_LINK_DEPS
+  # Should be first as linker requires it.
+  mimalloc
   absl::strings
   fmt
   g3log
-  mimalloc
   wb::whitebox-base
   wb::whitebox-hid-driver
   wb::whitebox-ui)
@@ -26,8 +27,9 @@ else ()
 endif ()
 
 set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS
-  g3log
+  # Should be first as linker requires it.
   mimalloc
+  g3log
   wb::whitebox-base
   wb::whitebox-hid-driver
   wb::whitebox-ui)

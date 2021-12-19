@@ -12,13 +12,15 @@ set(WB_HAL_HID_DRIVER_TARGET_NAME  "whitebox-hid-driver")
 
 set(WB_HAL_HID_DRIVER_LINK_OPTIONS "")
 set(WB_HAL_HID_DRIVER_LINK_DEPS
+  # Should be first as linker requires it.
+  mimalloc
   absl::strings
   g3log
-  mimalloc
   wb::whitebox-base)
 set(WB_HAL_HID_DRIVER_RUNTIME_DEPS
-  g3log
+  # Should be first as linker requires it.
   mimalloc
+  g3log
   wb::whitebox-base)
 
 wb_cxx_shared_library(

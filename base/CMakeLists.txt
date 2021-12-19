@@ -12,15 +12,17 @@ set(WB_BASE_TARGET_NAME "whitebox-base")
 
 set(WB_BASE_LINK_OPTIONS "")
 set(WB_BASE_LINK_DEPS
+  # Should be first as linker requires it.
+  mimalloc
   absl::cleanup
   absl::strings
   absl::synchronization
   fmt
-  g3log
-  mimalloc)
+  g3log)
 set(WB_BASE_RUNTIME_DEPS
-  g3log
-  mimalloc)
+  # Should be first as linker requires it.
+  mimalloc
+  g3log)
 set(WB_BASE_CXX_DEFINITIONS WB_BASE_DLL=1)
 
 if (WB_OS_WIN)
