@@ -74,14 +74,41 @@ namespace wb::base::intl {
  * Locale category.
  */
 enum class ScopedProcessLocaleCategory : decltype(LC_ALL) {
+  /**
+   * @brief All locale-specific behavior (all categories).
+   */
   kAll = LC_ALL,
+  /**
+   * @brief Behavior of strcoll and strxfrm functions.
+   */
   kCollate = LC_COLLATE,
+  /**
+   * @brief Behavior of character-handling functions (except isdigit, isxdigit,
+   * mbstowcs, and mbtowc, which are unaffected).
+   */
   kCharacterType = LC_CTYPE,
+
 #ifdef WB_LOCALE_HAS_MESSAGES_CATEGORY
+  /**
+   * @brief Behavior of message display locales of system functions, like
+   * strerror.
+   */
   kMessages = LC_MESSAGES,
 #endif
+
+  /**
+   * @brief Monetary formatting information returned by the localeconv function.
+   */
   kMonetary = LC_MONETARY,
+  /**
+   * @brief Decimal-point character for formatted output routines (for example,
+   * printf), data conversion routines, and nonmonetary formatting information
+   * returned by localeconv function.
+   */
   kNumeric = LC_NUMERIC,
+  /**
+   * @brief Behavior of strftime function.
+   */
   kTime = LC_TIME
 };
 
