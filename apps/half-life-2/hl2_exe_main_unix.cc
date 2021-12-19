@@ -80,9 +80,9 @@ int BootManagerStartup(int argc, char** argv) noexcept {
         WB_ATTRIBUTE_LIKELY {
           const std::uint32_t attempts_to_retry_allocate_memory{
               absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
-          const wb::apps::half_life_2::WindowWidth main_window_width{
+          const wb::apps::flags::WindowWidth main_window_width{
               absl::GetFlag(FLAGS_main_window_width)};
-          const wb::apps::half_life_2::WindowHeight main_window_height{
+          const wb::apps::flags::WindowHeight main_window_height{
               absl::GetFlag(FLAGS_main_window_height)};
           const bool should_dump_heap_allocator_statistics_on_exit{
               absl::GetFlag(

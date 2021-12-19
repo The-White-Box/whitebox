@@ -70,6 +70,8 @@ wb_cxx_executable(
 
 target_sources(${WB_HALF_LIFE2_TARGET_NAME}
   PRIVATE
+    ${WB_ROOT_DIR}/apps/base_flags.cc
+    ${WB_ROOT_DIR}/apps/base_flags.h
     ${WB_ROOT_DIR}/apps/i18n_creator.cc
     ${WB_ROOT_DIR}/apps/i18n_creator.h
     ${WB_ROOT_DIR}/apps/parse_command_line.cc

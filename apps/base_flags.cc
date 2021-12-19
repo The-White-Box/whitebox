@@ -2,9 +2,9 @@
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
 //
-// Half-Life 2 executable command line flags.
+// Base command line flags.
 
-#include "hl2_exe_flags.h"
+#include "base_flags.h"
 
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
@@ -18,7 +18,7 @@
 #include <timeapi.h>
 #endif
 
-namespace wb::apps::half_life_2 {
+namespace wb::apps::flags {
 
 #ifdef WB_OS_WIN
 std::string AbslUnparseFlag(PeriodicTimerResolution p) {
@@ -68,15 +68,16 @@ bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error) {
       std::max(::GetSystemMetrics(SM_CYMIN),
                wb::build::settings::ui::window::dimensions::kMinWidth)};
   G3CHECK(minimum_window_width_raw <=
-          static_cast<int>(std::numeric_limits<uint16_t>::max()));
-  const uint16_t minimum_window_width{
-      static_cast<uint16_t>(minimum_window_width_raw)};
+          static_cast<int>(std::numeric_limits<std::uint16_t>::max()));
+  const std::uint16_t minimum_window_width{
+      static_cast<std::uint16_t>(minimum_window_width_raw)};
 #else
-  const uint16_t minimum_window_width{
+  const std::uint16_t minimum_window_width{
       wb::build::settings::ui::window::dimensions::kMinWidth};
 #endif
 
-  constexpr uint16_t maximum_window_width{std::numeric_limits<uint16_t>::max()};
+  constexpr std::uint16_t maximum_window_width{
+      std::numeric_limits<std::uint16_t>::max()};
 
   if (w->size < minimum_window_width || w->size > maximum_window_width) {
     *error = absl::StrCat("not in range [", minimum_window_width, ",",
@@ -104,16 +105,16 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
       std::max(::GetSystemMetrics(SM_CXMIN),
                wb::build::settings::ui::window::dimensions::kMinHeight)};
   G3CHECK(minimum_window_height_raw <=
-          static_cast<int>(std::numeric_limits<uint16_t>::max()));
-  const uint16_t minimum_window_height{
-      static_cast<uint16_t>(minimum_window_height_raw)};
+          static_cast<int>(std::numeric_limits<std::uint16_t>::max()));
+  const std::uint16_t minimum_window_height{
+      static_cast<std::uint16_t>(minimum_window_height_raw)};
 #else
-  const uint16_t minimum_window_height{
+  const std::uint16_t minimum_window_height{
       wb::build::settings::ui::window::dimensions::kMinHeight};
 #endif
 
-  constexpr uint16_t maximum_window_height{
-      std::numeric_limits<uint16_t>::max()};
+  constexpr std::uint16_t maximum_window_height{
+      std::numeric_limits<std::uint16_t>::max()};
 
   if (h->size < minimum_window_height || h->size > maximum_window_height) {
     *error = absl::StrCat("not in range [", minimum_window_height, ",",
@@ -124,24 +125,24 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
   return true;
 }
 
-}  // namespace wb::apps::half_life_2
+}  // namespace wb::apps::flags
 
 ABSL_FLAG(std::uint32_t, attempts_to_retry_allocate_memory, 3U,
           "how many memory cleanup & reallocation attempts to do when out of "
           "memory.");
 
+ABSL_FLAG(wb::apps::flags::WindowWidth, main_window_width,
+          wb::apps::flags::WindowWidth{800U},
+          "main window initial width in pixels.");
+
+ABSL_FLAG(wb::apps::flags::WindowHeight, main_window_height,
+          wb::apps::flags::WindowHeight{600U},
+          "main window initial height in pixels.");
+
 ABSL_FLAG(bool, should_dump_heap_allocator_statistics_on_exit, false,
           "should dump heap allocator statistics on exit or not.  Included a "
           "some process info, like system/user elapsed time, peak working "
           "set size, hard page faults, etc.");
-
-ABSL_FLAG(wb::apps::half_life_2::WindowWidth, main_window_width,
-          wb::apps::half_life_2::WindowWidth{800U},
-          "main window initial width in pixels.");
-
-ABSL_FLAG(wb::apps::half_life_2::WindowHeight, main_window_height,
-          wb::apps::half_life_2::WindowHeight{600U},
-          "main window initial height in pixels.");
 
 #ifdef WB_OS_WIN
 ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
@@ -150,9 +151,8 @@ ABSL_FLAG(bool, insecure_allow_unsigned_module_target, false,
           "risk, ex. for debugging or mods.");
 
 ABSL_FLAG(
-    wb::apps::half_life_2::PeriodicTimerResolution,
-    periodic_timer_resolution_ms,
-    wb::apps::half_life_2::PeriodicTimerResolution{8},
+    wb::apps::flags::PeriodicTimerResolution, periodic_timer_resolution_ms,
+    wb::apps::flags::PeriodicTimerResolution{8},
     "changes minimal resolution (ms) of the Windows periodic timer.  Setting a "
     "higher resolution can improve the accuracy of time-out intervals in wait "
     "functions.  However, it can also reduce overall system performance, "

@@ -104,12 +104,12 @@ int BootManagerStartup(
   const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
   const std::uint32_t attempts_to_retry_allocate_memory{
       absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
-  const wb::apps::half_life_2::PeriodicTimerResolution
+  const wb::apps::flags::PeriodicTimerResolution
       periodic_timer_resolution{
           absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
-  const wb::apps::half_life_2::WindowWidth main_window_width{
+  const wb::apps::flags::WindowWidth main_window_width{
       absl::GetFlag(FLAGS_main_window_width)};
-  const wb::apps::half_life_2::WindowHeight main_window_height{
+  const wb::apps::flags::WindowHeight main_window_height{
       absl::GetFlag(FLAGS_main_window_height)};
   const bool insecure_allow_unsigned_module_target{
       absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
