@@ -6,20 +6,21 @@
 
 #include "scoped_new_handler.h"
 
-#include <mutex>
-
+#include "base/deps/abseil/base/thread_annotations.h"
+#include "base/deps/abseil/synchronization/mutex.h"
 #include "internals/scoped_new_handler_internal.h"
 
 namespace wb::base::internals {
 /**
  * @brief Mutex to serialize concurrent accesses to global_scoped_new_handler.
  */
-std::mutex global_scoped_new_handler_mutex;
+absl::Mutex global_scoped_new_handler_mutex;
 
 /**
  * @brief Global new failure handler.
  */
-ScopedNewHandler global_scoped_new_handler;
+ScopedNewHandler global_scoped_new_handler
+    ABSL_GUARDED_BY(global_scoped_new_handler_mutex);
 
 /**
  * @brief Get global max retries count for the new operator to reallocate
@@ -28,7 +29,7 @@ ScopedNewHandler global_scoped_new_handler;
  */
 WB_BASE_API std::uint32_t
 GetGlobalScopedNewHandlerMaxNewRetriesCount() noexcept {
-  std::scoped_lock l{global_scoped_new_handler_mutex};
+  absl::MutexLock l{&global_scoped_new_handler_mutex};
   return global_scoped_new_handler.max_new_retries_count();
 }
 
@@ -41,7 +42,7 @@ namespace wb::base {
  */
 WB_BASE_API ScopedNewHandler
 InstallGlobalScopedNewHandler(ScopedNewHandler&& handler) noexcept {
-  std::scoped_lock l{internals::global_scoped_new_handler_mutex};
+  absl::MutexLock l{&internals::global_scoped_new_handler_mutex};
   return std::exchange(internals::global_scoped_new_handler,
                        std::move(handler));
 }

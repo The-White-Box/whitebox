@@ -10,6 +10,7 @@
 #include <cstdint>
 
 #include "base/config.h"
+#include "internals/scoped_new_handler_internal.h"
 
 namespace wb::base::internals {
 
@@ -18,8 +19,8 @@ namespace wb::base::internals {
  * memory.
  * @return Global max retries count for the new operator to reallocate memory.
  */
-WB_BASE_API std::uint32_t
-GetGlobalScopedNewHandlerMaxNewRetriesCount() noexcept;
+WB_BASE_API std::uint32_t GetGlobalScopedNewHandlerMaxNewRetriesCount() noexcept
+    LOCKS_EXCLUDED(global_scoped_new_handler_mutex);
 
 }  // namespace wb::base::internals
 

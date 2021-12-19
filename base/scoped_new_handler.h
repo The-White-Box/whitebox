@@ -13,6 +13,7 @@
 #include <new>
 
 #include "base/config.h"
+#include "base/deps/abseil/base/thread_annotations.h"
 #include "base/macroses.h"
 
 namespace wb::base {
@@ -100,7 +101,8 @@ class ScopedNewHandler {
  * handler installed.
  */
 WB_BASE_API ScopedNewHandler
-InstallGlobalScopedNewHandler(ScopedNewHandler&& handler) noexcept;
+InstallGlobalScopedNewHandler(ScopedNewHandler&& handler) noexcept
+    LOCKS_EXCLUDED(internals::global_scoped_new_handler_mutex);
 
 }  // namespace wb::base
 

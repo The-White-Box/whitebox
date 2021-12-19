@@ -14,6 +14,7 @@ set(WB_BASE_LINK_OPTIONS "")
 set(WB_BASE_LINK_DEPS
   absl::cleanup
   absl::strings
+  absl::synchronization
   fmt
   g3log
   mimalloc)
@@ -37,8 +38,7 @@ if (WB_OS_WIN)
   endif()
 
   # Delay load DLLs we use in rare call paths.
-  list(APPEND WB_BASE_LINK_OPTIONS
-    "/DELAYLOAD:Avrt.dll")
+  list(APPEND WB_BASE_LINK_OPTIONS "/DELAYLOAD:Avrt.dll")
   # Avrt for MMCSS support.
   # Delayimp for DLL delay load support.
   list(APPEND WB_BASE_LINK_DEPS Avrt Delayimp)
