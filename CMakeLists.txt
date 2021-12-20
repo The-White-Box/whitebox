@@ -290,9 +290,17 @@ add_subdirectory("deps/fmt")
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
   # semantics are not enabled.
-  target_compile_options(fmt PRIVATE /EHsc)
+  target_compile_options(
+    fmt
+    PRIVATE
+      /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+  )
   # Prevent MSVC linker warning as error for __except + /guard:ehcont.
-  target_compile_options(fmt PRIVATE /guard:ehcont)
+  target_compile_options(
+    fmt
+    PRIVATE
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+  )
 elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
   # Prevent linker warning "reloc which may overflow at runtime" (-fPIC).
   target_compile_options(fmt PRIVATE -fPIC)
@@ -303,7 +311,11 @@ add_subdirectory("deps/g3log")
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
   # semantics are not enabled.
-  target_compile_options(g3log PRIVATE /EHsc)
+  target_compile_options(
+    g3log
+    PRIVATE
+      /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+  )
 endif()
 if (WB_OS_WIN)
   # Adds VERSION resource to g3log.
@@ -330,14 +342,38 @@ if (WB_BUILD_TESTS)
 
   if (WB_COMPILER_MSVC)
     # Prevent MSVC linker warning as error for __except + /guard:ehcont.
-    target_compile_options(gtest PRIVATE /guard:ehcont)
-    target_link_options(gtest    PRIVATE /guard:ehcont)
+    target_compile_options(
+      gtest
+      PRIVATE
+        $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+    )
+    target_link_options(
+      gtest
+      PRIVATE
+        $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+    )
 
-    target_compile_options(gmock PRIVATE /guard:ehcont)
-    target_link_options(gmock    PRIVATE /guard:ehcont)
+    target_compile_options(
+      gmock
+      PRIVATE
+        $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+    )
+    target_link_options(
+      gmock
+      PRIVATE
+        $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+    )
 
-    target_compile_options(gmock_main PRIVATE /guard:ehcont)
-    target_link_options(gmock_main    PRIVATE /guard:ehcont)
+    target_compile_options(
+      gmock_main
+      PRIVATE
+        $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+    )
+    target_link_options(
+      gmock_main
+      PRIVATE
+        $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+    )
   elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
     # Prevent linker warning "reloc which may overflow at runtime" (-fPIC).
     target_compile_options(gtest PRIVATE -fPIC)
@@ -372,14 +408,19 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
       if (WB_COMPILER_MSVC)
         # Warning C4530: C++ exception handler used, but unwind semantics are not
         # enabled.
-        target_compile_options(${wb_abseil_target_name}
+        target_compile_options(
+          ${wb_abseil_target_name}
           PRIVATE
-            /EHsc
-            /guard:ehcont
+            /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+            $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
         )
         # LNK2047: module contains C++ EH or complex EH metadata but was not
         # compiled with /guard:ehcont.
-        target_link_options(${wb_abseil_target_name} PRIVATE /guard:ehcont)
+        target_link_options(
+          ${wb_abseil_target_name}
+          PRIVATE
+            $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+        )
       elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
         # Can't create dynamic relocation R_X86_64_32 against local symbol in
         # readonly segment.
@@ -401,12 +442,30 @@ endforeach()
 
 if (WB_COMPILER_MSVC)
   # absl_civil_time is special and requires PRIVATE options.
-  target_compile_options(absl_civil_time PRIVATE /EHsc /guard:ehcont)
-  target_link_options(absl_civil_time    PRIVATE /guard:ehcont)
+  target_compile_options(
+    absl_civil_time
+    PRIVATE
+      /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+  )
+  target_link_options(
+    absl_civil_time
+    PRIVATE
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+  )
 
   # absl_time_zone is special and requires PRIVATE options.
-  target_compile_options(absl_time_zone PRIVATE /EHsc /guard:ehcont)
-  target_link_options(absl_time_zone    PRIVATE /guard:ehcont)
+  target_compile_options(
+    absl_time_zone
+    PRIVATE
+      /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+  )
+  target_link_options(
+    absl_time_zone
+    PRIVATE
+      $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
+  )
 elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
   # Can't create dynamic relocation R_X86_64_32 against local symbol in readonly
   # segment.
