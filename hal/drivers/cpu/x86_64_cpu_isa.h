@@ -15,7 +15,6 @@
 #include <bitset>
 #include <cstdint>
 #include <string>
-#include <vector>
 
 #include "hal/drivers/cpu/cpu_api.h"
 
@@ -176,9 +175,6 @@ class CpuIsa final {
     std::bitset<32> f_7_edx_;
     std::bitset<32> f_81_ecx_;
     std::bitset<32> f_81_edx_;
-
-    std::vector<std::array<std::int32_t, 4>> data_;
-    std::vector<std::array<std::int32_t, 4>> ext_data_;
   };
 
   /**

@@ -14,10 +14,6 @@
 #include <cpuid.h>
 #endif
 
-#include <array>
-#include <bitset>
-#include <cstdint>
-#include <string>
 #include <vector>
 
 #include "base/std2/cstring_ext.h"
@@ -177,21 +173,22 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
       f_7_ecx_{0},
       f_7_edx_{0},
       f_81_ecx_{0},
-      f_81_edx_{0},
-      data_{},
-      ext_data_{} {
+      f_81_edx_{0} {
   // Calling cpuid with 0x0 as the function_id argument gets the number
   // of the highest valid function ID.
   std::array<std::int32_t, 4> info{cpuid(0)};
   const int32_t func_ids_count{info[0]};
 
+  std::vector<std::array<std::int32_t, 4>> data;
+  data.reserve(static_cast<std::size_t>(std::max(func_ids_count, 0)) + 1U);
+
   for (std::int32_t i{0}; i <= func_ids_count; ++i) {
-    data_.emplace_back(cpuidex(i, 0));
+    data.emplace_back(cpuidex(i, 0));
   }
 
   if (func_ids_count >= 0) {
     // Capture vendor string.
-    GetVendor(data_[0], vendor_);
+    GetVendor(data[0], vendor_);
 
     if (std::strcmp(vendor_, "GenuineIntel") == 0) {
       is_intel_ = true;
@@ -202,15 +199,15 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
 
   // Load bitset with flags for function 0x00000001.
   if (func_ids_count >= 1) {
-    f_1_ecx_ = static_cast<std::uint32_t>(data_[1][2]);
-    f_1_edx_ = static_cast<std::uint32_t>(data_[1][3]);
+    f_1_ecx_ = static_cast<std::uint32_t>(data[1][2]);
+    f_1_edx_ = static_cast<std::uint32_t>(data[1][3]);
   }
 
   // Load bitset with flags for function 0x00000007.
   if (func_ids_count >= 7) {
-    f_7_ebx_ = static_cast<std::uint32_t>(data_[7][1]);
-    f_7_ecx_ = static_cast<std::uint32_t>(data_[7][2]);
-    f_7_edx_ = static_cast<std::uint32_t>(data_[7][3]);
+    f_7_ebx_ = static_cast<std::uint32_t>(data[7][1]);
+    f_7_ecx_ = static_cast<std::uint32_t>(data[7][2]);
+    f_7_edx_ = static_cast<std::uint32_t>(data[7][3]);
   }
 
   // Calling cpuid with 0x80000000 as the function_id argument gets the
@@ -218,19 +215,25 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
   info = cpuid(0x80000000);  //-V112
   const int32_t ext_func_ids_count{info[0]};
 
+  std::vector<std::array<std::int32_t, 4>> ext_data;
+  ext_data.reserve(
+      static_cast<std::size_t>(std::max(
+          ext_func_ids_count - static_cast<std::int32_t>(0x80000000), 0)) +
+      1U);
+
   for (std::int32_t i{static_cast<std::int32_t>(0x80000000)};
        i <= ext_func_ids_count; ++i) {
-    ext_data_.emplace_back(cpuidex(i, 0));
+    ext_data.emplace_back(cpuidex(i, 0));
   }
 
   // Load bitset with flags for function 0x80000001.
   if (ext_func_ids_count >= 0x80000001) {
-    f_81_ecx_ = static_cast<std::uint32_t>(ext_data_[1][2]);
-    f_81_edx_ = static_cast<std::uint32_t>(ext_data_[1][3]);
+    f_81_ecx_ = static_cast<std::uint32_t>(ext_data[1][2]);
+    f_81_edx_ = static_cast<std::uint32_t>(ext_data[1][3]);
   }
 
   // Interpret cpu brand string if reported.
-  if (ext_func_ids_count >= 0x80000004) GetBrand(ext_data_, brand_);
+  if (ext_func_ids_count >= 0x80000004) GetBrand(ext_data, brand_);
 }
 
 }  // namespace wb::hal::cpus::x86_64
