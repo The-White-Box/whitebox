@@ -53,11 +53,11 @@ if (NOT DEFINED PACKAGE_VERSION)
     message(FATAL "[common]: Unable to extract Git software version - no Git.")
   endif()
 
+  message(STATUS "[common]: Extracting Git software version.")
+
   if ("${CMAKE_HOST_SYSTEM_NAME}" STREQUAL "Windows")
-    message(STATUS "[common]: Extracting Git software version.")
     execute_process(COMMAND cmd /c "git rev-list --branches HEAD | find /v " " /c" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   else()
-    message(STATUS "[common]: Extracting Git software version.")
     execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
 

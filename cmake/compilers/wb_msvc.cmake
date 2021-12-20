@@ -14,7 +14,7 @@ include(wb_clang_tidy_configuration)
 # Some additional configuration options.
 option(WB_MSVC_CREATE_HOTPATCHABLE_IMAGE                        "If enabled, compiler prepares an image for hot patching." OFF)
 option(WB_MSVC_ENABLE_ALL_WARNINGS                              "If enabled, pass /Wall to the compiler." ON)
-option(WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS                "If enabled, use recommended Security Development Lifecycle (SDL) checks.  These checks change security-relevant warnings into errors, and set additional secure code-generation features.." ON)
+option(WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS                "If enabled, use recommended Security Development Lifecycle (SDL) checks.  These checks change security-relevant warnings into errors, and set additional secure code-generation features." ON)
 option(WB_MSVC_ENABLE_COROUTINE_SUPPORT                         "If enabled, enable compiler support for coroutines." ON)
 option(WB_MSVC_ENABLE_DEBUG_INLINING                            "If enabled, enable inlining in the debug configuration.  This allows /Zc:inline to be far more effective." OFF)
 option(WB_MSVC_ENABLE_DEBUG_FAST_LINK                           "If enabled, pass /DEBUG:FASTLINK to the linker.  This makes linking faster, but .pdbs miss some info to be run on another computer." OFF)
