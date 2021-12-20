@@ -526,6 +526,7 @@ add_subdirectory("whitebox-boot-manager")
 ## Hardware Abstraction Layer.
 
 add_subdirectory("hal/drivers/hid")
+add_subdirectory("hal/drivers/cpu")
 
 ## Kernel.
 

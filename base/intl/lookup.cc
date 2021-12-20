@@ -169,6 +169,13 @@ class Lookup::LookupImpl final {
                       "command line correctly."),
                  "Please ensure you have enough free memory and use command "
                  "line correctly."},
+                {hash("Sorry, your CPU has missed some required features to "
+                      "run the game."),
+                 "Sorry, your CPU has missed some required features to run the "
+                 "game."},
+                {hash("CPU features support table for {0}:\n{1}"),
+                 "CPU features support table for {0}:\n{1}"},
+                {hash("{0}     {1}"), "{0}     {1}"},
             },
             StringLayout::LeftToRight}};
       }

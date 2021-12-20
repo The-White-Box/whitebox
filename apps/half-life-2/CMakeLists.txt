@@ -21,6 +21,7 @@ set(WB_HALF_LIFE2_LINK_DEPS
   fmt
   g3log
   wb::whitebox-base
+  wb::whitebox-cpu-driver
   wb::whitebox-ui)
 if (WB_OS_WIN)
   # _com_ptr_t support / winmm.
@@ -39,6 +40,7 @@ set(WB_HALF_LIFE2_RUNTIME_DEPS
   g3log
   wb::whitebox-base
   wb::whitebox-boot-manager
+  wb::whitebox-cpu-driver
   wb::whitebox-hid-driver
   wb::whitebox-kernel
   wb::whitebox-ui)
@@ -72,6 +74,8 @@ target_sources(${WB_HALF_LIFE2_TARGET_NAME}
   PRIVATE
     ${WB_ROOT_DIR}/apps/base_flags.cc
     ${WB_ROOT_DIR}/apps/base_flags.h
+    ${WB_ROOT_DIR}/apps/cpu_feature_checks.cc
+    ${WB_ROOT_DIR}/apps/cpu_feature_checks.h
     ${WB_ROOT_DIR}/apps/i18n_creator.cc
     ${WB_ROOT_DIR}/apps/i18n_creator.h
     ${WB_ROOT_DIR}/apps/parse_command_line.cc

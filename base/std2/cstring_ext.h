@@ -66,7 +66,7 @@ template <typename Left, typename Right, std::size_t size = sizeof(Left)>
  */
 template <typename Dest, typename Source>
 inline Dest& BitwiseCopy(Dest& dest, const Source& source) noexcept {
-  static_assert(sizeof(Dest) == sizeof(Source), "Verify sizes are equal.");
+  static_assert(sizeof(Dest) >= sizeof(Source), "Verify Dest size >= Source.");
   static_assert(std::is_trivially_copyable_v<Source>,
                 "Verify Source should be trivially copyable.");
   static_assert(std::is_trivially_copyable_v<Dest>,

@@ -43,4 +43,4 @@ struct CommandLineParserConfig {
 
 }  // namespace wb::apps
 
-#endif  // WB_APPS_PARSE_COMMAND_LINE_
+#endif  // !WB_APPS_PARSE_COMMAND_LINE_

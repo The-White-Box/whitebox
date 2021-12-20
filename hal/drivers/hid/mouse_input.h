@@ -26,7 +26,7 @@ enum class MouseStateFlags : unsigned short {
   kMoveRelative = 0x8000U,
   /**
    * @brief Original Mouse movement data is based on absolute position.  But
-   * our driver mapped it to relative move.
+   * our driver maps it to relative move.
    */
   kOriginalMoveWasAbsolute = 0x0001U | kMoveRelative,
   /**

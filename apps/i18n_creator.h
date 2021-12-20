@@ -24,4 +24,4 @@ namespace wb::apps {
 
 }  // namespace wb::apps
 
-#endif  // WB_APPS_I18N_CREATOR_H_
+#endif  // !WB_APPS_I18N_CREATOR_H_

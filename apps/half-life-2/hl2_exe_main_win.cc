@@ -7,10 +7,12 @@
 #include <system_error>
 
 #include "apps/args_win.h"
+#include "apps/cpu_feature_checks.h"
 #include "apps/i18n_creator.h"
 #include "apps/parse_command_line.h"
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/strings/str_cat.h"
+#include "base/deps/abseil/strings/str_join.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/intl/l18n.h"
 #include "base/intl/lookup.h"
@@ -104,9 +106,8 @@ int BootManagerStartup(
   const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
   const std::uint32_t attempts_to_retry_allocate_memory{
       absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
-  const wb::apps::flags::PeriodicTimerResolution
-      periodic_timer_resolution{
-          absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
+  const wb::apps::flags::PeriodicTimerResolution periodic_timer_resolution{
+      absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
   const wb::apps::flags::WindowWidth main_window_width{
       absl::GetFlag(FLAGS_main_window_width)};
   const wb::apps::flags::WindowHeight main_window_height{
@@ -220,6 +221,31 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
   const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
                                          scoped_process_locale);
+
+  // Query CPU support for required features.  In case any required feature is
+  // missed we return all required features with support state.
+  const std::vector<wb::apps::CpuFeature> cpu_features_support{
+      wb::apps::QueryRequiredCpuFeatures()};
+  if (!cpu_features_support.empty()) WB_ATTRIBUTE_UNLIKELY {
+      const std::string cpu_features_support_state{absl::StrJoin(
+          cpu_features_support, "\n",
+          [&](std::string* out, const wb::apps::CpuFeature& feature_support) {
+            absl::StrAppend(
+                out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
+                                    feature_support.is_supported ? "✓" : "❌"));
+          })};
+      wb::ui::FatalDialog(
+          intl::l18n_fmt(l18n, "{0} - Error",
+                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          std2::system_last_error_code(ERROR_DEVICE_HARDWARE_ERROR),
+          intl::l18n(l18n,
+                     "Sorry, your CPU has missed some required features to run "
+                     "the game."),
+          MakeFatalContext(l18n),
+          intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
+                         wb::apps::QueryCpuBrand(),
+                         cpu_features_support_state));
+    }
 
   // Initialize command line flags.
   auto args_parse_result =
