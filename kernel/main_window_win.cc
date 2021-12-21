@@ -95,13 +95,16 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
     }
   }
 
-  // Now can go full screen.
-  full_screen_window_toggler_.reset(
-      new FullScreenWindowToggler{window, create_struct->style});
+  {
+    auto full_screen_toggler =
+        std::make_unique<FullScreenWindowToggler>(window, create_struct->style);
+    // Now can go full screen.
+    full_screen_window_toggler_.swap(full_screen_toggler);
 
-  // When window is of normal size, should enable DWM MMCSS to speed up window
-  // composition.
-  ToggleDwmMmcss(!full_screen_window_toggler_->IsFullScreen());
+    // When window is of normal size, should enable DWM MMCSS to speed up window
+    // composition.
+    ToggleDwmMmcss(!full_screen_window_toggler_->IsFullScreen());
+  }
 
   using namespace std::chrono_literals;
   // TODO(dimhotepus): Simulate long loading.  Move to the task?
