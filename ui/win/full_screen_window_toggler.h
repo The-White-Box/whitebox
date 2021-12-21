@@ -20,6 +20,13 @@ namespace wb::ui::win {
  */
 class WB_WHITEBOX_UI_API FullScreenWindowToggler {
  public:
+  /**
+   * @brief Create full screen window toggler.
+   * @param window Window.
+   * @param default_window_style Default window style (when window is not
+   * fullscreen).
+   * @return nothing.
+   */
   FullScreenWindowToggler(_In_ HWND window,
                           _In_ long default_window_style) noexcept;
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(FullScreenWindowToggler);

@@ -22,7 +22,7 @@ namespace wb::ui::win {
 /**
  * @brief Use default position for window.
  */
-constexpr inline int kUseDefaultPosition{(int)0x80000000};
+constexpr inline int kUseDefaultPosition{static_cast<int>(0x80000000)};
 
 /**
  * @brief Window definition.
