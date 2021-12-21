@@ -230,12 +230,6 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // Install heap allocator tracing / set options.
   wb::apps::BootHeapAllocator();
 
-  // Start with specifying UTF-8 locale for all user-facing data.
-  const intl::ScopedProcessLocale scoped_process_locale{
-      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
-  const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
-                                         scoped_process_locale);
-
   // Remove current directory from default DLL search order to reduce chances
   // of DLL planting attacks.
   auto scoped_remove_current_directory_from_default_dll_search_order =
@@ -245,6 +239,12 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
                  scoped_remove_current_directory_from_default_dll_search_order))
       << "Can't set remove current directory from default DLL search order.  "
          "DLL planting attacks are still possible.";
+
+  // Start with specifying UTF-8 locale for all user-facing data.
+  const intl::ScopedProcessLocale scoped_process_locale{
+      intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
+  const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
+                                         scoped_process_locale);
 
   // Query CPU support for required features.  In case any required feature is
   // missed we return all required features with support state.
