@@ -24,6 +24,7 @@
 #include "base/win/com/scoped_thread_com_initializer.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_thread_error_mode.h"
+#include "base/win/scoped_set_dll_directory.h"
 #include "boot-manager/main.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
@@ -235,6 +236,16 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       intl::ScopedProcessLocaleCategory::kAll, intl::locales::kUtf8Locale};
   const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
                                          scoped_process_locale);
+
+  // Remove current directory from default DLL search order to reduce chances
+  // of DLL planting attacks.
+  auto scoped_remove_current_directory_from_default_dll_search_order =
+      ScopedSetDllDirectory::New("");
+  G3PLOGE_IF(WARNING,
+             std2::get_error(
+                 scoped_remove_current_directory_from_default_dll_search_order))
+      << "Can't set remove current directory from default DLL search order.  "
+         "DLL planting attacks are still possible.";
 
   // Query CPU support for required features.  In case any required feature is
   // missed we return all required features with support state.
