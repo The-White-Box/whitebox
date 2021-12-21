@@ -114,29 +114,31 @@ get_executable_directory() noexcept {
  */
 [[nodiscard]] WB_BASE_API std::optional<std::string_view>
 get_short_exe_name_from_command_line(std::string_view command_line) noexcept {
-#ifdef WB_OS_WIN
-  // Assume \"x:\zzzzz\yyyy.exe\" www on Windows.
+  // Sometimes /foo/bla is also passed on windows, ex. by Visual Studio g3log
+  // tests discovery.
+  constexpr char native_path_separators[]{"\\/"};
+
+  // Assume "x:\zzzzz\yyyy.exe" www on Windows.
   if (std2::starts_with(command_line, '"')) {
     const size_t end_exe_double_quote_idx{command_line.find('"', 1U)};
-    const size_t backslash_before_name_idx{command_line.rfind(
-        std::filesystem::path::preferred_separator, end_exe_double_quote_idx)};
+    const size_t separator_before_name_idx{command_line.find_last_of(
+        native_path_separators, end_exe_double_quote_idx)};
 
     if (end_exe_double_quote_idx != std::string_view::npos &&
-        backslash_before_name_idx != std::string_view::npos) {
+        separator_before_name_idx != std::string_view::npos) {
       return command_line.substr(
-          backslash_before_name_idx + 1,
-          end_exe_double_quote_idx - backslash_before_name_idx - 1);
+          separator_before_name_idx + 1,
+          end_exe_double_quote_idx - separator_before_name_idx - 1);
     }
   }
-#endif  // WB_OS_WIN
 
-  // Has path separator.
-  if (const size_t backslash_before_name_idx{
-          command_line.rfind(std::filesystem::path::preferred_separator)};
-      backslash_before_name_idx != std::string_view::npos) {
+  // Has path separators.
+  if (const size_t separator_before_name_idx{
+          command_line.find_last_of(native_path_separators)};
+      separator_before_name_idx != std::string_view::npos) {
     return command_line.substr(
-        backslash_before_name_idx + 1,
-        command_line.size() - backslash_before_name_idx - 1);
+        separator_before_name_idx + 1,
+        command_line.size() - separator_before_name_idx - 1);
   }
 
   return {};

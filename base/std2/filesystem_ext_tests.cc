@@ -88,13 +88,23 @@ GTEST_TEST(FilesystemExtTests, get_short_exe_name_from_command_line) {
 
   EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
             filesystem::get_short_exe_name_from_command_line(
-                "some\\very\\long\\executable.exe"));
+                R"(some\\very\\long\\executable.exe)"));
+  EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
+            filesystem::get_short_exe_name_from_command_line(
+                R"(some/very/long/executable.exe)"));
   EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
             filesystem::get_short_exe_name_from_command_line(
                 R"("some\\very\\long\\executable.exe")"));
   EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
             filesystem::get_short_exe_name_from_command_line(
+                R"("some/very/long/executable.exe")"));
+  EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
+            filesystem::get_short_exe_name_from_command_line(
                 R"("some\\very\\long\\executable.exe" --some_arg)"));
+
+  EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
+            filesystem::get_short_exe_name_from_command_line(
+                R"("some/very/long/executable.exe" --some_arg)"));
   EXPECT_EQ(
       std::optional<std::string_view>{"executable.exe"},
       filesystem::get_short_exe_name_from_command_line(
@@ -102,9 +112,20 @@ GTEST_TEST(FilesystemExtTests, get_short_exe_name_from_command_line) {
   EXPECT_EQ(
       std::optional<std::string_view>{"executable.exe"},
       filesystem::get_short_exe_name_from_command_line(
+          R"("some/very/long/executable.exe" --some_arg --some-other-arg)"));
+  EXPECT_EQ(
+      std::optional<std::string_view>{"executable.exe"},
+      filesystem::get_short_exe_name_from_command_line(
           R"("some\\very\\long\\executable.exe" "--some_arg" --some-other-arg)"));
+  EXPECT_EQ(
+      std::optional<std::string_view>{"executable.exe"},
+      filesystem::get_short_exe_name_from_command_line(
+          R"("some/very/long/executable.exe" "--some_arg" --some-other-arg)"));
   EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
             filesystem::get_short_exe_name_from_command_line(
                 R"("some\\very\\long\\executable.exe" " " ")"));
+  EXPECT_EQ(std::optional<std::string_view>{"executable.exe"},
+            filesystem::get_short_exe_name_from_command_line(
+                R"("some/very/long/executable.exe" " " ")"));
 }
 #endif  // !WB_OS_WIN
