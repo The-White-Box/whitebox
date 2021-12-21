@@ -206,25 +206,25 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
 
   // Simulate render.
   {
-    auto scoped_window_paint = wb::ui::win::ScopedWindowPaint::New(window);
-    if (const auto *painter = std2::get_result(scoped_window_paint); painter)
-      WB_ATTRIBUTE_LIKELY {
-        const auto samples_2_fps = [](auto time_between_samples) noexcept {
-          const auto elapsed_since_last_frame_mks =
-              std::chrono::duration_cast<std::chrono::microseconds>(
-                  time_between_samples)
-                  .count();
-          return elapsed_since_last_frame_mks
-                     ? 1000000.0F /
-                           static_cast<float>(elapsed_since_last_frame_mks)
-                     : 0;
-        };
+    const auto samples_2_fps = [](auto time_between_samples) noexcept {
+      const auto elapsed_since_last_frame_mks =
+          std::chrono::duration_cast<std::chrono::microseconds>(
+              time_between_samples)
+              .count();
+      return elapsed_since_last_frame_mks
+                 ? 1000000.0F / static_cast<float>(elapsed_since_last_frame_mks)
+                 : 0;
+    };
 
-        const float fps{samples_2_fps(
-            render_sampling_profiler_.GetTimeBetweenLastSamples())};
-        constexpr float kFpsMaxCap{200};
+    const float fps{
+        samples_2_fps(render_sampling_profiler_.GetTimeBetweenLastSamples())};
+    constexpr float kFpsMaxCap{200};
 
-        if (fps <= kFpsMaxCap) {
+    if (fps <= kFpsMaxCap) {
+      auto scoped_window_paint = wb::ui::win::ScopedWindowPaint::New(window);
+
+      if (const auto *painter = std2::get_result(scoped_window_paint); painter)
+        WB_ATTRIBUTE_LIKELY {
           std::string message;
           absl::StrAppend(&message, "FPS: ", std::floor(fps * 10.0F) / 10.0F,
                           " ", input_data);
@@ -235,10 +235,10 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
           painter->TextDraw(
               message.c_str(), -1, &paint_rc,
               DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
-        } else {
-          std::this_thread::sleep_for(4ms);
         }
-      }
+    } else {
+      std::this_thread::sleep_for(4ms);
+    }
   }
 
   // Generate continuous stream of WM_PAINT to render with up to display
