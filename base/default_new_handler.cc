@@ -29,20 +29,15 @@ namespace {
  * @brief Get current thread name.
  * @return Thread name.
  */
-[[nodiscard]] std::string GetThreadName() {
-  constexpr char kUnknownThreadName[]{"N/A"};
-
+[[nodiscard]] std::string GetThreadName() noexcept {
   using namespace wb::base;
 
   std2::native_thread_name native_thread_name;
-  std::string actual_thread_name;
+  const auto rc = std2::get_thread_name(std2::this_thread::get_handle(),
+                                        native_thread_name);
+  G3PLOGE2_IF(WARNING, rc) << "Unable to get thread name, use empty.";
 
-  if (const auto rc = std2::get_thread_name(std2::this_thread::get_handle(),
-                                            native_thread_name);
-      !rc)
-    WB_ATTRIBUTE_LIKELY { actual_thread_name = std::move(native_thread_name); }
-
-  return actual_thread_name.empty() ? kUnknownThreadName : actual_thread_name;
+  return !native_thread_name.empty() ? native_thread_name : "N/A";
 };
 
 }  // namespace
@@ -79,7 +74,7 @@ WB_BASE_API void DefaultNewFailureHandler() {
           << "Unable to optimize low-fragmentation heap (LFH) caches.";
 #endif
 
-      G3LOG(WARNING) << "Thread (" << std::this_thread::get_id() << ','
+      G3LOG(WARNING) << "Thread (" << std::this_thread::get_id() << ", "
                      << GetThreadName()
                      << ") failed to allocate memory via new.  Taking "
                      << actual_new_retries_count << " retry attempt of "
