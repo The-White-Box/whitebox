@@ -1,1 +1,0 @@
-The whitebox-boot-manager directory contains boot manager.

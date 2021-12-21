@@ -1,0 +1,1 @@
+The `kernel` directory contains kernel.

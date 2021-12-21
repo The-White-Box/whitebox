@@ -521,7 +521,8 @@ endif()
 ## Libraries.
 
 add_subdirectory("base")
-add_subdirectory("whitebox-boot-manager")
+add_subdirectory("boot-manager")
+add_subdirectory("ui")
 
 ## Hardware Abstraction Layer.
 
@@ -530,8 +531,7 @@ add_subdirectory("hal/drivers/cpu")
 
 ## Kernel.
 
-add_subdirectory("whitebox-kernel")
-add_subdirectory("whitebox-ui")
+add_subdirectory("kernel")
 
 ## Apps.
 

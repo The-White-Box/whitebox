@@ -17,10 +17,10 @@
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
+#include "boot-manager/main.h"
 #include "build/static_settings_config.h"
 #include "hl2_exe_flags.h"
-#include "whitebox-boot-manager/main.h"
-#include "whitebox-ui/fatal_dialog.h"
+#include "ui/fatal_dialog.h"
 
 #ifdef WB_MI_MALLOC
 #include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"

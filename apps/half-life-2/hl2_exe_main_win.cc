@@ -24,12 +24,12 @@
 #include "base/win/com/scoped_thread_com_initializer.h"
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_thread_error_mode.h"
+#include "boot-manager/main.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
 #include "hl2_exe_flags.h"
 #include "resource_win.h"
-#include "whitebox-boot-manager/main.h"
-#include "whitebox-ui/fatal_dialog.h"
+#include "ui/fatal_dialog.h"
 
 #ifdef WB_MI_MALLOC
 #include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"

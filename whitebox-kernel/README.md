@@ -1,1 +1,0 @@
-The whitebox-kernel directory contains kernel.

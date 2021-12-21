@@ -35,9 +35,9 @@
 #include "base/intl/l18n.h"
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_shared_library.h"
+#include "boot-manager/main.h"
 #include "build/static_settings_config.h"
 #include "hl2_exe_flags.h"
-#include "whitebox-boot-manager/main.h"
 
 #ifdef WB_MI_MALLOC
 #include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"
