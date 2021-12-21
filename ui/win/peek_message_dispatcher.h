@@ -39,7 +39,7 @@ constexpr inline void HasNoPostDispatchMessage(const MSG&) noexcept {}
  */
 template <typename HasPreDispatchedMessage, typename PostDispatchedMessage,
           typename R>
-using dispatcher_functions_concept = std::enable_if_t<
+using dispatcher_concept = std::enable_if_t<
     std::is_nothrow_invocable_r_v<bool, HasPreDispatchedMessage, const MSG&> &&
         std::is_nothrow_invocable_r_v<void, PostDispatchedMessage, const MSG&>,
     R>;
@@ -75,8 +75,8 @@ class PeekMessageDispatcher {
   template <
       typename HasPreDispatchedMessage = decltype(&HasNoPreDispatchMessage),
       typename PostDispatchedMessage = decltype(&HasNoPostDispatchMessage)>
-  dispatcher_functions_concept<HasPreDispatchedMessage, PostDispatchedMessage,
-                               std::optional<std::error_code>>
+  dispatcher_concept<HasPreDispatchedMessage, PostDispatchedMessage,
+                     std::optional<std::error_code>>
   Dispatch(_In_ HasPreDispatchedMessage has_pre_dispatched_message =
                HasNoPreDispatchMessage,
            _In_ PostDispatchedMessage post_dispatched_message =
@@ -88,7 +88,6 @@ class PeekMessageDispatcher {
                        PM_NOREMOVE)) {
       const BOOL rc{
           GetMessage(&msg, hwnd_, lowest_message_id, highest_message_id)};
-      G3DCHECK(rc != -1);
 
       if (rc == -1) WB_ATTRIBUTE_UNLIKELY {
           return base::std2::system_last_error_code();
