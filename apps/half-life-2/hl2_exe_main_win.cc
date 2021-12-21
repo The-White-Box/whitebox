@@ -135,36 +135,32 @@ int BootManagerStartup(
 
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_flags);
-  if (const auto* boot_manager = std2::get_result(boot_manager_library))
-    WB_ATTRIBUTE_LIKELY {
-      using BootManagerMain = decltype(&BootManagerMain);
-      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      constexpr char kBootManagerMainName[]{"BootManagerMain"};
+  if (const auto* error = std2::get_error(boot_manager_library))
+    WB_ATTRIBUTE_UNLIKELY {
+      return wb::ui::FatalDialog(
+          intl::l18n_fmt(intl, "{0} - Error",
+                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
+          std::get<std::error_code>(boot_manager_library),
+          intl::l18n(intl,
+                     "Please, check app is installed correctly and you have "
+                     "enough permissions to run it."),
+          MakeFatalContext(intl),
+          intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
+                         boot_manager_path));
+    }
 
-      // Good, try to find and launch boot manager.
-      const auto boot_manager_entry =
-          boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
-      if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
-        WB_ATTRIBUTE_LIKELY {
-          return (*boot_manager_main)(
-              {instance,
-               WB_PRODUCT_FILE_DESCRIPTION_STRING,
-               show_window_flags,
-               WB_HALF_LIFE_2_IDI_MAIN_ICON,
-               WB_HALF_LIFE_2_IDI_SMALL_ICON,
-               {.positional_flags = std::move(positional_flags),
-                .attempts_to_retry_allocate_memory =
-                    attempts_to_retry_allocate_memory,
-                .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
-                .main_window_width = main_window_width.size,
-                .main_window_height = main_window_height.size,
-                .insecure_allow_unsigned_module_target =
-                    insecure_allow_unsigned_module_target,
-                .should_dump_heap_allocator_statistics_on_exit =
-                    should_dump_heap_allocator_statistics_on_exit},
-               intl});
-        }
+  using BootManagerMain = decltype(&BootManagerMain);
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
+  const auto* boot_manager = std2::get_result(boot_manager_library);
+  G3CHECK(!!boot_manager);
+
+  // Good, try to find and launch boot manager.
+  const auto boot_manager_entry =
+      boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
+  if (const auto* error = std2::get_error(boot_manager_entry))
+    WB_ATTRIBUTE_UNLIKELY {
       return wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
@@ -177,15 +173,25 @@ int BootManagerStartup(
                          kBootManagerMainName, boot_manager_path));
     }
 
-  return wb::ui::FatalDialog(
-      intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-      std::get<std::error_code>(boot_manager_library),
-      intl::l18n(intl,
-                 "Please, check app is installed correctly and you have "
-                 "enough permissions to run it."),
-      MakeFatalContext(intl),
-      intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
-                     boot_manager_path));
+  const auto* boot_manager_main = std2::get_result(boot_manager_entry);
+  G3CHECK(!!boot_manager_main);
+
+  return (*boot_manager_main)(
+      {instance,
+       WB_PRODUCT_FILE_DESCRIPTION_STRING,
+       show_window_flags,
+       WB_HALF_LIFE_2_IDI_MAIN_ICON,
+       WB_HALF_LIFE_2_IDI_SMALL_ICON,
+       {.positional_flags = std::move(positional_flags),
+        .attempts_to_retry_allocate_memory = attempts_to_retry_allocate_memory,
+        .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
+        .main_window_width = main_window_width.size,
+        .main_window_height = main_window_height.size,
+        .insecure_allow_unsigned_module_target =
+            insecure_allow_unsigned_module_target,
+        .should_dump_heap_allocator_statistics_on_exit =
+            should_dump_heap_allocator_statistics_on_exit},
+       intl});
 }
 
 }  // namespace
