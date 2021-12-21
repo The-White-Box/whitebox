@@ -110,7 +110,7 @@ void DumpSystemInformation(const char* app_description) noexcept {
   const auto app_path_result = std2::filesystem::get_executable_directory();
   if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
       const auto& intl = boot_manager_args.intl;
-      wb::ui::FatalDialog(
+      wb::ui::ExitFatalDialog(
           intl::l18n(intl, "Boot Manager - Error"), *rc,
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
@@ -184,7 +184,7 @@ int KernelStartup(
 #endif
         }
 
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n(intl, "Boot Manager - Error"),
           std::get<std::error_code>(kernel_main_entry),
           intl::l18n(intl,
@@ -194,16 +194,15 @@ int KernelStartup(
           intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
                          kKernelMainName, kernel_path));
     }
-  else {
-    wb::ui::FatalDialog(
-        intl::l18n(intl, "Boot Manager - Error"),
-        std::get<std::error_code>(kernel_library),
-        intl::l18n(intl,
-                   "Please, check app is installed correctly and you have "
-                   "enough permissions to run it."),
-        MakeFatalContext(boot_manager_args),
-        intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path));
-  }
+
+  return wb::ui::FatalDialog(
+      intl::l18n(intl, "Boot Manager - Error"),
+      std::get<std::error_code>(kernel_library),
+      intl::l18n(intl,
+                 "Please, check app is installed correctly and you have "
+                 "enough permissions to run it."),
+      MakeFatalContext(boot_manager_args),
+      intl::l18n_fmt(intl, "Can't load whitebox kernel '{0}'.", kernel_path));
 }
 
 }  // namespace
@@ -239,7 +238,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
   if (win::GetVersion() < win::Version::WIN10_19H1) WB_ATTRIBUTE_UNLIKELY {
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
           std2::system_last_error_code(ERROR_OLD_WIN_VERSION),
           intl::l18n(boot_manager_args.intl,
@@ -309,7 +308,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
       // Well, notify user about other instance window.
       wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
 
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
           std2::posix_last_error_code(EEXIST),
           intl::l18n_fmt(boot_manager_args.intl,

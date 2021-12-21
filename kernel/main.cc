@@ -226,7 +226,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     return DispatchMessages(window_definition.name);
   }
 
-  FatalDialog(
+  return wb::ui::FatalDialog(
       intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
       std::get<std::error_code>(window_result),
       intl::l18n_fmt(intl,
@@ -244,7 +244,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto sdl_initializer = SDLInitializer::New(SDLInitializerFlags::kAudio |
                                                    SDLInitializerFlags::kVideo);
   if (const auto* error = get_error(sdl_initializer)) WB_ATTRIBUTE_UNLIKELY {
-      FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
           intl::l18n(intl,
                      "Please, check your SDL library installed and working."),
@@ -268,7 +268,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   const auto sdl_image_init = SDLImageInit::New(sdl_image_init_types);
   if (const auto* error = get_error(sdl_image_init)) WB_ATTRIBUTE_UNLIKELY {
-      FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
           intl::l18n(intl,
                      "Please, check your SDL library installed and working."),
@@ -305,7 +305,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       return DispatchMessages();
     }
 
-  FatalDialog(
+  return wb::ui::FatalDialog(
       intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
       intl::l18n_fmt(intl,
                      "Please, check you installed '{0}' libraries/drivers.",

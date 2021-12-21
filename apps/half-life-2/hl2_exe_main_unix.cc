@@ -63,10 +63,10 @@ int BootManagerStartup(int argc, char** argv) noexcept {
                 out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
                                     feature_support.is_supported ? "✓" : "❌"));
           })};
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          std2::system_last_error_code(ERROR_DEVICE_HARDWARE_ERROR),
+          std2::system_last_error_code(ENODEV),
           intl::l18n(l18n,
                      "Sorry, your CPU has missed some required features to run "
                      "the game."),
@@ -80,7 +80,7 @@ int BootManagerStartup(int argc, char** argv) noexcept {
   // Prevents DLL / SO planting attacks.
   auto app_path_result = std2::filesystem::get_executable_directory();
   if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           *rc,
@@ -139,7 +139,7 @@ int BootManagerStartup(int argc, char** argv) noexcept {
               {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, l18n});
         }
 
-      FatalDialog(
+      return FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           std::get<std::error_code>(boot_manager_entry),
@@ -150,17 +150,16 @@ int BootManagerStartup(int argc, char** argv) noexcept {
           intl::l18n_fmt(l18n, "Can't get '{0}' entry point from '{1}'.",
                          kBootManagerMainName, boot_manager_path));
     }
-  else {
-    FatalDialog(
-        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        std::get<std::error_code>(boot_manager_library),
-        intl::l18n(l18n,
-                   "Please, check app is installed correctly and you have "
-                   "enough permissions to run it."),
-        FatalDialogContext{l18n.Layout()},
-        intl::l18n_fmt(l18n, "Can't load boot manager '{0}'.",
-                       boot_manager_path));
-  }
+
+  return FatalDialog(
+      intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+      std::get<std::error_code>(boot_manager_library),
+      intl::l18n(l18n,
+                 "Please, check app is installed correctly and you have "
+                 "enough permissions to run it."),
+      FatalDialogContext{l18n.Layout()},
+      intl::l18n_fmt(l18n, "Can't load boot manager '{0}'.",
+                     boot_manager_path));
 }
 
 }  // namespace

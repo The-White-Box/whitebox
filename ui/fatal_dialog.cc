@@ -51,16 +51,20 @@ namespace {
 
 namespace wb::ui {
 
-/**
- * @brief Shows fatal dialog and exits.
- * @param title Title.
- * @param rc Error code for technical details.
- * @param main_instruction_message Main instruction message.
- * @param context OS specific context.
- * @param content_message Content message.
- * @return void.
- */
-[[noreturn]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD void FatalDialog(
+[[noreturn]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD void ExitFatalDialog(
+    const std::string& title, std::optional<std::error_code> rc,
+    const std::string& main_instruction_message,
+    const FatalDialogContext& context,
+    const std::string& content_message) noexcept {
+  const int exit_code{FatalDialog(title, rc, main_instruction_message, context,
+                                  content_message)};
+
+  // TODO(dimhotepus): Notify & wait other threads, so they are stopped before.
+  // NOLINTNEXTLINE(concurrency-mt-unsafe)
+  std::exit(exit_code);
+}
+
+[[nodiscard]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD int FatalDialog(
     const std::string& title, std::optional<std::error_code> rc,
     const std::string& main_instruction_message,
     const FatalDialogContext& context,
@@ -129,15 +133,15 @@ namespace wb::ui {
     G3DCHECK(!std2::get_error(result))
         << "Fatal dialog can't be shown: " << *std2::get_error(result);
 #else
-#error "Please define FatalDialog UI for your platform."
+#error "Please define ExitFatalDialog UI for your platform."
 #endif
   } catch (const std::exception& ex) {
-    G3LOG(WARNING) << "Exception caught in FatalDialog: " << ex.what();
+    G3LOG(WARNING) << "Exception caught in ExitFatalDialog: " << ex.what();
   }
 
-  // TODO(dimhotepus): Notify & wait other threads, so they are stopped before.
-  // NOLINTNEXTLINE(concurrency-mt-unsafe)
-  std::exit(rc.value_or(std::error_code{-1, std::generic_category()}).value());
+  const auto exit_code =
+      rc.value_or(std::error_code{-1, std::generic_category()});
+  return exit_code.value();
 }
 
 }  // namespace wb::ui

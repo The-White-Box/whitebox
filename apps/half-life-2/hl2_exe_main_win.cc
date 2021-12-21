@@ -93,7 +93,7 @@ int BootManagerStartup(
   const auto app_path_result = win::GetApplicationDirectory(instance);
   if (const auto* error = std2::get_error(app_path_result))
     WB_ATTRIBUTE_UNLIKELY {
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           *error,
@@ -165,7 +165,7 @@ int BootManagerStartup(
                intl});
         }
 
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(intl, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           std::get<std::error_code>(boot_manager_entry),
@@ -176,17 +176,16 @@ int BootManagerStartup(
           intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
                          kBootManagerMainName, boot_manager_path));
     }
-  else {
-    wb::ui::FatalDialog(
-        intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        std::get<std::error_code>(boot_manager_library),
-        intl::l18n(intl,
-                   "Please, check app is installed correctly and you have "
-                   "enough permissions to run it."),
-        MakeFatalContext(intl),
-        intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
-                       boot_manager_path));
-  }
+
+  return wb::ui::FatalDialog(
+      intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+      std::get<std::error_code>(boot_manager_library),
+      intl::l18n(intl,
+                 "Please, check app is installed correctly and you have "
+                 "enough permissions to run it."),
+      MakeFatalContext(intl),
+      intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
+                     boot_manager_path));
 }
 
 }  // namespace
@@ -259,7 +258,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
                 out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
                                     feature_support.is_supported ? "✓" : "❌"));
           })};
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           std2::system_last_error_code(ERROR_DEVICE_HARDWARE_ERROR),
@@ -277,7 +276,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
       wb::apps::win::Args::FromCommandLine(full_command_line_wide);
   if (const auto* error = std2::get_error(args_parse_result))
     WB_ATTRIBUTE_UNLIKELY {
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
           *error,

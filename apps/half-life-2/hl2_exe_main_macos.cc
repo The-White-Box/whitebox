@@ -76,10 +76,10 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
                 out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
                                     feature_support.is_supported ? "✓" : "❌"));
           })};
-      wb::ui::FatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
                          WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          std2::system_last_error_code(ERROR_DEVICE_HARDWARE_ERROR),
+          std2::system_last_error_code(ENODEV),
           intl::l18n(l18n,
                      "Sorry, your CPU has missed some required features to run "
                      "the game."),

@@ -64,7 +64,7 @@ namespace wb::kernel {
           scoped_app_instance_manager.GetStatus();
       if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
         WB_ATTRIBUTE_UNLIKELY {
-          wb::ui::FatalDialog(
+          wb::ui::ExitFatalDialog(
               intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
               std2::posix_last_error_code(EEXIST),
               intl::l18n_fmt(boot_manager_args.intl,

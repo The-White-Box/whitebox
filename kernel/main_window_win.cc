@@ -63,7 +63,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
         mouse_.swap(*mouse);
       }
     else {
-      wb::ui::FatalDialog(
+      wb::ui::ExitFatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(mouse_result),
           intl::l18n(intl_, "Please, check mouse is connected and working."),
@@ -82,7 +82,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
     if (auto *keyboard = std2::get_result(keyboard_result))
       WB_ATTRIBUTE_LIKELY { keyboard_.swap(*keyboard); }
     else {
-      wb::ui::FatalDialog(
+      wb::ui::ExitFatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(keyboard_result),
           intl::l18n(intl_, "Please, check keyboard is connected and working."),
