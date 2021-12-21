@@ -10,7 +10,7 @@
 #include <limits>
 #include <random>
 
-#include "base/tests/g3log_death_utils_tests.h"
+#include "base/tests/g3log_death_utils.h"
 #endif
 
 #include <cerrno>  // ENOMEM

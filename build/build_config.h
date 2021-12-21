@@ -76,7 +76,7 @@
 
 #if defined(WB_OS_WIN) || defined(WB_OS_POSIX)
 // Use mi-malloc.
-#define WB_USE_MI_MALLOC 1
+#define WB_MI_MALLOC 1
 #endif
 
 // Compiler detection.

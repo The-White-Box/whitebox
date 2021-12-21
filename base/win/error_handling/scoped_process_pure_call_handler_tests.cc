@@ -7,7 +7,7 @@
 #include "scoped_process_pure_call_handler.h"
 //
 #include "base/deps/googletest/gtest/gtest.h"
-#include "base/tests/g3log_death_utils_tests.h"
+#include "base/tests/g3log_death_utils.h"
 #include "build/compiler_config.h"
 
 namespace {

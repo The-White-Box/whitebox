@@ -4,7 +4,7 @@
 //
 // g3log death tests utils.
 
-#include "g3log_death_utils_tests.h"
+#include "g3log_death_utils.h"
 
 #include <csignal>
 #include <cstddef>

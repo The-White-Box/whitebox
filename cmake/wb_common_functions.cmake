@@ -22,24 +22,24 @@ function(wb_auto_sources RETURN_VALUE PATTERN SOURCE_SUBDIRS)
 
   if ("${SOURCE_SUBDIRS}" STREQUAL "RECURSE")
     unset(${RETURN_VALUE})
-    file(GLOB SUBDIR_FILES "${PATH}/${PATTERN}")
+    file(GLOB SUBDIR_FILES CONFIGURE_DEPENDS "${PATH}/${PATTERN}")
     list(APPEND ${RETURN_VALUE} ${SUBDIR_FILES})
 
-    file(GLOB subdirs RELATIVE ${PATH} ${PATH}/*)
+    file(GLOB subdirs RELATIVE ${PATH} CONFIGURE_DEPENDS ${PATH}/*)
 
     foreach(DIR ${subdirs})
       if (IS_DIRECTORY ${PATH}/${DIR})
         if (NOT "${DIR}" STREQUAL "CMakeFiles")
-          file(GLOB_RECURSE SUBDIR_FILES "${PATH}/${DIR}/${PATTERN}")
+          file(GLOB_RECURSE SUBDIR_FILES CONFIGURE_DEPENDS "${PATH}/${DIR}/${PATTERN}")
           list(APPEND ${RETURN_VALUE} ${SUBDIR_FILES})
         endif()
       endif()
     endforeach()
   else()
-    file(GLOB ${RETURN_VALUE} "${PATTERN}")
+    file(GLOB ${RETURN_VALUE} CONFIGURE_DEPENDS "${PATTERN}")
 
     foreach (PATH ${SOURCE_SUBDIRS})
-      file(GLOB SUBDIR_FILES "${PATH}/${PATTERN}")
+      file(GLOB SUBDIR_FILES CONFIGURE_DEPENDS "${PATH}/${PATTERN}")
       list(APPEND ${RETURN_VALUE} ${SUBDIR_FILES})
     endforeach()
   endif()
@@ -165,6 +165,12 @@ function(wb_remove_os_specific_files target_source_dir header_files source_files
       MATCHES
         "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.h$"
         "^${target_source_dir}(.*)?_tests(_macos|_unix|_win)?.cc$"
+    )
+
+    wb_remove_matches_from_lists(header_files source_files
+      MATCHES
+        "^${target_source_dir}/tests/(.*).h$"
+        "^${target_source_dir}/tests/(.*).cc$"
     )
   endif()
 

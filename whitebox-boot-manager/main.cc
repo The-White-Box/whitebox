@@ -12,7 +12,7 @@
 #include "base/default_new_handler.h"
 #include "base/deps/g3log/g3log.h"
 
-#ifdef WB_USE_MI_MALLOC
+#ifdef WB_MI_MALLOC
 #include "base/deps/mimalloc/mimalloc.h"
 #include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"
 #endif
@@ -87,7 +87,7 @@ void DumpSystemInformation(const char* app_description) noexcept {
 #endif
 }
 
-#ifdef WB_USE_MI_MALLOC
+#ifdef WB_MI_MALLOC
 /**
  * @brief Default mi-malloc output handler.  Function is called to output any
  * information from mimalloc, like verbose or warning messages.
@@ -145,7 +145,7 @@ void DefaultMiMallocError(int error_no, [[maybe_unused]] void* arg) noexcept {
   // default function only calls abort() when compiled in secure mode with an
   // EFAULT error.
 }
-#endif  // WB_USE_MI_MALLOC
+#endif  // WB_MI_MALLOC
 
 /**
  * @brief Setup heap allocator.
@@ -162,13 +162,13 @@ void BootHeapMemoryAllocator() noexcept {
   }
 #endif  // WB_OS_WIN
 
-#ifdef WB_USE_MI_MALLOC
+#ifdef WB_MI_MALLOC
   G3DLOG(INFO) << "Using mi-malloc memory allocator v." << mi_version() << ".";
 
   // Log output / errors.
   mi_register_output(DefaultMiMallocOutput, nullptr);
   mi_register_error(DefaultMiMallocError, nullptr);
-#endif  // WB_USE_MI_MALLOC
+#endif  // WB_MI_MALLOC
 }
 
 /**
@@ -310,12 +310,12 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Setup heap memory allocator.
   BootHeapMemoryAllocator();
 
-#ifdef WB_USE_MI_MALLOC
+#ifdef WB_MI_MALLOC
   // Dumps mimalloc stats on exit?
   const wb::mi::ScopedDumpMiMainStats scoped_dump_mi_main_stats{
       boot_manager_args.command_line_flags
           .should_dump_heap_allocator_statistics_on_exit};
-#endif
+#endif  // WB_MI_MALLOC
 
   // Handle new allocation failure.
   ScopedNewHandler scoped_new_handler{

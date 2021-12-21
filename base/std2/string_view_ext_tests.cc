@@ -7,7 +7,7 @@
 #include "string_view_ext.h"
 
 #include "base/deps/googletest/gtest/gtest.h"
-#include "base/tests/g3log_death_utils_tests.h"
+#include "base/tests/g3log_death_utils.h"
 
 using namespace wb::base::std2;
 

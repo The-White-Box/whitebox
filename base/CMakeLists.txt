@@ -77,4 +77,14 @@ if (WB_BUILD_TESTS)
     SOURCE_DIR ${WB_BASE_SOURCE_DIR}
     LINK_DEPS ${WB_BASE_TESTS_LINK_DEPS}
   )
+
+  # Common stuff.
+  target_sources(
+    ${WB_BASE_TARGET_NAME}_tests
+    PRIVATE
+      ${WB_BASE_SOURCE_DIR}/tests/g3log_death_utils.cc
+      ${WB_BASE_SOURCE_DIR}/tests/g3log_death_utils.h
+      ${WB_BASE_SOURCE_DIR}/tests/mimalloc_output_handlers.cc
+      ${WB_BASE_SOURCE_DIR}/tests/mimalloc_output_handlers.h
+  )
 endif()

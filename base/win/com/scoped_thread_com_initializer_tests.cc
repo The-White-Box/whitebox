@@ -9,7 +9,7 @@
 #include <Objbase.h>  // CoGetApartmentType
 //
 #include "base/deps/googletest/gtest/gtest.h"
-#include "base/tests/g3log_death_utils_tests.h"
+#include "base/tests/g3log_death_utils.h"
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedThreadComInitializerTests,

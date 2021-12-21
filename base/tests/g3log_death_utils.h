@@ -4,8 +4,8 @@
 //
 // g3log death tests utils.
 
-#ifndef WB_BASE_TESTS_G3LOG_DEATH_UTILS_TESTS_H_
-#define WB_BASE_TESTS_G3LOG_DEATH_UTILS_TESTS_H_
+#ifndef WB_BASE_TESTS_G3LOG_DEATH_UTILS_H_
+#define WB_BASE_TESTS_G3LOG_DEATH_UTILS_H_
 
 #include <cstddef>
 #include <string>
@@ -93,4 +93,4 @@ MakeG3LogCheckFailureDeathTestResult(
 
 }  // namespace wb::base::tests_internal
 
-#endif  // !WB_BASE_TESTS_G3LOG_DEATH_UTILS_TESTS_H_
+#endif  // !WB_BASE_TESTS_G3LOG_DEATH_UTILS_H_
