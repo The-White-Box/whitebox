@@ -11,12 +11,6 @@
 #include "app_version_config.h"
 #include "base/default_new_handler.h"
 #include "base/deps/g3log/g3log.h"
-
-#ifdef WB_MI_MALLOC
-#include "base/deps/mimalloc/mimalloc.h"
-#include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"
-#endif
-
 #include "base/intl/l18n.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_new_handler.h"
@@ -85,90 +79,6 @@ void DumpSystemInformation(const char* app_description) noexcept {
               << " build with MSVC " << _MSC_FULL_VER << '.' << _MSC_BUILD
               << " running on " << wb::base::win::GetVersion() << ".";
 #endif
-}
-
-#ifdef WB_MI_MALLOC
-/**
- * @brief Default mi-malloc output handler.  Function is called to output any
- * information from mimalloc, like verbose or warning messages.
- * @param msg Message to output.
- * @param arg Argument that was passed at registration to hold extra state.
- * @return void.
- */
-void DefaultMiMallocOutput(const char* msg,
-                           [[maybe_unused]] void* arg) noexcept {
-  const bool is_warning_or_error{!!std::strstr(msg, "warning:") ||
-                                 !!std::strstr(msg, "error:")};
-
-  if (is_warning_or_error) {
-    G3LOG(WARNING) << "Mi-malloc warning: " << msg;
-  } else {
-    G3LOG(INFO) << "Mi-malloc output: " << msg;
-  }
-}
-
-/**
- * @brief Default mi-malloc error handler.
- * @param error_no The possible error codes are:
- * * EAGAIN: Double free was detected (only in debug and secure mode).
- * * EFAULT: Corrupted free list or meta-data was detected (only in debug and
- * secure mode).
- * * ENOMEM: Not enough memory available to satisfy the request.
- * * EOVERFLOW: Too large a request, for example in mi_calloc(), the count and
- * size parameters are too large.
- * * EINVAL: Trying to free or re-allocate an invalid pointer.
- * @param arg Extra argument that will be passed on to the error function.
- * @return void.
- */
-void DefaultMiMallocError(int error_no, [[maybe_unused]] void* arg) noexcept {
-  const auto error_code{wb::base::std2::system_last_error_code(error_no)};
-  G3PLOG_E(WARNING, error_code) << "Mi-malloc error: ";
-
-#ifndef NDEBUG
-  if (error_no == EFAULT) {
-#ifdef _MSC_VER
-    __debugbreak();
-#endif
-    abort();
-  }
-#endif
-
-#ifdef WB_MI_SECURE
-  if (error_no == EFAULT) {
-    // Abort on serious errors in secure mode (corrupted meta-data).
-    abort();
-  }
-#endif
-
-  // It as always legal to just return from the function in which case
-  // allocation functions generally return NULL or ignore the condition.  The
-  // default function only calls abort() when compiled in secure mode with an
-  // EFAULT error.
-}
-#endif  // WB_MI_MALLOC
-
-/**
- * @brief Setup heap allocator.
- */
-void BootHeapMemoryAllocator() noexcept {
-#ifdef WB_OS_WIN
-  {
-    // Terminate the app if system detected heap corruption.
-    const auto error_code =
-        wb::base::win::memory::EnableTerminationOnHeapCorruption();
-    G3PLOGE2_IF(WARNING, error_code)
-        << "Can't enable 'Terminate on Heap corruption' os feature, continue "
-           "without it.";
-  }
-#endif  // WB_OS_WIN
-
-#ifdef WB_MI_MALLOC
-  G3DLOG(INFO) << "Using mi-malloc memory allocator v." << mi_version() << ".";
-
-  // Log output / errors.
-  mi_register_output(DefaultMiMallocOutput, nullptr);
-  mi_register_error(DefaultMiMallocError, nullptr);
-#endif  // WB_MI_MALLOC
 }
 
 /**
@@ -307,16 +217,6 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const wb::boot_manager::BootManagerArgs& boot_manager_args) {
   using namespace wb::base;
 
-  // Setup heap memory allocator.
-  BootHeapMemoryAllocator();
-
-#ifdef WB_MI_MALLOC
-  // Dumps mimalloc stats on exit?
-  const wb::mi::ScopedDumpMiMainStats scoped_dump_mi_main_stats{
-      boot_manager_args.command_line_flags
-          .should_dump_heap_allocator_statistics_on_exit};
-#endif  // WB_MI_MALLOC
-
   // Handle new allocation failure.
   ScopedNewHandler scoped_new_handler{
       DefaultNewFailureHandler,
@@ -366,10 +266,14 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Handle pure virtual function call.
   const error_handling::ScopedProcessPureCallHandler
       scoped_process_pure_call_handler{error_handling::DefaultPureCallHandler};
-  // Call new when malloc failed.
+
+#ifndef WB_MI_MALLOC
+  // Call new when malloc failed.  Only works with default allocator (!=
+  // mimalloc) for now.
   const memory::ScopedNewMode scoped_new_mode{
       memory::ScopedNewModeFlag::CallNew};
-#endif
+#endif  // !WB_MI_MALLOC
+#endif  // WB_OS_WIN
 
   // Handle terminate function call on the thread.
   const ScopedProcessTerminateHandler scoped_process_terminate_handler{

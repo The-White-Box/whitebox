@@ -23,6 +23,7 @@
 #include <system_error>
 
 #include "app_version_config.h"
+#include "apps/boot_heap_allocator.h"
 #include "apps/cpu_feature_checks.h"
 #include "apps/i18n_creator.h"
 #include "apps/parse_command_line.h"
@@ -38,10 +39,17 @@
 #include "hl2_exe_flags.h"
 #include "whitebox-boot-manager/main.h"
 
+#ifdef WB_MI_MALLOC
+#include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"
+#endif
+
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // Initialize g3log logging library first as logs are used extensively.
   const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       argv[0], wb::build::settings::kPathToMainLogFile};
+
+  // Install heap allocator tracing / set options.
+  wb::apps::BootHeapAllocator();
 
   // Setup command line flags as they are used early.
   std::vector<char*> positional_flags{wb::apps::ParseCommandLine(
@@ -165,6 +173,12 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
       .insecure_allow_unsigned_module_target = false,
       .should_dump_heap_allocator_statistics_on_exit =
           should_dump_heap_allocator_statistics_on_exit};
+
+#ifdef WB_MI_MALLOC
+  // Dumps mimalloc stats on exit?
+  const wb::mi::ScopedDumpMiMainStats scoped_dump_mi_main_stats{
+      should_dump_heap_allocator_statistics_on_exit};
+#endif  // WB_MI_MALLOC
 
   rv = boot_manager_main(WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags,
                          l18n);

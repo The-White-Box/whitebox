@@ -7,6 +7,7 @@
 #include <system_error>
 
 #include "apps/args_win.h"
+#include "apps/boot_heap_allocator.h"
 #include "apps/cpu_feature_checks.h"
 #include "apps/i18n_creator.h"
 #include "apps/parse_command_line.h"
@@ -29,6 +30,10 @@
 #include "resource_win.h"
 #include "whitebox-boot-manager/main.h"
 #include "whitebox-ui/fatal_dialog.h"
+
+#ifdef WB_MI_MALLOC
+#include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"
+#endif
 
 extern "C" {
 // Starting with the Release 302 drivers, application developers can direct the
@@ -120,6 +125,12 @@ int BootManagerStartup(
                                     (!insecure_allow_unsigned_module_target
                                          ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
                                          : 0U)};
+
+#ifdef WB_MI_MALLOC
+  // Dumps mimalloc stats on exit?
+  const wb::mi::ScopedDumpMiMainStats scoped_dump_mi_main_stats{
+      should_dump_heap_allocator_statistics_on_exit};
+#endif  // WB_MI_MALLOC
 
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_flags);
@@ -215,6 +226,9 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // Initialize g3log logging library first as logs are used extensively.
   const deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       full_command_line_ansi, wb::build::settings::kPathToMainLogFile};
+
+  // Install heap allocator tracing / set options.
+  wb::apps::BootHeapAllocator();
 
   // Start with specifying UTF-8 locale for all user-facing data.
   const intl::ScopedProcessLocale scoped_process_locale{

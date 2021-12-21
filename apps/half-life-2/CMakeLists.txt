@@ -74,6 +74,8 @@ target_sources(${WB_HALF_LIFE2_TARGET_NAME}
   PRIVATE
     ${WB_ROOT_DIR}/apps/base_flags.cc
     ${WB_ROOT_DIR}/apps/base_flags.h
+    ${WB_ROOT_DIR}/apps/boot_heap_allocator.cc
+    ${WB_ROOT_DIR}/apps/boot_heap_allocator.h
     ${WB_ROOT_DIR}/apps/cpu_feature_checks.cc
     ${WB_ROOT_DIR}/apps/cpu_feature_checks.h
     ${WB_ROOT_DIR}/apps/i18n_creator.cc
