@@ -7,10 +7,12 @@
 #ifndef WB_UI_WIN_PEEK_MESSAGE_DISPATCHER_H_
 #define WB_UI_WIN_PEEK_MESSAGE_DISPATCHER_H_
 
+#include <optional>
 #include <type_traits>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
+#include "base/std2/system_error_ext.h"
 #include "base/win/windows_light.h"
 
 namespace wb::ui::win {
@@ -33,11 +35,14 @@ constexpr inline void HasNoPostDispatchMessage(const MSG&) noexcept {}
  * @brief Dispatcher functions concept.
  * @tparam HasPreDispatchedMessageFn Predispatch function.
  * @tparam PostDispatchedMessageFn Postdispatch function.
+ * @tparam R dispatch result.
  */
-template <typename HasPreDispatchedMessage, typename PostDispatchedMessage>
+template <typename HasPreDispatchedMessage, typename PostDispatchedMessage,
+          typename R>
 using dispatcher_functions_concept = std::enable_if_t<
     std::is_nothrow_invocable_r_v<bool, HasPreDispatchedMessage, const MSG&> &&
-    std::is_nothrow_invocable_r_v<void, PostDispatchedMessage, const MSG&>>;
+        std::is_nothrow_invocable_r_v<void, PostDispatchedMessage, const MSG&>,
+    R>;
 
 /**
  * @brief Window messages peeking dispatcher.
@@ -64,12 +69,14 @@ class PeekMessageDispatcher {
    * ignored.
    * @param highest_message_id Highest message id.  Ids higher than this are
    * ignored.
-   * @return void.
+   * @return std::optional<std::error_code> if any error code, std::nullopt
+   * otherwise.
    */
   template <
       typename HasPreDispatchedMessage = decltype(&HasNoPreDispatchMessage),
       typename PostDispatchedMessage = decltype(&HasNoPostDispatchMessage)>
-  dispatcher_functions_concept<HasPreDispatchedMessage, PostDispatchedMessage>
+  dispatcher_functions_concept<HasPreDispatchedMessage, PostDispatchedMessage,
+                               std::optional<std::error_code>>
   Dispatch(_In_ HasPreDispatchedMessage has_pre_dispatched_message =
                HasNoPreDispatchMessage,
            _In_ PostDispatchedMessage post_dispatched_message =
@@ -83,14 +90,22 @@ class PeekMessageDispatcher {
           GetMessage(&msg, hwnd_, lowest_message_id, highest_message_id)};
       G3DCHECK(rc != -1);
 
-      if (rc != -1 && !has_pre_dispatched_message(msg)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-        post_dispatched_message(msg);
-      } else {
+      if (rc == -1) WB_ATTRIBUTE_UNLIKELY {
+          return base::std2::system_last_error_code();
+        }
+
+      if (!has_pre_dispatched_message(msg)) WB_ATTRIBUTE_LIKELY {
+          TranslateMessage(&msg);
+          DispatchMessage(&msg);
+
+          post_dispatched_message(msg);
+        }
+      else {
         break;
       }
     }
+
+    return std::nullopt;
   }
 
  private:

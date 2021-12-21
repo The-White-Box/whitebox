@@ -67,11 +67,11 @@ namespace {
  */
 [[nodiscard]] int DispatchMessages(
     _In_z_ const char* main_window_name) noexcept {
-  int rc{0};
+  int exit_code{0};
   bool is_done{false};
   const auto handle_quit_message = [&](const MSG& msg) noexcept {
     if (msg.message == WM_QUIT) {
-      rc = static_cast<int>(msg.wParam);
+      exit_code = static_cast<int>(msg.wParam);
       is_done = true;
     }
   };
@@ -82,14 +82,25 @@ namespace {
   // Main message app loop.
   // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in dispatcher.
   while (!is_done) {
-    message_dispatcher.Dispatch(HasNoPreDispatchMessage, handle_quit_message);
+    const auto maybe_dispatch_rc = message_dispatcher.Dispatch(
+        HasNoPreDispatchMessage, handle_quit_message);
+
+    if (maybe_dispatch_rc.has_value()) {
+      const auto rc = maybe_dispatch_rc.value();
+
+      G3PLOGE2_IF(WARNING, rc) << "Main window '" << main_window_name
+                               << "' message dispatch thread received error.";
+
+      exit_code = rc.value();
+      break;
+    }
   }
 
-  G3LOG_IF(WARNING, rc != 0)
+  G3LOG_IF(WARNING, exit_code != 0)
       << "Main window '" << main_window_name
-      << "' message dispatch thread exited with non success code " << rc;
+      << "' message dispatch thread exited with non success code " << exit_code;
 
-  return rc;
+  return exit_code;
 }
 #else  // WB_OS_WIN
 /**
