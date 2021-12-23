@@ -9,11 +9,9 @@
 #include <filesystem>
 
 #include "app_version_config.h"
-#include "base/default_new_handler.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/l18n.h"
 #include "base/scoped_floating_point_mode.h"
-#include "base/scoped_new_handler.h"
 #include "base/scoped_process_terminate_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
@@ -215,14 +213,6 @@ int KernelStartup(
 extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const wb::boot_manager::BootManagerArgs& boot_manager_args) {
   using namespace wb::base;
-
-  // Handle new allocation failure.
-  ScopedNewHandler scoped_new_handler{
-      DefaultNewFailureHandler,
-      boot_manager_args.command_line_flags.attempts_to_retry_allocate_memory};
-  // Set it as global handler.  C++ API is too strict here and we can't pass
-  // state into void(void), so need global variable to access state in handler.
-  InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
   DumpSystemInformation(boot_manager_args.app_description);
 

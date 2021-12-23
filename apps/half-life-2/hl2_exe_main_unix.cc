@@ -9,12 +9,14 @@
 #include "apps/cpu_feature_checks.h"
 #include "apps/i18n_creator.h"
 #include "apps/parse_command_line.h"
+#include "base/default_new_handler.h"
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/strings/str_join.h"
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/scoped_g3log_initializer.h"
 #include "base/intl/l18n.h"
 #include "base/intl/scoped_process_locale.h"
+#include "base/scoped_new_handler.h"
 #include "base/scoped_shared_library.h"
 #include "base/std2/filesystem_ext.h"
 #include "boot-manager/main.h"
@@ -134,6 +136,14 @@ int BootManagerStartup(int argc, char** argv) noexcept {
           const wb::mi::ScopedDumpMiMainStats scoped_dump_mi_main_stats{
               should_dump_heap_allocator_statistics_on_exit};
 #endif  // WB_MI_MALLOC
+
+          // Handle new allocation failure.
+          ScopedNewHandler scoped_new_handler{
+              DefaultNewFailureHandler, attempts_to_retry_allocate_memory};
+          // Set it as global handler.  C++ API is too strict here and we can't
+          // pass state into void(void), so need global variable to access state
+          // in handler.
+          InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
           return (*boot_manager_main)(
               {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, l18n});
