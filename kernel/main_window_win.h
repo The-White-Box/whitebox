@@ -113,35 +113,33 @@ class MainWindow : public wb::ui::win::BaseWindow {
   /**
    * @brief Mouse device.
    */
-  wb::base::un<wb::hal::hid::Mouse> mouse_;
+  base::un<hal::hid::Mouse> mouse_;
   /**
    * @brief Keyboard device.
    */
-  wb::base::un<wb::hal::hid::Keyboard> keyboard_;
+  base::un<hal::hid::Keyboard> keyboard_;
   /**
    * @brief Sampling profiler for rendering.
    */
-  wb::base::HighResolutionSamplingProfiler render_sampling_profiler_;
+  base::HighResolutionSamplingProfiler render_sampling_profiler_;
   /**
    * @brief Scoped Full Screen toggler.
    */
-  wb::base::un<wb::ui::win::FullScreenWindowToggler>
-      full_screen_window_toggler_;
+  base::un<ui::win::FullScreenWindowToggler> full_screen_window_toggler_;
   /**
    * @brief Windows Accessibility Shortcut Keys toggler.
    */
-  wb::ui::win::AccessibilityShortcutKeysToggler
+  ui::win::AccessibilityShortcutKeysToggler
       accessibility_shortcut_keys_toggler_;
   /**
    * @brief Display Window Manager runs using Multimedia Class Schedule Service
    * (MMCSS) scheduling to speed up window composition.
    */
-  wb::base::un<wb::base::win::mmcss::ScopedMmcssToggleDwm>
-      scoped_mmcss_toggle_dwm_;
+  base::un<base::win::mmcss::ScopedMmcssToggleDwm> scoped_mmcss_toggle_dwm_;
   /**
    * @brief Localization service.
    */
-  const wb::base::intl::LookupWithFallback &intl_;
+  const base::intl::LookupWithFallback &intl_;
   /**
    * @brief Is window active or not?
    */
@@ -222,7 +220,7 @@ class MainWindow : public wb::ui::win::BaseWindow {
    * @brief Create fatal dialog context.
    * @return Fatal dialog context.
    */
-  [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext() noexcept;
+  [[nodiscard]] ui::FatalDialogContext MakeFatalContext() noexcept;
 };
 
 }  // namespace wb::kernel

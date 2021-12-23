@@ -10,8 +10,8 @@
 
 #include <cstddef>  // std::byte
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/win/system_error_ext.h"
 
 using HRESULT = long;
@@ -36,11 +36,12 @@ class ScopedMmcssToggleDwm {
    * @param enable Enable MMCSS for DWM.
    * @return ScopedToggleDwmMultimediaClassScheduler.
    */
-  static std2::result<ScopedMmcssToggleDwm> New(_In_ bool enable) noexcept {
-    ScopedMmcssToggleDwm scheduler{enable};
-    return !scheduler.error_code()
-               ? std2::result<ScopedMmcssToggleDwm>{std::move(scheduler)}
-               : std2::result<ScopedMmcssToggleDwm>{scheduler.error_code()};
+  static std2::result<un<ScopedMmcssToggleDwm>> New(_In_ bool enable) noexcept {
+    using result = std2::result<un<ScopedMmcssToggleDwm>>;
+
+    un<ScopedMmcssToggleDwm> scheduler{new ScopedMmcssToggleDwm{enable}};
+    return !scheduler->error_code() ? result{std::move(scheduler)}
+                                    : result{scheduler->error_code()};
   }
 
   ScopedMmcssToggleDwm(ScopedMmcssToggleDwm&& s) noexcept

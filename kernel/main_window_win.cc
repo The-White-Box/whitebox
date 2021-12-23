@@ -209,18 +209,15 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
 
   // Simulate render.
   {
-    const auto samples_2_fps = [](auto time_between_samples) noexcept {
-      const auto elapsed_since_last_frame_mks =
-          std::chrono::duration_cast<std::chrono::microseconds>(
-              time_between_samples)
-              .count();
-      return elapsed_since_last_frame_mks
-                 ? 1000000.0F / static_cast<float>(elapsed_since_last_frame_mks)
-                 : 0;
+    const auto get_fps = [](auto delta) noexcept {
+      using namespace std::chrono;
+
+      const auto elapsed_ms = duration_cast<microseconds>(delta).count();
+      return elapsed_ms ? 1000000.0F / static_cast<float>(elapsed_ms) : 0;
     };
 
     const float fps{
-        samples_2_fps(render_sampling_profiler_.GetTimeBetweenLastSamples())};
+        get_fps(render_sampling_profiler_.GetTimeBetweenLastSamples())};
     constexpr float kFpsMaxCap{200};
 
     if (fps <= kFpsMaxCap) {
@@ -273,21 +270,16 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
   using namespace wb::base;
 
   if (enable) {
-    // Change window to normal size, should enable DWM MMCSS to
-    // speed up window composition.
+    // Change window to normal size, should enable DWM MMCSS to speed up window
+    // composition.
     auto scoped_toggle_dwm_mmcs_result =
         win::mmcss::ScopedMmcssToggleDwm::New(true);
     if (auto *scheduler = std2::get_result(scoped_toggle_dwm_mmcs_result)) {
-      auto *memory =
-          new unsigned char[sizeof(win::mmcss::ScopedMmcssToggleDwm)];
-
-      // Trick with placement new + move.
-      scoped_mmcss_toggle_dwm_.reset(
-          new (reinterpret_cast<win::mmcss::ScopedMmcssToggleDwm *>(memory))
-              win::mmcss::ScopedMmcssToggleDwm{std::move(*scheduler)});
+      scoped_mmcss_toggle_dwm_.swap(*scheduler);
     } else {
       const auto *rc = std2::get_error(scoped_toggle_dwm_mmcs_result);
       G3DCHECK(!!rc);
+
       G3PLOG_E(WARNING, *rc)
           << "Unable to enable Desktop Window Manager (DWM) Multimedia Class "
              "Schedule Service (MMCSS) scheduling.  Rendering will not be "
