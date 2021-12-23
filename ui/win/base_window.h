@@ -149,38 +149,61 @@ class WB_WHITEBOX_UI_API BaseWindow {
 
     using namespace wb::base;
 
-    TDerivedWindow *window{nullptr};
+    TDerivedWindow *self{nullptr};
 
-    if (message == WM_NCCREATE) {
-      auto *create_struct = reinterpret_cast<CREATESTRUCT *>(lParam);
-      G3CHECK(!!create_struct);
+    switch (message) {
+      // Set up the self before handling WM_NCCREATE.
+      case WM_NCCREATE: {
+        auto *create_struct = reinterpret_cast<CREATESTRUCT *>(lParam);
+        G3CHECK(!!create_struct);
 
-      window = static_cast<TDerivedWindow *>(create_struct->lpCreateParams);
-      G3CHECK(!!window);
+        self = static_cast<TDerivedWindow *>(create_struct->lpCreateParams);
+        G3CHECK(!!self);
 
-      {
-        wb::base::win::error_handling::ScopedThreadLastError
-            restore_last_error_on_out;
+        SetWindowUserData(hwnd, self);
 
-        // To determine success or failure, clear the last error information by
-        // calling SetLastError with 0, then call SetWindowLongPtr.  Function
-        // failure will be indicated by a return value of zero and a
-        // GetLastError result that is nonzero.
-        std2::native_last_errno({});
-        const auto rc = ::SetWindowLongPtr(hwnd, GWLP_USERDATA,
-                                           reinterpret_cast<LONG_PTR>(window));
-        G3CHECK(rc != 0 || !std2::system_last_error_code());
-      }
+        G3DCHECK(!!hwnd);
+        self->hwnd_ = hwnd;
+      } break;
 
-      G3DCHECK(!!hwnd);
-      window->hwnd_ = hwnd;
-    } else {
-      window = reinterpret_cast<TDerivedWindow *>(
-          ::GetWindowLongPtr(hwnd, GWLP_USERDATA));
+      // Clear the pointer to stop calling the self once WM_NCDESTROY is
+      // received.
+      case WM_NCDESTROY:
+        SetWindowUserData(hwnd, nullptr);
+        break;
+
+      default: {
+        self = reinterpret_cast<TDerivedWindow *>(
+            ::GetWindowLongPtr(hwnd, GWLP_USERDATA));
+      } break;
     }
 
-    return window ? window->HandleMessage(message, wParam, lParam)
-                  : ::DefWindowProc(hwnd, message, wParam, lParam);
+    return self ? self->HandleMessage(message, wParam, lParam)
+                : ::DefWindowProc(hwnd, message, wParam, lParam);
+  }
+
+  /**
+   * @brief Set window user data.
+   * @param hwnd Window.
+   * @param user_data Data to set.
+   * @return void.
+   */
+  static void SetWindowUserData(_In_ HWND hwnd,
+                                _In_opt_ void *user_data) noexcept {
+    G3DCHECK(!!hwnd);
+
+    base::win::error_handling::ScopedThreadLastError last_error_restorer;
+
+    // To determine success or failure, clear the last error information
+    // by calling SetLastError with 0, then call SetWindowLongPtr.
+    base::std2::native_last_errno({});
+
+    const LONG_PTR rc{::SetWindowLongPtr(
+        hwnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(user_data))};
+
+    // Function failure will be indicated by a return value of zero and a
+    // GetLastError result that is nonzero.
+    G3CHECK(rc != 0 || !base::std2::system_last_error_code());
   }
 
   /**
