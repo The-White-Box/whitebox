@@ -12,48 +12,31 @@
 
 namespace wb::hal::hid {
 
-/**
- * @brief Register raw input device.
- * @param device Device.
- * @return Error code.
- */
 [[nodiscard]] WB_HAL_HID_DRIVER_API std::error_code RegisterRawInputDevices(
     _In_ const RAWINPUTDEVICE& device) noexcept {
   return base::win::get_error(
-      ::RegisterRawInputDevices(&device, 1, sizeof(device)));
+      ::RegisterRawInputDevices(&device, 1U, sizeof(device)));
 }
 
-/**
- * @brief Handles unhandled raw input.
- * @param header_size Header size.
- * @return 0 on success, -1 on failure.
- */
 [[nodiscard]] WB_HAL_HID_DRIVER_API LRESULT
-HandleNonHandledRawInput(unsigned header_size) noexcept {
+HandleNonHandledRawInput(_In_ unsigned header_size) noexcept {
   // First two parameters are ignored.
   return ::DefRawInputProc(nullptr, 0, header_size);
 }
 
-/**
- * @brief Read raw input.
- * @param source_input Input source.
- * @param read_input Input.
- * @return true on success, false on failure.
- */
-[[nodiscard]] WB_HAL_HID_DRIVER_API bool ReadRawInput(
+[[nodiscard]] WB_HAL_HID_DRIVER_API std::uint32_t ReadRawInput(
     _In_ HRAWINPUT source_input, RAWINPUT& read_input) noexcept {
   G3DCHECK(!!source_input);
 
-  constexpr unsigned kRawInputError{static_cast<unsigned>(-1)};
+  unsigned copied_bytes_count{sizeof(read_input)};
+  const std::uint32_t copied_bytes{
+      ::GetRawInputData(source_input, RID_INPUT, &read_input,
+                        &copied_bytes_count, sizeof(read_input.header))};
 
-  unsigned read_size{sizeof(read_input)};
-  const unsigned error_code{::GetRawInputData(source_input, RID_INPUT,
-                                              &read_input, &read_size,
-                                              sizeof(read_input.header))};
+  G3DCHECK(copied_bytes != 0);
+  G3DCHECK(copied_bytes != static_cast<decltype(copied_bytes)>(-1));
 
-  G3DCHECK(error_code != kRawInputError);
-
-  return error_code != kRawInputError;
+  return copied_bytes;
 }
 
 }  // namespace wb::hal::hid

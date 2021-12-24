@@ -34,15 +34,15 @@ namespace wb::hal::hid {
  * @return 0 on success, -1 on failure.
  */
 [[nodiscard]] WB_HAL_HID_DRIVER_API LRESULT
-HandleNonHandledRawInput(unsigned header_size) noexcept;
+HandleNonHandledRawInput(_In_ unsigned header_size) noexcept;
 
 /**
  * @brief Read raw input.
  * @param source_input Input source.
  * @param read_input Input.
- * @return true on success, false on failure.
+ * @return Copied into |read_input| bytes.  0 on error.
  */
-[[nodiscard]] WB_HAL_HID_DRIVER_API bool ReadRawInput(
+[[nodiscard]] WB_HAL_HID_DRIVER_API std::uint32_t ReadRawInput(
     _In_ HRAWINPUT source_input, RAWINPUT& read_input) noexcept;
 
 }  // namespace wb::hal::hid
