@@ -7,12 +7,12 @@
 #ifndef WB_BASE_DEPS_SDL_WINDOW_H_
 #define WB_BASE_DEPS_SDL_WINDOW_H_
 
-#include "base/macroses.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
 #include "base/deps/sdl/surface.h"
 #include "base/deps/sdl/syswm.h"
 #include "base/deps/sdl/version.h"
+#include "base/macroses.h"
 #include "base/std2/cstring_ext.h"
 
 namespace wb::sdl {
@@ -136,6 +136,11 @@ class Window {
     }
   }
 
+  /**
+   * @brief Get platform-specific window manager information structure.
+   * @param platform_info Platform-specific window information.
+   * @return Error if any.
+   */
   [[nodiscard]] error GetPlatformInfo(
       ::SDL_SysWMinfo &platform_info) const noexcept {
     G3DCHECK(!!window_);
@@ -147,12 +152,23 @@ class Window {
         ::SDL_GetWindowWMInfo(window_, &platform_info));
   }
 
+  /**
+   * @brief Set icon for window.
+   * @param icon New icon.
+   * @return void.
+   */
   void SetIcon(const Surface &icon) const noexcept {
     G3DCHECK(!!window_);
 
     ::SDL_SetWindowIcon(window_, icon.surface_);
   }
 
+  /**
+   * @brief Set minimum window sizes.
+   * @param min_width Minimum window width.
+   * @param min_height Minimum window height.
+   * @return void.
+   */
   void SetMinimumSizes(int min_width, int min_height) const noexcept {
     G3DCHECK(!!window_);
 
@@ -173,7 +189,7 @@ class Window {
   std::array<std::byte, sizeof(char *) - sizeof(flags_)> pad_;
 
   /**
-   * Creates SDL window.
+   * Create SDL window.
    * @param window SDL window.
    * @param flags WindowFlags.
    */
