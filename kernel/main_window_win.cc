@@ -63,7 +63,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
         mouse_.swap(*mouse);
       }
     else {
-      wb::ui::ExitFatalDialog(
+      ui::ExitFatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(mouse_result),
           intl::l18n(intl_, "Please, check mouse is connected and working."),
@@ -82,7 +82,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
     if (auto *keyboard = std2::get_result(keyboard_result))
       WB_ATTRIBUTE_LIKELY { keyboard_.swap(*keyboard); }
     else {
-      wb::ui::ExitFatalDialog(
+      ui::ExitFatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(keyboard_result),
           intl::l18n(intl_, "Please, check keyboard is connected and working."),
@@ -221,20 +221,22 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     constexpr float kFpsMaxCap{200};
 
     if (fps <= kFpsMaxCap) {
-      auto scoped_window_paint = wb::ui::win::ScopedWindowPaint::New(window);
+      auto scoped_window_paint = ui::win::ScopedWindowPaint::New(window);
 
       if (const auto *painter = std2::get_result(scoped_window_paint); painter)
         WB_ATTRIBUTE_LIKELY {
-          std::string message;
-          absl::StrAppend(&message, "FPS: ", std::floor(fps * 10.0F) / 10.0F,
-                          " ", input_data);
-
           RECT paint_rc{painter->PaintInfo().rcPaint};
 
-          painter->BlitPattern(paint_rc, WHITENESS);
-          painter->TextDraw(
-              message.c_str(), -1, &paint_rc,
-              DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+          if (!::IsRectEmpty(&paint_rc)) {
+            std::string message;
+            absl::StrAppend(&message, "FPS: ", std::floor(fps * 10.0F) / 10.0F,
+                            " ", input_data);
+
+            painter->BlitPattern(paint_rc, WHITENESS);
+            painter->TextDraw(
+                message.c_str(), -1, &paint_rc,
+                DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+          }
         }
     } else {
       std::this_thread::sleep_for(4ms);
@@ -291,8 +293,7 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
   }
 }
 
-[[nodiscard]] wb::ui::FatalDialogContext
-MainWindow::MakeFatalContext() noexcept {
+[[nodiscard]] ui::FatalDialogContext MainWindow::MakeFatalContext() noexcept {
   return {intl_, intl_.Layout(), icon_id_, icon_small_id_};
 }
 
