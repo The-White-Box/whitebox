@@ -221,9 +221,9 @@ class WB_WHITEBOX_UI_API BaseWindow {
       _In_ const base::un<TDerivedWindow> &window) noexcept {
     static_assert(std::is_base_of_v<BaseWindow, TDerivedWindow>);
 
+    const auto class_name = TDerivedWindow::ClassName(definition.name);
     auto new_scoped_window_class =
-        CreateWindowClass(definition, class_style,
-                          TDerivedWindow::ClassName(definition.name).c_str(),
+        CreateWindowClass(definition, class_style, class_name.c_str(),
                           &WindowMessageHandler<TDerivedWindow>);
 
     G3DCHECK(!!window);
