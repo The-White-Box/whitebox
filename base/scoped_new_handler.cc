@@ -14,7 +14,7 @@ namespace wb::base::internals {
 /**
  * @brief Mutex to serialize concurrent accesses to global_scoped_new_handler.
  */
-absl::Mutex global_scoped_new_handler_mutex;
+ABSL_CONST_INIT absl::Mutex global_scoped_new_handler_mutex{absl::kConstInit};
 
 /**
  * @brief Global new failure handler.

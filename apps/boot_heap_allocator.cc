@@ -39,8 +39,8 @@ namespace wb::apps {
 void DefaultMiMallocOutput(const char* msg,
                            [[maybe_unused]] void* arg) noexcept {
   if (msg && msg[0] && !msg[1] && msg[0] != '\n') WB_ATTRIBUTE_LIKELY {
-      const bool is_warning_or_error{!!std::strstr(msg, "warning:") ||
-                                     !!std::strstr(msg, "error:")};
+      const bool is_warning_or_error{std::strstr(msg, "warning:") != nullptr ||
+                                     std::strstr(msg, "error:") != nullptr};
 
       if (is_warning_or_error) {
         G3LOG(WARNING) << "Mi-malloc warning: " << msg;

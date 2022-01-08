@@ -8,9 +8,9 @@
 
 #include <string>
 
+#include "base/intl/l18n.h"
 #include "base/scoped_app_instance_manager.h"
 #include "build/static_settings_config.h"
-#include "whitebox-ui/fatal_dialog.h"
 
 namespace {
 
@@ -28,9 +28,9 @@ namespace {
 
 namespace wb::kernel {
 
-[[nodiscard]] sdl::result<MainWindow> MainWindow::New(
-    const char* title, int width, int height,
-    sdl::WindowFlags window_flags) noexcept {
+sdl::result<MainWindow> MainWindow::New(
+    const char* title, int width, int height, sdl::WindowFlags window_flags,
+    const base::intl::LookupWithFallback& intl) noexcept {
   using namespace sdl;
 
   auto sdl_window =
@@ -64,19 +64,17 @@ namespace wb::kernel {
           scoped_app_instance_manager.GetStatus();
       if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
         WB_ATTRIBUTE_UNLIKELY {
-          wb::ui::ExitFatalDialog(
-              intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
-              std2::posix_last_error_code(EEXIST),
-              intl::l18n_fmt(boot_manager_args.intl,
-                             "Sorry, only single '{0}' can run at a time.",
-                             boot_manager_args.app_description),
-              MakeFatalContext(boot_manager_args),
+          return sdl::error::Failure(
+              EEXIST,
               intl::l18n_fmt(
-                  boot_manager_args.intl,
+                  intl,
                   "Can't run multiple copies of '{0}' at once.  Please, "
                   "stop existing copy or return to the game.",
-                  boot_manager_args.app_description));
+                  title));
         }
+
+      // Ok, it is likely single instance, show window to the client.
+      window->Toggle(true);
 
       return MainWindow{std::move(*window)};
     }

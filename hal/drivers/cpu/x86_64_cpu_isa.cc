@@ -10,8 +10,6 @@
 
 #if defined(WB_COMPILER_MSVC)
 #include <intrin.h>
-#elif defined(WB_COMPILER_CLANG) || defined(WB_COMPILER_GCC)
-#include <cpuid.h>
 #endif
 
 #include <vector>
@@ -32,7 +30,7 @@ namespace {
  */
 [[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::array<std::int32_t, 4> cpuid(
     std::int32_t function_id) noexcept {
-  std::array<std::int32_t, 4> info;
+  std::array<std::int32_t, 4> info = {};
 
 #if defined(WB_COMPILER_CLANG) || defined(WB_COMPILER_GCC)
 #ifdef WB_ARCH_CPU_X86_64
@@ -64,7 +62,7 @@ namespace {
  */
 [[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::array<std::int32_t, 4> cpuidex(
     std::int32_t function_id, std::int32_t subfunction_id) noexcept {
-  std::array<std::int32_t, 4> info;
+  std::array<std::int32_t, 4> info = {};
 
 #if defined(WB_COMPILER_CLANG) || defined(WB_COMPILER_GCC)
 #ifdef WB_ARCH_CPU_X86_64
@@ -130,7 +128,8 @@ void TrimSpaces(char (&in)[0x40], char (&out)[0x40]) noexcept {
 #ifdef WB_OS_WIN
   strncpy_s(out, &in[0] + i, end + 1 - in + i);
 #else
-  strncpy(out, &in[0] + i, end + 1 - in + i);
+  const size_t size{static_cast<size_t>(end + 1 - in) + i};
+  strncpy(out, &in[0] + i, size);
   out[std::size(out) - 1] = '\0';
 #endif  // WB_OS_WIN
 }
@@ -212,7 +211,7 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
 
   // Calling cpuid with 0x80000000 as the function_id argument gets the
   // number of the highest valid extended ID.
-  info = cpuid(0x80000000);  //-V112
+  info = cpuid(static_cast<std::int32_t>(0x80000000U));  //-V112
   const int32_t ext_func_ids_count{info[0]};
 
   std::vector<std::array<std::int32_t, 4>> ext_data;
@@ -227,13 +226,15 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
   }
 
   // Load bitset with flags for function 0x80000001.
-  if (ext_func_ids_count >= 0x80000001) {
+  if (static_cast<unsigned>(ext_func_ids_count) >= 0x80000001U) {
     f_81_ecx_ = static_cast<std::uint32_t>(ext_data[1][2]);
     f_81_edx_ = static_cast<std::uint32_t>(ext_data[1][3]);
   }
 
   // Interpret cpu brand string if reported.
-  if (ext_func_ids_count >= 0x80000004) GetBrand(ext_data, brand_);
+  if (static_cast<unsigned>(ext_func_ids_count) >= 0x80000004U) {
+    GetBrand(ext_data, brand_);
+  }
 }
 
 }  // namespace wb::hal::cpus::x86_64

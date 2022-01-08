@@ -10,6 +10,7 @@
 #include <utility>  // std::move
 
 #include "base/deps/sdl/window.h"
+#include "base/intl/lookup_with_fallback.h"
 #include "base/macroses.h"
 
 namespace wb::kernel {
@@ -25,11 +26,12 @@ class MainWindow {
    * @param width Width.
    * @param height Height.
    * @param window_flags Window flags.
+   * @param intl Localization lookup.
    * @return Main window.
    */
   [[nodiscard]] static sdl::result<MainWindow> New(
-      const char* title, int width, int height,
-      sdl::WindowFlags window_flags) noexcept;
+      const char* title, int width, int height, sdl::WindowFlags window_flags,
+      const base::intl::LookupWithFallback& intl) noexcept;
 
   /**
    * Move constructor.

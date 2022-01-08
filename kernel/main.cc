@@ -139,7 +139,10 @@ namespace {
   using namespace wb::sdl;
 
   // TODO(dimhotepus): kAllowHighDpi handling at least on Mac.
-  return WindowFlags::kResizable | WindowFlags::kAllowHighDpi
+  // Hidden by default, as we check either it is second instance or not and show
+  // only if not.
+  return WindowFlags::kResizable | WindowFlags::kHidden |
+         WindowFlags::kAllowHighDpi
 #if defined(WB_OS_LINUX)
          | WindowFlags::kUseVulkan
 #elif defined(WB_OS_MACOS)
@@ -283,7 +286,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   const auto window_result = wb::kernel::MainWindow::New(
       kernel_args.app_description, command_line_flags.main_window_width,
-      command_line_flags.main_window_height, window_flags);
+      command_line_flags.main_window_height, window_flags, intl);
   if (const auto* window = get_result(window_result)) WB_ATTRIBUTE_LIKELY {
       G3LOG(INFO) << "SDL graphics context: "
                   << GetWindowGraphicsContext(window_flags) << ".";
@@ -305,14 +308,18 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       return DispatchMessages();
     }
 
+  const auto* error = get_error(window_result);
+  G3DCHECK(!!error);
+
   return wb::ui::FatalDialog(
-      intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
+      intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
+      error->code,
       intl::l18n_fmt(intl,
                      "Please, check you installed '{0}' libraries/drivers.",
                      GetWindowGraphicsContext(window_flags)),
       MakeFatalContext(kernel_args),
-      intl::l18n_fmt(
-          intl, "SDL window create failed with '{0}' context.\n\n{1}.",
-          GetWindowGraphicsContext(window_flags), *get_error(window_result)));
+      intl::l18n_fmt(intl,
+                     "SDL window create failed with '{0}' context.\n\n{1}",
+                     GetWindowGraphicsContext(window_flags), *error));
 #endif
 }

@@ -156,7 +156,7 @@ class ScopedCursor {
   ScopedCursor(ScopedCursor &&c) noexcept
       : old_cursor_(std::move(c.old_cursor_)),
         new_cursor_{std::move(c.new_cursor_)} {
-    c.old_cursor_ = result<Cursor>{error::Failure("Empty")};
+    c.old_cursor_ = result<Cursor>{error::Failure(EXIT_FAILURE, "Empty")};
     c.new_cursor_ = Cursor::Empty();
   }
   ScopedCursor &operator=(ScopedCursor &&c) noexcept = delete;

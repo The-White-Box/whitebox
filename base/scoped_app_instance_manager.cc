@@ -80,7 +80,8 @@ CreateProcessMutex(const char* app_description) noexcept {
   return ScopedSharedMemoryObject::New(
       MakeMutexName(app_description),
       ScopedSharedMemoryObjectFlags::kCreate |
-          ScopedSharedMemoryObjectFlags::kExclusive,
+          ScopedSharedMemoryObjectFlags::kExclusive |
+          ScopedSharedMemoryObjectFlags::kReadWrite,
       ScopedAccessModeFlags::kOwnerRead);
 }
 
@@ -127,8 +128,7 @@ ScopedAppInstanceManager::ScopedAppInstanceManager(
           nullptr, MakeMutexName(app_description).c_str(),
           win::ScopedMutexCreationFlag::kNone,
           win::security::DefaultMutexAccessRights)},
-      status_{CheckStatus(app_instance_mutex_)} {
-}
+      status_{CheckStatus(app_instance_mutex_)} {}
 #elif defined(WB_OS_POSIX)
     : app_instance_mutex_{CreateProcessMutex(app_description)},
       status_{CheckStatus(app_instance_mutex_)} {

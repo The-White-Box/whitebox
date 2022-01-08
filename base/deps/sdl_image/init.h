@@ -90,7 +90,7 @@ class SDLImageInit {
   SDLImageInit(SDLImageInit &&s) noexcept
       : actual_flags_{s.actual_flags_}, init_rc_{s.init_rc_} {
     s.actual_flags_ = base::underlying_cast(SDLImageInitType::kNone);
-    s.init_rc_ = sdl::error::Failure("Moved");
+    s.init_rc_ = sdl::error::Failure(EINVAL, "Moved");
   }
   SDLImageInit &operator=(SDLImageInit &&) noexcept = delete;
 
@@ -135,7 +135,8 @@ class SDLImageInit {
       return sdl::error::Success();
     }
 
-    return sdl::error::Failure("Unable to initialize requested image types.");
+    return sdl::error::Failure(EINVAL,
+                               "Unable to initialize requested image types.");
   }
 
   /**

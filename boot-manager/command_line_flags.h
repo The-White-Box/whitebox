@@ -68,7 +68,7 @@ struct CommandLineFlags {
   bool should_dump_heap_allocator_statistics_on_exit;
 
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(uint32_t) - sizeof(insecure_allow_unsigned_module_target) -
+      pad_[sizeof(char*) - sizeof(insecure_allow_unsigned_module_target) -
            sizeof(should_dump_heap_allocator_statistics_on_exit)] = {};
 };
 

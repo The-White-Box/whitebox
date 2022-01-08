@@ -166,7 +166,11 @@ class CpuIsa final {
     char vendor_[0x10], brand_[0x40];
     bool is_intel_, is_amd_;
 
+#ifdef WB_COMPILER_MSVC
     WB_ATTRIBUTE_UNUSED_FIELD std::array<std::byte, 2> pad_;
+#elif defined(WB_COMPILER_CLANG) || defined(WB_COMPILER_GCC)
+    WB_ATTRIBUTE_UNUSED_FIELD std::array<std::byte, 6> pad_;
+#endif
 
     std::bitset<32> f_1_ecx_;  //-V112
     std::bitset<32> f_1_edx_;

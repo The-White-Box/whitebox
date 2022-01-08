@@ -13,8 +13,8 @@
 #include <climits>
 #include <cstddef>  // byte.
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/posix/system_error_ext.h"
 #include "base/std2/system_error_ext.h"
 
@@ -139,6 +139,47 @@ enum class ScopedAccessModeFlags : mode_t {
 }
 
 /**
+ * Memory map protection flags.
+ */
+enum class MemoryMapProtectionFlags : int {
+  /* Page can not be accessed.  */
+  kNone = PROT_NONE,
+  /* Page can be read.  */
+  kRead = PROT_READ,
+  /* Page can be written.  */
+  kWrite = PROT_WRITE,
+  /* Page can be executed.  */
+  kExecute = PROT_EXEC,
+
+  /* Extend change to start of growsdown vma (mprotect only).  */
+  kGrowsDown = PROT_GROWSDOWN,
+  /* Extend change to start of growsup vma (mprotect only).  */
+  kGrowsUp = PROT_GROWSUP
+};
+
+/**
+ * Operator|.
+ * @param left Left.
+ * @param right Right.
+ * @return left | right.
+ */
+[[nodiscard]] constexpr MemoryMapProtectionFlags operator|(
+    MemoryMapProtectionFlags left, MemoryMapProtectionFlags right) noexcept {
+  return static_cast<MemoryMapProtectionFlags>(base::underlying_cast(left) |
+                                               base::underlying_cast(right));
+}
+
+/**
+ * Memory map share flags.
+ */
+enum class MemoryMapShareFlags : int {
+  /* Share changes.  */
+  kShared = MAP_SHARED,
+  /* Changes are private.  */
+  kPrivate = MAP_PRIVATE
+};
+
+/**
  * Scoped shared memory object.
  */
 class ScopedSharedMemoryObject {
@@ -202,6 +243,39 @@ class ScopedSharedMemoryObject {
   }
 
   /**
+   * Truncate shared memory object to size.
+   * @param size New size of shared memory object.
+   * @return error,
+   */
+  [[nodiscard]] std::error_code TruncateToSize(off_t size) const noexcept {
+    G3DCHECK(descriptor_ >= 0);
+
+    return get_error(::ftruncate(descriptor_, size));
+  }
+
+  /**
+   * Allow to map shared memory.
+   * @tparam T Type of mapped memory.
+   * @param protection_flags Memory region protection flags.
+   * @param share_flags Memory region sharing flags.
+   * @param offset Offset.
+   * @return Either mapped memory or error.
+   */
+  template <typename T>
+  [[nodiscard]] std2::result<T *> MapMemory(
+      MemoryMapProtectionFlags protection_flags,
+      MemoryMapShareFlags share_flags, off_t offset = 0) const noexcept {
+    G3DCHECK(descriptor_ >= 0);
+
+    T *memory{reinterpret_cast<T *>(
+        ::mmap(nullptr, sizeof(T), underlying_cast(protection_flags),
+               underlying_cast(share_flags), descriptor_, offset))};
+    return memory != MAP_FAILED
+               ? std2::result<T *>{memory}
+               : std2::result<T *>{wb::base::std2::system_last_error_code()};
+  }
+
+  /**
    * Get native handle.
    * @return Native handle.
    */
@@ -220,8 +294,7 @@ class ScopedSharedMemoryObject {
   native_handle_type descriptor_;
 
   WB_ATTRIBUTE_UNUSED_FIELD
-      std::array<std::byte, sizeof(char *) - sizeof(descriptor_)>
-          pad_;
+  std::array<std::byte, sizeof(char *) - sizeof(descriptor_)> pad_;
 
   /**
    * Create shared memory object.

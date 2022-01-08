@@ -7,14 +7,16 @@
 #ifndef WB_BASE_DEPS_SDL_BASE_H_
 #define WB_BASE_DEPS_SDL_BASE_H_
 
+#include <cerrno>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <variant>
 
-#include "base/macroses.h"
 #include "base/deps/fmt/format.h"
 #include "base/deps/sdl/sdl.h"
+#include "base/macroses.h"
+#include "base/std2/system_error_ext.h"
 
 namespace wb::sdl {
 
@@ -28,7 +30,11 @@ struct error {
    * @return SDL error.
    */
   [[nodiscard]] static error FromReturnCode(int rc) noexcept {
-    return error{.message = rc == 0 ? nullptr : ::SDL_GetError()};
+    std::string message{rc == 0 ? "" : ::SDL_GetError()};
+    std::error_code code{!message.empty()
+                             ? base::std2::posix_last_error_code(rc)
+                             : base::std2::ok_code};
+    return error{.message = std::move(message), .code = code};
   }
 
   /**
@@ -37,36 +43,49 @@ struct error {
    * @return SDL error.
    */
   [[nodiscard]] static error FromReturnBool(SDL_bool rc) noexcept {
-    return error{.message = rc == SDL_TRUE ? nullptr : ::SDL_GetError()};
+    std::string message{rc == SDL_TRUE ? "" : ::SDL_GetError()};
+    std::error_code code{!message.empty()
+                             ? base::std2::posix_last_error_code(EINVAL)
+                             : base::std2::ok_code};
+    return error{.message = std::move(message), .code = code};
   }
 
   /**
    * @brief Creates successful SDL result.
    * @return SDL error.
    */
-  static error Success() noexcept { return error{}; }
+  [[nodiscard]] static error Success() noexcept { return error{}; }
 
   /**
    * @brief Creates failed SDL result from last SDL error.  If no last error,
    * synthetic one is returned.
+   * @param rc Return code.
+   * @param message Message.
    * @return SDL error.
    */
-  static error Failure(const char* message = ::SDL_GetError()) noexcept {
-    return error{.message = message && message[0] ? message
-                                                  : "N/A <missed SDL error>"};
+  [[nodiscard]] static error Failure(
+      int rc = EINVAL, std::string_view message = ::SDL_GetError()) noexcept {
+    return error{.message = !message.empty() ? std::string{message}
+                                             : "N/A <missed SDL error>",
+                 .code = base::std2::posix_last_error_code(rc)};
   }
 
   /**
    * @brief Error message.
    */
-  const char* message;
+  std::string message;
+
+  /**
+   * @brief Error code.
+   */
+  std::error_code code;
 
   /**
    * @brief Is succeeded?
    * @return true if not error, false otherwise.
    */
   [[nodiscard]] constexpr bool is_succeeded() const noexcept {
-    return message == nullptr || !message[0];
+    return message.empty();
   }
 
   /**

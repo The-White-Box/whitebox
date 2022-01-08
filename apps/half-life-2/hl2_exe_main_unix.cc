@@ -63,7 +63,7 @@ int BootManagerStartup(int argc, char** argv) noexcept {
           [&](std::string* out, const wb::apps::CpuFeature& feature_support) {
             absl::StrAppend(
                 out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
-                                    feature_support.is_supported ? "✓" : "❌"));
+                                    feature_support.is_supported ? "✅" : "❌"));
           })};
       return wb::ui::FatalDialog(
           intl::l18n_fmt(l18n, "{0} - Error",
@@ -72,7 +72,7 @@ int BootManagerStartup(int argc, char** argv) noexcept {
           intl::l18n(l18n,
                      "Sorry, your CPU has missed some required features to run "
                      "the game."),
-          MakeFatalContext(l18n),
+          wb::ui::FatalDialogContext{l18n.Layout()},
           intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
                          wb::apps::QueryCpuBrand(),
                          cpu_features_support_state));
@@ -140,7 +140,7 @@ int BootManagerStartup(int argc, char** argv) noexcept {
           // Handle new allocation failure.
           ScopedNewHandler scoped_new_handler{
               DefaultNewFailureHandler, attempts_to_retry_allocate_memory};
-          // Set it as global handler.  C++ API is too strict here and we can't
+          // Set it as global handler.  C++ API is too strict here, and we can't
           // pass state into void(void), so need global variable to access state
           // in handler.
           InstallGlobalScopedNewHandler(std::move(scoped_new_handler));

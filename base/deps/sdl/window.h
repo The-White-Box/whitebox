@@ -174,6 +174,20 @@ class Window {
 
     ::SDL_SetWindowMinimumSize(window_, min_width, min_height);
   }
+  
+  /**
+   * Toggles window visibility.
+   * @param should_show Show window or not.
+   */
+  void Toggle(bool should_show) const noexcept {
+    G3DCHECK(!!window_);
+    
+    if (should_show) {
+      ::SDL_ShowWindow(window_);
+    } else {
+      ::SDL_HideWindow(window_);
+    }
+  }
 
  private:
   /**
