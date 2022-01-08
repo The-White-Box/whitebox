@@ -200,7 +200,7 @@ class ScopedProcessLocale {
    * Explicit padding.
    */
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(new_locale_) -  // NOLINT(bugprone-sizeof-container)
+      pad_[sizeof(new_locale_) -  // NOLINT(bugprone-sizeof-container) //-V1055
            sizeof(category_)]{};  //-V730_NOINIT
 
   /**

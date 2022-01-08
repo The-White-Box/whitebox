@@ -30,7 +30,7 @@ namespace {
  */
 [[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::array<std::int32_t, 4> cpuid(
     std::int32_t function_id) noexcept {
-  std::array<std::int32_t, 4> info = {};
+  std::array<std::int32_t, 4> info = {};  //-V112
 
 #if defined(WB_COMPILER_CLANG) || defined(WB_COMPILER_GCC)
 #ifdef WB_ARCH_CPU_X86_64
@@ -98,7 +98,8 @@ void GetVendor(const std::array<std::int32_t, 4> &in,
 
   std::memcpy(vendor, &in[1], sizeof(in[1]));
   std::memcpy(vendor + sizeof(in[1]), &in[3], sizeof(in[3]));
-  std::memcpy(vendor + sizeof(in[1]) + sizeof(in[3]), &in[2], sizeof(in[2]));
+  std::memcpy(vendor + sizeof(in[1]) + sizeof(in[3]), &in[2],  //-V119
+              sizeof(in[2]));
 }
 
 /**
@@ -151,7 +152,7 @@ void GetBrand(const std::vector<std::array<std::int32_t, 4>> &in,
 
   wb::base::std2::BitwiseCopy(brand_raw, in[2]);
   std::memcpy(brand_raw + sizeof(in[2]), in[3].data(), sizeof(in[3]));
-  std::memcpy(brand_raw + sizeof(in[2]) + sizeof(in[3]), in[4].data(),
+  std::memcpy(brand_raw + sizeof(in[2]) + sizeof(in[3]), in[4].data(),  //-V119
               sizeof(in[4]));
 
   TrimSpaces(brand_raw, brand);
@@ -179,7 +180,8 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
   const int32_t func_ids_count{info[0]};
 
   std::vector<std::array<std::int32_t, 4>> data;
-  data.reserve(static_cast<std::size_t>(std::max(func_ids_count, 0)) + 1U);
+  data.reserve(static_cast<std::size_t>(std::max(func_ids_count, 0)) +  //-V201
+               1U);
 
   for (std::int32_t i{0}; i <= func_ids_count; ++i) {
     data.emplace_back(cpuidex(i, 0));
@@ -215,12 +217,13 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
   const int32_t ext_func_ids_count{info[0]};
 
   std::vector<std::array<std::int32_t, 4>> ext_data;
-  ext_data.reserve(
-      static_cast<std::size_t>(std::max(
-          ext_func_ids_count - static_cast<std::int32_t>(0x80000000), 0)) +
-      1U);
+  ext_data.reserve(static_cast<std::size_t>(  //-V201
+                       std::max(ext_func_ids_count - static_cast<std::int32_t>(
+                                                         0x80000000),  //-V112
+                                0)) +
+                   1U);
 
-  for (std::int32_t i{static_cast<std::int32_t>(0x80000000)};
+  for (std::int32_t i{static_cast<std::int32_t>(0x80000000)};  //-V112
        i <= ext_func_ids_count; ++i) {
     ext_data.emplace_back(cpuidex(i, 0));
   }

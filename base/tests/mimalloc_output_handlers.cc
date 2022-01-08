@@ -68,12 +68,12 @@ void DefaultMiMallocError(int error_no, [[maybe_unused]] void* arg) noexcept {
   }
 #endif
 
-#ifdef WB_MI_SECURE
+#if defined(NDEBUG) && defined(WB_MI_SECURE)
   if (error_no == EFAULT) {
     // Abort on serious errors in secure mode (corrupted meta-data).
     std::abort();
   }
-#endif
+#endif  // NDEBUG && WB_MI_SECURE
 
   // It as always legal to just return from the function in which case
   // allocation functions generally return NULL or ignore the condition.  The

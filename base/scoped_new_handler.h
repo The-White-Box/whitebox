@@ -92,7 +92,7 @@ class ScopedNewHandler {
    */
   std::uint32_t max_new_retries_count_;
 
-  WB_ATTRIBUTE_UNUSED_FIELD std::array<std::byte, 4> pad_;
+  WB_ATTRIBUTE_UNUSED_FIELD std::array<std::byte, 4> pad_; //-V112
 };
 
 /**

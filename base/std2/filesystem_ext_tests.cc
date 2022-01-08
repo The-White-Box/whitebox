@@ -6,6 +6,7 @@
 
 #include "filesystem_ext.h"
 //
+#include "base/deps/g3log/g3log.h"
 #include "base/macroses.h"
 //
 #include "base/deps/googletest/gtest/gtest.h"
@@ -25,20 +26,15 @@ class ScopedChangeCurrentPath {
    */
   explicit ScopedChangeCurrentPath(const std::filesystem::path &new_path)
       : rc_{}, original_current_path_{std::filesystem::current_path(rc_)} {
-    EXPECT_EQ(std::error_code{}, rc_);
+    G3CHECK(std::error_code{} == rc_);
     std::filesystem::current_path(new_path, rc_);
-    EXPECT_EQ(std::error_code{}, rc_);
+    G3CHECK(std::error_code{} == rc_);
   }
 
   ~ScopedChangeCurrentPath() noexcept {
     if (!rc_) {
-      try {
-        std::filesystem::current_path(original_current_path_, rc_);
-        EXPECT_EQ(std::error_code{}, rc_);
-      } catch (const std::exception &ex) {
-        EXPECT_FALSE(!!ex.what())
-            << "~ScopedChangeCurrentPath throws " << ex.what();
-      }
+      std::filesystem::current_path(original_current_path_, rc_);
+      G3CHECK(std::error_code{} == rc_);
     }
   }
 
