@@ -63,21 +63,6 @@ struct FatalDialogContext {
 };
 
 /**
- * @brief Shows fatal dialog and exits.
- * @param title Title.
- * @param rc Error code for technical details.
- * @param main_instruction_message Main instruction message.
- * @param context OS-specific context.
- * @param content_message Content message.
- * @return void.
- */
-[[noreturn]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD void ExitFatalDialog(
-    const std::string& title, std::optional<std::error_code> rc,
-    const std::string& main_instruction_message,
-    const FatalDialogContext& context,
-    const std::string& content_message) noexcept;
-
-/**
  * @brief Shows fatal dialog.
  * @param title Title.
  * @param rc Error code for technical details.

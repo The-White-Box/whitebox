@@ -97,18 +97,19 @@ void DumpSystemInformation(const char* app_description) noexcept {
 }
 
 /**
- * Gets executable directory.
- * @param boot_manager_args Boot manager arguments.
- * @return Executable directory.
+ * @brief Load and run kernel.
+ * @param boot_manager_args Boot manager args.
+ * @param intl Localization lookup.
+ * @return App exit code.
  */
-[[nodiscard]] std::filesystem::path GetExecutableDirectoryPath(
+int KernelStartup(
     const wb::boot_manager::BootManagerArgs& boot_manager_args) noexcept {
   using namespace wb::base;
 
   const auto app_path_result = std2::filesystem::get_executable_directory();
   if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
       const auto& intl = boot_manager_args.intl;
-      wb::ui::ExitFatalDialog(
+      return wb::ui::FatalDialog(
           intl::l18n(intl, "Boot Manager - Error"), *rc,
           intl::l18n(intl,
                      "Please, check app is installed correctly and you have "
@@ -119,27 +120,15 @@ void DumpSystemInformation(const char* app_description) noexcept {
               "Can't get current directory.  Unable to load the kernel."));
     }
 
-  return *std2::get_result(app_path_result);
-}
-
-/**
- * @brief Load and run kernel.
- * @param boot_manager_args Boot manager args.
- * @param intl Localization lookup.
- * @return App exit code.
- */
-int KernelStartup(
-    const wb::boot_manager::BootManagerArgs& boot_manager_args) noexcept {
-  using namespace wb::base;
-
-  const auto app_directory_path = GetExecutableDirectoryPath(boot_manager_args);
+  const auto* app_directory_path = std2::get_result(app_path_result);
+  G3DCHECK(!!app_directory_path);
 
 #ifdef WB_OS_WIN
   const std::string kernel_path{
-      (app_directory_path / "whitebox-kernel.dll").string()};
+      (*app_directory_path / "whitebox-kernel.dll").string()};
 #else
   const std::string kernel_path{
-      (app_directory_path /
+      (*app_directory_path /
        "libwhitebox-kernel.so." WB_PRODUCT_VERSION_INFO_STRING)
           .string()};
 #endif

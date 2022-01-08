@@ -51,19 +51,6 @@ namespace {
 
 namespace wb::ui {
 
-[[noreturn]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD void ExitFatalDialog(
-    const std::string& title, std::optional<std::error_code> rc,
-    const std::string& main_instruction_message,
-    const FatalDialogContext& context,
-    const std::string& content_message) noexcept {
-  const int exit_code{FatalDialog(title, rc, main_instruction_message, context,
-                                  content_message)};
-
-  // TODO(dimhotepus): Notify & wait other threads, so they are stopped before.
-  // NOLINTNEXTLINE(concurrency-mt-unsafe)
-  std::exit(exit_code);
-}
-
 [[nodiscard]] WB_WHITEBOX_UI_API WB_ATTRIBUTE_COLD int FatalDialog(
     const std::string& title, std::optional<std::error_code> rc,
     const std::string& main_instruction_message,
@@ -133,10 +120,10 @@ namespace wb::ui {
     G3DCHECK(!std2::get_error(result))
         << "Fatal dialog can't be shown: " << *std2::get_error(result);
 #else
-#error "Please define ExitFatalDialog UI for your platform."
+#error "Please define FatalDialog UI for your platform."
 #endif
   } catch (const std::exception& ex) {
-    G3LOG(WARNING) << "Exception caught in ExitFatalDialog: " << ex.what();
+    G3LOG(WARNING) << "Exception caught in FatalDialog: " << ex.what();
   }
 
   const auto exit_code =
