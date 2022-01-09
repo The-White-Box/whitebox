@@ -39,10 +39,11 @@
 #endif
 
 extern "C" {
+
 // Starting with the Release 302 drivers, application developers can direct the
 // Nvidia Optimus driver at runtime to use the High Performance Graphics to
-// render any application–even those applications for which there is no existing
-// application profile.
+// render any application - even those applications for which there is no
+// existing application profile.
 //
 // See
 // https://developer.download.nvidia.com/devzone/devcenter/gamegraphics/files/OptimusRenderingPolicies.pdf
@@ -55,7 +56,8 @@ WB_ATTRIBUTE_DLL_EXPORT DWORD NvOptimusEnablement = 0x00000001;
 // See
 // https://community.amd.com/t5/firepro-development/can-an-opengl-app-default-to-the-discrete-gpu-on-an-enduro/td-p/279440
 WB_ATTRIBUTE_DLL_EXPORT int AmdPowerXpressRequestHighPerformance = 0x00000001;
-}
+
+}  // extern "C"
 
 namespace {
 
