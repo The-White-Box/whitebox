@@ -67,9 +67,15 @@ struct CommandLineFlags {
    */
   bool should_dump_heap_allocator_statistics_on_exit;
 
+#if defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
-      pad_[sizeof(char*) - sizeof(insecure_allow_unsigned_module_target) -
+      pad_[sizeof(char *) - sizeof(insecure_allow_unsigned_module_target) -
            sizeof(should_dump_heap_allocator_statistics_on_exit)] = {};
+#else
+  WB_ATTRIBUTE_UNUSED_FIELD std::byte
+      pad_[sizeof(int) - sizeof(insecure_allow_unsigned_module_target) -
+           sizeof(should_dump_heap_allocator_statistics_on_exit)] = {};
+#endif
 };
 
 }  // namespace wb::boot_manager
