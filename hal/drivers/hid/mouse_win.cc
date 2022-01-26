@@ -65,7 +65,7 @@ Mouse::Mouse(_In_ HWND window) noexcept
       last_absolute_x_{kInvalidMouseAbsoluteCoordinate},
       last_absolute_y_{kInvalidMouseAbsoluteCoordinate} {
   G3DPCHECK_E(!error_code(), error_code())
-      << "Unable to register raw mouse handler.";
+     << "Unable to register raw mouse handler.";
 }
 
 /**
@@ -96,7 +96,7 @@ Mouse::~Mouse() noexcept {
     // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerrawinputdevices#remarks
     [[maybe_unused]] const auto rc = RegisterRawInputDevices(
         CreateMouseDeviceDefinition(nullptr, RIDEV_REMOVE));
-    G3DPCHECK_E(!rc, rc) << "Unable to unregister raw mouse handler.";
+    G3PCHECK_E(!rc, rc) << "Unable to unregister raw mouse handler.";
   }
 }
 

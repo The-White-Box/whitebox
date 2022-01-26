@@ -77,7 +77,7 @@ Keyboard::~Keyboard() noexcept {
     // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerrawinputdevices#remarks
     [[maybe_unused]] const auto rc = RegisterRawInputDevices(
         CreateKeyboardDeviceDefinition(nullptr, RIDEV_REMOVE));
-    G3DPCHECK_E(!rc, rc) << "Unable to unregister raw keyboard handler.";
+    G3PCHECK_E(!rc, rc) << "Unable to unregister raw keyboard handler.";
   }
 }
 
