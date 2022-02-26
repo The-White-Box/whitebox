@@ -36,12 +36,12 @@ class ScopedMmcssToggleDwm {
    * @param enable Enable MMCSS for DWM.
    * @return ScopedToggleDwmMultimediaClassScheduler.
    */
-  static std2::result<un<ScopedMmcssToggleDwm>> New(_In_ bool enable) noexcept {
-    using result = std2::result<un<ScopedMmcssToggleDwm>>;
+  static std2::result<ScopedMmcssToggleDwm> New(_In_ bool enable) noexcept {
+    using result = std2::result<ScopedMmcssToggleDwm>;
 
-    un<ScopedMmcssToggleDwm> scheduler{new ScopedMmcssToggleDwm{enable}};
-    return !scheduler->error_code() ? result{std::move(scheduler)}
-                                    : result{scheduler->error_code()};
+    ScopedMmcssToggleDwm scheduler{enable};
+    return !scheduler.error_code() ? result{std::move(scheduler)}
+                                   : result{scheduler.error_code()};
   }
 
   ScopedMmcssToggleDwm(ScopedMmcssToggleDwm&& s) noexcept
@@ -58,6 +58,13 @@ class ScopedMmcssToggleDwm {
       G3CHECK(
           !get_error(::DwmEnableMMCSS(is_dwm_mmcss_enabled_ ? FALSE : TRUE)));
     }
+  }
+
+  void swap(ScopedMmcssToggleDwm& right) noexcept {
+    using std::swap;
+
+    std::swap(error_code_, right.error_code_);
+    std::swap(is_dwm_mmcss_enabled_, right.is_dwm_mmcss_enabled_);
   }
 
  private:
@@ -90,6 +97,17 @@ class ScopedMmcssToggleDwm {
     return error_code_;
   }
 };
+
+/**
+ * @brief Swap implementation.
+ * @param l Left.
+ * @param r Right.
+ * @return void.
+ */
+inline void swap(ScopedMmcssToggleDwm& l,
+                 ScopedMmcssToggleDwm& r) noexcept(noexcept(l.swap(r))) {
+  l.swap(r);
+}
 
 }  // namespace wb::base::win::mmcss
 

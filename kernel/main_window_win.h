@@ -12,6 +12,7 @@
 #include <array>
 #include <cstddef>  // std::byte
 #include <memory>
+#include <optional>
 
 #include "base/intl/lookup.h"
 #include "base/macroses.h"
@@ -95,7 +96,7 @@ class MainWindow : public wb::ui::win::BaseWindow {
     std::swap(full_screen_window_toggler_, w.full_screen_window_toggler_);
     std::swap(accessibility_shortcut_keys_toggler_,
               w.accessibility_shortcut_keys_toggler_);
-    std::swap(scoped_mmcss_toggle_dwm_, w.scoped_mmcss_toggle_dwm_);
+    scoped_mmcss_toggle_dwm_.swap(w.scoped_mmcss_toggle_dwm_);
     // intl_ = w.intl_;
     std::swap(is_window_active_, w.is_window_active_);
     return *this;
@@ -135,7 +136,7 @@ class MainWindow : public wb::ui::win::BaseWindow {
    * @brief Display Window Manager runs using Multimedia Class Schedule Service
    * (MMCSS) scheduling to speed up window composition.
    */
-  base::un<base::win::mmcss::ScopedMmcssToggleDwm> scoped_mmcss_toggle_dwm_;
+  std::optional<base::win::mmcss::ScopedMmcssToggleDwm> scoped_mmcss_toggle_dwm_;
   /**
    * @brief Localization service.
    */

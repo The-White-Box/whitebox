@@ -27,10 +27,10 @@ namespace wb::kernel {
 LRESULT MainWindow::HandleMessage(_In_ UINT message,
                                   _In_ [[maybe_unused]] WPARAM wParam,
                                   _In_ LPARAM lParam) noexcept {
-  // Order desc by frequency.
+  // Descending order by usage frequency.
   switch (message) {
-    HANDLE_MSG(NativeHandle(), WM_INPUT, OnInput);
     HANDLE_MSG(NativeHandle(), WM_PAINT, OnPaint);
+    HANDLE_MSG(NativeHandle(), WM_INPUT, OnInput);
     HANDLE_MSG(NativeHandle(), WM_ACTIVATEAPP, OnActivateApp);
     HANDLE_MSG(NativeHandle(), WM_GETMINMAXINFO, OnGetWindowSizeBounds);
     HANDLE_MSG(NativeHandle(), WM_CREATE, OnWindowCreate);
@@ -279,7 +279,9 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     auto scoped_toggle_dwm_mmcs_result =
         win::mmcss::ScopedMmcssToggleDwm::New(true);
     if (auto *scheduler = std2::get_result(scoped_toggle_dwm_mmcs_result)) {
-      scoped_mmcss_toggle_dwm_.swap(*scheduler);
+      auto new_scheduler =
+          std::optional<win::mmcss::ScopedMmcssToggleDwm>{std::move(*scheduler)};
+      scoped_mmcss_toggle_dwm_.swap(new_scheduler);
     } else {
       const auto *rc = std2::get_error(scoped_toggle_dwm_mmcs_result);
       G3DCHECK(!!rc);
