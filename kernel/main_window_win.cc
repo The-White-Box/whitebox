@@ -63,7 +63,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
         mouse_.swap(*mouse);
       }
     else {
-      (void)ui::FatalDialog(
+      return !ui::FatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(mouse_result),
           intl::l18n(intl_, "Please, check mouse is connected and working."),
@@ -73,7 +73,6 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
               "Unable to register mouse as <A "
               "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
               "about-raw-input\">Raw Input</A> device."));
-      return false;
     }
   }
 
@@ -83,7 +82,7 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
     if (auto *keyboard = std2::get_result(keyboard_result))
       WB_ATTRIBUTE_LIKELY { keyboard_.swap(*keyboard); }
     else {
-      (void)ui::FatalDialog(
+      return !ui::FatalDialog(
           intl::l18n(intl_, "Whitebox Kernel - Error"),
           std::get<std::error_code>(keyboard_result),
           intl::l18n(intl_, "Please, check keyboard is connected and working."),
@@ -93,7 +92,6 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
               "Unable to register keyboard as <A "
               "HREF=\"https://docs.microsoft.com/en-us/windows/win32/inputdev/"
               "about-raw-input\">Raw Input</A> device."));
-      return false;
     }
   }
 
