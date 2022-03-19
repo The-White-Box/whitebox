@@ -43,7 +43,7 @@ wb_define_strings_option(WB_CLANG_ENABLE_LTO
   "If enabled, use Link Time Optimization for Release builds."
   "-flto=thin" "-flto" "-flto=full" "")
 
-wb_define_strings_option(WB_CLANG_LANGUAGE_VERSION
+wb_define_strings_option(WB_CLANG_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via Clang."
   "c++20" "c++17")
 
@@ -67,7 +67,7 @@ wb_define_strings_option(WB_CLANG_STACK_PROTECTOR_LEVEL
 function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_CLANG_LANGUAGE_VERSION})
+  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_CLANG_CXX_LANGUAGE_VERSION})
 
   target_compile_options(${THE_TARGET}
     PRIVATE
@@ -358,7 +358,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       ### -Wvector-operation-performance
 
       # Build in the requested version of C++.
-      -std=${WB_CLANG_LANGUAGE_VERSION}
+      -std=${WB_CLANG_CXX_LANGUAGE_VERSION}
 
       ## Debug configuration
       $<$<CONFIG:DEBUG>:

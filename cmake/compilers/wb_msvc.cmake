@@ -38,7 +38,7 @@ wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
 
 wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
-  "c++latest" "c++17")
+  "c++20" "c++17" "c++latest")
 
 wb_define_strings_option(WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS
   "Used to enable and disable the run-time error checks feature in DEBUG, in conjunction with the runtime_checks pragma."
@@ -279,7 +279,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
       # Enables recommended Security Development Lifecycle (SDL) checks.
       $<$<BOOL:${WB_MSVC_ENABLE_ADDITIONAL_SECURITY_CHECKS}>:/sdl>
-      /std:${WB_MSVC_CXX_LANGUAGE_VERSION} # Build in the requested version of C++
+      # Build in the requested version of C++
+      /std:${WB_MSVC_CXX_LANGUAGE_VERSION}
 
       # Set source character set and the execution character set as UTF-8.
       /utf-8

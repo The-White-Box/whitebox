@@ -40,7 +40,7 @@ wb_define_strings_option(WB_GCC_LINKER_TYPE
     "Replaces default ld linker with one from predefined set. Note lld can cause LTO doesn't work."
     "gold" "ld" "lld")
 
-wb_define_strings_option(WB_GCC_LANGUAGE_VERSION
+wb_define_strings_option(WB_GCC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via GCC."
   "c++20" "c++17")
 
@@ -65,7 +65,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
   if (WB_GCC_ENABLE_CLANG_TIDY)
-    wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_GCC_LANGUAGE_VERSION})
+    wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_GCC_CXX_LANGUAGE_VERSION})
   else()
     set(APPLY_CLANG_TIDY OFF)
   endif()
@@ -360,7 +360,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       $<$<NOT:$<BOOL:${APPLY_CLANG_TIDY}>>:-Wvector-operation-performance>
 
       # Build in the requested version of C++.
-      -std=${WB_GCC_LANGUAGE_VERSION}
+      -std=${WB_GCC_CXX_LANGUAGE_VERSION}
 
       ## Debug configuration
       $<$<CONFIG:DEBUG>:
