@@ -73,6 +73,39 @@ namespace {
 }
 
 /**
+ * @brief Makes command line flags.
+ * @param positional_flags Command line args which are not part of any parsed
+ * flags.
+ * @return Command line flags.
+ */
+[[nodiscard]] wb::boot_manager::CommandLineFlags MakeCommandLineFlags(
+    std::vector<char*> positional_flags) noexcept {
+  const std::uint32_t attempts_to_retry_allocate_memory{
+      absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
+  const wb::apps::flags::PeriodicTimerResolution periodic_timer_resolution{
+      absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
+  const wb::apps::flags::WindowWidth main_window_width{
+      absl::GetFlag(FLAGS_main_window_width)};
+  const wb::apps::flags::WindowHeight main_window_height{
+      absl::GetFlag(FLAGS_main_window_height)};
+  const bool insecure_allow_unsigned_module_target{
+      absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
+  const bool should_dump_heap_allocator_statistics_on_exit{
+      absl::GetFlag(FLAGS_should_dump_heap_allocator_statistics_on_exit)};
+
+  return {
+      .positional_flags = std::move(positional_flags),
+      .attempts_to_retry_allocate_memory = attempts_to_retry_allocate_memory,
+      .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
+      .main_window_width = main_window_width.size,
+      .main_window_height = main_window_height.size,
+      .insecure_allow_unsigned_module_target =
+          insecure_allow_unsigned_module_target,
+      .should_dump_heap_allocator_statistics_on_exit =
+          should_dump_heap_allocator_statistics_on_exit};
+}
+
+/**
  * @brief Load and run boot manager.
  * @param instance App instance.
  * @param positional_flags Command line args which are not part of any parsed
@@ -114,32 +147,24 @@ int BootManagerStartup(
   G3DCHECK(!!app_path);
 
   const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
-  const std::uint32_t attempts_to_retry_allocate_memory{
-      absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
-  const wb::apps::flags::PeriodicTimerResolution periodic_timer_resolution{
-      absl::GetFlag(FLAGS_periodic_timer_resolution_ms)};
-  const wb::apps::flags::WindowWidth main_window_width{
-      absl::GetFlag(FLAGS_main_window_width)};
-  const wb::apps::flags::WindowHeight main_window_height{
-      absl::GetFlag(FLAGS_main_window_height)};
-  const bool insecure_allow_unsigned_module_target{
-      absl::GetFlag(FLAGS_insecure_allow_unsigned_module_target)};
-  const bool should_dump_heap_allocator_statistics_on_exit{
-      absl::GetFlag(FLAGS_should_dump_heap_allocator_statistics_on_exit)};
-  const unsigned boot_manager_flags{LOAD_WITH_ALTERED_SEARCH_PATH |
-                                    (!insecure_allow_unsigned_module_target
-                                         ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
-                                         : 0U)};
+  const wb::boot_manager::CommandLineFlags command_line_flags{
+      MakeCommandLineFlags(std::move(positional_flags))};
+  const unsigned boot_manager_flags{
+      LOAD_WITH_ALTERED_SEARCH_PATH |
+      (!command_line_flags.insecure_allow_unsigned_module_target
+           ? LOAD_LIBRARY_REQUIRE_SIGNED_TARGET
+           : 0U)};
 
 #ifdef WB_MI_MALLOC
   // Dumps mimalloc stats on exit?
   const wb::mi::ScopedDumpMiMainStats scoped_dump_mi_main_stats{
-      should_dump_heap_allocator_statistics_on_exit};
+      command_line_flags.should_dump_heap_allocator_statistics_on_exit};
 #endif  // WB_MI_MALLOC
 
   // Handle new allocation failure.
-  ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler,
-                                      attempts_to_retry_allocate_memory};
+  ScopedNewHandler scoped_new_handler{
+      DefaultNewFailureHandler,
+      command_line_flags.attempts_to_retry_allocate_memory};
   // Set it as global handler.  C++ API is too strict here and we can't pass
   // state into void(void), so need global variable to access state in handler.
   InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
@@ -187,22 +212,10 @@ int BootManagerStartup(
   const auto* boot_manager_main = std2::get_result(boot_manager_entry);
   G3CHECK(!!boot_manager_main);
 
-  return (*boot_manager_main)(
-      {instance,
-       WB_PRODUCT_FILE_DESCRIPTION_STRING,
-       show_window_flags,
-       WB_HALF_LIFE_2_IDI_MAIN_ICON,
-       WB_HALF_LIFE_2_IDI_SMALL_ICON,
-       {.positional_flags = std::move(positional_flags),
-        .attempts_to_retry_allocate_memory = attempts_to_retry_allocate_memory,
-        .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
-        .main_window_width = main_window_width.size,
-        .main_window_height = main_window_height.size,
-        .insecure_allow_unsigned_module_target =
-            insecure_allow_unsigned_module_target,
-        .should_dump_heap_allocator_statistics_on_exit =
-            should_dump_heap_allocator_statistics_on_exit},
-       intl});
+  return (*boot_manager_main)({instance, WB_PRODUCT_FILE_DESCRIPTION_STRING,
+                               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
+                               WB_HALF_LIFE_2_IDI_SMALL_ICON,
+                               command_line_flags, intl});
 }
 
 }  // namespace
