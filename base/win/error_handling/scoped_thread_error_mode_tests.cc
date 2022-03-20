@@ -35,16 +35,56 @@ GTEST_TEST(ScopedThreadErrorModeTests, ShouldSetThreadErrorModeInScopeTest) {
     auto *mode = wb::base::std2::get_result(mode_result);
     ASSERT_NE(mode, nullptr);
 
-    auto moved_mode = std::move(*mode);
-
     const auto actual_mode = ::GetThreadErrorMode();
-
     EXPECT_TRUE((actual_mode &
                  wb::base::underlying_cast(
                      ScopedThreadErrorModeFlags::kFailOnCriticalErrors)) != 0);
     EXPECT_TRUE((actual_mode &
                  wb::base::underlying_cast(
                      ScopedThreadErrorModeFlags::kNoOpenFileErrorBox)) != 0);
+  }
+
+  check_mode_not_set();
+}
+
+// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
+GTEST_TEST(ScopedThreadErrorModeTests, ShouldMoveThreadErrorModeScopeTest) {
+  const auto check_mode_not_set = []() noexcept {
+    const auto actual_mode = ::GetThreadErrorMode();
+
+    ASSERT_TRUE((actual_mode &
+                 wb::base::underlying_cast(
+                     ScopedThreadErrorModeFlags::kFailOnCriticalErrors)) == 0);
+    ASSERT_TRUE((actual_mode &
+                 wb::base::underlying_cast(
+                     ScopedThreadErrorModeFlags::kNoOpenFileErrorBox)) == 0);
+  };
+
+  check_mode_not_set();
+
+  {
+    auto mode_result = ScopedThreadErrorMode::New(
+        ScopedThreadErrorModeFlags::kFailOnCriticalErrors |
+        ScopedThreadErrorModeFlags::kNoOpenFileErrorBox);
+
+    auto *mode = wb::base::std2::get_result(mode_result);
+    ASSERT_NE(mode, nullptr);
+
+    {
+      auto moved_mode = std::move(*mode);
+
+      const auto actual_mode = ::GetThreadErrorMode();
+
+      EXPECT_TRUE((actual_mode &
+                   wb::base::underlying_cast(
+                       ScopedThreadErrorModeFlags::kFailOnCriticalErrors)) !=
+                  0);
+      EXPECT_TRUE((actual_mode &
+                   wb::base::underlying_cast(
+                       ScopedThreadErrorModeFlags::kNoOpenFileErrorBox)) != 0);
+    }
+
+    check_mode_not_set();
   }
 
   check_mode_not_set();
