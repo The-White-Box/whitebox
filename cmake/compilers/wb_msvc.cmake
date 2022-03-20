@@ -296,9 +296,6 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       /fp:${WB_MSVC_FLOATING_POINT_BEHAVIOR}
       # Specify floating-point exceptions behavior.
       /fp:${WB_MSVC_FLOATING_POINT_EXCEPTIONS_BEHAVIOR}
-      # Enables the external headers options. This option isn't required in
-      # Visual Studio 2019 version 16.10 and later.
-      $<$<BOOL:${WB_MSVC_EXTERNAL_HEADERS_DIAGNOSTICS_SPECIFICATION}>:/experimental:external>
       # Enables the external headers location detection options.
       $<$<BOOL:${WB_MSVC_EXTERNAL_HEADERS_DIAGNOSTICS_SPECIFICATION}>:/external:${WB_MSVC_EXTERNAL_HEADERS_DIAGNOSTICS_SPECIFICATION}>
       # Enables the external headers warnings application options.
