@@ -21,7 +21,7 @@
 #include "base/std2/system_error_ext.h"
 
 #ifdef WB_MI_MALLOC
-namespace wb::base::tests_internal {
+namespace {
 
 /**
  * @brief Default mi-malloc output handler.  Function is called to output any
@@ -30,8 +30,8 @@ namespace wb::base::tests_internal {
  * @param arg Argument that was passed at registration to hold extra state.
  * @return void.
  */
-void DefaultMiMallocOutput(const char* msg,
-                           [[maybe_unused]] void* arg) noexcept {
+void DefaultMiMallocOutput(const char *msg,
+                           [[maybe_unused]] void *arg) noexcept {
   const bool is_warning_or_error{!!std::strstr(msg, "warning:") ||
                                  !!std::strstr(msg, "error:")};
 
@@ -55,7 +55,7 @@ void DefaultMiMallocOutput(const char* msg,
  * @param arg Extra argument that will be passed on to the error function.
  * @return void.
  */
-void DefaultMiMallocError(int error_no, [[maybe_unused]] void* arg) noexcept {
+void DefaultMiMallocError(int error_no, [[maybe_unused]] void *arg) noexcept {
   const auto error_code{wb::base::std2::system_last_error_code(error_no)};
   G3PLOG_E(WARNING, error_code) << "Mi-malloc error: ";
 
@@ -85,6 +85,24 @@ void InstallMimallocOutputHandlers() noexcept {
   // Log output / errors.
   ::mi_register_output(DefaultMiMallocOutput, nullptr);
   ::mi_register_error(DefaultMiMallocError, nullptr);
+}
+
+void UninstallMimallocOutputHandlers() noexcept {
+  // Log output / errors.
+  ::mi_register_output(nullptr, nullptr);
+  ::mi_register_error(nullptr, nullptr);
+}
+
+}  // namespace
+
+namespace wb::base::tests_internal {
+
+ScopedMimallocOutputHandlers::ScopedMimallocOutputHandlers() {
+  InstallMimallocOutputHandlers();
+}
+
+ScopedMimallocOutputHandlers::~ScopedMimallocOutputHandlers() {
+  UninstallMimallocOutputHandlers();
 }
 
 }  // namespace wb::base::tests_internal

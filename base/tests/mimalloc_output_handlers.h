@@ -7,14 +7,26 @@
 #ifndef WB_BASE_TESTS_MIMALLOC_OUTPUT_HANDLERS_H_
 #define WB_BASE_TESTS_MIMALLOC_OUTPUT_HANDLERS_H_
 
+#include "build/build_config.h"
+
 #ifdef WB_MI_MALLOC
 namespace wb::base::tests_internal {
 
 /**
- * @brief Install mimalloc ouput / error handlers.
- * @return void.
+ * @brief Set mimalloc output handelrs in scope.
  */
-void InstallMimallocOutputHandlers() noexcept;
+class ScopedMimallocOutputHandlers {
+ public:
+  ScopedMimallocOutputHandlers();
+  ~ScopedMimallocOutputHandlers();
+
+  ScopedMimallocOutputHandlers(ScopedMimallocOutputHandlers &) = delete;
+  ScopedMimallocOutputHandlers(ScopedMimallocOutputHandlers &&) = delete;
+  ScopedMimallocOutputHandlers &operator=(ScopedMimallocOutputHandlers &) =
+      delete;
+  ScopedMimallocOutputHandlers &operator=(ScopedMimallocOutputHandlers &&) =
+      delete;
+};
 
 }  // namespace wb::base::tests_internal
 #endif  // WB_MI_MALLOC

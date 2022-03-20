@@ -21,7 +21,9 @@ int main(int argc, char *argv[]) {
       // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,cppcoreguidelines-pro-bounds-pointer-arithmetic)
       argv[0], wb::build::settings::kPathToMainLogFile};
 
-  tests_internal::InstallMimallocOutputHandlers();
+#ifdef WB_MI_MALLOC
+  tests_internal::ScopedMimallocOutputHandlers scoped_mimalloc_output_handlers;
+#endif
 
   testing::InitGoogleTest(&argc, argv);
   GTEST_FLAG_SET(death_test_style, "fast");
