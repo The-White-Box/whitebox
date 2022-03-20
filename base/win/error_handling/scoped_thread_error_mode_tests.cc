@@ -14,15 +14,18 @@ using namespace wb::base::win::error_handling;
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(ScopedThreadErrorModeTests, ShouldSetThreadErrorModeInScopeTest) {
-  {
+  const auto check_mode_not_set = []() noexcept {
     const auto actual_mode = ::GetThreadErrorMode();
+
     ASSERT_TRUE((actual_mode &
                  wb::base::underlying_cast(
                      ScopedThreadErrorModeFlags::kFailOnCriticalErrors)) == 0);
     ASSERT_TRUE((actual_mode &
                  wb::base::underlying_cast(
                      ScopedThreadErrorModeFlags::kNoOpenFileErrorBox)) == 0);
-  }
+  };
+
+  check_mode_not_set();
 
   {
     auto mode_result = ScopedThreadErrorMode::New(
@@ -35,6 +38,7 @@ GTEST_TEST(ScopedThreadErrorModeTests, ShouldSetThreadErrorModeInScopeTest) {
     auto moved_mode = std::move(*mode);
 
     const auto actual_mode = ::GetThreadErrorMode();
+
     EXPECT_TRUE((actual_mode &
                  wb::base::underlying_cast(
                      ScopedThreadErrorModeFlags::kFailOnCriticalErrors)) != 0);
@@ -43,13 +47,5 @@ GTEST_TEST(ScopedThreadErrorModeTests, ShouldSetThreadErrorModeInScopeTest) {
                      ScopedThreadErrorModeFlags::kNoOpenFileErrorBox)) != 0);
   }
 
-  {
-    const auto actual_mode = ::GetThreadErrorMode();
-    ASSERT_TRUE((actual_mode &
-                 wb::base::underlying_cast(
-                     ScopedThreadErrorModeFlags::kFailOnCriticalErrors)) == 0);
-    ASSERT_TRUE((actual_mode &
-                 wb::base::underlying_cast(
-                     ScopedThreadErrorModeFlags::kNoOpenFileErrorBox)) == 0);
-  }
+  check_mode_not_set();
 }
