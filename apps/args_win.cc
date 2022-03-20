@@ -107,7 +107,7 @@ namespace wb::apps::win {
  * @param command_line Command line.
  * @return Parsed command line arguments.
  */
-[[nodiscard]] wb::base::std2::result<Args> Args::FromCommandLine(
+[[nodiscard]] base::std2::result<Args> Args::FromCommandLine(
     _In_z_ const wchar_t* command_line) noexcept {
   using namespace wb::base;
 

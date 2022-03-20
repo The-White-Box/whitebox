@@ -94,8 +94,8 @@ class unique_handle : private std::unique_ptr<handle_descriptor> {
   explicit unique_handle(_In_opt_ handle_descriptor *handle) noexcept
       : unique_handle_base{handle} {}
 
-  unique_handle(unique_handle &&h) noexcept = default;
-  unique_handle &operator=(unique_handle &&p) noexcept = default;
+  unique_handle(unique_handle &&) noexcept = default;
+  unique_handle &operator=(unique_handle &&) noexcept = default;
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(unique_handle);
 
