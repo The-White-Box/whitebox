@@ -150,6 +150,19 @@ foreach(flag_var
   endif()
 endforeach()
 
+# At least Ninja doesn't remove the /external:W0 flag when we add /external:W4
+# one, which leads to compilation warnings.  Remove /external:W0 entirely, as
+# /external:W4 be used.
+foreach(flag_var
+    CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+    CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
+    CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+  if (${flag_var} MATCHES "/external:W0")
+    string(REGEX REPLACE "/external:W0" "" ${flag_var} "${${flag_var}}")
+  endif()
+endforeach()
+
 # When building with Ninja, or with /MP enabled, there is the potential
 # for multiple processes to need to lock the same pdb file.
 # The /FS option (which is implicitly enabled by /MP) is widely believed
