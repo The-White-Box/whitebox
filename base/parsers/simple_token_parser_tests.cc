@@ -35,7 +35,7 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   // wordbreak parsing set
   constexpr CharacterSet break_set{"{}()'"};
 
-  constexpr std::array<std::tuple<std::string_view, ParsedToken>, 62> cases{
+  constexpr std::array<std::tuple<std::string_view, ParsedToken>, 62> cases{{
       std::tuple{"", ParsedToken{}},
       std::tuple{" ", ParsedToken{}},
       std::tuple{"  ", ParsedToken{}},
@@ -122,7 +122,7 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
                  ParsedToken{.next_token = ") ", .current_token = "abc"}},
       std::tuple{" d ef ) ",
                  ParsedToken{.next_token = " ef ) ", .current_token = "d"}},
-  };
+  }};
 
   for (const auto& c : cases) {
     auto [input, token] = c;
@@ -132,7 +132,7 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   }
 
   // Test constexpr evaluation.
-  static_assert(
-      ParseToken("//  a  \nbc d\n", break_set) == ParsedToken{.next_token = " d\n", .current_token = "bc"},
-      "Should ParseToken as constexpr");
+  static_assert(ParseToken("//  a  \nbc d\n", break_set) ==
+                    ParsedToken{.next_token = " d\n", .current_token = "bc"},
+                "Should ParseToken as constexpr");
 }
