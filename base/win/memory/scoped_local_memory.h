@@ -10,6 +10,7 @@
 #include <sal.h>
 #include <specstrings.h>  // _Frees_ptr_opt_
 
+#include "base/deps/g3log/g3log.h"
 #include "base/macroses.h"
 #include "build/compiler_config.h"
 
