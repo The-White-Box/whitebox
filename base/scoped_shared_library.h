@@ -149,13 +149,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
   template <typename T>
   [[nodiscard]] function_pointer_concept<T, std2::result<T>> GetAddressAs(
       _In_z_ const char *function_name) const noexcept {
-    WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-      // C4191 'reinterpret_cast': unsafe conversion from 'FARPROC' to 'T'
-      // Perfectly valid in this case.
-      WB_MSVC_DISABLE_WARNING(4191)
-      const auto address =
-          reinterpret_cast<T>(::GetProcAddress(get(), function_name));
-    WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
+    const auto address = reinterpret_cast<T>(
+        reinterpret_cast<void *>(::GetProcAddress(get(), function_name)));
     return address != nullptr ? std2::result<T>(address)
                               : std2::result<T>(std2::system_last_error_code());
   }
