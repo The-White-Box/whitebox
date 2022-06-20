@@ -40,6 +40,7 @@ enum class Version {
   WIN10_21H2 = 19,  // Windows 10. 21H2: Build 19044.
 
   WIN11_21H2 = 20,  // Windows 11. 21H2: Build 22000.
+  WIN11_22H2 = 21,  // Windows 11. 22H2: Build 22621.
   WIN_LAST,         // Indicates error condition.
 };
 
@@ -84,6 +85,8 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
       return s << "Windows 10 21H2";
     case Version::WIN11_21H2:
       return s << "Windows 11 21H2";
+    case Version::WIN11_22H2:
+      return s << "Windows 11 22H2";
     case Version::WIN_LAST:
       return s << "Unknown Windows OS";
     default:
