@@ -97,11 +97,11 @@ void UninstallMimallocOutputHandlers() noexcept {
 
 namespace wb::base::tests_internal {
 
-ScopedMimallocOutputHandlers::ScopedMimallocOutputHandlers() {
+ScopedMimallocOutputHandlers::ScopedMimallocOutputHandlers() noexcept {
   InstallMimallocOutputHandlers();
 }
 
-ScopedMimallocOutputHandlers::~ScopedMimallocOutputHandlers() {
+ScopedMimallocOutputHandlers::~ScopedMimallocOutputHandlers() noexcept {
   UninstallMimallocOutputHandlers();
 }
 

@@ -17,8 +17,8 @@ namespace wb::base::tests_internal {
  */
 class ScopedMimallocOutputHandlers {
  public:
-  ScopedMimallocOutputHandlers();
-  ~ScopedMimallocOutputHandlers();
+  ScopedMimallocOutputHandlers() noexcept;
+  ~ScopedMimallocOutputHandlers() noexcept;
 
   ScopedMimallocOutputHandlers(ScopedMimallocOutputHandlers &) = delete;
   ScopedMimallocOutputHandlers(ScopedMimallocOutputHandlers &&) = delete;
