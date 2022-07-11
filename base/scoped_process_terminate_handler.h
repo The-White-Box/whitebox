@@ -22,7 +22,7 @@ class ScopedProcessTerminateHandler {
  public:
   WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
     // Pointer or reference to potentially throwing function passed to 'extern
-    // "C"' function under -EHc. Undefined behavior may occur if this function
+    // "C"' function under -EHc.  Undefined behavior may occur if this function
     // throws an exception.  This function should not throw.
     WB_MSVC_DISABLE_WARNING(5039)
     /**
@@ -44,7 +44,7 @@ class ScopedProcessTerminateHandler {
   ~ScopedProcessTerminateHandler() noexcept {
     WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
       // Pointer or reference to potentially throwing function passed to 'extern
-      // "C"' function under -EHc. Undefined behavior may occur if this function
+      // "C"' function under -EHc.  Undefined behavior may occur if this function
       // throws an exception.  This function should not throw.
       WB_MSVC_DISABLE_WARNING(5039)
       std::set_terminate(previous_terminate_function_);
