@@ -155,25 +155,25 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
 
   using namespace wb::base::win;
 
-  APTTYPE apartment_type;
-  APTTYPEQUALIFIER apartment_type_qualifier;
+  const auto triggerComUninitializeInAnotherThread = []() {
+    APTTYPE apartment_type;
+    APTTYPEQUALIFIER apartment_type_qualifier;
 
-  HRESULT rc{::CoGetApartmentType(&apartment_type, &apartment_type_qualifier)};
-  ASSERT_EQ(rc, CO_E_NOTINITIALIZED);
+    HRESULT rc{
+        ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier)};
+    ASSERT_EQ(rc, CO_E_NOTINITIALIZED);
 
-  auto init_result = com::ScopedThreadComInitializer::New(
-      com::ScopedThreadComInitializerFlags::kMultiThreaded);
-  auto *init = wb::base::std2::get_result(init_result);
-  ASSERT_NE(init, nullptr);
+    auto init_result = com::ScopedThreadComInitializer::New(
+        com::ScopedThreadComInitializerFlags::kMultiThreaded);
+    auto *com = wb::base::std2::get_result(init_result);
+    ASSERT_NE(com, nullptr);
 
-  rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
+    rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
-  EXPECT_TRUE(is_succeeded(rc));
-  EXPECT_EQ(apartment_type, APTTYPE::APTTYPE_MTA);
+    EXPECT_TRUE(is_succeeded(rc));
+    EXPECT_EQ(apartment_type, APTTYPE::APTTYPE_MTA);
 
-  const auto triggerComUninitializeInAnotherThread = [com =
-                                                          std::move(*init)]() {
-    std::thread uninitialize_thread{[c = std::move(com)]() { (void)c; }};
+    std::thread uninitialize_thread{[c = std::move(*com)]() { (void)c; }};
     uninitialize_thread.join();
   };
 
