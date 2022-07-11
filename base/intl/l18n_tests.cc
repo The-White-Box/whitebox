@@ -85,7 +85,7 @@ GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   };
 
   const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(
-      "argument not found");
+      "Received fatal signal SIGABRT");
 
   EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
               test_result.message);
