@@ -58,8 +58,8 @@ class Lookup::LookupImpl final {
                       "19, 2019) or greater."),
                  "Please, update Windows to Windows 10, version 1903 (May 19, "
                  "2019) or greater."},
-                {hash("See techical details"), "See techical details"},
-                {hash("Hide techical details"), "Hide techical details"},
+                {hash("See technical details"), "See technical details"},
+                {hash("Hide technical details"), "Hide technical details"},
 #endif
                 {hash("Boot Manager - Error"), "Boot Manager - Error"},
                 {hash("<A "

@@ -98,8 +98,8 @@ namespace wb::ui {
     auto collapse_settings =
         !technical_details.empty()
             ? std::optional<DialogBoxCollapseSettings>(
-                  std::in_place, intl::l18n(intl, "Hide techical details"),
-                  intl::l18n(intl, "See techical details"), technical_details)
+                  std::in_place, intl::l18n(intl, "Hide technical details"),
+                  intl::l18n(intl, "See technical details"), technical_details)
             : std::optional<DialogBoxCollapseSettings>{};
     const bool rtl_layout{context.text_layout ==
                           intl::StringLayout::RightToLeft};
