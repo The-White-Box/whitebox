@@ -276,6 +276,16 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   const auto l18n = wb::apps::CreateIntl(WB_PRODUCT_FILE_DESCRIPTION_STRING,
                                          scoped_process_locale);
 
+  // Initialize COM.  Required as ui::ShowDialogBox may call ShellExecute which
+  // can delegate execution to shell extensions that are activated using COM.
+  const auto scoped_thread_com_initializer =
+      com::ScopedThreadComInitializer::New(
+          com::ScopedThreadComInitializerFlags::kApartmentThreaded |
+          com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
+          com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
+  G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_com_initializer))
+      << "Component Object Model initialization failed, continue without COM.";
+
   // Query CPU support for required features.  In case any required feature is
   // missed we return all required features with support state.
   const std::vector<wb::apps::CpuFeature> cpu_features_support{
@@ -341,16 +351,6 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_error_mode))
       << "Can't set thread reaction to serious system errors, continue with "
          "default reaction.";
-
-  // Initialize COM.  Required as ui::ShowDialogBox may call ShellExecute which
-  // can delegate execution to shell extensions that are activated using COM.
-  const auto scoped_thread_com_initializer =
-      com::ScopedThreadComInitializer::New(
-          com::ScopedThreadComInitializerFlags::kApartmentThreaded |
-          com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
-          com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_com_initializer))
-      << "Component Object Model initialization failed, continue without COM.";
 
   // Disable default COM exception swallowing, report all COM exceptions to us.
   const auto scoped_com_fatal_exception_handler =
