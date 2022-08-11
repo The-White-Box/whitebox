@@ -26,6 +26,7 @@ option(WB_MSVC_ENABLE_LTCG                                      "If enabled, use
 option(WB_MSVC_ENABLE_PARALLEL_BUILD                            "If enabled, build multiple source files in parallel." ON)
 option(WB_MSVC_ENABLE_RTTI                                      "If enabled, adds code to check object types at run time (dynamic_cast, typeid)." ON)
 option(WB_MSVC_ENABLE_RELEASE_DEBUG_INFO                        "If enabled, generates .pdbs in Release mode." ON)
+option(WB_MSVC_SILENCE_CPP20_DEPRECATED_HEADERS_WARNING         "If enabled, silence deprecated in C++20 header warnings." ON)
 option(WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS   "If enabled, threat complex static analysis warnings as errors." ON)
 option(WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS               "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
 option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, build against the static, rather than the dynamic, runtime." OFF)
@@ -38,7 +39,7 @@ wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
 
 wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
-  "c++20" "c++17" "c++latest")
+  "c++20" "c++latest")
 
 wb_define_strings_option(WB_MSVC_DEBUG_RUNTIME_ERROR_CHECKS
   "Used to enable and disable the run-time error checks feature in DEBUG, in conjunction with the runtime_checks pragma."
@@ -451,6 +452,11 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
       # Don't include most of Windows.h
       $<$<BOOL:${WB_MSVC_ENABLE_LEAN_AND_MEAN_WINDOWS}>:WIN32_LEAN_AND_MEAN>
+
+      # Silence some removed headers warnings
+      $<$<BOOL:${WB_MSVC_SILENCE_CPP20_DEPRECATED_HEADERS_WARNING}>:
+        _SILENCE_CXX20_CISO646_REMOVED_WARNING
+      >
 
       $<$<CONFIG:DEBUG>:
         _ALLOW_RTCc_IN_STL  # Allow to build STL with /RTCc

@@ -23,7 +23,7 @@ namespace wb::base::std2 {
  */
 [[nodiscard]] WB_ATTRIBUTE_CONST inline bool starts_with(std::string_view s,
                                                          char c) noexcept {
-  return !s.empty() && s[0] == c;
+  return s.starts_with(c);
 }
 
 /**
@@ -34,7 +34,7 @@ namespace wb::base::std2 {
  */
 [[nodiscard]] WB_ATTRIBUTE_CONST inline bool ends_with(std::string_view s,
                                                        char c) noexcept {
-  return !s.empty() && s[s.size() - 1] == c;
+  return s.ends_with(c);
 }
 
 /**
@@ -46,15 +46,7 @@ namespace wb::base::std2 {
 [[nodiscard]] WB_ATTRIBUTE_PURE inline bool ends_with(
     std::string_view s, const char* WB_MSVC_RESTRICT_VAR v) noexcept {
   G3DCHECK(!!v) << "v is nullptr";
-#if WB_COMPILER_HAS_CXX20
   return v && s.ends_with(v);
-#else
-  if (!v) WB_ATTRIBUTE_UNLIKELY {
-      return false;
-    }
-  const auto idx = s.rfind(v);
-  return idx != std::string_view::npos && idx == (s.size() - std::strlen(v));
-#endif
 }
 
 }  // namespace wb::base::std2

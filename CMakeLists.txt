@@ -255,23 +255,6 @@ message(STATUS "[common]: ${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
 message(STATUS
   "[common]: ${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
 
-## Compiler features detection.
-
-wb_check_cxx_compiles("
-  #include <iostream>
-  int main(int argc, char **argv) {
-    if (argc > 1) [[likely]] {
-      std::cout << \"argc > 1\";
-    }
-
-    if (argv == nullptr) [[unlikely]] {
-      std::cout << \"argv == nullptr\";
-    }
-
-    return 0;
-  }"
-  WB_CPP_HAS_LIKELY_UNLIKELY_ATTRIBUTES "[[likely|unlikely]]")
-
 # Generate common product version info.
 configure_file(
   ${WB_ROOT_DIR}/build/product_version_config.h.cmake.in

@@ -42,7 +42,7 @@ wb_define_strings_option(WB_GCC_LINKER_TYPE
 
 wb_define_strings_option(WB_GCC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via GCC."
-  "c++20" "c++17")
+  "c++20")
 
 wb_define_strings_option(WB_GCC_MINIMUM_CPU_ARCHITECTURE
   "This tells the compiler to choose minimum instruction set for the specified architecture."

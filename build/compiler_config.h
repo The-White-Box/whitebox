@@ -111,8 +111,9 @@
 
 // Under Mac attributes detected as valid during sample compilation, but not
 // in source tree :(
-// TODO(dimhotepus): Check on new Clang all is ok (13.0.0+).
-#if defined(WB_CPP_HAS_LIKELY_UNLIKELY_ATTRIBUTES) && !defined(WB_OS_MACOS)
+// TODO(dimhotepus): Check on new Apple Clang all is ok (13.0.0+).
+#if __has_cpp_attribute(likely) && __has_cpp_attribute(unlikely) && \
+    !defined(WB_OS_MACOS)
 /*
  * @brief [[likely]]
  */

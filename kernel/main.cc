@@ -80,7 +80,7 @@ namespace {
   PeekMessageDispatcher message_dispatcher;
 
   // Main message app loop.
-  // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in dispatcher.
+  // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in handle_quit_message.
   while (!is_done) {
     const auto maybe_dispatch_rc = message_dispatcher.Dispatch(
         HasNoPreDispatchMessage, handle_quit_message);

@@ -45,7 +45,7 @@ wb_define_strings_option(WB_CLANG_ENABLE_LTO
 
 wb_define_strings_option(WB_CLANG_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via Clang."
-  "c++20" "c++17")
+  "c++20")
 
 wb_define_strings_option(WB_CLANG_MINIMUM_CPU_ARCHITECTURE
   "This tells the compiler to choose minimum instruction set for the specified architecture."

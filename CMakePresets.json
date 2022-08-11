@@ -33,7 +33,6 @@
         "systemVars": true
       },
       "errors": {
-        "dev": true,
         "deprecated": true
       }
     },
