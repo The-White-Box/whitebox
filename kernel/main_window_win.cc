@@ -17,6 +17,7 @@
 #include "build/static_settings_config.h"
 #include "hal/drivers/hid/raw_input_win.h"
 #include "ui/fatal_dialog.h"
+#include "ui/static_settings_config.h"
 #include "ui/win/scoped_change_cursor.h"
 #include "ui/win/scoped_window_paint.h"
 #include "ui/win/window_message_handlers.h"
@@ -262,8 +263,8 @@ void MainWindow::OnGetWindowSizeBounds(_In_ HWND,
   G3DCHECK(!!min_max_info);
 
   auto &min_track_size = min_max_info->ptMinTrackSize;
-  min_track_size.x = build::settings::ui::window::dimensions::kMinWidth;
-  min_track_size.y = build::settings::ui::window::dimensions::kMinHeight;
+  min_track_size.x = ui::settings::window::dimensions::kMinWidth;
+  min_track_size.y = ui::settings::window::dimensions::kMinHeight;
 }
 
 void MainWindow::OnWindowDestroy(_In_ HWND) noexcept { ::PostQuitMessage(0); }
@@ -277,8 +278,8 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     auto scoped_toggle_dwm_mmcs_result =
         win::mmcss::ScopedMmcssToggleDwm::New(true);
     if (auto *scheduler = std2::get_result(scoped_toggle_dwm_mmcs_result)) {
-      auto new_scheduler =
-          std::optional<win::mmcss::ScopedMmcssToggleDwm>{std::move(*scheduler)};
+      auto new_scheduler = std::optional<win::mmcss::ScopedMmcssToggleDwm>{
+          std::move(*scheduler)};
       scoped_mmcss_toggle_dwm_.swap(new_scheduler);
     } else {
       const auto *rc = std2::get_error(scoped_toggle_dwm_mmcs_result);

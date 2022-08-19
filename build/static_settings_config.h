@@ -25,13 +25,6 @@ constexpr char kPathToMainLogFile[]{"/tmp/"};
 #error "Please define path to main log file for your platform."
 #endif
 
-namespace ui::window::dimensions {
-// https://www.microsoft.com/en-us/windows/windows-10-specifications
-// On Windows 10 minimum display dimensions are 800x600, so do not use more than.
-constexpr int kMinWidth{640};
-constexpr int kMinHeight{480};
-}  // namespace ui
-
 }  // namespace wb::build::settings
 
 #endif  // !WB_BUILD_STATIC_SETTINGS_CONFIG_H_

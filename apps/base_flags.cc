@@ -9,7 +9,7 @@
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/strings/str_cat.h"
-#include "build/static_settings_config.h"
+#include "ui/static_settings_config.h"
 
 #ifdef WB_OS_WIN
 #include "base/deps/g3log/g3log.h"
@@ -66,14 +66,14 @@ bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error) {
   const int minimum_window_width_raw{
       // GetSystemMetrics returns 0 on failure.
       std::max(::GetSystemMetrics(SM_CYMIN),
-               wb::build::settings::ui::window::dimensions::kMinWidth)};
+               wb::ui::settings::window::dimensions::kMinWidth)};
   G3CHECK(minimum_window_width_raw <=
           static_cast<int>(std::numeric_limits<std::uint16_t>::max()));
   const std::uint16_t minimum_window_width{
       static_cast<std::uint16_t>(minimum_window_width_raw)};
 #else
   const std::uint16_t minimum_window_width{
-      wb::build::settings::ui::window::dimensions::kMinWidth};
+      wb::ui::settings::window::dimensions::kMinWidth};
 #endif
 
   constexpr std::uint16_t maximum_window_width{
@@ -103,7 +103,7 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
   const int minimum_window_height_raw{
       // GetSystemMetrics returns 0 on failure.
       std::max(::GetSystemMetrics(SM_CXMIN),
-               wb::build::settings::ui::window::dimensions::kMinHeight)};
+               wb::ui::settings::window::dimensions::kMinHeight)};
   G3CHECK(minimum_window_height_raw <=
           static_cast<int>(std::numeric_limits<std::uint16_t>::max()));
   const std::uint16_t minimum_window_height{
