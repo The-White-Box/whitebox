@@ -213,8 +213,12 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     const auto get_fps = [](auto delta) noexcept {
       using namespace std::chrono;
 
-      const auto elapsed_ms = duration_cast<microseconds>(delta).count();
-      return elapsed_ms ? 1000000.0F / static_cast<float>(elapsed_ms) : 0;
+      using duration_ms = microseconds;
+
+      const auto elapsed_ms = duration_cast<duration_ms>(delta).count();
+      return elapsed_ms ? duration_ms::period::den / duration_ms::period::num /
+                              static_cast<float>(elapsed_ms)
+                        : 0;
     };
 
     const float fps{
