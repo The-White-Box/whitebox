@@ -23,7 +23,7 @@ namespace wb::base::win {
  * "if (base::win::GetVersion() >= base::win::Version::WIN10_TH2) ...".
  */
 enum class Version {
-  PRE_WIN10 = 0,    // Not supported.
+  PRE_WIN10 = 0,  // Not supported.
 
   WIN10 = 7,        // Windows 10. Threshold 1: Version 1507, Build 10240.
   WIN10_TH2 = 8,    // Windows 10. Threshold 2: Version 1511, Build 10586.
@@ -101,6 +101,16 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
  * @return Windows version.
  */
 [[nodiscard]] WB_BASE_API Version GetVersion() noexcept;
+
+/**
+ * @brief Constructs version from major, minor and build components.
+ * @param major Major.
+ * @param minor Minor.
+ * @param build Build.
+ * @return Version.
+ */
+[[nodiscard]] WB_BASE_API Version MajorMinorBuildToVersion(
+    unsigned major, unsigned minor, unsigned build) noexcept;
 
 }  // namespace wb::base::win
 

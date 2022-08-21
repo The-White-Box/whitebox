@@ -17,7 +17,7 @@ namespace wb::apps {
  */
 struct CommandLineParserConfig {
   /**
-   * @brief Application name,
+   * @brief Application name.
    */
   std::string_view app_name;
   /**

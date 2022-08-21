@@ -14,7 +14,34 @@
 #include "base/win/windows_light.h"
 #include "build/compiler_config.h"
 
-namespace {
+namespace wb::base::win {
+
+/**
+ * @brief Gets windows version.
+ * @return Windows version.
+ */
+[[nodiscard]] WB_BASE_API Version GetVersion() noexcept {
+  static Version version{Version::WIN_LAST};
+
+  if (version != Version::WIN_LAST) return version;
+
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    // C4996 'GetVersionExA': was declared deprecated.
+    WB_MSVC_DISABLE_WARNING(4996)
+    OSVERSIONINFOEX version_info = {sizeof(version_info)};
+    const std::error_code rc{get_error(
+        ::GetVersionEx(reinterpret_cast<OSVERSIONINFO*>(&version_info)))};
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
+
+  G3PCHECK_E(!rc, rc) << "Can't get Windows OS version";
+  if (!rc) {
+    version = MajorMinorBuildToVersion(version_info.dwMajorVersion,
+                                       version_info.dwMinorVersion,
+                                       version_info.dwBuildNumber);
+  }
+
+  return version;
+}
 
 /**
  * @brief Constructs version from major, minor and build components.
@@ -23,7 +50,7 @@ namespace {
  * @param build Build.
  * @return Version.
  */
-[[nodiscard]] wb::base::win::Version MajorMinorBuildToVersion(
+[[nodiscard]] WB_BASE_API wb::base::win::Version MajorMinorBuildToVersion(
     unsigned major, unsigned minor, unsigned build) noexcept {
   using wb::base::win::Version;
 
@@ -55,37 +82,6 @@ namespace {
   G3LOG(WARNING) << "Using not supported new Windows OS version: " << major
                  << "." << minor << "." << build;
   return Version::WIN_LAST;
-}
-
-}  // namespace
-
-namespace wb::base::win {
-
-/**
- * @brief Gets windows version.
- * @return Windows version.
- */
-[[nodiscard]] WB_BASE_API Version GetVersion() noexcept {
-  static Version version{Version::WIN_LAST};
-
-  if (version != Version::WIN_LAST) return version;
-
-  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
-    // C4996 'GetVersionExA': was declared deprecated.
-    WB_MSVC_DISABLE_WARNING(4996)
-    OSVERSIONINFOEX version_info = {sizeof(version_info)};
-    const std::error_code rc{get_error(
-        ::GetVersionEx(reinterpret_cast<OSVERSIONINFO*>(&version_info)))};
-  WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
-
-  G3PCHECK_E(!rc, rc) << "Can't get Windows OS version";
-  if (!rc) {
-    version = MajorMinorBuildToVersion(version_info.dwMajorVersion,
-                                       version_info.dwMinorVersion,
-                                       version_info.dwBuildNumber);
-  }
-
-  return version;
 }
 
 }  // namespace wb::base::win
