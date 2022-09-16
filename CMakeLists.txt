@@ -131,8 +131,6 @@ set(WB_BUILD_TYPE "${CMAKE_BUILD_TYPE}" CACHE STRING
   "CMake build type used to build ${PACKAGE_NAME}.")
 set(WB_CXX_COMPILER "${CMAKE_CXX_COMPILER}" CACHE STRING
   "Compiler used to build ${PACKAGE_NAME}.")
-set(WB_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
-  "CMake available build types for building ${PACKAGE_NAME}.")
 set(WB_CXX_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}" CACHE STRING
   "Compiler id used to build ${PACKAGE_NAME}.")
 set(WB_CXX_COMPILER_FRONTEND_VARIANT "${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}"
@@ -252,8 +250,6 @@ endif()
 
 message(STATUS "[common]: ${PACKAGE_NAME} cxx compiler: ${WB_CXX_COMPILER}.")
 message(STATUS "[common]: ${PACKAGE_NAME} build type: ${WB_BUILD_TYPE}.")
-message(STATUS
-  "[common]: ${PACKAGE_NAME} configuration types: ${WB_CONFIGURATION_TYPES}.")
 
 # Generate common product version info.
 configure_file(
