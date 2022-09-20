@@ -35,14 +35,11 @@ constexpr inline void HasNoPostDispatchMessage(const MSG&) noexcept {}
  * @brief Dispatcher functions concept.
  * @tparam HasPreDispatchedMessageFn Predispatch function.
  * @tparam PostDispatchedMessageFn Postdispatch function.
- * @tparam R dispatch result.
  */
-template <typename HasPreDispatchedMessage, typename PostDispatchedMessage,
-          typename R>
-using dispatcher_concept = std::enable_if_t<
+template <typename HasPreDispatchedMessage, typename PostDispatchedMessage>
+concept message_dispatcher =
     std::is_nothrow_invocable_r_v<bool, HasPreDispatchedMessage, const MSG&> &&
-        std::is_nothrow_invocable_r_v<void, PostDispatchedMessage, const MSG&>,
-    R>;
+    std::is_nothrow_invocable_r_v<void, PostDispatchedMessage, const MSG&>;
 
 /**
  * @brief Window messages peeking dispatcher.
@@ -75,14 +72,14 @@ class PeekMessageDispatcher {
   template <
       typename HasPreDispatchedMessage = decltype(&HasNoPreDispatchMessage),
       typename PostDispatchedMessage = decltype(&HasNoPostDispatchMessage)>
-  dispatcher_concept<HasPreDispatchedMessage, PostDispatchedMessage,
-                     std::optional<std::error_code>>
-  Dispatch(_In_ HasPreDispatchedMessage has_pre_dispatched_message =
-               HasNoPreDispatchMessage,
-           _In_ PostDispatchedMessage post_dispatched_message =
-               HasNoPostDispatchMessage,
-           _In_ UINT lowest_message_id = 0U,
-           _In_ UINT highest_message_id = 0U) const noexcept {
+  requires message_dispatcher<HasPreDispatchedMessage, PostDispatchedMessage>
+      std::optional<std::error_code> Dispatch(
+          _In_ HasPreDispatchedMessage has_pre_dispatched_message =
+              HasNoPreDispatchMessage,
+          _In_ PostDispatchedMessage post_dispatched_message =
+              HasNoPostDispatchMessage,
+          _In_ UINT lowest_message_id = 0U, _In_ UINT highest_message_id = 0U)
+  const noexcept {
     MSG msg;
     while (PeekMessage(&msg, hwnd_, lowest_message_id, highest_message_id,
                        PM_NOREMOVE)) {

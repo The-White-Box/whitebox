@@ -66,9 +66,9 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
  * @tparam TPolicy Mitigation policy.
  * @tparam R Return type.
  */
-template <typename TPolicy, typename R>
-using mitigation_policy_concept = std::enable_if_t<
-    mitigation_policy_flag<TPolicy> != MaxProcessMitigationPolicy, R>;
+template <typename TPolicy>
+concept mitigation_policy = mitigation_policy_flag<TPolicy>
+!= MaxProcessMitigationPolicy;
 
 /**
  * @brief Get mitigation policy setting from OS.
@@ -77,9 +77,9 @@ using mitigation_policy_concept = std::enable_if_t<
  * @param policy Policy to fill with OS data.
  * @return Error code.
  */
-template <typename TPolicy>
-[[nodiscard]] mitigation_policy_concept<TPolicy, std::error_code>
-GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
+template <mitigation_policy TPolicy>
+[[nodiscard]] std::error_code GetProcessMitigationPolicy(
+    HANDLE process, TPolicy& policy) noexcept {
   std2::BitwiseMemset(policy, 0);
 
   return get_error(::GetProcessMitigationPolicy(
@@ -92,9 +92,9 @@ GetProcessMitigationPolicy(HANDLE process, TPolicy& policy) noexcept {
  * @param policy Policy data to set in OS.
  * @return Error code.
  */
-template <typename TPolicy>
-[[nodiscard]] mitigation_policy_concept<TPolicy, std::error_code>
-SetProcessMitigationPolicy(TPolicy& policy) noexcept {
+template <mitigation_policy TPolicy>
+[[nodiscard]] std::error_code SetProcessMitigationPolicy(
+    TPolicy& policy) noexcept {
   const std::error_code rc{get_error(::SetProcessMitigationPolicy(
       mitigation_policy_flag<TPolicy>, &policy, sizeof(policy)))};
 
@@ -202,9 +202,10 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       old_epd_policy_to_new_errc_{},
       old_cfg_policy_to_new_errc_{},
       old_sfd_policy_to_new_errc_{},
-      old_sil_policy_to_new_errc_ {}
+      old_sil_policy_to_new_errc_{}
 #if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-, old_uss_policy_to_new_errc_ {}
+      ,
+      old_uss_policy_to_new_errc_{}
 #endif
 {
   // NOLINTNEXTLINE(misc-misplaced-const)

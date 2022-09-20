@@ -43,11 +43,9 @@ WB_WHITEBOX_UI_API bool FlashWindowByClass(
 /**
  * @brief Is resource id for MakeIntResource concept.
  * @tparam T Type to check.
- * @tparam R Type to return.
  */
-template <typename T, typename R>
-using is_resource_id_concept =
-    std::enable_if_t<std::is_integral_v<T> && sizeof(T) <= sizeof(int), R>;
+template <typename T>
+concept resource_id = std::is_integral_v<T> && sizeof(T) <= sizeof(int);
 
 #ifdef UNICODE
 /**
@@ -56,9 +54,8 @@ using is_resource_id_concept =
  * @param id
  * @return Internal resource string.
  */
-template <typename T>
-[[nodiscard]] constexpr is_resource_id_concept<T, const wchar_t *>
-MakeIntResource(T id) noexcept {
+template <resource_id T>
+[[nodiscard]] constexpr const wchar_t *MakeIntResource(T id) noexcept {
   return reinterpret_cast<const wchar_t *>(
       static_cast<std::uintptr_t>(static_cast<unsigned short>(id)));
 }
@@ -69,9 +66,8 @@ MakeIntResource(T id) noexcept {
  * @param id
  * @return Internal resource string.
  */
-template <typename T>
-[[nodiscard]] constexpr is_resource_id_concept<T, const char *> MakeIntResource(
-    T id) noexcept {
+template <resource_id T>
+[[nodiscard]] constexpr const char *MakeIntResource(T id) noexcept {
   return reinterpret_cast<const char *>(
       static_cast<std::uintptr_t>(static_cast<unsigned short>(id)));
 }

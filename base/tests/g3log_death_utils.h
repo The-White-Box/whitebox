@@ -22,19 +22,18 @@ namespace wb::base::tests_internal {
  * @tparam TPredicate Type to be death test exit predicate.
  */
 template <typename TPredicate>
-using death_test_exit_predicate_concept =
-    std::enable_if_t<std::is_same_v<TPredicate, testing::ExitedWithCode>
+concept death_test_exit_predicate =
+    std::is_same_v<TPredicate, testing::ExitedWithCode>
 #ifndef WB_OS_WIN
-                     || std::is_same_v<TPredicate, testing::KilledBySignal>
+    || std::is_same_v<TPredicate, testing::KilledBySignal>
 #endif
-                     >;
+    ;
 
 /**
  * @brief Death test result.
  * @tparam TPredicate Death test predicate.
  */
-template <typename TPredicate,
-          typename = death_test_exit_predicate_concept<TPredicate>>
+template <death_test_exit_predicate TPredicate>
 struct DeathTestResult {
   /**
    * @brief Creates death test result.

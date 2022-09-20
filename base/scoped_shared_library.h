@@ -98,11 +98,9 @@ namespace wb::base {
 /**
  * @brief Function pointer concept.
  * @tparam TPointer Pointer to check.
- * @tparam R Result type if TPointer is function pointer.
  */
-template <typename TPointer, typename R>
-using function_pointer_concept =
-    std::enable_if_t<std2::is_function_pointer_v<TPointer>, R>;
+template <typename TPointer>
+concept function_pointer = std2::is_function_pointer_v<TPointer>;
 
 /**
  * @brief Smart pointer with std::unique_ptr semantic for module lifecycle
@@ -146,8 +144,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
    * @param function_name Function name.
    * @return (address, error_code).
    */
-  template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std2::result<T>> GetAddressAs(
+  template <function_pointer T>
+  [[nodiscard]] std2::result<T> GetAddressAs(
       _In_z_ const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(
         reinterpret_cast<void *>(::GetProcAddress(get(), function_name)));
@@ -174,8 +172,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
 
   // Gets (address, error_code) of function |function_name| in loaded shared
   // library.
-  template <typename T>
-  [[nodiscard]] function_pointer_concept<T, std2::result<T>> GetAddressAs(
+  template <function_pointer T>
+  [[nodiscard]] std2::result<T> GetAddressAs(
       const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
     return address != nullptr ? std2::result<T>(address)

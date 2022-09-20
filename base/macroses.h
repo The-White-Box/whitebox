@@ -50,14 +50,20 @@ template <typename To, typename From>
 }
 
 /**
+ * @brief Enum concept.
+ * @tparam TEnum type to be an enum.
+ */
+template <typename TEnum>
+concept is_enum = std::is_enum_v<TEnum>;
+
+/**
  * @brief Safely casts enum value to its underlying type.
  * @tparam TEnum Enum.
  * @param value Enum value.
  * @return Enum value with underlying enum type.
  */
-template <typename TEnum>
-constexpr std::enable_if_t<std::is_enum_v<TEnum>, std::underlying_type_t<TEnum>>
-underlying_cast(TEnum value) noexcept {
+template <is_enum TEnum>
+constexpr std::underlying_type_t<TEnum> underlying_cast(TEnum value) noexcept {
   return static_cast<std::underlying_type_t<TEnum>>(value);
 }
 
@@ -68,10 +74,8 @@ underlying_cast(TEnum value) noexcept {
  * @param from Enum to cast from.
  * @return Enum to cast from as enum to cast to.
  */
-template <typename ToEnum, typename FromEnum>
-[[nodiscard]] constexpr std::enable_if_t<
-    std::is_enum_v<ToEnum> && std::is_enum_v<FromEnum>, ToEnum>
-enum_cast(FromEnum from) noexcept {
+template <is_enum ToEnum, is_enum FromEnum>
+[[nodiscard]] constexpr ToEnum enum_cast(FromEnum from) noexcept {
   return static_cast<ToEnum>(underlying_cast(from));
 }
 

@@ -47,18 +47,16 @@ constexpr bool is_filter_system_key{
 /**
  * @brief Is system key?
  * @tparam TSystemKey key.
- * @tparam R result type if TSystemKey is Windows Accessibility Shortcut key.
  */
-template <unsigned key_action, typename TSystemKey, typename R>
-using system_key_concept =
-    std::enable_if_t<is_sticky_system_key<key_action, TSystemKey> ||
-                         is_toggle_system_key<key_action, TSystemKey> ||
-                         is_filter_system_key<key_action, TSystemKey>,
-                     R>;
+template <unsigned key_action, typename TSystemKey>
+concept system_key = is_sticky_system_key<key_action, TSystemKey> ||
+    is_toggle_system_key<key_action, TSystemKey> ||
+    is_filter_system_key<key_action, TSystemKey>;
 
 template <unsigned key_action, typename TSystemKey>
-system_key_concept<key_action, TSystemKey, std::error_code> SystemKeysInfo(
-    _In_ TSystemKey& key) noexcept {
+requires system_key<key_action, TSystemKey> std::error_code SystemKeysInfo(
+    _In_ TSystemKey& key)
+noexcept {
   return wb::base::win::get_error(
       ::SystemParametersInfo(key_action, sizeof(key), &key, 0));
 }
