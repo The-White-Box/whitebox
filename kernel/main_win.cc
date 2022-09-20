@@ -4,15 +4,13 @@
 //
 // Whitebox kernel main entry point.
 
-#include "main.h"
-
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/l18n.h"
-#include "ui/fatal_dialog.h"
-
 #include "base/win/windows_light.h"
 #include "kernel/main_window_win.h"
+#include "main.h"
+#include "ui/fatal_dialog.h"
 #include "ui/win/base_window.h"
 #include "ui/win/peek_message_dispatcher.h"
 
@@ -62,14 +60,13 @@ namespace {
     }
   };
 
-  using namespace wb::ui::win;
-  PeekMessageDispatcher message_dispatcher;
+  wb::ui::win::PeekMessageDispatcher message_dispatcher;
 
   // Main message app loop.
   // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in handle_quit_message.
   while (!is_done) {
     const auto maybe_dispatch_rc = message_dispatcher.Dispatch(
-        HasNoPreDispatchMessage, handle_quit_message);
+        wb::ui::win::HasNoPreDispatchMessage, handle_quit_message);
 
     if (maybe_dispatch_rc.has_value()) {
       const auto rc = maybe_dispatch_rc.value();
