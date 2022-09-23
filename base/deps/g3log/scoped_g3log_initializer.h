@@ -51,6 +51,13 @@ class ScopedG3LogInitializer {
         g3_initializer_{log_worker_.get()} /*,
          g3_io_streams_redirector_{}*/
   {
+    // Custom formatting for log details, as default one is too noisy for
+    // function signature.
+    file_sink_handle_->call(&g3::FileSink::overrideLogDetails,
+                            FullLogDetailsToString);
+    console_sink_handle_->call(&ConsoleSink::overrideLogDetails,
+                               FullLogDetailsToString);
+
     // Install signal handler that catches FATAL C-runtime or OS signals
     // See the wikipedia site for details http://en.wikipedia.org/wiki/SIGFPE
     // See this site for example usage:
@@ -218,6 +225,37 @@ class ScopedG3LogInitializer {
                            ? TrimExeExtension(maybe_exe_name.value())
                            : log_prefix};
 #endif
+  }
+
+  /**
+   * @brief Converts log message details to string.
+   * @param msg Log message.
+   * @return Log message details as string.
+   */
+  static std::string FullLogDetailsToString(const g3::LogMessage& msg) {
+    const auto function_formatter = [](const std::string& function) noexcept {
+      // Reverse find as we have operator ()(some_nasty_type) things.
+      const size_t close_parenthesis_idx{function.rfind(')')};
+      if (close_parenthesis_idx != std::string::npos) WB_ATTRIBUTE_LIKELY {
+          const size_t open_parenthesis_idx{function.rfind('(')};
+          if (open_parenthesis_idx != std::string::npos) WB_ATTRIBUTE_LIKELY {
+              if (close_parenthesis_idx == open_parenthesis_idx + 1)
+                WB_ATTRIBUTE_UNLIKELY { return function; }
+
+              // Replace (some_arguments) with (...) to reduce noise in logs.
+              return function.substr(0, open_parenthesis_idx + 1) + "..." +
+                     function.substr(close_parenthesis_idx,
+                                     function.size() - close_parenthesis_idx);
+            }
+        }
+      return function;
+    };
+
+    std::string out;
+    out.append(msg.timestamp() + "\t" + msg.level() + " [" + msg.threadID() +
+               " " + msg.file() + "->" + function_formatter(msg.function()) +
+               ":" + msg.line() + "]\t");
+    return out;
   }
 };
 

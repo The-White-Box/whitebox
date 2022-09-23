@@ -27,9 +27,14 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT void __stdcall OutputDebugStringA(
 namespace wb::base::deps::g3log {
 
 /**
+ * @brief Log details function.
+ */
+using LogDetailsFunc = decltype(&g3::LogMessage::DefaultLogDetailsToString);
+
+/**
  * @brief Console sink.  Useful for debugging.
  */
-struct ConsoleSink {
+class ConsoleSink {
 #ifdef WB_OS_POSIX
   // Linux xterm color.
   // https://stackoverflow.com/questions/2616906/how-do-i-output-coloured-text-to-a-linux-terminal
@@ -60,6 +65,15 @@ struct ConsoleSink {
   }
 #endif
 
+ public:
+  /**
+   * @brief ctor
+   * @param log_details_func Log details function.
+   */
+  ConsoleSink(LogDetailsFunc log_details_func =
+                  &g3::LogMessage::DefaultLogDetailsToString) noexcept
+      : log_details_func_{log_details_func} {}
+
   /**
    * @brief Receives and processes log message.
    * @param logEntry Log message.
@@ -72,13 +86,24 @@ struct ConsoleSink {
     std::cerr << "\033[" << wb::base::underlying_cast(color) << "m"
               << logEntry.get().toString() << "\033[m";
 #elif defined(WB_OS_WIN)
-    const auto message = logEntry.get().toString();
+    const auto message = logEntry.get().toString(log_details_func_);
 
     ::OutputDebugStringA(message.c_str());
 #else
 #error "Please define console output sink for your platform."
 #endif
   }
+
+  /**
+   * @brief Override log details function.
+   * @param func New log details function.
+   */
+  void overrideLogDetails(LogDetailsFunc func) noexcept {
+    log_details_func_ = func;
+  }
+
+ private:
+  LogDetailsFunc log_details_func_;
 };
 
 }  // namespace wb::base::deps::g3log
