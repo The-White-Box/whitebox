@@ -1,6 +1,8 @@
 // Copyright (c) 2021 The WhiteBox Authors.  All rights reserved.
 // Use of this source code is governed by a 3-Clause BSD license that can be
 // found in the LICENSE file.
+//
+// HANDLE RAII wrapper.
 
 #ifndef WB_BASE_WIN_UNIQUE_HANDLE_H_
 #define WB_BASE_WIN_UNIQUE_HANDLE_H_
@@ -80,19 +82,24 @@ class unique_handle : private std::unique_ptr<handle_descriptor> {
   /**
    * @brief Get existing handle.
    */
-  using unique_handle_base::get;
+  [[nodiscard]] WB_CONSTEXPR_CXX23 void *get() const noexcept {
+    return unique_handle_base::get();
+  }
+
   /**
-   * @brief Establish new handle.
+   * @brief Reset handle.
    */
-  using unique_handle_base::reset;
+  WB_CONSTEXPR_CXX23 void reset(void *handle = nullptr) noexcept {
+    unique_handle_base::reset(static_cast<handle_descriptor *>(handle));
+  }
 
   /**
    * @brief Create handle from existing descriptor.
    * @param handle Handle to own.
    * @return nothing.
    */
-  explicit unique_handle(_In_opt_ handle_descriptor *handle) noexcept
-      : unique_handle_base{handle} {}
+  explicit unique_handle(_In_opt_ void *handle) noexcept
+      : unique_handle_base{static_cast<handle_descriptor *>(handle)} {}
 
   unique_handle(unique_handle &&) noexcept = default;
   unique_handle &operator=(unique_handle &&) noexcept = default;

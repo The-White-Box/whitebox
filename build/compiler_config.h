@@ -12,6 +12,8 @@
 // clang-format off
 #if defined(__cplusplus)
 #if __cplusplus > 201703L
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     1
 // Has C++17 support.
@@ -22,6 +24,8 @@
 #define WB_COMPILER_HAS_CXX98     1
 #define WB_COMPILER_HAS_CXXPRE98  1
 #elif __cplusplus > 201402L
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -32,6 +36,8 @@
 #define WB_COMPILER_HAS_CXX98     1
 #define WB_COMPILER_HAS_CXXPRE98  1
 #elif __cplusplus > 201103L
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -42,6 +48,8 @@
 #define WB_COMPILER_HAS_CXX98     1
 #define WB_COMPILER_HAS_CXXPRE98  1
 #elif __cplusplus > 199711L
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -52,6 +60,8 @@
 #define WB_COMPILER_HAS_CXX98     1
 #define WB_COMPILER_HAS_CXXPRE98  1
 #elif __cplusplus > 1L
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -62,6 +72,8 @@
 #define WB_COMPILER_HAS_CXX98     1
 #define WB_COMPILER_HAS_CXXPRE98  1
 #elif __cplusplus == 1L
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -72,6 +84,8 @@
 #define WB_COMPILER_HAS_CXX98     0
 #define WB_COMPILER_HAS_CXXPRE98  1
 #else
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -83,6 +97,8 @@
 #define WB_COMPILER_HAS_CXXPRE98  0
 #endif
 #else  // !__cplusplus
+// Has C++23 support.
+#define WB_COMPILER_HAS_CXX23     0
 // Has C++20 support.
 #define WB_COMPILER_HAS_CXX20     0
 // Has C++17 support.
@@ -94,6 +110,14 @@
 #define WB_COMPILER_HAS_CXXPRE98  0
 #endif  // __cplusplus
 // clang-format on
+
+#if defined(WB_COMPILER_HAS_CXX23) && WB_COMPILER_HAS_CXX23
+// constexpr in C++23.
+#define WB_CONSTEXPR_CXX23 constexpr
+#else
+// nothing before C++23.
+#define WB_CONSTEXPR_CXX23
+#endif  // WB_COMPILER_HAS_CXX23
 
 // We extended NDEBUG from asserts (as C++ standard says) to all debug code.
 // Done for simplicity and as extensively used practise.
