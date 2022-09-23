@@ -54,12 +54,14 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
                 << " MiBs\n";
 
     std::vector<int *> memory;
+    memory.reserve(doubled_total_ram_bytes / kBlockAllocSize);
 
     size_t allocated_bytes{0};
     while (allocated_bytes < doubled_total_ram_bytes) {
       auto *block = new int[kBlockAllocSize];
 
-      constexpr size_t kStepSize{65536}, kFillAreaSize{16};
+      constexpr size_t kStepSize{static_cast<size_t>(65536) * 16384},
+          kFillAreaSize{16};
       for (size_t i{0}; i < kBlockAllocSize - kFillAreaSize; i += kStepSize) {
         memset(&block[i], distribution(generator), kFillAreaSize);
       }
@@ -74,10 +76,10 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
       }
 
       allocated_bytes += kBlockAllocSize;
-
-      G3LOG(INFO) << "Allocated RAM " << allocated_bytes / 1024 / 1024
-                  << "MiB.\n";
     }
+
+    G3LOG(INFO) << "Allocated RAM " << allocated_bytes / 1024 / 1024
+                << "MiB.\n";
 
     // Memory is freed automatically as dead test is running in a distinct
     // process.  Makes test finish faster.
