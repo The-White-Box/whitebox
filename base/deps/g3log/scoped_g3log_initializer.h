@@ -13,6 +13,7 @@
 #include <string_view>
 
 #include "base/deps/abseil/base/internal/raw_logging.h"
+#include "base/deps/abseil/strings/str_cat.h"
 #include "base/macroses.h"
 #include "base/std2/counting_streambuf.h"
 #include "base/std2/filesystem_ext.h"
@@ -291,19 +292,19 @@ class ScopedG3LogInitializer {
                 WB_ATTRIBUTE_UNLIKELY { return function; }
 
               // Replace (some_arguments) with (...) to reduce noise in logs.
-              return function.substr(0, open_parenthesis_idx + 1) + "..." +
-                     function.substr(close_parenthesis_idx,
-                                     function.size() - close_parenthesis_idx);
+              return absl::StrCat(
+                  function.substr(0, open_parenthesis_idx + 1), "...",
+                  function.substr(close_parenthesis_idx,
+                                  function.size() - close_parenthesis_idx));
             }
         }
       return function;
     };
 
-    std::string out;
-    out.append(msg.timestamp() + "\t" + msg.level() + " [" + msg.threadID() +
-               " " + msg.file() + "->" + function_formatter(msg.function()) +
-               ":" + msg.line() + "]\t");
-    return out;
+    return absl::StrCat(msg.timestamp(), "\t", msg.level(), " [",
+                        msg.threadID(), " ", msg.file(), "->",
+                        function_formatter(msg.function()), ":", msg.line(),
+                        "]\t");
   }
 };
 
