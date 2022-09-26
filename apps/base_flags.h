@@ -39,7 +39,7 @@ std::string AbslUnparseFlag(PeriodicTimerResolution p);
 
 /**
  * @brief Parses a PeriodicTimerResolution from the command line flag value
- * `text`.
+ * `text.
  * @param text Command line flag value.
  * @param p PeriodicTimerResolution.
  * @param error Parse flag error.
@@ -76,7 +76,7 @@ struct WindowWidth : WindowSize {
 
 /**
  * @brief Returns a textual flag value corresponding to the WindowWidth.
- * @param w WindowWidth
+ * @param w WindowWidth.
  * @return Textual flag value.
  */
 std::string AbslUnparseFlag(WindowWidth w);
@@ -100,7 +100,7 @@ struct WindowHeight : WindowSize {
 
 /**
  * @brief Returns a textual flag value corresponding to the WindowHeight.
- * @param h WindowHeight
+ * @param h WindowHeight.
  * @return Textual flag value.
  */
 std::string AbslUnparseFlag(WindowHeight h);

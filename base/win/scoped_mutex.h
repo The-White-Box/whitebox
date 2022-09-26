@@ -7,8 +7,8 @@
 
 #include <chrono>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/std2/system_error_ext.h"
 #include "base/win/security/os_objects_access_rights.h"
 #include "base/win/unique_handle.h"
@@ -144,9 +144,8 @@ class ScopedMutex {
       _In_opt_ SECURITY_ATTRIBUTES *security_attributes,
       _In_opt_ const char *name, _In_ ScopedMutexCreationFlag flags,
       _In_ const security::ScopedMutexAccessRights &access_rights) noexcept
-      : mutex_{reinterpret_cast<handle_descriptor *>(
-            ::CreateMutexExA(security_attributes, name, underlying_cast(flags),
-                             access_rights.Value()))},
+      : mutex_{::CreateMutexExA(security_attributes, name,
+                                underlying_cast(flags), access_rights.Value())},
         // If the mutex is a named mutex and the object existed before this
         // function call, the return value is a handle to the existing object,
         // and the GetLastError function returns ERROR_ALREADY_EXISTS.
