@@ -173,8 +173,7 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
     EXPECT_TRUE(is_succeeded(rc));
     EXPECT_EQ(apartment_type, APTTYPE::APTTYPE_MTA);
 
-    std::thread uninitialize_thread{[c = std::move(*com)]() { (void)c; }};
-    uninitialize_thread.join();
+    std::jthread uninitialize_thread{[c = std::move(*com)]() { (void)c; }};
   };
 
   const auto test_result =
