@@ -134,5 +134,8 @@ GTEST_TEST(SimpleTokenParserTest, ParseToken) {
   // Test constexpr evaluation.
   static_assert(ParseToken("//  a  \nbc d\n", break_set) ==
                     ParsedToken{.next_token = " d\n", .current_token = "bc"},
-                "Should ParseToken as constexpr");
+                "Should ParseToken as constexpr and check equality");
+  static_assert(!(ParseToken("//  a  \nbc d\n", break_set) !=
+                  ParsedToken{.next_token = " d\n", .current_token = "bc"}),
+                "Should ParseToken as constexpr and check inequality");
 }
