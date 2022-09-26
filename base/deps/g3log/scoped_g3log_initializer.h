@@ -12,6 +12,7 @@
 #include <string>
 #include <string_view>
 
+#include "base/deps/abseil/base/internal/raw_logging.h"
 #include "base/macroses.h"
 #include "base/std2/counting_streambuf.h"
 #include "base/std2/filesystem_ext.h"
@@ -48,7 +49,8 @@ class ScopedG3LogInitializer {
             GetExecutableNameFromLogPrefix(log_prefix), path_to_log_file, "")},
         console_sink_handle_{log_worker_->addSink(
             std::make_unique<ConsoleSink>(), &ConsoleSink::ReceiveLogMessage)},
-        g3_initializer_{log_worker_.get()} /*,
+        g3_initializer_{log_worker_.get()},
+        g3_abseil_log_redirector_{} /*,
          g3_io_streams_redirector_{}*/
   {
     // Custom formatting for log details, as default one is too noisy for
@@ -168,6 +170,47 @@ class ScopedG3LogInitializer {
   };
 
   /**
+   * @brief abseil log to g3log redirector.
+   */
+  struct G3AbseilLogRedirector {
+    G3AbseilLogRedirector() noexcept
+        : old_log_function_{
+              absl::raw_log_internal::internal_log_function.Load()} {
+      absl::raw_log_internal::RegisterInternalLogFunction(&Log);
+    }
+
+    WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(G3AbseilLogRedirector);
+
+    ~G3AbseilLogRedirector() noexcept {
+      // TODO(dimhotepus): AtomicHook is not designed to call Store() more than
+      // once.
+      // absl::raw_log_internal::RegisterInternalLogFunction(old_log_function_);
+    }
+
+    static LEVELS MakeG3logLevelFromSeverity(
+        absl::LogSeverity severity) noexcept {
+      switch (severity) {
+        case absl::LogSeverity::kInfo:
+          return INFO;
+        case absl::LogSeverity::kWarning:
+          return WARNING;
+        case absl::LogSeverity::kError:
+        case absl::LogSeverity::kFatal:
+        default:
+          return FATAL;
+      }
+    }
+
+    static void Log(absl::LogSeverity severity, const char* file, int line,
+                    const std::string& message) {
+      const LEVELS g3log_severity{MakeG3logLevelFromSeverity(severity)};
+      G3LOG(g3log_severity) << file << " (" << line << ") " << message;
+    }
+
+    const absl::raw_log_internal::InternalLogFunction old_log_function_;
+  };
+
+  /**
    * @brief Log worker.
    */
   WB_ATTRIBUTE_UNUSED_FIELD wb::base::un<g3::LogWorker> log_worker_;
@@ -186,6 +229,11 @@ class ScopedG3LogInitializer {
   WB_ATTRIBUTE_UNUSED_FIELD G3LogInitializer g3_initializer_;
 
   WB_ATTRIBUTE_UNUSED_FIELD std::byte pad_[7] = {};
+
+  /**
+   * @brief abseil log to g3log redirector.
+   */
+  WB_ATTRIBUTE_UNUSED_FIELD G3AbseilLogRedirector g3_abseil_log_redirector_;
 
   /**
    * @brief g3log cout / cerr redirector.  Depends on g3_initializer_.
