@@ -164,7 +164,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   const WindowFlags window_flags{MakeWindowFlags()};
 
-  const auto window_result = wb::kernel::MainWindow::New(
+  const auto window_result = MainWindow::New(
       kernel_args.app_description, command_line_flags.main_window_width,
       command_line_flags.main_window_height, window_flags, intl);
   if (const auto* window = get_result(window_result)) WB_ATTRIBUTE_LIKELY {
