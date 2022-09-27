@@ -25,6 +25,11 @@ struct CommandLineFlags {
   std::vector<char *> positional_flags;
 
   /**
+   * @brief Assets path.
+   */
+  std::string assets_path;
+
+  /**
    * @brief How many memory cleanup & reallocation attempts to do when out of
    * memory.
    */

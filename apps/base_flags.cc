@@ -6,6 +6,8 @@
 
 #include "base_flags.h"
 
+#include <filesystem>
+
 #include "base/deps/abseil/flags/flag.h"
 #include "base/deps/abseil/flags/parse.h"
 #include "base/deps/abseil/strings/str_cat.h"
@@ -36,11 +38,12 @@ bool AbslParseFlag(std::string_view text, PeriodicTimerResolution* p,
   TIMECAPS time_caps;
   const auto rc = ::timeGetDevCaps(&time_caps, sizeof(time_caps));
   if (rc == MMSYSERR_NOERROR) WB_ATTRIBUTE_LIKELY {
-      if (p->ms < time_caps.wPeriodMin || p->ms > time_caps.wPeriodMax) {
-        *error = absl::StrCat("not in range [", time_caps.wPeriodMin, ",",
-                              time_caps.wPeriodMax, "]");
-        return false;
-      }
+      if (p->ms < time_caps.wPeriodMin || p->ms > time_caps.wPeriodMax)
+        WB_ATTRIBUTE_UNLIKELY {
+          *error = absl::StrCat("not in range [", time_caps.wPeriodMin, ",",
+                                time_caps.wPeriodMax, "]");
+          return false;
+        }
 
       return true;
     }
@@ -79,11 +82,12 @@ bool AbslParseFlag(std::string_view text, WindowWidth* w, std::string* error) {
   constexpr std::uint16_t maximum_window_width{
       std::numeric_limits<std::uint16_t>::max()};
 
-  if (w->size < minimum_window_width || w->size > maximum_window_width) {
-    *error = absl::StrCat("not in range [", minimum_window_width, ",",
-                          maximum_window_width, "]");
-    return false;
-  }
+  if (w->size < minimum_window_width || w->size > maximum_window_width)
+    WB_ATTRIBUTE_UNLIKELY {
+      *error = absl::StrCat("not in range [", minimum_window_width, ",",
+                            maximum_window_width, "]");
+      return false;
+    }
 
   return true;
 }
@@ -116,16 +120,49 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
   constexpr std::uint16_t maximum_window_height{
       std::numeric_limits<std::uint16_t>::max()};
 
-  if (h->size < minimum_window_height || h->size > maximum_window_height) {
-    *error = absl::StrCat("not in range [", minimum_window_height, ",",
-                          maximum_window_height, "]");
+  if (h->size < minimum_window_height || h->size > maximum_window_height)
+    WB_ATTRIBUTE_UNLIKELY {
+      *error = absl::StrCat("not in range [", minimum_window_height, ",",
+                            maximum_window_height, "]");
+      return false;
+    }
+
+  return true;
+}
+
+std::string AbslUnparseFlag(AssetsPath p) {
+  // Delegate to the usual unparsing for string.
+  return absl::UnparseFlag(p.value);
+}
+
+bool AbslParseFlag(std::string_view text, AssetsPath* p, std::string* error) {
+  // Convert from text to string_view using the string-flag parser.
+  if (!absl::ParseFlag(text, &p->value, error)) {
     return false;
   }
+
+  std::error_code rc;
+  const bool has_assets_path{
+      std::filesystem::exists(std::filesystem::path{p->value}, rc)};
+
+  if (rc) WB_ATTRIBUTE_UNLIKELY {
+      *error = absl::StrCat("is not valid assets path? [", rc.message(), "]");
+      return false;
+    }
+
+  if (!has_assets_path) WB_ATTRIBUTE_UNLIKELY {
+      *error = "assets path doesn't exist";
+      return false;
+    }
 
   return true;
 }
 
 }  // namespace wb::apps::flags
+
+ABSL_FLAG(wb::apps::flags::AssetsPath, assets_path,
+          wb::apps::flags::AssetsPath{"./"},
+          "assets path.");
 
 ABSL_FLAG(std::uint32_t, attempts_to_retry_allocate_memory, 3U,
           "how many memory cleanup & reallocation attempts to do when out of "

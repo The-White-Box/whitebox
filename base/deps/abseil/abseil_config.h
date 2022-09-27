@@ -16,6 +16,7 @@
   WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()         \
     WB_MSVC_DISABLE_WARNING(4324)                \
     WB_MSVC_DISABLE_WARNING(4355)                \
+    WB_MSVC_DISABLE_WARNING(4583)                \
     WB_MSVC_DISABLE_WARNING(4365)                \
     WB_MSVC_DISABLE_WARNING(4623)                \
     WB_MSVC_DISABLE_WARNING(4625)                \

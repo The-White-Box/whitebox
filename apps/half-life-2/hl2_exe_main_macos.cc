@@ -159,6 +159,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto boot_manager_main =
       std::get<BootManagerMainFunction>(bootmgr_entry_result);
 
+  wb::apps::flags::AssetsPath assets_path{absl::GetFlag(FLAGS_assets_path)};
   const std::uint32_t attempts_to_retry_allocate_memory{
       absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
   const wb::apps::flags::WindowWidth main_window_width{
@@ -169,6 +170,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
       absl::GetFlag(FLAGS_should_dump_heap_allocator_statistics_on_exit)};
   const wb::boot_manager::CommandLineFlags command_line_flags{
       .positional_flags = std::move(positional_flags),
+      .assets_path = std::move(assets_path.value),
       .attempts_to_retry_allocate_memory = attempts_to_retry_allocate_memory,
       .main_window_width = main_window_width.size,
       .main_window_height = main_window_height.size,

@@ -80,6 +80,7 @@ namespace {
  */
 [[nodiscard]] wb::boot_manager::CommandLineFlags MakeCommandLineFlags(
     std::vector<char*> positional_flags) noexcept {
+  wb::apps::flags::AssetsPath assets_path{absl::GetFlag(FLAGS_assets_path)};
   const std::uint32_t attempts_to_retry_allocate_memory{
       absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
   const wb::apps::flags::PeriodicTimerResolution periodic_timer_resolution{
@@ -95,6 +96,7 @@ namespace {
 
   return {
       .positional_flags = std::move(positional_flags),
+      .assets_path = std::move(assets_path.value),
       .attempts_to_retry_allocate_memory = attempts_to_retry_allocate_memory,
       .periodic_timer_resolution_ms = periodic_timer_resolution.ms,
       .main_window_width = main_window_width.size,

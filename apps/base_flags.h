@@ -115,7 +115,36 @@ std::string AbslUnparseFlag(WindowHeight h);
  */
 bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error);
 
+/**
+ * @brief Assets path.
+ */
+struct AssetsPath {
+  explicit AssetsPath(std::string value_) noexcept : value{std::move(value_)} {}
+
+  std::string value;
+};
+
+/**
+ * @brief Returns a textual flag value corresponding to the AssetsPath.
+ * @param p AssetsPath.
+ * @return Textual flag value.
+ */
+std::string AbslUnparseFlag(AssetsPath p);
+
+/**
+ * @brief Parses a AssetsPath from the command line flag value `text`.
+ * @param text Command line flag value.
+ * @param p AssetsPath.
+ * @param error Parse flag error.
+ * @return true and sets `*p` on success; returns false and sets `*error` on
+ * failure.
+ */
+bool AbslParseFlag(std::string_view text, AssetsPath* p, std::string* error);
+
 }  // namespace wb::apps::flags
+
+// Assets path.
+ABSL_DECLARE_FLAG(wb::apps::flags::AssetsPath, assets_path);
 
 // How many memory cleanup & reallocation attempts to do when out of memory.
 ABSL_DECLARE_FLAG(std::uint32_t, attempts_to_retry_allocate_memory);

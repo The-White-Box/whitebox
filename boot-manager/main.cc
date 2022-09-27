@@ -42,8 +42,10 @@ namespace {
 /**
  * Dump some system information.
  * @param app_description Application description.
+ * @param assets_path Assets path.
  */
-void DumpSystemInformation(const char* app_description) noexcept {
+void DumpSystemInformation(const char* app_description,
+                           const std::string& assets_path) noexcept {
   G3DCHECK(!!app_description);
 
 #if defined(WB_OS_POSIX)
@@ -75,7 +77,8 @@ void DumpSystemInformation(const char* app_description) noexcept {
 #ifdef WB_OS_WIN
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with MSVC " << _MSC_FULL_VER << '.' << _MSC_BUILD
-              << " running on " << wb::base::win::GetVersion() << ".";
+              << " running on " << wb::base::win::GetVersion()
+              << " with assets from '" << assets_path << "'.";
 #endif
 }
 
@@ -203,7 +206,8 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const wb::boot_manager::BootManagerArgs& boot_manager_args) {
   using namespace wb::base;
 
-  DumpSystemInformation(boot_manager_args.app_description);
+  DumpSystemInformation(boot_manager_args.app_description,
+                        boot_manager_args.command_line_flags.assets_path);
 
 #ifdef WB_OS_WIN
   using namespace wb::base::win;
@@ -352,8 +356,8 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
         const auto bump_thread_priority_rc = controller->SetPriority(
             win::mmcss::ScopedMmcssThreadPriority::kHigh);
         G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
-            << "Can't set high priority in Multimedia Class Scheduler Service "
-               "for the thread.";
+            << "Can't set high priority for the thread in Multimedia Class "
+               "Scheduler Service.";
       }
     else {
       G3PLOG_E(WARNING, *std2::get_error(scoped_mmcss_thread_controller))
