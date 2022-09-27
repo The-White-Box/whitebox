@@ -352,8 +352,8 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
         const auto bump_thread_priority_rc = controller->SetPriority(
             win::mmcss::ScopedMmcssThreadPriority::kHigh);
         G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
-            << "Can't get system responsiveness setting used by Multimedia "
-               "Class Scheduler Service for the thread.";
+            << "Can't set high priority in Multimedia Class Scheduler Service "
+               "for the thread.";
       }
     else {
       G3PLOG_E(WARNING, *std2::get_error(scoped_mmcss_thread_controller))
