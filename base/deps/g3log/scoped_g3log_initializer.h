@@ -62,7 +62,7 @@ class ScopedG3LogInitializer {
                                FullLogDetailsToString);
 
     // Install signal handler that catches FATAL C-runtime or OS signals
-    // See the wikipedia site for details http://en.wikipedia.org/wiki/SIGFPE
+    // See the wikipedia site for details https://en.wikipedia.org/wiki/Signal_(IPC)#SIGFPE
     // See this site for example usage:
     // http://www.tutorialspoint.com/cplusplus/cpp_signal_handling
     // SIGABRT  ABORT (ANSI), abnormal termination
@@ -73,22 +73,11 @@ class ScopedG3LogInitializer {
     g3::installCrashHandler();
     // setFatalPreLoggingHook() provides an optional extra step before the
     // fatalExitHandler is called
-    //
-    // Set a function-hook before a fatal message will be sent to the logger
-    // i.e. this is a great place to put a break point, either in your debugger
-    // or programmatically to catch LOG(FATAL), CHECK(...) or an OS fatal event
-    // (exception or signal) This will be reset to default (does nothing) at
-    // initializeLogging(...);
-    //
-    // Example usage:
-    // Windows: g3::setFatalPreLoggingHook([]{__debugbreak();});
-    // Remember #include <intrin.h>
+    // 
     // WARNING: '__debugbreak()' when not running in Debug in your Visual Studio
     // IDE will likely trigger a recursive crash if used here.  It should only
     // be used when debugging in your Visual Studio IDE.  Recursive crashes are
     // handled but are unnecessary.
-    //
-    // Linux:   g3::setFatalPreLoggingHook([]{ raise(SIGTRAP); });
 #if !defined(NDEBUG)
 #if defined(WB_OS_POSIX)
     g3::setFatalPreLoggingHook([] { raise(SIGTRAP); });
@@ -134,41 +123,41 @@ class ScopedG3LogInitializer {
   /**
    * @brief g3log cout / cerr redirector.
    */
-  struct G3IoStreamsRedirector {
-    G3IoStreamsRedirector()
-        : cout_{std::ios_base::out},
-          cerr_{std::ios_base::out},
-          cout_stream_buf_{cout_.rdbuf()},
-          cerr_stream_buf_{cerr_.rdbuf()},
-          old_cout_stream_buf_{std::cout.rdbuf(&cout_stream_buf_)},
-          old_cerr_stream_buf_{std::cerr.rdbuf(&cerr_stream_buf_)} {}
+  //struct G3IoStreamsRedirector {
+  //  G3IoStreamsRedirector()
+  //      : cout_{std::ios_base::out},
+  //        cerr_{std::ios_base::out},
+  //        cout_stream_buf_{cout_.rdbuf()},
+  //        cerr_stream_buf_{cerr_.rdbuf()},
+  //        old_cout_stream_buf_{std::cout.rdbuf(&cout_stream_buf_)},
+  //        old_cerr_stream_buf_{std::cerr.rdbuf(&cerr_stream_buf_)} {}
 
-    WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(G3IoStreamsRedirector);
+  //  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(G3IoStreamsRedirector);
 
-    ~G3IoStreamsRedirector() noexcept {
-      std::cerr.rdbuf(old_cerr_stream_buf_);
-      std::cout.rdbuf(old_cout_stream_buf_);
+  //  ~G3IoStreamsRedirector() noexcept {
+  //    std::cerr.rdbuf(old_cerr_stream_buf_);
+  //    std::cout.rdbuf(old_cout_stream_buf_);
 
-      if (cerr_stream_buf_.count() != 0) {
-        // cerr will write to WARNING.
-        INTERNAL_LOG_MESSAGE(WARNING).stream().swap(cerr_);
-      }
+  //    if (cerr_stream_buf_.count() != 0) {
+  //      // cerr will write to WARNING.
+  //      INTERNAL_LOG_MESSAGE(WARNING).stream().swap(cerr_);
+  //    }
 
-      if (cout_stream_buf_.count() != 0) {
-        // cout will write to INFO.
-        INTERNAL_LOG_MESSAGE(INFO).stream().swap(cout_);
-      }
-    }
+  //    if (cout_stream_buf_.count() != 0) {
+  //      // cout will write to INFO.
+  //      INTERNAL_LOG_MESSAGE(INFO).stream().swap(cout_);
+  //    }
+  //  }
 
-    std::ostringstream cout_;
-    std::ostringstream cerr_;
+  //  std::ostringstream cout_;
+  //  std::ostringstream cerr_;
 
-    std2::countingstreambuf cout_stream_buf_;
-    std2::countingstreambuf cerr_stream_buf_;
+  //  std2::countingstreambuf cout_stream_buf_;
+  //  std2::countingstreambuf cerr_stream_buf_;
 
-    std::streambuf* old_cout_stream_buf_;
-    std::streambuf* old_cerr_stream_buf_;
-  };
+  //  std::streambuf* old_cout_stream_buf_;
+  //  std::streambuf* old_cerr_stream_buf_;
+  //};
 
   /**
    * @brief abseil log to g3log redirector.
