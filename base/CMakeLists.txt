@@ -63,6 +63,7 @@ if (WB_BUILD_TESTS)
     # Should be first as needs redirect first.
     mimalloc
     absl::cleanup
+    absl::strings
     fmt
     g3log
     wb::whitebox-base)

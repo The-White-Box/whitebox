@@ -14,7 +14,7 @@
 #include "base/macroses.h"
 #include "build/compiler_config.h"
 
-using HANDLE = void*;
+using HANDLE = void *;
 using HLOCAL = HANDLE;
 
 extern "C" WB_ATTRIBUTE_DLL_IMPORT _Success_(return == 0) _Ret_maybenull_ HLOCAL
@@ -23,15 +23,23 @@ extern "C" WB_ATTRIBUTE_DLL_IMPORT _Success_(return == 0) _Ret_maybenull_ HLOCAL
 namespace wb::base::win::memory {
 
 /**
+ * @brief Local memory pointer concept.
+ * @tparam TEnum type to be an enum.
+ */
+template <typename TLocalMemory>
+concept local_memory = std::is_pointer_v<TLocalMemory>;
+
+/**
  * @brief Scoped local memory holder.
  */
+template <local_memory TMemory>
 class ScopedLocalMemory {
  public:
   /**
    * @brief Creates scope for local memory handle.  Frees handle out of scope.
    * @param owning_memory Memory handle to become owner of.
    */
-  explicit ScopedLocalMemory(_In_ HLOCAL owning_memory) noexcept
+  explicit ScopedLocalMemory(_In_ TMemory *owning_memory) noexcept
       : memory_{owning_memory} {}
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedLocalMemory);
@@ -39,13 +47,16 @@ class ScopedLocalMemory {
   /**
    * @brief Releases local memory.
    */
-  ~ScopedLocalMemory() noexcept { G3CHECK(::LocalFree(memory_) == nullptr); }
+  ~ScopedLocalMemory() noexcept {
+    G3CHECK(::LocalFree(*memory_) == nullptr);
+    *memory_ = nullptr;
+  }
 
  private:
   /**
    * @brief Memory handle.
    */
-  const HLOCAL memory_;
+  TMemory *memory_;
 };
 
 }  // namespace wb::base::win::memory

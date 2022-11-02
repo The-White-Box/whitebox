@@ -43,7 +43,7 @@ namespace wb::base::std2 {
 
   const std::error_code rc{
       win::get_error(::GetThreadDescription(handle, &wide_thread_name))};
-  const win::memory::ScopedLocalMemory scoped_local_memory{wide_thread_name};
+  const win::memory::ScopedLocalMemory scoped_local_memory{&wide_thread_name};
 
   if (!rc) WB_ATTRIBUTE_LIKELY {
       thread_name = WideToUTF8(wide_thread_name);
