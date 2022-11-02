@@ -305,11 +305,13 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     }
 #endif
 
-  // Ensure CPU floating point units convert denormals to zero and flush to zero
-  // on underflow.
-  const ScopedFloatingPointMode scoped_floating_point_mode{
-      ScopedFloatingPointModeFlags::kDenormalsAreZero |
-      ScopedFloatingPointModeFlags::kFlushToZero};
+  // Ensure CPU floating point units convert denormals to zero.
+  const ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode{
+      ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOn};
+
+  // Ensure CPU floating point units flush to zero on underflow.
+  const ScopedFloatFlushToZeroMode scoped_float_ftz_mode{
+      ScopedFloatFlushToZeroFlags::kFlushToZeroOn};
 
 #ifdef WB_OS_WIN
   // Set minimum timers resolution to good enough, but not too power hungry.

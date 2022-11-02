@@ -23,15 +23,32 @@ GTEST_TEST(ScopedFloatingPointModeTest, SetFlushToZeroModeInScope) {
         << "No FTZ enabled by default";
 
     {
-      ScopedFloatingPointMode scoped_floating_point_mode{
-          ScopedFloatingPointModeFlags::kFlushToZero};
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOn};
 
       EXPECT_EQ(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
-          << "FTZ is enabled in scope";
+          << "FTZ is enabled in scope 1";
     }
 
     EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
-        << "No FTZ enabled out of scope";
+        << "No FTZ enabled out of scope 1";
+
+    {
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode1{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOn};
+
+      EXPECT_EQ(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+          << "FTZ is enabled in scope 2";
+
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode2{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOff};
+
+      EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+          << "FTZ is disabled in scope 2";
+    }
+
+    EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+        << "No FTZ enabled out of scope 2";
   }
 }
 
@@ -45,21 +62,37 @@ GTEST_TEST(ScopedFloatingPointModeTest, SetDenormalsAreZeroModeInScope) {
         << "No DAZ enabled by default";
 
     {
-      ScopedFloatingPointMode scoped_floating_point_mode{
-          ScopedFloatingPointModeFlags::kDenormalsAreZero};
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOn};
 
       EXPECT_EQ(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
-          << "DAZ is enabled in scope";
+          << "DAZ is enabled in scope 1";
     }
 
     EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
-        << "No DAZ enabled out of scope";
+        << "No DAZ enabled out of scope 1";
+
+    {
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode1{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOn};
+
+      EXPECT_EQ(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+          << "DAZ is enabled in scope 2";
+
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode2{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOff};
+
+      EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+          << "DAZ is disabled in scope 2";
+    }
+
+    EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+        << "No DAZ enabled out of scope 2";
   }
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(ScopedFloatingPointModeTest,
-           SetFlushToZeroAndDenormalsAreZeroModeInScope) {
+GTEST_TEST(ScopedFloatingPointModeTest, SetFlushToZeroAndDenormalsAreZeroModeInScope) {
   using namespace wb::base;
 
   if constexpr (std::numeric_limits<float>::has_denorm == std::denorm_present) {
@@ -71,23 +104,83 @@ GTEST_TEST(ScopedFloatingPointModeTest,
         << "No DAZ enabled by default";
 
     {
-      ScopedFloatingPointMode scoped_floating_point_mode{
-          ScopedFloatingPointModeFlags::kFlushToZero |
-          ScopedFloatingPointModeFlags::kDenormalsAreZero};
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOn};
 
       EXPECT_EQ(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
-          << "FTZ is enabled in scope";
+          << "FTZ is enabled in scope 1";
+
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOn};
+
       EXPECT_EQ(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
-          << "DAZ is enabled in scope";
+          << "DAZ is enabled in scope 1";
     }
 
     EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
-        << "No FTZ enabled out of scope";
+        << "No FTZ enabled out of scope 1";
     EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
-        << "No DAZ enabled out of scope";
+        << "No DAZ enabled out of scope 1";
+
+    {
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOff};
+
+       EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+          << "FTZ is disabled in scope 2";
+
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOn};
+
+      EXPECT_EQ(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+          << "DAZ is enabled in scope 2";
+    }
+
+    EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+        << "No FTZ enabled out of scope 2";
+    EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+        << "No DAZ enabled out of scope 2";
+
+    {
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOff};
+
+      EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+          << "FTZ is disabled in scope 3";
+
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOff};
+
+      EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+          << "DAZ is disabled in scope 3";
+    }
+
+    EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+        << "No FTZ enabled out of scope 3";
+    EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+        << "No DAZ enabled out of scope 3";
+
+    {
+      ScopedFloatFlushToZeroMode scoped_float_ftz_mode{
+          ScopedFloatFlushToZeroFlags::kFlushToZeroOn};
+
+      EXPECT_EQ(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+          << "FTZ is enabled in scope 3";
+
+      ScopedFloatDenormalsAreZeroMode scoped_float_daz_mode{
+          ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOff};
+
+      EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+          << "DAZ is disabled in scope 3";
+    }
+
+    EXPECT_NE(_MM_GET_FLUSH_ZERO_MODE(), _MM_FLUSH_ZERO_ON)
+        << "No FTZ enabled out of scope 4";
+    EXPECT_NE(_MM_GET_DENORMALS_ZERO_MODE(), _MM_DENORMALS_ZERO_ON)
+        << "No DAZ enabled out of scope 4";
   }
 }
 
 #else
-#error "Please define floating point mode for your platform."
+#error "Please define ScopedFloatFlushToZeroMode & ScopedFloatDenormalsAreZeroMode for your platform."
 #endif
