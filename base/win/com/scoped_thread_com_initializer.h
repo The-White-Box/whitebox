@@ -68,7 +68,7 @@ enum class ScopedThreadComInitializerFlags : unsigned long {
 class ScopedThreadComInitializer {
  public:
   /**
-   * @brief Initializes COM with |coinit| flags for scope.
+   * @brief Initializes COM with |flags| flags for scope.
    * @param flags Flags.
    * @return ScopedThreadComInitializer
    */
