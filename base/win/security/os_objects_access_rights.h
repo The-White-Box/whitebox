@@ -139,7 +139,7 @@ struct ScopedMutexAccessRights
 /**
  * @brief Default mutex access rights.
  */
-static inline constexpr ScopedMutexAccessRights DefaultMutexAccessRights{
+inline constexpr ScopedMutexAccessRights DefaultMutexAccessRights{
     StandardAccessRightFlag::kNone, ScopedMutexAccessRightFlag::kNone};
 
 }  // namespace wb::base::win::security

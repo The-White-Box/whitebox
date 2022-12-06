@@ -364,7 +364,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # C4711: 'function': function selected for automatic inline expansion.
       # C5045: Compiler will insert Spectre mitigation for memory load if
       #        /Qspectre switch specified.
-      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710;/wd4711;/wd5045>
+      # C5262: implicit fall-through occurs here. <-- in xlocmon.
+      # C5264: 'var': 'const' variable is not used.
+      $<$<BOOL:${WB_MSVC_ENABLE_ALL_WARNINGS}>:/wd4514;/wd4710;/wd4711;/wd5045;/wd5262;/wd5264>
 
       ## Warnings to treat as errors:
       # Mixed use of struct and class on same type names.
@@ -442,7 +444,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # 4514 Unreferenced inline function has been removed.
       # 4710 Function not inlined.
       # 4820 Padding added after data member.
-      _UCRT_EXTRA_DISABLED_WARNINGS=4514\ 4710\ 4820
+      # 5262 implicit fall-through occurs here.
+      _UCRT_EXTRA_DISABLED_WARNINGS=4514\ 4710\ 4820\ 5262
 
       # UTF-8 TCHARS and APIs are default.
       $<$<BOOL:${WB_MSVC_USE_UTF16_WINAPI_INSTEAD_OF_ANSI}>:
