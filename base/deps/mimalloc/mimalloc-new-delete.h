@@ -11,6 +11,8 @@
 
 WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
   WB_MSVC_DISABLE_WARNING(4100)
+  WB_MSVC_DISABLE_WARNING(4559)  // 'operator new' : redefinition; the function
+                                 // gains __declspec(restrict)
   WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
     WB_GCC_DISABLE_SUGGEST_MALLOC_ATTRIBUTE_WARNING()
 #include "deps/mimalloc/include/mimalloc-new-delete.h"

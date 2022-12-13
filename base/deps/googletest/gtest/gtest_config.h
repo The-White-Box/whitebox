@@ -18,6 +18,7 @@
     WB_MSVC_DISABLE_WARNING(4820)               \
     WB_MSVC_DISABLE_WARNING(5026)               \
     WB_MSVC_DISABLE_WARNING(5027)               \
+    WB_MSVC_DISABLE_WARNING(5219)               \
     WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()       \
       WB_GCC_DISABLE_PADDED_WARNING()           \
       WB_GCC_DISABLE_UNDEF_WARNING()
