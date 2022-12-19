@@ -21,6 +21,7 @@
 #include "ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
+#include "base/deps/abseil/cleanup/cleanup.h"
 #include "base/scoped_app_instance_manager.h"
 #include "base/std2/thread_ext.h"
 #include "base/win/dll_load_utils.h"
@@ -37,7 +38,64 @@
 #include "ui/win/window_utilities.h"
 #endif
 
+#ifdef WB_OS_POSIX
+#include <unistd.h>
+#endif
+
 namespace {
+
+/**
+ * @brief On Windows routine checks if the caller's process is a member of the
+ * Administrators local group.  Caller is NOT expected to be impersonating
+ * anyone and is expected to be able to open its own process and process token.
+ * On *nix checks for uid equality to euid.
+ * @return true if super user (root or admin), false otherwise.
+ */
+bool IsSuperUser() noexcept {
+#ifdef WB_OS_WIN
+  using namespace wb::base;
+
+  PSID administrator_group_sid{nullptr};
+  SID_IDENTIFIER_AUTHORITY nt_authority{SECURITY_NT_AUTHORITY};
+
+  const auto free_sid_scope =
+      absl::Cleanup([administrator_group_sid]() noexcept {
+        if (administrator_group_sid) [[likely]] {
+          // Not debug check!
+          G3PCHECK_E(!::FreeSid(administrator_group_sid),
+                     std2::system_last_error_code())
+              << "FreeSid(administrator_group_sid) failed.";
+        }
+      });
+
+  bool is_ok{!!::AllocateAndInitializeSid(
+      &nt_authority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0,
+      0, 0, 0, 0, 0, &administrator_group_sid)};
+  G3DPCHECK_E(is_ok, std2::system_last_error_code())
+      << "AllocateAndInitializeSid(SECURITY_NT_AUTHORITY, ...) failed.";
+
+  if (is_ok) {
+    BOOL is_administrator{TRUE};
+
+    is_ok = !!::CheckTokenMembership(nullptr, administrator_group_sid,
+                                     &is_administrator);
+    G3DPCHECK_E(!!is_ok, std2::system_last_error_code())
+        << "CheckTokenMembership(administrator_group_sid, ...) failed.";
+
+    return is_administrator != FALSE;
+  }
+
+  return is_ok;
+#elif defined(WB_OS_POSIX)
+  const uid_t uid{getuid()}, euid{geteuid()};
+
+  // We might have elevated privileges beyond that of the user who invoked the
+  // program, due to suid bit.
+  return uid < 0 || euid == 0 || uid != euid;
+#else
+#error "Please define IsSuperUser for your platform."
+#endif  // WB_OS_WIN || WB_OS_POSIX
+}
 
 /**
  * Dump some system information.
@@ -110,18 +168,17 @@ int KernelStartup(
   using namespace wb::base;
 
   const auto app_path_result = std2::filesystem::get_executable_directory();
-  if (const auto* rc = std2::get_error(app_path_result)) WB_ATTRIBUTE_UNLIKELY {
-      const auto& intl = boot_manager_args.intl;
-      return wb::ui::FatalDialog(
-          intl::l18n(intl, "Boot Manager - Error"), *rc,
-          intl::l18n(intl,
-                     "Please, check app is installed correctly and you have "
-                     "enough permissions to run it."),
-          MakeFatalContext(boot_manager_args),
-          intl::l18n(
-              intl,
-              "Can't get current directory.  Unable to load the kernel."));
-    }
+  if (const auto* rc = std2::get_error(app_path_result)) [[unlikely]] {
+    const auto& intl = boot_manager_args.intl;
+    return wb::ui::FatalDialog(
+        intl::l18n(intl, "Boot Manager - Error"), *rc,
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        MakeFatalContext(boot_manager_args),
+        intl::l18n(intl,
+                   "Can't get current directory.  Unable to load the kernel."));
+  }
 
   const auto* app_directory_path = std2::get_result(app_path_result);
   G3DCHECK(!!app_directory_path);
@@ -150,40 +207,39 @@ int KernelStartup(
   const auto& intl = boot_manager_args.intl;
   const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
-  if (const auto* kernel_module = std2::get_result(kernel_library))
-    WB_ATTRIBUTE_LIKELY {
-      using WhiteBoxKernelMain = decltype(&KernelMain);
-      // NOLINTNEXTLINE(modernize-avoid-c-arrays)
-      constexpr char kKernelMainName[]{"KernelMain"};
+  if (const auto* kernel_module = std2::get_result(kernel_library)) [[likely]] {
+    using WhiteBoxKernelMain = decltype(&KernelMain);
+    // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+    constexpr char kKernelMainName[]{"KernelMain"};
 
-      // Good, try to find and launch whitebox-kernel.
-      const auto kernel_main_entry =
-          kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
-      if (const auto* kernel_main = std2::get_result(kernel_main_entry))
-        WB_ATTRIBUTE_LIKELY {
+    // Good, try to find and launch whitebox-kernel.
+    const auto kernel_main_entry =
+        kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
+    if (const auto* kernel_main = std2::get_result(kernel_main_entry))
+        [[likely]] {
 #ifdef WB_OS_WIN
-          return (*kernel_main)(
-              {boot_manager_args.app_description, boot_manager_args.instance,
-               boot_manager_args.show_window_flags,
-               boot_manager_args.main_icon_id, boot_manager_args.small_icon_id,
-               boot_manager_args.command_line_flags, boot_manager_args.intl});
+      return (*kernel_main)(
+          {boot_manager_args.app_description, boot_manager_args.instance,
+           boot_manager_args.show_window_flags, boot_manager_args.main_icon_id,
+           boot_manager_args.small_icon_id,
+           boot_manager_args.command_line_flags, boot_manager_args.intl});
 #else
-          return (*kernel_main)({boot_manager_args.app_description,
-                                 boot_manager_args.command_line_flags,
-                                 boot_manager_args.intl});
+      return (*kernel_main)({boot_manager_args.app_description,
+                             boot_manager_args.command_line_flags,
+                             boot_manager_args.intl});
 #endif
-        }
-
-      return wb::ui::FatalDialog(
-          intl::l18n(intl, "Boot Manager - Error"),
-          std::get<std::error_code>(kernel_main_entry),
-          intl::l18n(intl,
-                     "Please, check app is installed correctly and you have "
-                     "enough permissions to run it."),
-          MakeFatalContext(boot_manager_args),
-          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
-                         kKernelMainName, kernel_path));
     }
+
+    return wb::ui::FatalDialog(
+        intl::l18n(intl, "Boot Manager - Error"),
+        std::get<std::error_code>(kernel_main_entry),
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        MakeFatalContext(boot_manager_args),
+        intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
+                       kKernelMainName, kernel_path));
+  }
 
   return wb::ui::FatalDialog(
       intl::l18n(intl, "Boot Manager - Error"),
@@ -209,6 +265,25 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   DumpSystemInformation(boot_manager_args.app_description,
                         boot_manager_args.command_line_flags.assets_path);
 
+  // Well, exploits are everywhere.  Try to reduce overall damage as much as we
+  // can.
+  if (IsSuperUser()) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
+#ifdef WB_OS_WIN
+        std2::system_last_error_code(ERROR_ACCESS_DENIED),
+#elif defined(WB_OS_POSIX)
+        std2::system_last_error_code(EPERM),
+#endif
+        intl::l18n(boot_manager_args.intl,
+                   "Please, run app not as root / administrator. Priveleged "
+                   "accounts are not supported."),
+        MakeFatalContext(boot_manager_args),
+        intl::l18n(boot_manager_args.intl,
+                   "Your user account is root or administrator. Running app as "
+                   "root or administrator have security risks."));
+  }
+
 #ifdef WB_OS_WIN
   using namespace wb::base::win;
 
@@ -220,19 +295,19 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   //
   // See
   // https://docs.microsoft.com/en-us/windows/uwp/design/globalizing/use-utf8-code-page#set-a-process-code-page-to-utf-8
-  if (win::GetVersion() < win::Version::WIN10_19H1) WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
-          std2::system_last_error_code(ERROR_OLD_WIN_VERSION),
-          intl::l18n(boot_manager_args.intl,
-                     "Please, update Windows to Windows 10, version 1903 (May "
-                     "19, 2019) or greater."),
-          MakeFatalContext(boot_manager_args),
-          intl::l18n(
-              boot_manager_args.intl,
-              "Windows is too old.  At least Windows 10, version 1903 (May 19, "
-              "2019)+ required."));
-    }
+  if (win::GetVersion() < win::Version::WIN10_19H1) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
+        std2::system_last_error_code(ERROR_OLD_WIN_VERSION),
+        intl::l18n(boot_manager_args.intl,
+                   "Please, update Windows to Windows 10, version 1903 (May "
+                   "19, 2019) or greater."),
+        MakeFatalContext(boot_manager_args),
+        intl::l18n(
+            boot_manager_args.intl,
+            "Windows is too old.  At least Windows 10, version 1903 (May 19, "
+            "2019)+ required."));
+  }
 
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
@@ -283,26 +358,26 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
       boot_manager_args.app_description};
   const auto other_instance_status = scoped_app_instance_manager.GetStatus();
   if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
-    WB_ATTRIBUTE_UNLIKELY {
-      using namespace std::chrono_literals;
+      [[unlikely]] {
+    using namespace std::chrono_literals;
 
-      const std::string window_class_name{
-          wb::kernel::MainWindow::ClassName(boot_manager_args.app_description)};
-      // Well, notify user about other instance window.
-      wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
+    const std::string window_class_name{
+        wb::kernel::MainWindow::ClassName(boot_manager_args.app_description)};
+    // Well, notify user about other instance window.
+    wb::ui::win::FlashWindowByClass(window_class_name, 900ms);
 
-      return wb::ui::FatalDialog(
-          intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
-          std2::posix_last_error_code(EEXIST),
-          intl::l18n_fmt(boot_manager_args.intl,
-                         "Sorry, only single '{0}' can run at a time.",
-                         boot_manager_args.app_description),
-          MakeFatalContext(boot_manager_args),
-          intl::l18n_fmt(boot_manager_args.intl,
-                         "Can't run multiple copies of '{0}' at once.  Please, "
-                         "stop existing copy or return to the game.",
-                         boot_manager_args.app_description));
-    }
+    return wb::ui::FatalDialog(
+        intl::l18n(boot_manager_args.intl, "Boot Manager - Error"),
+        std2::posix_last_error_code(EEXIST),
+        intl::l18n_fmt(boot_manager_args.intl,
+                       "Sorry, only single '{0}' can run at a time.",
+                       boot_manager_args.app_description),
+        MakeFatalContext(boot_manager_args),
+        intl::l18n_fmt(boot_manager_args.intl,
+                       "Can't run multiple copies of '{0}' at once.  Please, "
+                       "stop existing copy or return to the game.",
+                       boot_manager_args.app_description));
+  }
 #endif
 
   // Ensure CPU floating point units convert denormals to zero.
@@ -338,30 +413,27 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     const auto scoped_mmcss_thread_controller =
         win::mmcss::ScopedMmcssThreadController::New(game_task, playback_task);
     if (const auto* controller =
-            std2::get_result(scoped_mmcss_thread_controller))
-      WB_ATTRIBUTE_LIKELY {
-        const auto responsiveness_percent =
-            controller->GetResponsivenessPercent();
+            std2::get_result(scoped_mmcss_thread_controller)) [[likely]] {
+      const auto responsiveness_percent =
+          controller->GetResponsivenessPercent();
 
-        if (const auto* percent = std2::get_result(responsiveness_percent))
-          WB_ATTRIBUTE_LIKELY {
-            G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
-                         << implicit_cast<unsigned>(*percent)
-                         << "% of CPU for system wide tasks.";
-          }
-        else {
-          G3PLOG_E(WARNING, *std2::get_error(responsiveness_percent))
-              << "Can't get system responsiveness setting used by Multimedia "
-                 "Class Scheduler Service for the main app thread.";
-        }
-
-        const auto bump_thread_priority_rc = controller->SetPriority(
-            win::mmcss::ScopedMmcssThreadPriority::kHigh);
-        G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
-            << "Can't set high priority for the thread in Multimedia Class "
-               "Scheduler Service.";
+      if (const auto* percent = std2::get_result(responsiveness_percent))
+          [[likely]] {
+        G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
+                     << implicit_cast<unsigned>(*percent)
+                     << "% of CPU for system wide tasks.";
+      } else {
+        G3PLOG_E(WARNING, *std2::get_error(responsiveness_percent))
+            << "Can't get system responsiveness setting used by Multimedia "
+               "Class Scheduler Service for the main app thread.";
       }
-    else {
+
+      const auto bump_thread_priority_rc =
+          controller->SetPriority(win::mmcss::ScopedMmcssThreadPriority::kHigh);
+      G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
+          << "Can't set high priority for the thread in Multimedia Class "
+             "Scheduler Service.";
+    } else {
       G3PLOG_E(WARNING, *std2::get_error(scoped_mmcss_thread_controller))
           << "Can't enable Multimedia Class Scheduler Service for the app, "
              "some CPU resources may be underutilized.  See "
