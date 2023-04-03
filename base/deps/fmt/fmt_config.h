@@ -12,6 +12,7 @@
 #define WB_BEGIN_FMT_WARNING_OVERRIDE_SCOPE()         \
   WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()              \
     WB_MSVC_DISABLE_WARNING(4582)                     \
+    WB_MSVC_DISABLE_WARNING(4623)                     \
     WB_MSVC_DISABLE_WARNING(4625)                     \
     WB_MSVC_DISABLE_WARNING(4626)                     \
     WB_MSVC_DISABLE_WARNING(4820)                     \
