@@ -467,7 +467,7 @@ if (MI_SECURE)
   add_definitions(-DWB_MI_SECURE)
 endif()
 
-# SDL2 / sdl_image.
+# SDL3 / sdl_image.
 
 if (NOT WB_OS_WIN)
   set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)
@@ -477,7 +477,7 @@ if (NOT WB_OS_WIN)
 
   if (WB_CXX_COMPILER_ID STREQUAL "AppleClang")
     # Fix for undefined memset_pattern4() on MacOS.
-    target_compile_definitions(SDL2 PUBLIC _DARWIN_C_SOURCE=1)
+    target_compile_definitions(SDL3 PUBLIC _DARWIN_C_SOURCE=1)
   endif()
 
   set(PNG_SHARED ON CACHE BOOL "Build shared lib" FORCE)
