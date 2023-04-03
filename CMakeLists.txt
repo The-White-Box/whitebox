@@ -488,13 +488,6 @@ if (NOT WB_OS_WIN)
 
   # SDL image TIFF dependency forces other libraries to be build as shared.  Not that we want.
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build the library as a shared library" FORCE)
-
-  if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
-    # Linker error can't create dynamic relocation R_X86_64_64 against symbol:
-    # XXX in readonly segment (-fPIC).
-    target_compile_options(jpeg PRIVATE -fPIC)
-    target_compile_options(SDL2_image PRIVATE -fPIC)
-  endif()
 endif()
 
 ## Libraries.
