@@ -157,9 +157,9 @@ class SDLImageInit {
 inline std::basic_ostream<char, std::char_traits<char>> &operator<<(
     std::basic_ostream<char, std::char_traits<char>> &s,
     wb::sdl_image::SDLImageInitType flags) {
-  if (flags == wb::sdl_image::SDLImageInitType::kNone) WB_ATTRIBUTE_UNLIKELY {
-      return s << "None";
-    }
+  if (flags == wb::sdl_image::SDLImageInitType::kNone) [[unlikely]] {
+    return s << "None";
+  }
 
   if ((flags & wb::sdl_image::SDLImageInitType::kJpg) ==
       wb::sdl_image::SDLImageInitType::kJpg) {

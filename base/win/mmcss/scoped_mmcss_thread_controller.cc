@@ -98,22 +98,21 @@ std2::result<std::uint8_t> ScopedMmcssThreadController::
 
   G3DPCHECK_E(!rc, rc) << "AvQuerySystemResponsiveness failed";
 
-  if (!rc) WB_ATTRIBUTE_LIKELY {
-      const bool is_valid_responsiveness{responsiveness_percent >= 10UL &&
-                                         responsiveness_percent <= 100UL};
-      // Expected [10..100] range, but OS may be buggy.  See
-      // https://docs.microsoft.com/en-us/windows/win32/api/avrt/nf-avrt-avquerysystemresponsiveness#parameters
-      G3DCHECK(is_valid_responsiveness)
-          << "AvQuerySystemResponsiveness returned system responsiveness "
-             "percent not in [10..100] range ("
-          << responsiveness_percent << "%).";
-      if (!is_valid_responsiveness) WB_ATTRIBUTE_UNLIKELY {
-          responsiveness_percent =
-              std::clamp(responsiveness_percent, 10UL, 100UL);
-        }
-      return std2::result<std::uint8_t>{
-          static_cast<std::uint8_t>(responsiveness_percent)};
+  if (!rc) [[likely]] {
+    const bool is_valid_responsiveness{responsiveness_percent >= 10UL &&
+                                       responsiveness_percent <= 100UL};
+    // Expected [10..100] range, but OS may be buggy.  See
+    // https://docs.microsoft.com/en-us/windows/win32/api/avrt/nf-avrt-avquerysystemresponsiveness#parameters
+    G3DCHECK(is_valid_responsiveness)
+        << "AvQuerySystemResponsiveness returned system responsiveness "
+           "percent not in [10..100] range ("
+        << responsiveness_percent << "%).";
+    if (!is_valid_responsiveness) [[unlikely]] {
+      responsiveness_percent = std::clamp(responsiveness_percent, 10UL, 100UL);
     }
+    return std2::result<std::uint8_t>{
+        static_cast<std::uint8_t>(responsiveness_percent)};
+  }
 
   return std2::result<std::uint8_t>{rc};
 }

@@ -42,9 +42,9 @@ namespace {
         mutex_result) noexcept {
   using namespace wb::base;
 
-  if (auto* mutex = std2::get_result(mutex_result)) WB_ATTRIBUTE_LIKELY {
-      return AppInstanceStatus::kNoOtherInstances;
-    }
+  if (auto* mutex = std2::get_result(mutex_result)) [[likely]] {
+    return AppInstanceStatus::kNoOtherInstances;
+  }
 
   const auto* rc = std2::get_error(mutex_result);
   G3DCHECK(!!rc);
@@ -95,12 +95,12 @@ CreateProcessMutex(const char* app_description) noexcept {
         mutex_or_error) noexcept {
   using namespace wb::base;
 
-  if (std2::get_result(mutex_or_error)) WB_ATTRIBUTE_LIKELY {
-      // Shared process mutex is locked by current process, will be unlocked
-      // on process end.
-      // TODO(dimhotepus): Ensure ScopedSharedMemoryObject freed on crash.
-      return AppInstanceStatus::kNoOtherInstances;
-    }
+  if (std2::get_result(mutex_or_error)) [[likely]] {
+    // Shared process mutex is locked by current process, will be unlocked
+    // on process end.
+    // TODO(dimhotepus): Ensure ScopedSharedMemoryObject freed on crash.
+    return AppInstanceStatus::kNoOtherInstances;
+  }
 
   const auto* error = std2::get_error(mutex_or_error);
   G3DCHECK(!!error);

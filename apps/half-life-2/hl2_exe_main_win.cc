@@ -130,20 +130,18 @@ int BootManagerStartup(
          "malicious code.";
 
   const auto app_path_result = win::GetApplicationDirectory(instance);
-  if (const auto* error = std2::get_error(app_path_result))
-    WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          *error,
-          intl::l18n(intl,
-                     "Please, check app is installed correctly and you have "
-                     "enough permissions to run it."),
-          MakeFatalContext(intl),
-          intl::l18n(intl,
-                     "Can't get current directory.  May be app located too "
-                     "deep (> 1024)?"));
-    }
+  if (const auto* error = std2::get_error(app_path_result)) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        *error,
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        MakeFatalContext(intl),
+        intl::l18n(intl,
+                   "Can't get current directory.  May be app located too "
+                   "deep (> 1024)?"));
+  }
 
   const auto app_path = std2::get_result(app_path_result);
   G3DCHECK(!!app_path);
@@ -173,19 +171,17 @@ int BootManagerStartup(
 
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_flags);
-  if (const auto* error = std2::get_error(boot_manager_library))
-    WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          std::get<std::error_code>(boot_manager_library),
-          intl::l18n(intl,
-                     "Please, check app is installed correctly and you have "
-                     "enough permissions to run it."),
-          MakeFatalContext(intl),
-          intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
-                         boot_manager_path));
-    }
+  if (const auto* error = std2::get_error(boot_manager_library)) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std::get<std::error_code>(boot_manager_library),
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        MakeFatalContext(intl),
+        intl::l18n_fmt(intl, "Can't load boot manager '{0}'.",
+                       boot_manager_path));
+  }
 
   using BootManagerMain = decltype(&BootManagerMain);
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
@@ -197,19 +193,17 @@ int BootManagerStartup(
   // Good, try to find and launch boot manager.
   const auto boot_manager_entry =
       boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
-  if (const auto* error = std2::get_error(boot_manager_entry))
-    WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          std::get<std::error_code>(boot_manager_entry),
-          intl::l18n(intl,
-                     "Please, check app is installed correctly and you have "
-                     "enough permissions to run it."),
-          MakeFatalContext(intl),
-          intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
-                         kBootManagerMainName, boot_manager_path));
-    }
+  if (const auto* error = std2::get_error(boot_manager_entry)) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std::get<std::error_code>(boot_manager_entry),
+        intl::l18n(intl,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        MakeFatalContext(intl),
+        intl::l18n_fmt(intl, "Can't get '{0}' entry point from '{1}'.",
+                       kBootManagerMainName, boot_manager_path));
+  }
 
   const auto* boot_manager_main = std2::get_result(boot_manager_entry);
   G3CHECK(!!boot_manager_main);
@@ -292,43 +286,39 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // missed we return all required features with support state.
   const std::vector<wb::apps::CpuFeature> cpu_features_support{
       wb::apps::QueryRequiredCpuFeatures()};
-  if (!cpu_features_support.empty()) WB_ATTRIBUTE_UNLIKELY {
-      const std::string cpu_features_support_state{absl::StrJoin(
-          cpu_features_support, "\n",
-          [&](std::string* out, const wb::apps::CpuFeature& feature_support) {
-            absl::StrAppend(
-                out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
-                                    feature_support.is_supported ? "✓" : "❌"));
-          })};
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(l18n, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          std2::system_last_error_code(ERROR_DEVICE_HARDWARE_ERROR),
-          intl::l18n(l18n,
-                     "Sorry, your CPU has missed some required features to run "
-                     "the game."),
-          MakeFatalContext(l18n),
-          intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
-                         wb::apps::QueryCpuBrand(),
-                         cpu_features_support_state));
-    }
+  if (!cpu_features_support.empty()) [[unlikely]] {
+    const std::string cpu_features_support_state{absl::StrJoin(
+        cpu_features_support, "\n",
+        [&](std::string* out, const wb::apps::CpuFeature& feature_support) {
+          absl::StrAppend(
+              out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
+                                  feature_support.is_supported ? "✓" : "❌"));
+        })};
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std2::system_last_error_code(ERROR_DEVICE_HARDWARE_ERROR),
+        intl::l18n(l18n,
+                   "Sorry, your CPU has missed some required features to run "
+                   "the game."),
+        MakeFatalContext(l18n),
+        intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
+                       wb::apps::QueryCpuBrand(), cpu_features_support_state));
+  }
 
   // Initialize command line flags.
   auto args_parse_result =
       wb::apps::win::Args::FromCommandLine(full_command_line_wide);
-  if (const auto* error = std2::get_error(args_parse_result))
-    WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(l18n, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          *error,
-          intl::l18n(l18n,
-                     "Please ensure you have enough free memory and use "
-                     "command line correctly."),
-          MakeFatalContext(l18n),
-          intl::l18n(l18n,
-                     "Can't parse command line flags.  See log for details."));
-    }
+  if (const auto* error = std2::get_error(args_parse_result)) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        *error,
+        intl::l18n(l18n,
+                   "Please ensure you have enough free memory and use "
+                   "command line correctly."),
+        MakeFatalContext(l18n),
+        intl::l18n(l18n,
+                   "Can't parse command line flags.  See log for details."));
+  }
 
   auto args = std2::get_result(args_parse_result);
   G3DCHECK(!!args);

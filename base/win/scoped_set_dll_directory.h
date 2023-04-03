@@ -56,10 +56,10 @@ class ScopedSetDllDirectory {
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedSetDllDirectory);
 
   ~ScopedSetDllDirectory() noexcept {
-    if (!errno_code()) WB_ATTRIBUTE_LIKELY {
-        const auto rc = ApplyDllDirectory(nullptr);
-        G3CHECK(!rc);
-      }
+    if (!errno_code()) [[likely]] {
+      const auto rc = ApplyDllDirectory(nullptr);
+      G3CHECK(!rc);
+    }
   }
 
  private:

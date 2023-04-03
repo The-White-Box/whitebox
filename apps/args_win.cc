@@ -35,32 +35,32 @@ namespace {
   // Compute the size of the required buffer.
   const int size{::WideCharToMultiByte(CP_UTF8, 0, wide, -1, nullptr, 0,
                                        nullptr, nullptr)};
-  if (size <= 0) WB_ATTRIBUTE_UNLIKELY {
-      // This should never happen.
-      const auto rc = std2::system_last_error_code();
-      G3PLOG_E(WARNING, rc) << "Could not find required size for command "
-                               "line arguments as utf8.";
-      return rc;
-    }
+  if (size <= 0) [[unlikely]] {
+    // This should never happen.
+    const auto rc = std2::system_last_error_code();
+    G3PLOG_E(WARNING, rc) << "Could not find required size for command "
+                             "line arguments as utf8.";
+    return rc;
+  }
 
   // Do the actual conversion.
   un<char[]> argv{std::make_unique<char[]>(static_cast<size_t>(size))};
-  if (!argv) WB_ATTRIBUTE_UNLIKELY {
-      const auto rc = std2::system_last_error_code(ERROR_OUTOFMEMORY);
-      G3PLOG_E(WARNING, rc) << "Could not allocate memory to convert wchar_t "
-                               "{argc, argv} to UTF-8.";
-      return rc;
-    }
+  if (!argv) [[unlikely]] {
+    const auto rc = std2::system_last_error_code(ERROR_OUTOFMEMORY);
+    G3PLOG_E(WARNING, rc) << "Could not allocate memory to convert wchar_t "
+                             "{argc, argv} to UTF-8.";
+    return rc;
+  }
 
   const int result{::WideCharToMultiByte(CP_UTF8, 0, wide, -1, argv.get(), size,
                                          nullptr, nullptr)};
-  if (result <= 0) WB_ATTRIBUTE_UNLIKELY {
-      // This should never happen.
-      const auto rc = std2::system_last_error_code();
-      G3PLOG_E(WARNING, rc)
-          << "Could not convert command line arguments to utf8.";
-      return rc;
-    }
+  if (result <= 0) [[unlikely]] {
+    // This should never happen.
+    const auto rc = std2::system_last_error_code();
+    G3PLOG_E(WARNING, rc)
+        << "Could not convert command line arguments to utf8.";
+    return rc;
+  }
 
   out_size = static_cast<size_t>(size);
 
@@ -116,23 +116,21 @@ namespace wb::apps::win {
   wchar_t** wargv{wargs.argv};
   const int argc{wargs.argc};
 
-  if (!wargv || argc <= 0) WB_ATTRIBUTE_UNLIKELY {
-      const auto rc = std2::system_last_error_code();
-      G3PLOG_E(WARNING, rc)
-          << "Could not parse command line to {argc, argv} tuple.";
-      return rc;
-    }
+  if (!wargv || argc <= 0) [[unlikely]] {
+    const auto rc = std2::system_last_error_code();
+    G3PLOG_E(WARNING, rc)
+        << "Could not parse command line to {argc, argv} tuple.";
+    return rc;
+  }
 
   // Convert argv to UTF-8.
-  un<char* []> argv {
-    std::make_unique<char*[]>(static_cast<size_t>(argc) + 1)
-  };
-  if (!argv) WB_ATTRIBUTE_UNLIKELY {
-      const auto rc = std2::system_last_error_code(ERROR_OUTOFMEMORY);
-      G3PLOG_E(WARNING, rc) << "Could not allocate memory to convert wchar_t "
-                               "{argc, argv} to UTF-8.";
-      return rc;
-    }
+  un<char*[]> argv{std::make_unique<char*[]>(static_cast<size_t>(argc) + 1)};
+  if (!argv) [[unlikely]] {
+    const auto rc = std2::system_last_error_code(ERROR_OUTOFMEMORY);
+    G3PLOG_E(WARNING, rc) << "Could not allocate memory to convert wchar_t "
+                             "{argc, argv} to UTF-8.";
+    return rc;
+  }
 
   size_t argv0_size{0};
 
@@ -140,28 +138,27 @@ namespace wb::apps::win {
     size_t out_size{0};
 
     auto utf8_result = WideToUtf8(wargv[i], out_size);
-    if (auto* arg = std2::get_result(utf8_result)) WB_ATTRIBUTE_LIKELY {
-        argv[i] = arg->release();
-      }
-    else {
+    if (auto* arg = std2::get_result(utf8_result)) [[likely]] {
+      argv[i] = arg->release();
+    } else {
       // Can leak argv[0..i-1], but we stop the app anyway so OS reclaims
       // memory.
       return *std2::get_error(utf8_result);
     }
 
-    if (i == 0) WB_ATTRIBUTE_UNLIKELY {
-        argv0_size = out_size;
-      }
+    if (i == 0) [[unlikely]] {
+      argv0_size = out_size;
+    }
   }
 
   char* argv0{argv[0]};
   const auto maybe_short_argv0{
       std2::filesystem::get_short_exe_name_from_command_line(argv0)};
-  if (maybe_short_argv0.has_value()) WB_ATTRIBUTE_LIKELY {
-      // Abseil expects argv0 is short exe name.
-      const std::string short_argv0{maybe_short_argv0.value()};
-      strcpy_s(argv0, argv0_size, short_argv0.c_str());
-    }
+  if (maybe_short_argv0.has_value()) [[likely]] {
+    // Abseil expects argv0 is short exe name.
+    const std::string short_argv0{maybe_short_argv0.value()};
+    strcpy_s(argv0, argv0_size, short_argv0.c_str());
+  }
 
   argv[static_cast<size_t>(argc)] = nullptr;
 

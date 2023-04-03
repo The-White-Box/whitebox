@@ -65,7 +65,7 @@ Mouse::Mouse(_In_ HWND window) noexcept
       last_absolute_x_{kInvalidMouseAbsoluteCoordinate},
       last_absolute_y_{kInvalidMouseAbsoluteCoordinate} {
   G3DPCHECK_E(!error_code(), error_code())
-     << "Unable to register raw mouse handler.";
+      << "Unable to register raw mouse handler.";
 }
 
 /**
@@ -162,12 +162,10 @@ Mouse::~Mouse() noexcept {
     }
 
     if ((mouse_input.mouse_state & MouseStateFlags::kMoveRelative) ==
-        MouseStateFlags::kMoveRelative)
-      WB_ATTRIBUTE_LIKELY {
-        mouse_input.last_x = mouse.lLastX;
-        mouse_input.last_y = mouse.lLastY;
-      }
-    else {
+        MouseStateFlags::kMoveRelative) [[likely]] {
+      mouse_input.last_x = mouse.lLastX;
+      mouse_input.last_y = mouse.lLastY;
+    } else {
       // lLastX and lLastY contain normalized absolute coordinates between 0
       // and 65535.  Coordinate (0,0) maps onto the upper-left corner of the
       // display surface; coordinate (65535,65535) maps onto the lower-right
@@ -196,12 +194,10 @@ Mouse::~Mouse() noexcept {
           static_cast<float>(mouse.lLastY * display_surface_height) / 65535.0f);
 
       if (last_absolute_x_ != kInvalidMouseAbsoluteCoordinate &&
-          last_absolute_y_ != kInvalidMouseAbsoluteCoordinate)
-        WB_ATTRIBUTE_LIKELY {
-          mouse_input.last_x = absolute_x - last_absolute_x_;
-          mouse_input.last_y = absolute_y - last_absolute_y_;
-        }
-      else {
+          last_absolute_y_ != kInvalidMouseAbsoluteCoordinate) [[likely]] {
+        mouse_input.last_x = absolute_x - last_absolute_x_;
+        mouse_input.last_y = absolute_y - last_absolute_y_;
+      } else {
         mouse_input.last_x = 0L;
         mouse_input.last_y = 0L;
       }

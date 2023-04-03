@@ -46,8 +46,9 @@ namespace wb::apps {
   if (const auto missed_feature =
           std::find_if_not(std::begin(cpu_features), std::end(cpu_features),
                            is_feature_supported);
-      missed_feature != std::end(cpu_features))
-    WB_ATTRIBUTE_UNLIKELY { return cpu_features; }
+      missed_feature != std::end(cpu_features)) [[unlikely]] {
+    return cpu_features;
+  }
 
   return {};
 #else

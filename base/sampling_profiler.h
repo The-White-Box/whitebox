@@ -8,8 +8,8 @@
 #define WB_BASE_SAMPLING_PROFILER_H_
 
 #include <array>
-#include <chrono>  // std::chrono::steady_clock
 
+#include "base/high_resolution_clock.h"
 #include "base/macroses.h"
 
 namespace wb::base {
@@ -96,8 +96,7 @@ class SamplingProfiler {
  * Class std::chrono::steady_clock represents a monotonic clock and most
  * suitable for measuring intervals.
  */
-using HighResolutionSamplingProfiler =
-    SamplingProfiler<std::chrono::steady_clock>;
+using HighResolutionSamplingProfiler = SamplingProfiler<HighResolutionClock>;
 
 }  // namespace wb::base
 

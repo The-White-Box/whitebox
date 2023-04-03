@@ -403,15 +403,15 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
          "nf-timeapi-timebeginperiod";
 
   {
+    using namespace win::mmcss;
+
     // Signal Multimedia Class Scheduler Service we have game thread here, so
     // utilize as much of the CPU as possible without denying CPU resources to
     // lower-priority applications.
-    const win::mmcss::ScopedMmcssThreadTask game_task{
-        win::mmcss::KnownScopedMmcssThreadTaskName::kGames};
-    const win::mmcss::ScopedMmcssThreadTask playback_task{
-        win::mmcss::KnownScopedMmcssThreadTaskName::kPlayback};
     const auto scoped_mmcss_thread_controller =
-        win::mmcss::ScopedMmcssThreadController::New(game_task, playback_task);
+        ScopedMmcssThreadController::New(
+            ScopedMmcssThreadTask{KnownScopedMmcssThreadTaskName::kGames},
+            ScopedMmcssThreadTask{KnownScopedMmcssThreadTaskName::kPlayback});
     if (const auto* controller =
             std2::get_result(scoped_mmcss_thread_controller)) [[likely]] {
       const auto responsiveness_percent =
@@ -429,7 +429,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
       }
 
       const auto bump_thread_priority_rc =
-          controller->SetPriority(win::mmcss::ScopedMmcssThreadPriority::kHigh);
+          controller->SetPriority(ScopedMmcssThreadPriority::kHigh);
       G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
           << "Can't set high priority for the thread in Multimedia Class "
              "Scheduler Service.";

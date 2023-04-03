@@ -162,9 +162,9 @@ class ScopedCursor {
   ScopedCursor &operator=(ScopedCursor &&c) noexcept = delete;
 
   ~ScopedCursor() noexcept {
-    if (auto *old_cursor = get_result(old_cursor_)) WB_ATTRIBUTE_LIKELY {
-        old_cursor->MakeActive();
-      }
+    if (auto *old_cursor = get_result(old_cursor_)) [[likely]] {
+      old_cursor->MakeActive();
+    }
   }
 
  private:
@@ -183,9 +183,9 @@ class ScopedCursor {
 
   auto new_cursor = Cursor::Empty();
   auto system_cursor = Cursor::FromSystem(new_cursor_in_scope);
-  if (auto *cursor = get_result(system_cursor)) WB_ATTRIBUTE_LIKELY {
-      new_cursor = std::move(*cursor);
-    }
+  if (auto *cursor = get_result(system_cursor)) [[likely]] {
+    new_cursor = std::move(*cursor);
+  }
   return std::make_unique<ScopedCursor>(std::move(new_cursor));
 }
 

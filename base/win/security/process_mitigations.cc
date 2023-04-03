@@ -67,8 +67,8 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
  * @tparam R Return type.
  */
 template <typename TPolicy>
-concept mitigation_policy = mitigation_policy_flag<TPolicy>
-!= MaxProcessMitigationPolicy;
+concept mitigation_policy = mitigation_policy_flag<TPolicy> !=
+MaxProcessMitigationPolicy;
 
 /**
  * @brief Get mitigation policy setting from OS.
@@ -407,12 +407,12 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
   }
 
 #if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-  if (win::GetVersion() < win::Version::WIN10_20H1) WB_ATTRIBUTE_UNLIKELY {
-      // Policies below require Windows 10, version 2004+ (Build 19041)
-      std::get<std::error_code>(old_uss_policy_to_new_errc_) =
-          std2::system_last_error_code(ERROR_NOT_SUPPORTED);
-      return;
-    }
+  if (win::GetVersion() < win::Version::WIN10_20H1) [[unlikely]] {
+    // Policies below require Windows 10, version 2004+ (Build 19041)
+    std::get<std::error_code>(old_uss_policy_to_new_errc_) =
+        std2::system_last_error_code(ERROR_NOT_SUPPORTED);
+    return;
+  }
   if (!GetProcessMitigationPolicy(
           current_process,
           std::get<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>(

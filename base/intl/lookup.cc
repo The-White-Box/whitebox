@@ -61,6 +61,14 @@ class Lookup::LookupImpl final {
                 {hash("See technical details"), "See technical details"},
                 {hash("Hide technical details"), "Hide technical details"},
 #endif
+                {hash("Please, run app not as root / administrator. Priveleged "
+                      "accounts are not supported."),
+                 "Please, run app not as root / administrator. Priveleged "
+                 "accounts are not supported."},
+                {hash("Your user account is root or administrator. Running app "
+                      "as root or administrator have security risks."),
+                 "Your user account is root or administrator. Running app as "
+                 "root or administrator have security risks."},
                 {hash("Boot Manager - Error"), "Boot Manager - Error"},
                 {hash("<A "
                       "HREF=\"https://github.com/The-White-Box/whitebox/"
@@ -187,8 +195,9 @@ class Lookup::LookupImpl final {
   [[nodiscard]] LookupResult<Lookup::Ref<const std::string>> String(
       uint64_t message_id) const noexcept {
     if (const auto& message = messages_by_id_.find(message_id);
-        message != messages_by_id_.end())
-      WB_ATTRIBUTE_LIKELY { return std::ref(message->second); }
+        message != messages_by_id_.end()) [[likely]] {
+      return std::ref(message->second);
+    }
 
     G3LOG(WARNING) << "Missed localization string for " << message_id
                    << " message id.";
@@ -228,8 +237,9 @@ class Lookup::LookupImpl final {
 [[nodiscard]] LookupResult<Lookup> Lookup::New(
     const std::set<std::string_view>& locale_ids) noexcept {
   auto impl_result = LookupImpl::New(locale_ids);
-  if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result))
-    WB_ATTRIBUTE_LIKELY { return Lookup{std::move(*impl)}; }
+  if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result)) [[likely]] {
+    return Lookup{std::move(*impl)};
+  }
 
   const auto* status = std::get_if<Status>(&impl_result);
   G3DCHECK(!!status);
@@ -246,10 +256,9 @@ class Lookup::LookupImpl final {
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = String(message_id);
   if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-    WB_ATTRIBUTE_LIKELY {
-      return fmt::vformat(static_cast<const std::string&>(*string),
-                          format_args);
-    }
+      [[likely]] {
+    return fmt::vformat(static_cast<const std::string&>(*string), format_args);
+  }
 
   const auto* status = std::get_if<Status>(&result);
   G3DCHECK(!!status);

@@ -72,31 +72,30 @@ class PeekMessageDispatcher {
   template <
       typename HasPreDispatchedMessage = decltype(&HasNoPreDispatchMessage),
       typename PostDispatchedMessage = decltype(&HasNoPostDispatchMessage)>
-  requires message_dispatcher<HasPreDispatchedMessage, PostDispatchedMessage>
-      std::optional<std::error_code> Dispatch(
-          _In_ HasPreDispatchedMessage has_pre_dispatched_message =
-              HasNoPreDispatchMessage,
-          _In_ PostDispatchedMessage post_dispatched_message =
-              HasNoPostDispatchMessage,
-          _In_ UINT lowest_message_id = 0U, _In_ UINT highest_message_id = 0U)
-  const noexcept {
+    requires message_dispatcher<HasPreDispatchedMessage, PostDispatchedMessage>
+  std::optional<std::error_code> Dispatch(
+      _In_ HasPreDispatchedMessage has_pre_dispatched_message =
+          HasNoPreDispatchMessage,
+      _In_ PostDispatchedMessage post_dispatched_message =
+          HasNoPostDispatchMessage,
+      _In_ UINT lowest_message_id = 0U,
+      _In_ UINT highest_message_id = 0U) const noexcept {
     MSG msg;
     while (PeekMessage(&msg, hwnd_, lowest_message_id, highest_message_id,
                        PM_NOREMOVE)) {
       const BOOL rc{
           GetMessage(&msg, hwnd_, lowest_message_id, highest_message_id)};
 
-      if (rc == -1) WB_ATTRIBUTE_UNLIKELY {
-          return base::std2::system_last_error_code();
-        }
+      if (rc == -1) [[unlikely]] {
+        return base::std2::system_last_error_code();
+      }
 
-      if (!has_pre_dispatched_message(msg)) WB_ATTRIBUTE_LIKELY {
-          TranslateMessage(&msg);
-          DispatchMessage(&msg);
+      if (!has_pre_dispatched_message(msg)) [[likely]] {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
 
-          post_dispatched_message(msg);
-        }
-      else {
+        post_dispatched_message(msg);
+      } else {
         break;
       }
     }

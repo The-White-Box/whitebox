@@ -63,31 +63,31 @@ WB_BASE_API void DefaultNewFailureHandler() {
   const uint32_t max_new_retries_count{
       internals::GetGlobalScopedNewHandlerMaxNewRetriesCount()};
 
-  if (actual_new_retries_count < max_new_retries_count) WB_ATTRIBUTE_LIKELY {
-      ++actual_new_retries_count;
+  if (actual_new_retries_count < max_new_retries_count) [[likely]] {
+    ++actual_new_retries_count;
 
-      ::mi_collect(false);
+    ::mi_collect(false);
 
 #ifdef WB_OS_WIN
-      const auto rc = win::memory::OptimizeHeapResourcesNow();
-      G3PLOGE2_IF(WARNING, rc)
-          << "Unable to optimize low-fragmentation heap (LFH) caches.";
+    const auto rc = win::memory::OptimizeHeapResourcesNow();
+    G3PLOGE2_IF(WARNING, rc)
+        << "Unable to optimize low-fragmentation heap (LFH) caches.";
 #endif
 
-      G3LOG(WARNING) << "Thread (" << std::this_thread::get_id() << ", "
-                     << GetThreadName()
-                     << ") failed to allocate memory via new.  Taking "
-                     << actual_new_retries_count << " retry attempt of "
-                     << max_new_retries_count << '.';
+    G3LOG(WARNING) << "Thread (" << std::this_thread::get_id() << ", "
+                   << GetThreadName()
+                   << ") failed to allocate memory via new.  Taking "
+                   << actual_new_retries_count << " retry attempt of "
+                   << max_new_retries_count << '.';
 
-      using namespace std::chrono_literals;
+    using namespace std::chrono_literals;
 
-      // Do not hammer heap pools, give OS some time to free them.
-      constexpr std::chrono::milliseconds kSleepBetweenReallocations{10ms};
-      std::this_thread::sleep_for(kSleepBetweenReallocations);
+    // Do not hammer heap pools, give OS some time to free them.
+    constexpr std::chrono::milliseconds kSleepBetweenReallocations{10ms};
+    std::this_thread::sleep_for(kSleepBetweenReallocations);
 
-      return;
-    }
+    return;
+  }
 
   G3LOG(WARNING)
       << "Thread (" << std::this_thread::get_id() << ',' << GetThreadName()

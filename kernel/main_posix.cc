@@ -4,23 +4,22 @@
 //
 // Whitebox kernel main entry point.
 
-#include "main.h"
-
-#include "base/deps/fmt/core.h"
-#include "base/deps/g3log/g3log.h"
-#include "base/intl/l18n.h"
-#include "ui/fatal_dialog.h"
-
 #include <chrono>
 #include <thread>
 
+#include "main.h"
+//
+#include "base/deps/fmt/core.h"
+#include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/cursor.h"
 #include "base/deps/sdl/init.h"
 #include "base/deps/sdl/version.h"
 #include "base/deps/sdl/window.h"
 #include "base/deps/sdl_image/init.h"
+#include "base/intl/l18n.h"
 #include "build/static_settings_config.h"
 #include "kernel/main_window_posix.h"
+#include "ui/fatal_dialog.h"
 
 namespace {
 
@@ -126,21 +125,22 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       linked_sdl_version{GetLinkTimeVersion()};
   const auto sdl_initializer = SDLInitializer::New(SDLInitializerFlags::kAudio |
                                                    SDLInitializerFlags::kVideo);
-  if (const auto* error = get_error(sdl_initializer)) WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
-          intl::l18n(intl,
-                     "Please, check your SDL library installed and working."),
-          MakeFatalContext(kernel_args),
-          intl::l18n_fmt(intl,
-                         "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                         "initialization failed.\n\n{3}.",
-                         compiled_sdl_version, linked_sdl_version,
-                         ::SDL_GetRevision(), *error));
-    }
+  if (const auto* error = get_error(sdl_initializer)) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
+        intl::l18n(intl,
+                   "Please, check your SDL library installed and working."),
+        MakeFatalContext(kernel_args),
+        intl::l18n_fmt(intl,
+                       "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
+                       "initialization failed.\n\n{3}.",
+                       compiled_sdl_version, linked_sdl_version,
+                       ::SDL_GetRevision(), *error));
+  }
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
-  un<ScopedCursor> wait_cursor_while_app_starts{ //-V821
+  un<ScopedCursor> wait_cursor_while_app_starts{
+      //-V821
       CreateScopedCursor(SystemCursor::kWaitArrow)};
 
   G3LOG(INFO) << "SDL versions: build " << compiled_sdl_version << ", runtime "
@@ -150,43 +150,43 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                                                   SDLImageInitType::kPng};
 
   const auto sdl_image_init = SDLImageInit::New(sdl_image_init_types);
-  if (const auto* error = get_error(sdl_image_init)) WB_ATTRIBUTE_UNLIKELY {
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
-          intl::l18n(intl,
-                     "Please, check your SDL library installed and working."),
-          MakeFatalContext(kernel_args),
-          intl::l18n_fmt(intl,
-                         "SDL image parser initialization failed for image "
-                         "types {0}.\n\n{1}.",
-                         sdl_image_init_types, *error));
-    }
+  if (const auto* error = get_error(sdl_image_init)) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
+        intl::l18n(intl,
+                   "Please, check your SDL library installed and working."),
+        MakeFatalContext(kernel_args),
+        intl::l18n_fmt(intl,
+                       "SDL image parser initialization failed for image "
+                       "types {0}.\n\n{1}.",
+                       sdl_image_init_types, *error));
+  }
 
   const WindowFlags window_flags{MakeWindowFlags()};
 
   const auto window_result = MainWindow::New(
       kernel_args.app_description, command_line_flags.main_window_width,
       command_line_flags.main_window_height, window_flags, intl);
-  if (const auto* window = get_result(window_result)) WB_ATTRIBUTE_LIKELY {
-      G3LOG(INFO) << "SDL graphics context: "
-                  << GetWindowGraphicsContext(window_flags) << ".";
+  if (const auto* window = get_result(window_result)) [[likely]] {
+    G3LOG(INFO) << "SDL graphics context: "
+                << GetWindowGraphicsContext(window_flags) << ".";
 
-      {
-        SDL_SysWMinfo platform_window_info;
-        const auto rc = window->GetPlatformInfo(platform_window_info);
+    {
+      SDL_SysWMinfo platform_window_info;
+      const auto rc = window->GetPlatformInfo(platform_window_info);
 
-        G3LOG(INFO) << "SDL window subsystem: "
-                    << (rc.is_succeeded() ? platform_window_info.subsystem
-                                          : ::SDL_SYSWM_UNKNOWN)
-                    << ".";
-      }
-
-      // Startup sequence finished, window is already shown, restore default
-      // cursor.
-      wait_cursor_while_app_starts.reset();
-
-      return DispatchMessages();
+      G3LOG(INFO) << "SDL window subsystem: "
+                  << (rc.is_succeeded() ? platform_window_info.subsystem
+                                        : ::SDL_SYSWM_UNKNOWN)
+                  << ".";
     }
+
+    // Startup sequence finished, window is already shown, restore default
+    // cursor.
+    wait_cursor_while_app_starts.reset();
+
+    return DispatchMessages();
+  }
 
   const auto* error = get_error(window_result);
   G3DCHECK(!!error);

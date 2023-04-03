@@ -62,8 +62,9 @@ class ScopedG3LogInitializer {
                                FullLogDetailsToString);
 
     // Install signal handler that catches FATAL C-runtime or OS signals
-    // See the wikipedia site for details https://en.wikipedia.org/wiki/Signal_(IPC)#SIGFPE
-    // See this site for example usage:
+    // See the wikipedia site for details
+    // https://en.wikipedia.org/wiki/Signal_(IPC)#SIGFPE See this site for
+    // example usage:
     // http://www.tutorialspoint.com/cplusplus/cpp_signal_handling
     // SIGABRT  ABORT (ANSI), abnormal termination
     // SIGFPE   Floating point exception (ANSI)
@@ -73,7 +74,7 @@ class ScopedG3LogInitializer {
     g3::installCrashHandler();
     // setFatalPreLoggingHook() provides an optional extra step before the
     // fatalExitHandler is called
-    // 
+    //
     // WARNING: '__debugbreak()' when not running in Debug in your Visual Studio
     // IDE will likely trigger a recursive crash if used here.  It should only
     // be used when debugging in your Visual Studio IDE.  Recursive crashes are
@@ -123,14 +124,14 @@ class ScopedG3LogInitializer {
   /**
    * @brief g3log cout / cerr redirector.
    */
-  //struct G3IoStreamsRedirector {
-  //  G3IoStreamsRedirector()
-  //      : cout_{std::ios_base::out},
-  //        cerr_{std::ios_base::out},
-  //        cout_stream_buf_{cout_.rdbuf()},
-  //        cerr_stream_buf_{cerr_.rdbuf()},
-  //        old_cout_stream_buf_{std::cout.rdbuf(&cout_stream_buf_)},
-  //        old_cerr_stream_buf_{std::cerr.rdbuf(&cerr_stream_buf_)} {}
+  // struct G3IoStreamsRedirector {
+  //   G3IoStreamsRedirector()
+  //       : cout_{std::ios_base::out},
+  //         cerr_{std::ios_base::out},
+  //         cout_stream_buf_{cout_.rdbuf()},
+  //         cerr_stream_buf_{cerr_.rdbuf()},
+  //         old_cout_stream_buf_{std::cout.rdbuf(&cout_stream_buf_)},
+  //         old_cerr_stream_buf_{std::cerr.rdbuf(&cerr_stream_buf_)} {}
 
   //  WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(G3IoStreamsRedirector);
 
@@ -274,19 +275,20 @@ class ScopedG3LogInitializer {
     const auto function_formatter = [](const std::string& function) noexcept {
       // Reverse find as we have operator ()(some_nasty_type) things.
       const size_t close_parenthesis_idx{function.rfind(')')};
-      if (close_parenthesis_idx != std::string::npos) WB_ATTRIBUTE_LIKELY {
-          const size_t open_parenthesis_idx{function.rfind('(')};
-          if (open_parenthesis_idx != std::string::npos) WB_ATTRIBUTE_LIKELY {
-              if (close_parenthesis_idx == open_parenthesis_idx + 1)
-                WB_ATTRIBUTE_UNLIKELY { return function; }
+      if (close_parenthesis_idx != std::string::npos) [[likely]] {
+        const size_t open_parenthesis_idx{function.rfind('(')};
+        if (open_parenthesis_idx != std::string::npos) [[likely]] {
+          if (close_parenthesis_idx == open_parenthesis_idx + 1) [[unlikely]] {
+            return function;
+          }
 
-              // Replace (some_arguments) with (...) to reduce noise in logs.
-              return absl::StrCat(
-                  function.substr(0, open_parenthesis_idx + 1), "...",
-                  function.substr(close_parenthesis_idx,
-                                  function.size() - close_parenthesis_idx));
-            }
+          // Replace (some_arguments) with (...) to reduce noise in logs.
+          return absl::StrCat(
+              function.substr(0, open_parenthesis_idx + 1), "...",
+              function.substr(close_parenthesis_idx,
+                              function.size() - close_parenthesis_idx));
         }
+      }
       return function;
     };
 

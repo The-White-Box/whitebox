@@ -4,8 +4,8 @@
 //
 // App main window on *nix.
 
-#ifndef WB_KERNEL_MAIN_WINDOW_UNIX_H_
-#define WB_KERNEL_MAIN_WINDOW_UNIX_H_
+#ifndef WB_KERNEL_MAIN_WINDOW_POSIX_H_
+#define WB_KERNEL_MAIN_WINDOW_POSIX_H_
 
 #include <utility>  // std::move
 
@@ -76,4 +76,4 @@ class MainWindow {
 
 }  // namespace wb::kernel
 
-#endif  // !WB_KERNEL_MAIN_WINDOW_UNIX_H_
+#endif  // !WB_KERNEL_MAIN_WINDOW_POSIX_H_

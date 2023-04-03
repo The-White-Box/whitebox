@@ -70,41 +70,39 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // missed we return all required features with support state.
   const std::vector<wb::apps::CpuFeature> cpu_features_support{
       wb::apps::QueryRequiredCpuFeatures()};
-  if (!cpu_features_support.empty()) WB_ATTRIBUTE_UNLIKELY {
-      const std::string cpu_features_support_state{absl::StrJoin(
-          cpu_features_support, "\n",
-          [&](std::string* out, const wb::apps::CpuFeature& feature_support) {
-            absl::StrAppend(
-                out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
-                                    feature_support.is_supported ? "✓" : "❌"));
-          })};
-      return wb::ui::FatalDialog(
-          intl::l18n_fmt(l18n, "{0} - Error",
-                         WB_PRODUCT_FILE_DESCRIPTION_STRING),
-          std2::system_last_error_code(ENODEV),
-          intl::l18n(l18n,
-                     "Sorry, your CPU has missed some required features to run "
-                     "the game."),
-          MakeFatalContext(l18n),
-          intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
-                         wb::apps::QueryCpuBrand(),
-                         cpu_features_support_state));
-    }
+  if (!cpu_features_support.empty()) [[unlikely]] {
+    const std::string cpu_features_support_state{absl::StrJoin(
+        cpu_features_support, "\n",
+        [&](std::string* out, const wb::apps::CpuFeature& feature_support) {
+          absl::StrAppend(
+              out, intl::l18n_fmt(l18n, "{0}     {1}", feature_support.name,
+                                  feature_support.is_supported ? "✓" : "❌"));
+        })};
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std2::system_last_error_code(ENODEV),
+        intl::l18n(l18n,
+                   "Sorry, your CPU has missed some required features to run "
+                   "the game."),
+        MakeFatalContext(l18n),
+        intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
+                       wb::apps::QueryCpuBrand(), cpu_features_support_state));
+  }
 
   uint32_t exec_path_size{0};
   int rv{_NSGetExecutablePath(nullptr, &exec_path_size)};
-  if (rv != -1) WB_ATTRIBUTE_UNLIKELY {
-      wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
-          << "_NSGetExecutablePath: get length failed.  Unable to load the "
-             "app.";
-    }
+  if (rv != -1) [[unlikely]] {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
+        << "_NSGetExecutablePath: get length failed.  Unable to load the "
+           "app.";
+  }
 
   std::unique_ptr<char[]> exec_path{std::make_unique<char[]>(exec_path_size)};
   rv = _NSGetExecutablePath(exec_path.get(), &exec_path_size);
-  if (rv != 0) WB_ATTRIBUTE_UNLIKELY {
-      wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
-          << "_NSGetExecutablePath: get path failed.  Unable to load the app.";
-    }
+  if (rv != 0) [[unlikely]] {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
+        << "_NSGetExecutablePath: get path failed.  Unable to load the app.";
+  }
 
   constexpr char rel_path[]{
       "../Frameworks/" WB_PRODUCT_NAME_STRING
@@ -114,10 +112,10 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // Slice off the last part of the main executable path, and append the
   // version framework information.
   const char* parent_dir{dirname(exec_path.get())};
-  if (!parent_dir) WB_ATTRIBUTE_UNLIKELY {
-      wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{errno})
-          << "dirname '" << exec_path.get() << "'.";
-    }
+  if (!parent_dir) [[unlikely]] {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{errno})
+        << "dirname '" << exec_path.get() << "'.";
+  }
 
   const size_t parent_dir_len{strlen(parent_dir)};
   const size_t rel_path_len{strlen(rel_path)};
@@ -133,11 +131,10 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
       framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
-  if (const auto* rc = std2::get_error(boot_manager_load_result))
-    WB_ATTRIBUTE_UNLIKELY {
-      wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
-          << "Can't load boot manager '" << framework_path.get() << ".";
-    }
+  if (const auto* rc = std2::get_error(boot_manager_load_result)) [[unlikely]] {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
+        << "Can't load boot manager '" << framework_path.get() << ".";
+  }
 
   const auto boot_manager_module =
       std::get<ScopedSharedLibrary>(boot_manager_load_result);
@@ -149,12 +146,11 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   const auto boot_manager_entry_result =
       boot_manager_module->GetAddressAs<BootManagerMainFunction>(
           kBootmgrMainFunctionName);
-  if (const auto* rc = std2::get_error(bootmgr_entry_result))
-    WB_ATTRIBUTE_UNLIKELY {
-      wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
-          << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
-          << framework_path.get() << "'.";
-    }
+  if (const auto* rc = std2::get_error(bootmgr_entry_result)) [[unlikely]] {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
+        << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
+        << framework_path.get() << "'.";
+  }
 
   const auto boot_manager_main =
       std::get<BootManagerMainFunction>(bootmgr_entry_result);

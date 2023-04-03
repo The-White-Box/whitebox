@@ -74,9 +74,9 @@ get_executable_directory() noexcept {
 #ifdef WB_OS_POSIX
   auto exe_path_result{GetExecutablePath()};
 
-  if (auto *result = std2::get_result(exe_path_result)) WB_ATTRIBUTE_LIKELY {
-      return result->parent_path();
-    }
+  if (auto *result = std2::get_result(exe_path_result)) [[likely]] {
+    return result->parent_path();
+  }
 
   return exe_path_result;
 #elif defined(WB_OS_WIN)
