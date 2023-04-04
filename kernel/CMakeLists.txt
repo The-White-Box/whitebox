@@ -23,7 +23,7 @@ set(WB_WHITEBOX_KERNEL_LINK_DEPS
 if (WB_OS_WIN)
   list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
 else ()
-  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS "SDL3::SDL3" "SDL3::image")
+  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS "SDL3::SDL3" "SDL3_image::SDL3_image")
 endif ()
 
 set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS
@@ -34,7 +34,7 @@ set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS
   wb::whitebox-hid-driver
   wb::whitebox-ui)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS "SDL3::SDL3" "SDL3::image")
+  list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS "SDL3::SDL3" "SDL3_image::SDL3_image")
 endif ()
 
 wb_cxx_shared_library(
