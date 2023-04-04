@@ -512,6 +512,7 @@ add_subdirectory("apps/half-life-2")
 ## Other stuff.
 
 # Get all targets to add mimalloc allocators overrides.
+set(WB_ALL_TARGETS "")
 wb_get_all_targets(WB_ALL_TARGETS "${WB_ROOT_DIR}")
 
 # Do some common stuff for all dependencies.
