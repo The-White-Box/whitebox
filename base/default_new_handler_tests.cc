@@ -40,7 +40,7 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
 
   const auto triggerOom = []() noexcept {
     std::random_device random_device;
-    std::mt19937 generator{random_device()};
+    std::mt19937_64 generator{random_device()};
     std::uniform_int_distribution<> distribution{1, 255};
 
     constexpr size_t doubled_total_ram_bytes{static_cast<size_t>(32) * 1028 *
