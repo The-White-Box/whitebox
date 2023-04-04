@@ -133,30 +133,6 @@
 #define WB_COMPILER_HAS_DEBUG 1
 #endif
 
-// Under Mac attributes detected as valid during sample compilation, but not
-// in source tree :(
-// TODO(dimhotepus): Check on new Apple Clang all is ok (13.0.0+).
-#if __has_cpp_attribute(likely) && __has_cpp_attribute(unlikely) && \
-    !defined(WB_OS_MACOS)
-/*
- * @brief [[likely]]
- */
-#define WB_ATTRIBUTE_LIKELY [[likely]]
-/*
- * @brief [[unlikely]]
- */
-#define WB_ATTRIBUTE_UNLIKELY [[unlikely]]
-#else
-/*
- * @brief Do nothing,
- */
-#define WB_ATTRIBUTE_LIKELY
-/*
- * @brief Do nothing,
- */
-#define WB_ATTRIBUTE_UNLIKELY
-#endif
-
 // Common attributes.
 #ifdef WB_COMPILER_MSVC
 
