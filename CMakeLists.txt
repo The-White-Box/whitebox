@@ -265,6 +265,7 @@ endif()
 ## Product dependencies.
 
 # fmt.
+set(FMT_INSTALL OFF CACHE BOOL "Generate the install target." FORCE)
 add_subdirectory("deps/fmt")
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
