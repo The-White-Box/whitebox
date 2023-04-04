@@ -525,11 +525,29 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
        ${wb_target_type} MATCHES "EXECUTABLE"))
     # Ensure all libs use the same STL debug options.
     if (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
+      if (WB_COMPILER_CLANG)
+        # Prevent tons of variable not defined warnings.
+        if(NOT DEFINED WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS)
+          set(WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS OFF)
+        endif()
+
+        if(NOT DEFINED WB_CLANG_DEFINE__LIBCPP_DEBUG)
+          set(WB_CLANG_DEFINE__LIBCPP_DEBUG OFF)
+        endif()
+      endif()
+
+      if (WB_COMPILER_GCC)
+        # Prevent tons of variable not defined warnings.
+        if(NOT DEFINED WB_GCC_DEFINE__GLIBCXX_ASSERTIONS)
+          set(WB_GCC_DEFINE__GLIBCXX_ASSERTIONS OFF)
+        endif()
+      endif()
+
       target_compile_definitions(${wb_target_name}
         PRIVATE
           $<$<CONFIG:DEBUG>:
             # Run-time bounds checking for C++ strings/containers.
-            $<$<OR:$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>,$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>>:_GLIBCXX_ASSERTIONS>
+            $<$<OR:$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>,$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>>:_GLIBCXX_ASSERTIONS>
             # Catch libstdc++ usage errors by enabling debug mode.  When defined,
             # _GLIBCXX_ASSERTIONS is defined automatically
             $<$<OR:$<BOOL:${WB_CLANG_DEFINE__GLIBCXX_ASSERTIONS}>,$<BOOL:${WB_GCC_DEFINE__GLIBCXX_ASSERTIONS}>>:_GLIBCXX_DEBUG>
