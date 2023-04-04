@@ -80,6 +80,7 @@
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
+      "generator": "Visual Studio 17 2022",
       "cacheVariables": {
         "WB_MSVC_CXX_LANGUAGE_VERSION": "c++20",
         "WB_MSVC_ENABLE_DEBUG_INLINING": "ON"
