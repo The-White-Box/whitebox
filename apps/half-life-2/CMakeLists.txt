@@ -47,7 +47,7 @@ set(WB_HALF_LIFE2_RUNTIME_DEPS
 if (NOT WB_OS_WIN)
   list(APPEND WB_HALF_LIFE2_LINK_DEPS SDL3::SDL3)
   list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS
-    "SDL3::SDL3" "SDL3_image::SDL3_image" "SDL3_image::external_libpng")
+    "SDL3::SDL3" "SDL3_image::SDL3_image")
 endif()
 
 if (WB_OS_WIN)
