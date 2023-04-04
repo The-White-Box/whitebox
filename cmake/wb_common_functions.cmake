@@ -365,7 +365,15 @@ function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPEND
       TARGET ${THE_TARGET} POST_BUILD
       COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll" $<TARGET_FILE_DIR:${THE_TARGET}>
       DEPENDS ${THE_DEPENDENCY}
-      COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${THE_TARGET} output directory"
+      COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+    )
+
+    # Ensure mimalloc imported first for malloc/new redirection to work.
+    add_custom_command(
+      TARGET ${THE_TARGET} POST_BUILD
+      COMMAND $<TARGET_PROPERTY:mimalloc,SOURCE_DIR>/bin/minject.exe --force --inplace --postfix=redirect $<TARGET_FILE:${THE_TARGET}>
+      DEPENDS ${THE_DEPENDENCY}
+      COMMENT "Execute $<TARGET_PROPERTY:mimalloc,SOURCE_DIR>/bin/minject.exe on $<TARGET_FILE:${THE_TARGET}> to ensure mimalloc usage"
     )
   endif()
 endfunction()
