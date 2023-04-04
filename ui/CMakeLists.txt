@@ -18,7 +18,7 @@ set(WB_WHITEBOX_UI_LINK_DEPS
   g3log
   wb::whitebox-base)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_UI_LINK_DEPS "SDL2::SDL2" "SDL2::image")
+  list(APPEND WB_WHITEBOX_UI_LINK_DEPS "SDL3::SDL3" "SDL3::image")
 endif()
 
 set(WB_WHITEBOX_UI_RUNTIME_DEPS
@@ -27,7 +27,7 @@ set(WB_WHITEBOX_UI_RUNTIME_DEPS
   g3log
   wb::whitebox-base)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_UI_RUNTIME_DEPS "SDL2::SDL2" "SDL2::image")
+  list(APPEND WB_WHITEBOX_UI_RUNTIME_DEPS "SDL3::SDL3" "SDL3::image")
 else()
   # Delay load DLLs we use in rare call paths.
   list(APPEND WB_WHITEBOX_UI_LINK_OPTIONS
