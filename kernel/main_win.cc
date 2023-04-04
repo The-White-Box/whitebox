@@ -8,6 +8,7 @@
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/l18n.h"
 #include "base/win/windows_light.h"
+#include "kernel/input/input_queue.h"
 #include "kernel/main_window_win.h"
 #include "main.h"
 #include "ui/fatal_dialog.h"
@@ -47,29 +48,37 @@ namespace {
 
 /**
  * @brief Run app message loop.
+ * @param main_window_name Main window name.
+ * @param mouse_input_queue Mouse input queue.
+ * @param keyboard_input_queue Keyboard input queue.
  * @return App exit code.
  */
 [[nodiscard]] int DispatchMessages(
-    _In_z_ const char* main_window_name) noexcept {
+    _In_z_ const char* main_window_name,
+    wb::kernel::input::InputQueue<wb::hal::hid::MouseInput>& mouse_input_queue,
+    wb::kernel::input::InputQueue<wb::hal::hid::KeyboardInput>&
+        keyboard_input_queue) noexcept {
   int exit_code{0};
   bool is_done{false};
   const auto handle_quit_message = [&](const MSG& msg) noexcept {
-    if (msg.message == WM_QUIT) {
+    if (msg.message == WM_QUIT) [[unlikely]] {
       exit_code = static_cast<int>(msg.wParam);
       is_done = true;
     }
   };
 
-  wb::ui::win::PeekMessageDispatcher message_dispatcher;
+  using namespace wb::ui::win;
+
+  PeekMessageDispatcher msg_dispatcher;
 
   // Main message app loop.
   // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in handle_quit_message.
   while (!is_done) {
-    const auto maybe_dispatch_rc = message_dispatcher.Dispatch(
-        wb::ui::win::HasNoPreDispatchMessage, handle_quit_message);
+    const auto maybe_dispatch_rc =
+        msg_dispatcher.Dispatch(HasNoPreDispatchMessage, handle_quit_message);
 
-    if (maybe_dispatch_rc.has_value()) {
-      const auto rc = maybe_dispatch_rc.value();
+    if (maybe_dispatch_rc.has_value()) [[unlikely]] {
+      const auto& rc = maybe_dispatch_rc.value();
 
       G3PLOGE2_IF(WARNING, rc) << "Main window '" << main_window_name
                                << "' message dispatch thread received error.";
@@ -77,6 +86,17 @@ namespace {
       exit_code = rc.value();
       break;
     }
+
+    // TODO(dimhotepus): Main loop content here.  For now just drain queues.
+    auto mouse_input = mouse_input_queue.Pop();
+    do {
+      mouse_input = mouse_input_queue.Pop();
+    } while (mouse_input.has_value());
+
+    auto keyboard_input = keyboard_input_queue.Pop();
+    do {
+      keyboard_input = keyboard_input_queue.Pop();
+    } while (keyboard_input.has_value());
   }
 
   G3LOG_IF(WARNING, exit_code != 0)
@@ -115,8 +135,14 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
                                  command_line_flags.main_window_height)};
   constexpr DWORD window_class_style{CS_HREDRAW | CS_VREDRAW};
 
+  using namespace wb::hal::hid;
+
+  input::InputQueue<MouseInput> mouse_input_queue;
+  input::InputQueue<KeyboardInput> keyboard_input_queue;
+
   auto window_result =
-      BaseWindow::New<MainWindow>(window_definition, window_class_style, intl);
+      BaseWindow::New<MainWindow>(window_definition, window_class_style, intl,
+                                  mouse_input_queue, keyboard_input_queue);
   if (auto* window_ptr = std2::get_result(window_result);
       auto* window = window_ptr ? window_ptr->get() : nullptr) {
     // If the window was previously visible, the return value is nonzero.  If
@@ -125,7 +151,8 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     // Send WM_PAINT directly to draw first time.
     window->Update();
 
-    return DispatchMessages(window_definition.name);
+    return DispatchMessages(window_definition.name, mouse_input_queue,
+                            keyboard_input_queue);
   }
 
   return wb::ui::FatalDialog(

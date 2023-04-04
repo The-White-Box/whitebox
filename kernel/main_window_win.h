@@ -20,6 +20,7 @@
 #include "base/win/mmcss/scoped_mmcss_toggle_dwm.h"
 #include "hal/drivers/hid/keyboard_win.h"
 #include "hal/drivers/hid/mouse_win.h"
+#include "kernel/input/input_queue.h"
 #include "ui/fatal_dialog.h"
 #include "ui/win/accessibility_shortcut_keys_toggler.h"
 #include "ui/win/base_window.h"
@@ -50,12 +51,16 @@ class MainWindow : public wb::ui::win::BaseWindow {
      * @param instance App instance.
      * @return nothing.
      */
-    explicit MainWindow(
-        _In_ HINSTANCE instance, _In_ int icon_id, _In_ int icon_small_id,
-        _In_ const wb::base::intl::LookupWithFallback &l18n) noexcept
+    MainWindow(_In_ HINSTANCE instance, int icon_id, int icon_small_id,
+               const wb::base::intl::LookupWithFallback &l18n,
+               input::InputQueue<hal::hid::MouseInput> &mouse_input_queue,
+               input::InputQueue<hal::hid::KeyboardInput>
+                   &keyboard_input_queue) noexcept
         : BaseWindow{instance, icon_id, icon_small_id},
           mouse_{},
+          mouse_input_queue_{mouse_input_queue},
           keyboard_{},
+          keyboard_input_queue_{keyboard_input_queue},
           render_sampling_profiler_{
               wb::base::HighResolutionSamplingProfiler::clock::now()},
           full_screen_window_toggler_{},
@@ -75,7 +80,9 @@ class MainWindow : public wb::ui::win::BaseWindow {
   MainWindow(MainWindow &&w) noexcept
       : BaseWindow{std::forward<MainWindow>(w)},
         mouse_{std::move(w.mouse_)},
+        mouse_input_queue_{w.mouse_input_queue_},
         keyboard_{std::move(w.keyboard_)},
+        keyboard_input_queue_{w.keyboard_input_queue_},
         render_sampling_profiler_{std::move(w.render_sampling_profiler_)},
         full_screen_window_toggler_{std::move(w.full_screen_window_toggler_)},
         accessibility_shortcut_keys_toggler_{
@@ -91,13 +98,14 @@ class MainWindow : public wb::ui::win::BaseWindow {
   MainWindow &operator=(MainWindow &&w) noexcept {
     BaseWindow::operator=(std::forward<MainWindow>(w));
     std::swap(mouse_, w.mouse_);
+    std::swap(mouse_input_queue_, w.mouse_input_queue_);
     std::swap(keyboard_, w.keyboard_);
+    std::swap(keyboard_input_queue_, w.keyboard_input_queue_);
     std::swap(render_sampling_profiler_, w.render_sampling_profiler_);
     std::swap(full_screen_window_toggler_, w.full_screen_window_toggler_);
     std::swap(accessibility_shortcut_keys_toggler_,
               w.accessibility_shortcut_keys_toggler_);
     scoped_mmcss_toggle_dwm_.swap(w.scoped_mmcss_toggle_dwm_);
-    // intl_ = w.intl_;
     std::swap(is_window_active_, w.is_window_active_);
     return *this;
   }
@@ -116,9 +124,17 @@ class MainWindow : public wb::ui::win::BaseWindow {
    */
   base::un<hal::hid::Mouse> mouse_;
   /**
+   * @brief Mouse input queue.
+   */
+  input::InputQueue<hal::hid::MouseInput> &mouse_input_queue_;
+  /**
    * @brief Keyboard device.
    */
   base::un<hal::hid::Keyboard> keyboard_;
+  /**
+   * @brief Keyboard input queue.
+   */
+  input::InputQueue<hal::hid::KeyboardInput> &keyboard_input_queue_;
   /**
    * @brief Sampling profiler for rendering.
    */
@@ -136,7 +152,8 @@ class MainWindow : public wb::ui::win::BaseWindow {
    * @brief Display Window Manager runs using Multimedia Class Schedule Service
    * (MMCSS) scheduling to speed up window composition.
    */
-  std::optional<base::win::mmcss::ScopedMmcssToggleDwm> scoped_mmcss_toggle_dwm_;
+  std::optional<base::win::mmcss::ScopedMmcssToggleDwm>
+      scoped_mmcss_toggle_dwm_;
   /**
    * @brief Localization service.
    */
