@@ -478,7 +478,7 @@ if (NOT WB_OS_WIN)
 
   if (WB_CXX_COMPILER_ID STREQUAL "AppleClang")
     # Fix for undefined memset_pattern4() on MacOS.
-    target_compile_definitions(SDL3::SDL3-shared PUBLIC _DARWIN_C_SOURCE=1)
+    target_compile_definitions(SDL3-shared PUBLIC _DARWIN_C_SOURCE=1)
   endif()
 
   set(PNG_SHARED ON CACHE BOOL "Build shared lib" FORCE)
