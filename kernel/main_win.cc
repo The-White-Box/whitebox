@@ -6,10 +6,12 @@
 
 #include "base/deps/fmt/core.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/high_resolution_clock.h"
 #include "base/intl/l18n.h"
 #include "base/win/windows_light.h"
 #include "kernel/input/input_queue.h"
 #include "kernel/main_window_win.h"
+#include "kernel/main_simulate_step.h"
 #include "main.h"
 #include "ui/fatal_dialog.h"
 #include "ui/win/base_window.h"
@@ -70,6 +72,7 @@ namespace {
   using namespace wb::ui::win;
 
   PeekMessageDispatcher msg_dispatcher;
+  auto loop_iteration_start_time = wb::base::HighResolutionClock::now();
 
   // Main message app loop.
   // NOLINTNEXTLINE(bugprone-infinite-loop): Loop ends in handle_quit_message.
@@ -87,16 +90,12 @@ namespace {
       break;
     }
 
-    // TODO(dimhotepus): Main loop content here.  For now just drain queues.
-    auto mouse_input = mouse_input_queue.Pop();
-    do {
-      mouse_input = mouse_input_queue.Pop();
-    } while (mouse_input.has_value());
+    const auto now_time = wb::base::HighResolutionClock::now();
+    const auto delta_time = now_time - loop_iteration_start_time;
 
-    auto keyboard_input = keyboard_input_queue.Pop();
-    do {
-      keyboard_input = keyboard_input_queue.Pop();
-    } while (keyboard_input.has_value());
+    loop_iteration_start_time = now_time;
+
+    wb::kernel::SimulateWorldStep(delta_time, mouse_input_queue, keyboard_input_queue);
   }
 
   G3LOG_IF(WARNING, exit_code != 0)
@@ -144,7 +143,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       BaseWindow::New<MainWindow>(window_definition, window_class_style, intl,
                                   mouse_input_queue, keyboard_input_queue);
   if (auto* window_ptr = std2::get_result(window_result);
-      auto* window = window_ptr ? window_ptr->get() : nullptr) {
+      auto* window = window_ptr ? window_ptr->get() : nullptr) [[likely]] {
     // If the window was previously visible, the return value is nonzero.  If
     // the window was previously hidden, the return value is zero.
     window->Show(kernel_args.show_window_flags);

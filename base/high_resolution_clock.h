@@ -23,6 +23,11 @@ namespace wb::base {
  */
 using HighResolutionClock = std::chrono::steady_clock;
 
+/**
+ * @brief High resolution clock duration.
+*/
+using HighResolutionClockDuration = std::chrono::steady_clock::duration;
+
 }  // namespace wb::base
 
 #endif  // !WB_BASE_HIGH_RESOLUTION_CLOCK_H_
