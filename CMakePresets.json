@@ -347,6 +347,30 @@
       "description": "Dev Windows Intel PC x86_64 MSVC tests",
       "inherits": "base-test",
       "configurePreset": "x86_64-intel_pc-windows-msvc-debug"
+    },
+    {
+      "name": "x86_64-unknown-linux-clang-release-test",
+      "description": "Production Linux x86_64 Clang build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-unknown-linux-clang-release"
+    },
+    {
+      "name": "x86_64-apple-darwin-release-test",
+      "description": "Production MacOS x86_64 build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-apple-darwin-release"
+    },
+    {
+      "name": "x86_64-amd_pc-windows-msvc-release-test",
+      "description": "Production Windows AMD PC x86_64 MSVC tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-amd_pc-windows-msvc-release"
+    },
+    {
+      "name": "x86_64-intel_pc-windows-msvc-release-test",
+      "description": "Production Windows Intel PC x86_64 MSVC tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-intel_pc-windows-msvc-release"
     }
   ]
 }
