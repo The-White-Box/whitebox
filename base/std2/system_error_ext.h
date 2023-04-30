@@ -96,7 +96,7 @@ template <typename TResult>
 
 /**
  * @brief Get success result from system result.
- * @tparam TResult TResult System result success.
+ * @tparam TResult System result success.
  * @param rc System result.
  * @return System result success pointer or nullptr.
  */
@@ -107,7 +107,7 @@ template <typename TResult>
 
 /**
  * @brief Get success result from system result.
- * @tparam TResult TResult System result success.
+ * @tparam TResult System result success.
  * @param rc System result.
  * @return System result success pointer or nullptr.
  */
