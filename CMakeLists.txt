@@ -453,6 +453,21 @@ elseif(WB_COMPILER_CLANG OR WB_COMPILER_GCC)
   target_compile_options(absl_time_zone  PRIVATE -fPIC)
 endif()
 
+# marl.
+
+set(MARL_BUILD_TESTS ON CACHE BOOL "Build tests" FORCE)
+set(MARL_BUILD_SHARED ON CACHE BOOL "Build marl as a shared / dynamic library (default static)" FORCE)
+set(MARL_GOOGLETEST_DIR ON CACHE STRING "deps/googletest" FORCE)
+set(MARL_WARNINGS_AS_ERRORS ON CACHE BOOL "Treat warnings as errors" FORCE)
+add_subdirectory("deps/marl")
+if (WB_OS_WIN)
+  # Adds VERSION resource.
+  wb_add_version_resource_to_dll_target(
+    marl
+    deps/marl
+    "Marl is a hybrid thread / fiber task scheduler written in C++ 11.  See THIRD_PARTY for details.")
+endif()
+
 # mimalloc.
 
 add_subdirectory("deps/mimalloc")

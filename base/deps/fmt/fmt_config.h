@@ -4,8 +4,8 @@
 //
 // fmt configuration.
 
-#ifndef WB_BASE_DEPS_FMT_CONFIG_H_
-#define WB_BASE_DEPS_FMT_CONFIG_H_
+#ifndef WB_BASE_DEPS_FMT_FMT_CONFIG_H_
+#define WB_BASE_DEPS_FMT_FMT_CONFIG_H_
 
 #include "build/compiler_config.h"
 
@@ -33,4 +33,4 @@
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE        \
   ()
 
-#endif  // !WB_BASE_DEPS_FMT_CONFIG_H_
+#endif  // !WB_BASE_DEPS_FMT_FMT_CONFIG_H_

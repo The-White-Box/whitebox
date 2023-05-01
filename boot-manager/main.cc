@@ -9,7 +9,9 @@
 #include <filesystem>
 
 #include "app_version_config.h"
+#include "base/deps/abseil/cleanup/cleanup.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/deps/marl/scheduler.h"
 #include "base/intl/l18n.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
@@ -442,6 +444,25 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
     }
   }
 #endif
+
+  const unsigned logical_cores_num{marl::Thread::numLogicalCPUs()};
+  auto& all_cores_config =
+      marl::Scheduler::Config()
+          // Use all logical cores.
+          .setWorkerThreadCount(static_cast<int>(logical_cores_num));
+
+  // Create a marl scheduler and bind it to the main thread so we can call
+  // marl::schedule()
+  marl::Scheduler process_wide_scheduler{all_cores_config};
+  process_wide_scheduler.bind();
+
+  // Need to unbind scheduler from main thread.  Forgetting to unbind will
+  // result in the marl::Scheduler destructor blocking indefinitely.
+  const absl::Cleanup unbind_scheduler{
+      [&]() noexcept { process_wide_scheduler.unbind(); }};
+
+  G3LOG(INFO) << "Marl CPU scheduler using " << logical_cores_num
+              << " logical cores.";
 
   return KernelStartup(boot_manager_args);
 }

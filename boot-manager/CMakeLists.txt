@@ -15,6 +15,7 @@ set(WB_BOOTMGR_LINK_OPTIONS "")
 set(WB_BOOTMGR_LINK_DEPS
   # Should be first as linker requires it.
   mimalloc
+  marl
   absl::strings
   g3log
   wb::whitebox-base
@@ -32,6 +33,7 @@ endif()
 set(WB_BOOTMGR_RUNTIME_DEPS
   # Should be first as linker requires it.
   mimalloc
+  marl
   g3log
   wb::whitebox-base
   wb::whitebox-kernel

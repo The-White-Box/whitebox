@@ -19,3 +19,6 @@
 [submodule "deps/abseil"]
 	path = deps/abseil
 	url = git@github.com:The-White-Box/abseil-cpp.git
+[submodule "deps/marl"]
+	path = deps/marl
+	url = git@github.com:The-White-Box/marl.git

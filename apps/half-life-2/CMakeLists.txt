@@ -37,6 +37,7 @@ endif()
 set(WB_HALF_LIFE2_RUNTIME_DEPS
   # Should be first as linker requires it.
   mimalloc
+  marl
   g3log
   wb::whitebox-base
   wb::whitebox-boot-manager
