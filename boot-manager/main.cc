@@ -12,6 +12,7 @@
 #include "base/deps/abseil/cleanup/cleanup.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/marl/scheduler.h"
+#include "base/deps/marl/scheduler_config.h"
 #include "base/intl/l18n.h"
 #include "base/scoped_floating_point_mode.h"
 #include "base/scoped_process_terminate_handler.h"
@@ -339,7 +340,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
       DefaultProcessTerminateHandler};
 
 #ifdef WB_OS_WIN
-  const std2::native_thread_name new_thread_name{"WhiteBoxMain"};
+  const std2::native_thread_name new_thread_name{"WhiteBox_Main"};
 
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name =
@@ -446,10 +447,13 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
 #endif
 
   const unsigned logical_cores_num{marl::Thread::numLogicalCPUs()};
-  auto& all_cores_config =
+  const marl::Scheduler::Config all_cores_config =
       marl::Scheduler::Config()
           // Use all logical cores.
-          .setWorkerThreadCount(static_cast<int>(logical_cores_num));
+          .setWorkerThreadCount(static_cast<int>(logical_cores_num))
+          // Setup all required thread state stuff.
+          .setWorkerThreadStatefulInitializer(
+              deps::marl::make_thread_start_state);
 
   // Create a marl scheduler and bind it to the main thread so we can call
   // marl::schedule()

@@ -81,7 +81,7 @@ namespace {
         msg_dispatcher.Dispatch(HasNoPreDispatchMessage, handle_quit_message);
 
     if (maybe_dispatch_rc.has_value()) [[unlikely]] {
-      const auto& rc = maybe_dispatch_rc.value();
+      const auto& rc = *maybe_dispatch_rc;
 
       G3PLOGE2_IF(WARNING, rc) << "Main window '" << main_window_name
                                << "' message dispatch thread received error.";
