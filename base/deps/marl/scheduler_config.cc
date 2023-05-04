@@ -51,9 +51,8 @@ class WhiteboxThreadStartState::Impl final {
         << "Can't rename worker thread #" << workerId
         << ", continue with default name.";
     G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_error_mode_))
-        << "Can't set worker thread #" << workerId
-        << " reaction to serious system errors, continue with default "
-           "reaction.";
+        << "Can't set reaction to serious system errors for worker thread #"
+        << workerId << ", continue with default reaction.";
     G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_com_initializer_))
         << "Component Object Model initialization failed for worker thread #"
         << workerId << ", continue without COM.";
