@@ -201,9 +201,10 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
       using duration_ms = microseconds;
 
       const auto elapsed_ms = duration_cast<duration_ms>(delta).count();
-      return elapsed_ms ? duration_ms::period::den / duration_ms::period::num /
-                              static_cast<float>(elapsed_ms)
-                        : 0;
+      return elapsed_ms
+                 ? (duration_ms::period::den / duration_ms::period::num) /
+                       static_cast<float>(elapsed_ms)
+                 : 0;
     };
 
     const float fps{
@@ -234,7 +235,7 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
 
   // Generate continuous stream of WM_PAINT to render with up to display
   // update speed.
-  // ::InvalidateRect(window, nullptr, FALSE);
+  ::InvalidateRect(window, nullptr, FALSE);
 }
 
 void MainWindow::OnActivateApp(_In_ HWND, _In_ BOOL is_activating,
