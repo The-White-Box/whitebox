@@ -101,8 +101,9 @@ template <typename... TArgs>
                                           std::string_view&& string,
                                           TArgs&&... args) noexcept {
   const std::uint64_t hash{I18nStringViewHash{}(string)};
+  // No forwarding, as fmt::make_format_args expect references :(.
   return lookup.Format(hash,
-                       fmt::make_format_args(std::forward<TArgs>(args)...));
+                       fmt::make_format_args(args...));
 }
 
 }  // namespace wb::base::intl
