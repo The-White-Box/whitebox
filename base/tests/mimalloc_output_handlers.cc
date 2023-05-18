@@ -32,6 +32,11 @@ namespace {
  */
 void DefaultMiMallocOutput(const char *msg,
                            [[maybe_unused]] void *arg) noexcept {
+  if ((msg[0] == '\r' || msg[0] == '\n') && msg[1] == '\0') {
+    // Do not print \r\n?.
+    return;
+  }
+
   const bool is_warning_or_error{!!std::strstr(msg, "warning:") ||
                                  !!std::strstr(msg, "error:")};
 
