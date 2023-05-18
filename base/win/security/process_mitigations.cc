@@ -57,10 +57,8 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
         ? ProcessImageLoadPolicy
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_REDIRECTION_TRUST_POLICY>
         ? ProcessRedirectionTrustPolicy
-#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>
         ? ProcessUserShadowStackPolicy
-#endif
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_USER_POINTER_AUTH_POLICY>
         ? ProcessUserPointerAuthPolicy
     : std::is_same_v<TPolicy, PROCESS_MITIGATION_SEHOP_POLICY>
@@ -197,14 +195,12 @@ class ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl
    */
   old_policy_2_new_errc<PROCESS_MITIGATION_REDIRECTION_TRUST_POLICY>
       old_srt_policy_to_new_errc_;
-#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
   /**
    * @brief Process mitigation policy settings for user-mode Hardware-enforced
    * Stack Protection (HSP).  Windows 10, version 2004 and above.
    */
   old_policy_2_new_errc<PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY>
       old_uss_policy_to_new_errc_;
-#endif
   /**
    * @brief Process mitigation policy settings for Redirection Guard.  Windows
    * 11, version 22H2.
@@ -230,12 +226,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       old_cfg_policy_to_new_errc_{},
       old_sfd_policy_to_new_errc_{},
       old_sil_policy_to_new_errc_{},
-      old_srt_policy_to_new_errc_{}
-#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-      ,
-      old_uss_policy_to_new_errc_{}
-#endif
-      ,
+      old_srt_policy_to_new_errc_{},
+      old_uss_policy_to_new_errc_{},
       old_upa_policy_to_new_errc_{},
       old_sop_policy_to_new_errc_{} {
   // NOLINTNEXTLINE(misc-misplaced-const)
@@ -514,7 +506,6 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
            "and doesn't log such attempts.";
   }
 
-#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
   if (win::GetVersion() < win::Version::WIN10_20H1) [[unlikely]] {
     // Policies below require Windows 10, version 2004+ (Build 19041)
     std::get<std::error_code>(old_uss_policy_to_new_errc_) =
@@ -555,7 +546,6 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
            "process mitigation policy, app will not apply shadow stacks "
            "protection mechanism.";
   }
-#endif
 
   if (win::GetVersion() < win::Version::WIN11_22H2) [[unlikely]] {
     // Policies below require Windows 11, version 22H2+ (Build 22621)
@@ -651,7 +641,6 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl ::
     }
   }
 
-#if defined(WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
   {
     auto [old_policy, new_policy_result] = old_uss_policy_to_new_errc_;
 
@@ -662,7 +651,6 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl ::
              "process mitigation policy.";
     }
   }
-#endif
 
   {
     auto [old_policy, new_policy_result] = old_srt_policy_to_new_errc_;

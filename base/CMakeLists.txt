@@ -26,19 +26,6 @@ set(WB_BASE_RUNTIME_DEPS
 set(WB_BASE_CXX_DEFINITIONS WB_BASE_DLL=1)
 
 if (WB_OS_WIN)
-  check_cxx_source_compiles("
-    #include <windows.h>
-    int main(int argc, char **argv) {
-      PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY new_policy;
-      new_policy.EnableUserShadowStack = 1UL;
-      return 0;
-    }"
-    WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-  if (WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY)
-    list(APPEND WB_BASE_CXX_DEFINITIONS
-      WB_OS_WIN_HAS_PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY=1)
-  endif()
-
   # Delay load DLLs we use in rare call paths.
   list(APPEND WB_BASE_LINK_OPTIONS "/DELAYLOAD:Avrt.dll")
   # Avrt for MMCSS support.
