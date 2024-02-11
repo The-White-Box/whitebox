@@ -441,6 +441,9 @@ endfunction()
 function(wb_get_all_targets RESULT ROOT_DIR)
   get_property(SUB_DIRS DIRECTORY "${ROOT_DIR}" PROPERTY SUBDIRECTORIES)
 
+  # Init by default.
+  set(${RESULT} "" PARENT_SCOPE)
+
   foreach(SUB_DIR IN LISTS SUB_DIRS)
     wb_get_all_targets(${RESULT} "${SUB_DIR}")
   endforeach()
