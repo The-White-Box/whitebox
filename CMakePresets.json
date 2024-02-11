@@ -15,6 +15,7 @@
       "binaryDir": "${sourceDir}/out/${presetName}",
       "cacheVariables": {
         "ADD_FATAL_EXAMPLE": "OFF",
+        "ADD_G3LOG_UNIT_TEST": "OFF",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CHANGE_G3LOG_DEBUG_TO_DBUG": "ON",
         "gtest_hide_internal_symbols": "ON",
