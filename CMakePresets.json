@@ -190,59 +190,20 @@
       }
     },
     {
-      "name": "x86_64-amd_pc-windows-msvc-base",
-      "displayName": "Windows AMD PC x86_64 MSVC Base",
-      "description": "Windows AMD PC x86_64 MSVC Base",
-      "hidden": true,
+      "name": "x86_64-pc-windows-msvc-debug",
+      "displayName": "Windows PC x86_64 MSVC Debug",
+      "description": "Windows PC x86_64 MSVC Debug",
       "inherits": "x86_64-pc-windows-msvc-base",
-      "cacheVariables": {
-        "WB_MSVC_FAVORED_CPU_ARCHITECTURE": "AMD64"
-      }
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-base",
-      "displayName": "Windows Intel PC x86_64 MSVC Base",
-      "description": "Windows Intel PC x86_64 MSVC Base",
-      "hidden": true,
-      "inherits": "x86_64-pc-windows-msvc-base",
-      "cacheVariables": {
-        "WB_MSVC_FAVORED_CPU_ARCHITECTURE": "INTEL64"
-      }
-    },
-    {
-      "name": "x86_64-amd_pc-windows-msvc-debug",
-      "displayName": "Windows AMD PC x86_64 MSVC Debug",
-      "description": "Windows AMD PC x86_64 MSVC Debug",
-      "inherits": "x86_64-amd_pc-windows-msvc-base",
       "cacheVariables": {
         "DEBUG_BREAK_AT_FATAL_SIGNAL": "ON",
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "x86_64-amd_pc-windows-msvc-release",
-      "displayName": "Windows AMD PC x86_64 MSVC Release",
-      "description": "Windows AMD PC x86_64 MSVC Release",
-      "inherits": "x86_64-amd_pc-windows-msvc-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release"
-      }
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-debug",
-      "displayName": "Windows Intel PC x86_64 MSVC Debug",
-      "description": "Windows Intel PC x86_64 MSVC Debug",
-      "inherits": "x86_64-intel_pc-windows-msvc-base",
-      "cacheVariables": {
-        "DEBUG_BREAK_AT_FATAL_SIGNAL": "ON",
-        "CMAKE_BUILD_TYPE": "Debug"
-      }
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-release",
-      "displayName": "Windows Intel PC x86_64 MSVC Release",
-      "description": "Windows Intel PC x86_64 MSVC Release",
-      "inherits": "x86_64-intel_pc-windows-msvc-base",
+      "name": "x86_64-pc-windows-msvc-release",
+      "displayName": "Windows PC x86_64 MSVC Release",
+      "description": "Windows PC x86_64 MSVC Release",
+      "inherits": "x86_64-pc-windows-msvc-base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release"
       }
@@ -286,28 +247,16 @@
       "configurePreset": "x86_64-apple-darwin-release"
     },
     {
-      "name": "x86_64-amd_pc-windows-msvc-debug",
-      "displayName": "Dev Windows AMD PC x86_64 MSVC build",
-      "description": "Dev Windows AMD PC x86_64 MSVC build",
-      "configurePreset": "x86_64-amd_pc-windows-msvc-debug"
+      "name": "x86_64-pc-windows-msvc-debug",
+      "displayName": "Dev Windows PC x86_64 MSVC build",
+      "description": "Dev Windows PC x86_64 MSVC build",
+      "configurePreset": "x86_64-pc-windows-msvc-debug"
     },
     {
-      "name": "x86_64-amd_pc-windows-msvc-release",
-      "displayName": "Production Windows AMD PC x86_64 MSVC build",
-      "description": "Production Windows AMD PC x86_64 MSVC build",
-      "configurePreset": "x86_64-amd_pc-windows-msvc-release"
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-debug",
-      "displayName": "Dev Windows Intel PC x86_64 MSVC build",
-      "description": "Dev Windows Intel PC x86_64 MSVC build",
-      "configurePreset": "x86_64-intel_pc-windows-msvc-debug"
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-release",
-      "displayName": "Production Windows Intel PC x86_64 MSVC build",
-      "description": "Production Windows Intel PC x86_64 MSVC build",
-      "configurePreset": "x86_64-intel_pc-windows-msvc-release"
+      "name": "x86_64-pc-windows-msvc-release",
+      "displayName": "Production Windows PC x86_64 MSVC build",
+      "description": "Production Windows PC x86_64 MSVC build",
+      "configurePreset": "x86_64-pc-windows-msvc-release"
     }
   ],
   "testPresets": [
@@ -336,16 +285,10 @@
       "configurePreset": "x86_64-apple-darwin-debug"
     },
     {
-      "name": "x86_64-amd_pc-windows-msvc-debug-test",
-      "description": "Dev Windows AMD PC x86_64 MSVC tests",
+      "name": "x86_64-pc-windows-msvc-debug-test",
+      "description": "Dev Windows PC x86_64 MSVC tests",
       "inherits": "base-test",
-      "configurePreset": "x86_64-amd_pc-windows-msvc-debug"
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-debug-test",
-      "description": "Dev Windows Intel PC x86_64 MSVC tests",
-      "inherits": "base-test",
-      "configurePreset": "x86_64-intel_pc-windows-msvc-debug"
+      "configurePreset": "x86_64-pc-windows-msvc-debug"
     },
     {
       "name": "x86_64-unknown-linux-clang-release-test",
@@ -360,16 +303,10 @@
       "configurePreset": "x86_64-apple-darwin-release"
     },
     {
-      "name": "x86_64-amd_pc-windows-msvc-release-test",
-      "description": "Production Windows AMD PC x86_64 MSVC tests",
+      "name": "x86_64-pc-windows-msvc-release-test",
+      "description": "Production Windows PC x86_64 MSVC tests",
       "inherits": "base-test",
-      "configurePreset": "x86_64-amd_pc-windows-msvc-release"
-    },
-    {
-      "name": "x86_64-intel_pc-windows-msvc-release-test",
-      "description": "Production Windows Intel PC x86_64 MSVC tests",
-      "inherits": "base-test",
-      "configurePreset": "x86_64-intel_pc-windows-msvc-release"
+      "configurePreset": "x86_64-pc-windows-msvc-release"
     }
   ]
 }
