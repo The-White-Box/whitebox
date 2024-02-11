@@ -113,8 +113,8 @@ jobs:
       - name: Build (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          cmake --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}
-          cmake --build --preset x86_64-intel_pc-windows-msvc-${{ matrix.build }}
+          cmake --preset x86_64-pc-windows-msvc-${{ matrix.build }}
+          cmake --build --preset x86_64-pc-windows-msvc-${{ matrix.build }}
 
       - name: Test (MacOS)
         if: ${{ matrix.os == 'macos-latest' }}
