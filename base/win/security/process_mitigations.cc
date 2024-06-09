@@ -140,7 +140,7 @@ class ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl
    * @brief Old policy + set new one error code.
    * @tparam TPolicy.
    */
-  template <typename TPolicy>
+  template <mitigation_policy TPolicy>
   using old_policy_2_new_errc = std::tuple<TPolicy, std::error_code>;
 
   /**
