@@ -485,6 +485,8 @@ endif()
 
 # mimalloc.
 
+set(MI_BUILD_SHARED ON CACHE BOOL "Build shared library" FORCE)
+set(MI_BUILD_STATIC OFF CACHE BOOL "Build static library" FORCE)
 if (WB_MSVC_ENABLE_ADDRESS_SANITIZER)
   # Enable AddressSanitizer support.
   set(MI_TRACK_ASAN ON)
