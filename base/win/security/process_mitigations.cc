@@ -245,8 +245,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_DEP_POLICY new_policy{.Enable = 1,
                                                .DisableAtlThunkEmulation = 1};
 
-      if (std::get<std::error_code>(old_dep_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_dep_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_dep_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -279,8 +279,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
           .EnableHighEntropy = 1,
           .DisallowStrippedImages = 1};
 
-      if (std::get<std::error_code>(old_aslr_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_aslr_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_aslr_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -312,8 +312,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
           .AllowThreadOptOut = 0,
           .AllowRemoteDowngrade = 0};
 
-      if (std::get<std::error_code>(old_dcp_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_dcp_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_dcp_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -343,8 +343,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
           .RaiseExceptionOnInvalidHandleReference = 1,
           .HandleExceptionsPermanentlyEnabled = 1};
 
-      if (std::get<std::error_code>(old_shc_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_shc_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_shc_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -373,8 +373,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_EXTENSION_POINT_DISABLE_POLICY new_policy{
           .DisableExtensionPoints = 1};
 
-      if (std::get<std::error_code>(old_epd_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_epd_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_epd_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -402,8 +402,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_CONTROL_FLOW_GUARD_POLICY new_policy{.StrictMode =
                                                                   TRUE};
 
-      if (std::get<std::error_code>(old_cfg_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_cfg_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_cfg_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -429,8 +429,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_FONT_DISABLE_POLICY new_policy{.DisableNonSystemFonts =
                                                             TRUE};
 
-      if (std::get<std::error_code>(old_sfd_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_sfd_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_sfd_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -459,8 +459,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
           .NoLowMandatoryLabelImages = TRUE,
           .PreferSystem32Images = TRUE};
 
-      if (std::get<std::error_code>(old_sil_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_sil_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_sil_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -487,8 +487,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_REDIRECTION_TRUST_POLICY new_policy{
           .EnforceRedirectionTrust = TRUE};
 
-      if (std::get<std::error_code>(old_srt_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_srt_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_srt_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -528,8 +528,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_USER_SHADOW_STACK_POLICY new_policy{
           .EnableUserShadowStack = TRUE, .BlockNonCetBinaries = TRUE};
 
-      if (std::get<std::error_code>(old_uss_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_uss_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_uss_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -567,8 +567,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
       PROCESS_MITIGATION_USER_POINTER_AUTH_POLICY new_policy{
           .EnablePointerAuthUserIp = TRUE};
 
-      if (std::get<std::error_code>(old_upa_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_upa_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_upa_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
@@ -595,8 +595,8 @@ ScopedProcessMitigationPolicies::ScopedProcessMitigationPoliciesImpl::
     if (!old_policy.EnableSehop) {
       PROCESS_MITIGATION_SEHOP_POLICY new_policy{.EnableSehop = TRUE};
 
-      if (std::get<std::error_code>(old_sop_policy_to_new_errc_) =
-              SetProcessMitigationPolicy(new_policy)) {
+      if ((std::get<std::error_code>(old_sop_policy_to_new_errc_) =
+              SetProcessMitigationPolicy(new_policy))) {
         error_code_ = std::get<std::error_code>(old_sop_policy_to_new_errc_);
 
         G3PLOG_E(WARNING, error_code_)
