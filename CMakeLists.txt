@@ -507,6 +507,7 @@ endif()
 if (NOT WB_OS_WIN)
   set(SDL_STATIC OFF CACHE BOOL "Build static SDL library" FORCE)
   set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
+  set(SDL_TEST_LIBRARY OFF CACHE BOOL "Build the SDL3_test library" FORCE)
 
   add_subdirectory(deps/sdl)
 
