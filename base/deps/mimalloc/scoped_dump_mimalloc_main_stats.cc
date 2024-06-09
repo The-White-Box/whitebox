@@ -21,7 +21,7 @@ namespace {
 void OutMiStats(const char *msg, [[maybe_unused]] void *arg) noexcept {
   std::string_view message{msg};
 
-  if (wb::base::std2::ends_with(message, '\n')) {
+  if (message.ends_with('\n')) {
     message = std::move(message.substr(0, message.size() - 1));
   }
 

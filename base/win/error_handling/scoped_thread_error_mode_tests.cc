@@ -32,8 +32,7 @@ GTEST_TEST(ScopedThreadErrorModeTests, ShouldSetThreadErrorModeInScopeTest) {
         ScopedThreadErrorModeFlags::kFailOnCriticalErrors |
         ScopedThreadErrorModeFlags::kNoOpenFileErrorBox);
 
-    auto *mode = wb::base::std2::get_result(mode_result);
-    ASSERT_NE(mode, nullptr);
+    ASSERT_TRUE(mode_result.has_value());
 
     const auto actual_mode = ::GetThreadErrorMode();
     EXPECT_TRUE((actual_mode &
@@ -67,11 +66,10 @@ GTEST_TEST(ScopedThreadErrorModeTests, ShouldMoveThreadErrorModeScopeTest) {
         ScopedThreadErrorModeFlags::kFailOnCriticalErrors |
         ScopedThreadErrorModeFlags::kNoOpenFileErrorBox);
 
-    auto *mode = wb::base::std2::get_result(mode_result);
-    ASSERT_NE(mode, nullptr);
+    ASSERT_TRUE(mode_result.has_value());
 
     {
-      auto moved_mode = std::move(*mode);
+      ScopedThreadErrorMode moved_mode = std::move(*mode_result);
 
       const auto actual_mode = ::GetThreadErrorMode();
 

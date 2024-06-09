@@ -71,8 +71,8 @@ constexpr PROCESS_MITIGATION_POLICY mitigation_policy_flag =
  * @tparam R Return type.
  */
 template <typename TPolicy>
-concept mitigation_policy = mitigation_policy_flag<TPolicy> !=
-MaxProcessMitigationPolicy;
+concept mitigation_policy =
+    mitigation_policy_flag<TPolicy> != MaxProcessMitigationPolicy;
 
 /**
  * @brief Get mitigation policy setting from OS.
@@ -751,7 +751,7 @@ ScopedProcessMitigationPolicies::New() noexcept {
              ? std2::result<ScopedProcessMitigationPolicies>{std::move(
                    policies)}
              : std2::result<ScopedProcessMitigationPolicies>{
-                   policies.error_code()};
+                   std::unexpect, policies.error_code()};
 }
 
 ScopedProcessMitigationPolicies::ScopedProcessMitigationPolicies() noexcept

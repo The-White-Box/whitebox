@@ -44,8 +44,9 @@ using KeyboardNewResult = base::std2::result<base::un<Keyboard>>;
  */
 [[nodiscard]] KeyboardNewResult Keyboard::New(_In_ HWND window) noexcept {
   base::un<Keyboard> keyboard{std::make_unique<Keyboard>(window)};
-  return !keyboard->error_code() ? KeyboardNewResult{std::move(keyboard)}
-                                 : KeyboardNewResult{keyboard->error_code()};
+  return !keyboard->error_code()
+             ? KeyboardNewResult{std::move(keyboard)}
+             : KeyboardNewResult{std::unexpect, keyboard->error_code()};
 }
 
 /**

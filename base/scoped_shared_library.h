@@ -132,10 +132,10 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
       _In_ const std::string &library_path, _In_ unsigned load_flags) noexcept {
     const HMODULE library{
         ::LoadLibraryExA(library_path.c_str(), nullptr, load_flags)};
-    return library != nullptr
-               ? std2::result<ScopedSharedLibrary>(
-                     std::move(ScopedSharedLibrary{library}))
-               : std2::result<ScopedSharedLibrary>(win::get_error(library));
+    return library != nullptr ? std2::result<ScopedSharedLibrary>(
+                                    std::move(ScopedSharedLibrary{library}))
+                              : std2::result<ScopedSharedLibrary>(
+                                    std::unexpect, win::get_error(library));
   }
 
   /**
@@ -150,7 +150,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
     const auto address = reinterpret_cast<T>(
         reinterpret_cast<void *>(::GetProcAddress(get(), function_name)));
     return address != nullptr ? std2::result<T>(address)
-                              : std2::result<T>(std2::system_last_error_code());
+                              : std2::result<T>(std::unexpect,
+                                                std2::system_last_error_code());
   }
 #elif defined(WB_OS_POSIX)
   /**
@@ -167,7 +168,7 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
                      ScopedSharedLibrary{reinterpret_cast<MODULE_ *>(library)})
                // Decided to use EINVAL here as likely args invalid or no DLL.
                : std2::result<ScopedSharedLibrary>(
-                     std2::system_last_error_code(EINVAL));
+                     std::unexpect, std2::system_last_error_code(EINVAL));
   }
 
   // Gets (address, error_code) of function |function_name| in loaded shared
@@ -177,7 +178,8 @@ class ScopedSharedLibrary : private std::unique_ptr<module_descriptor> {
       const char *function_name) const noexcept {
     const auto address = reinterpret_cast<T>(::dlsym(get(), function_name));
     return address != nullptr ? std2::result<T>(address)
-                              : std2::result<T>(std2::system_last_error_code());
+                              : std2::result<T>(std::unexpect,
+                                                std2::system_last_error_code());
   }
 #else  // !WB_OS_WIN && !defined(WB_OS_POSIX)
 #error "Please add shared library support for your platform."

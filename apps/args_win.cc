@@ -40,7 +40,7 @@ namespace {
     const auto rc = std2::system_last_error_code();
     G3PLOG_E(WARNING, rc) << "Could not find required size for command "
                              "line arguments as utf8.";
-    return rc;
+    return wb::base::std2::result<wb::base::un<char[]>>{std::unexpect, rc};
   }
 
   // Do the actual conversion.
@@ -49,7 +49,7 @@ namespace {
     const auto rc = std2::system_last_error_code(ERROR_OUTOFMEMORY);
     G3PLOG_E(WARNING, rc) << "Could not allocate memory to convert wchar_t "
                              "{argc, argv} to UTF-8.";
-    return rc;
+    return wb::base::std2::result<wb::base::un<char[]>>{std::unexpect, rc};
   }
 
   const int result{::WideCharToMultiByte(CP_UTF8, 0, wide, -1, argv.get(), size,
@@ -59,7 +59,7 @@ namespace {
     const auto rc = std2::system_last_error_code();
     G3PLOG_E(WARNING, rc)
         << "Could not convert command line arguments to utf8.";
-    return rc;
+    return wb::base::std2::result<wb::base::un<char[]>>{std::unexpect, rc};
   }
 
   out_size = static_cast<size_t>(size);
@@ -120,7 +120,7 @@ namespace wb::apps::win {
     const auto rc = std2::system_last_error_code();
     G3PLOG_E(WARNING, rc)
         << "Could not parse command line to {argc, argv} tuple.";
-    return rc;
+    return base::std2::result<Args>{std::unexpect, rc};
   }
 
   // Convert argv to UTF-8.
@@ -129,7 +129,7 @@ namespace wb::apps::win {
     const auto rc = std2::system_last_error_code(ERROR_OUTOFMEMORY);
     G3PLOG_E(WARNING, rc) << "Could not allocate memory to convert wchar_t "
                              "{argc, argv} to UTF-8.";
-    return rc;
+    return base::std2::result<Args>{std::unexpect, rc};
   }
 
   size_t argv0_size{0};
@@ -138,12 +138,12 @@ namespace wb::apps::win {
     size_t out_size{0};
 
     auto utf8_result = WideToUtf8(wargv[i], out_size);
-    if (auto* arg = std2::get_result(utf8_result)) [[likely]] {
-      argv[i] = arg->release();
+    if (utf8_result.has_value()) {
+      argv[i] = utf8_result->release();
     } else {
       // Can leak argv[0..i-1], but we stop the app anyway so OS reclaims
       // memory.
-      return *std2::get_error(utf8_result);
+      return base::std2::result<Args>{std::unexpect, utf8_result.error()};
     }
 
     if (i == 0) [[unlikely]] {

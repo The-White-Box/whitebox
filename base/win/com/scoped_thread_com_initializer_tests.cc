@@ -25,8 +25,7 @@ GTEST_TEST(ScopedThreadComInitializerTests,
   {
     auto init_result = com::ScopedThreadComInitializer::New(
         com::ScopedThreadComInitializerFlags::kApartmentThreaded);
-    auto *init = wb::base::std2::get_result(init_result);
-    ASSERT_NE(init, nullptr);
+    ASSERT_TRUE(init_result.has_value());
 
     rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
@@ -40,8 +39,7 @@ GTEST_TEST(ScopedThreadComInitializerTests,
   {
     auto init_result = com::ScopedThreadComInitializer::New(
         com::ScopedThreadComInitializerFlags::kMultiThreaded);
-    auto *init = wb::base::std2::get_result(init_result);
-    ASSERT_NE(init, nullptr);
+    ASSERT_TRUE(init_result.has_value());
 
     rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
@@ -56,8 +54,7 @@ GTEST_TEST(ScopedThreadComInitializerTests,
     auto init_result = com::ScopedThreadComInitializer::New(
         com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
         com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
-    auto *init = wb::base::std2::get_result(init_result);
-    ASSERT_NE(init, nullptr);
+    ASSERT_TRUE(init_result.has_value());
 
     rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
@@ -83,8 +80,7 @@ GTEST_TEST(ScopedThreadComInitializerTests,
   {
     auto init_result = com::ScopedThreadComInitializer::New(
         com::ScopedThreadComInitializerFlags::kApartmentThreaded);
-    auto *init = wb::base::std2::get_result(init_result);
-    ASSERT_NE(init, nullptr);
+    ASSERT_TRUE(init_result.has_value());
 
     rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
@@ -92,7 +88,7 @@ GTEST_TEST(ScopedThreadComInitializerTests,
     EXPECT_EQ(apartment_type, APTTYPE::APTTYPE_MAINSTA);
 
     {
-      auto moved = std::move(*init);
+      com::ScopedThreadComInitializer moved = std::move(*init_result);
 
       rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
@@ -127,8 +123,7 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
 
     auto init_result = com::ScopedThreadComInitializer::New(
         com::ScopedThreadComInitializerFlags::kMultiThreaded);
-    auto *init = wb::base::std2::get_result(init_result);
-    ASSERT_NE(init, nullptr);
+    ASSERT_TRUE(init_result.has_value());
 
     rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
@@ -165,15 +160,16 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
 
     auto init_result = com::ScopedThreadComInitializer::New(
         com::ScopedThreadComInitializerFlags::kMultiThreaded);
-    auto *com = wb::base::std2::get_result(init_result);
-    ASSERT_NE(com, nullptr);
+    ASSERT_TRUE(init_result.has_value());
+
+    com::ScopedThreadComInitializer com = std::move(*init_result);
 
     rc = ::CoGetApartmentType(&apartment_type, &apartment_type_qualifier);
 
     EXPECT_TRUE(is_succeeded(rc));
     EXPECT_EQ(apartment_type, APTTYPE::APTTYPE_MTA);
 
-    std::jthread uninitialize_thread{[c = std::move(*com)]() { (void)c; }};
+    std::jthread uninitialize_thread{[c = std::move(com)]() { (void)c; }};
   };
 
   const auto test_result =

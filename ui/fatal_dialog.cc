@@ -117,8 +117,8 @@ namespace wb::ui {
         ShowDialogBox(DialogBoxKind::kError, dialog_settings);
     // Well, dialog may not be shown (too low RAM, etc.).  So just ignore result
     // in Release.
-    G3DCHECK(!std2::get_error(result))
-        << "Fatal dialog can't be shown: " << *std2::get_error(result);
+    G3DCHECK(result.has_value())
+        << "Fatal dialog can't be shown: " << result.error();
 #else
 #error "Please define FatalDialog UI for your platform."
 #endif

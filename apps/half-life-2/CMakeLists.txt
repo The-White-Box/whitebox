@@ -17,6 +17,7 @@ set(WB_HALF_LIFE2_LINK_DEPS
   mimalloc
   absl::flags
   absl::flags_parse
+  absl::flags_usage
   absl::strings
   fmt
   g3log

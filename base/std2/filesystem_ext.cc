@@ -74,8 +74,8 @@ get_executable_directory() noexcept {
 #ifdef WB_OS_POSIX
   auto exe_path_result{GetExecutablePath()};
 
-  if (auto *result = std2::get_result(exe_path_result)) [[likely]] {
-    return result->parent_path();
+  if (exe_path_result.has_value()) [[likely]] {
+    return exe_path_result->parent_path();
   }
 
   return exe_path_result;
@@ -88,7 +88,9 @@ get_executable_directory() noexcept {
                            static_cast<unsigned long>(file_path.size()))};
   if (file_name_path_size != 0) {
     if (native_last_errno() == ERROR_INSUFFICIENT_BUFFER) {
-      return std2::system_last_error_code(ERROR_INSUFFICIENT_BUFFER);
+      return result<std::filesystem::path>{
+          std::unexpect,
+          std2::system_last_error_code(ERROR_INSUFFICIENT_BUFFER)};
     }
 
     file_path.resize(file_name_path_size);
@@ -100,7 +102,7 @@ get_executable_directory() noexcept {
                                      : file_path};
   }
 
-  return system_last_error_code();
+  return result<std::filesystem::path>{std::unexpect, system_last_error_code()};
 #else
 #error "Please define get_executable_directory for your OS."
 #endif
@@ -119,7 +121,7 @@ get_short_exe_name_from_command_line(std::string_view command_line) noexcept {
   constexpr char native_path_separators[]{"\\/"};
 
   // Assume "x:\zzzzz\yyyy.exe" www on Windows.
-  if (std2::starts_with(command_line, '"')) {
+  if (command_line.starts_with('"')) {
     const size_t end_exe_double_quote_idx{command_line.find('"', 1U)};
     const size_t separator_before_name_idx{command_line.find_last_of(
         native_path_separators, end_exe_double_quote_idx)};

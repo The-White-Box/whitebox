@@ -114,7 +114,7 @@ std2::result<std::uint8_t> ScopedMmcssThreadController::
         static_cast<std::uint8_t>(responsiveness_percent)};
   }
 
-  return std2::result<std::uint8_t>{rc};
+  return std2::result<std::uint8_t>{std::unexpect, rc};
 }
 
 [[nodiscard]] std::error_code
@@ -138,7 +138,7 @@ std2::result<ScopedMmcssThreadController> ScopedMmcssThreadController::New(
   return !controller.error_code()
              ? std2::result<ScopedMmcssThreadController>{std::move(controller)}
              : std2::result<ScopedMmcssThreadController>{
-                   controller.error_code()};
+                   std::unexpect, controller.error_code()};
 }
 
 ScopedMmcssThreadController::ScopedMmcssThreadController(

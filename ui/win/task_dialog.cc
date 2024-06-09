@@ -245,7 +245,7 @@ WB_WHITEBOX_UI_API base::std2::result<DialogBoxButton> ShowDialogBox(
 
   G3DPCHECK_E(!rc, rc) << "TaskDialog can't be shown.";
   return !rc ? std2::result<DialogBoxButton>{GetButtonById(pressed_button_id)}
-             : std2::result<DialogBoxButton>{rc};
+             : std2::result<DialogBoxButton>{std::unexpect, rc};
 }
 
 }  // namespace wb::ui::win

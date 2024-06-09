@@ -10,8 +10,8 @@
 
 #include <ObjIdl.h>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/win/system_error_ext.h"
 #include "com_ptr.h"
 
@@ -35,7 +35,7 @@ class ScopedComStrongUnmarshallingPolicy {
                ? std2::result<ScopedComStrongUnmarshallingPolicy>{std::move(
                      policy)}
                : std2::result<ScopedComStrongUnmarshallingPolicy>{
-                     policy.error_code()};
+                     std::unexpect, policy.error_code()};
   }
 
   ScopedComStrongUnmarshallingPolicy(

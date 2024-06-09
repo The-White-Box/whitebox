@@ -11,8 +11,8 @@
 #include <array>
 #include <cstddef>  // std::byte
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/win/system_error_ext.h"
 #include "build/compiler_config.h"
 
@@ -75,7 +75,8 @@ class ScopedThreadErrorMode {
     auto mode = ScopedThreadErrorMode{error_mode_flags};
     return !mode.error_code()
                ? std2::result<ScopedThreadErrorMode>{std::move(mode)}
-               : std2::result<ScopedThreadErrorMode>{mode.error_code()};
+               : std2::result<ScopedThreadErrorMode>{std::unexpect,
+                                                     mode.error_code()};
   }
 
   ScopedThreadErrorMode(ScopedThreadErrorMode&& m) noexcept

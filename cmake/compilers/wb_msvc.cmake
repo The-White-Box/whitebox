@@ -36,7 +36,7 @@ option(WB_MSVC_USE_SECURE_CRT_OVERLOAD_STANDARD_NAMES           "If enabled, use
 
 wb_define_strings_option(WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to use in Clang-Tidy."
-  "c++20" "c++17")
+  "c++23" "c++20" "c++17")
 
 wb_define_strings_option(WB_MSVC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as."
@@ -141,7 +141,7 @@ foreach(flag_var CMAKE_C_FLAGS_DEBUG CMAKE_CXX_FLAGS_DEBUG)
 endforeach()
 
 # At least Ninja doesn't remove the /W3 flag when we add /W4|/Wall one, which
-# leads to compilation warnings.  Remove /W3 entirely, as /W4|/Wall be used.
+# leads to compilation warnings.  Remove /W3 entirely to use what we set later.
 foreach(flag_var
     CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
     CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO

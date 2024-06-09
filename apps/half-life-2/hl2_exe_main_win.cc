@@ -130,10 +130,11 @@ int BootManagerStartup(
          "malicious code.";
 
   const auto app_path_result = win::GetApplicationDirectory(instance);
-  if (const auto* error = std2::get_error(app_path_result)) [[unlikely]] {
+  if (const std::error_code& error = app_path_result.error_or(std2::ok_code))
+      [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        *error,
+        error,
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -143,10 +144,8 @@ int BootManagerStartup(
                    "deep (> 1024)?"));
   }
 
-  const auto app_path = std2::get_result(app_path_result);
-  G3DCHECK(!!app_path);
-
-  const std::string boot_manager_path{*app_path + "whitebox-boot-manager.dll"};
+  const std::string& app_path = *app_path_result;
+  const std::string boot_manager_path{app_path + "whitebox-boot-manager.dll"};
   const wb::boot_manager::CommandLineFlags command_line_flags{
       MakeCommandLineFlags(std::move(positional_flags))};
   const unsigned boot_manager_flags{
@@ -171,10 +170,11 @@ int BootManagerStartup(
 
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, boot_manager_flags);
-  if (const auto* error = std2::get_error(boot_manager_library)) [[unlikely]] {
+  if (const std::error_code& error =
+          boot_manager_library.error_or(std2::ok_code)) [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        std::get<std::error_code>(boot_manager_library),
+        error,
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -187,16 +187,17 @@ int BootManagerStartup(
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
-  const auto* boot_manager = std2::get_result(boot_manager_library);
+  const wb::base::ScopedSharedLibrary& boot_manager = *boot_manager_library;
   G3CHECK(!!boot_manager);
 
   // Good, try to find and launch boot manager.
   const auto boot_manager_entry =
-      boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
-  if (const auto* error = std2::get_error(boot_manager_entry)) [[unlikely]] {
+      boot_manager.GetAddressAs<BootManagerMain>(kBootManagerMainName);
+  if (const std::error_code& error = boot_manager_entry.error_or(std2::ok_code))
+      [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(intl, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        std::get<std::error_code>(boot_manager_entry),
+        error,
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -205,7 +206,7 @@ int BootManagerStartup(
                        kBootManagerMainName, boot_manager_path));
   }
 
-  const auto* boot_manager_main = std2::get_result(boot_manager_entry);
+  const auto boot_manager_main = *boot_manager_entry;
   G3CHECK(!!boot_manager_main);
 
   return (*boot_manager_main)({instance, WB_PRODUCT_FILE_DESCRIPTION_STRING,
@@ -260,9 +261,10 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // of DLL planting attacks.
   auto scoped_remove_current_directory_from_default_dll_search_order =
       ScopedSetDllDirectory::New("");
-  G3PLOGE_IF(WARNING,
-             std2::get_error(
-                 scoped_remove_current_directory_from_default_dll_search_order))
+  G3PLOGE2_IF(
+      WARNING,
+      scoped_remove_current_directory_from_default_dll_search_order.error_or(
+          std2::ok_code))
       << "Can't set remove current directory from default DLL search order.  "
          "DLL planting attacks are still possible.";
 
@@ -279,7 +281,7 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
           com::ScopedThreadComInitializerFlags::kApartmentThreaded |
           com::ScopedThreadComInitializerFlags::kDisableOle1Dde |
           com::ScopedThreadComInitializerFlags::kSpeedOverMemory);
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_com_initializer))
+  G3PLOGE2_IF(WARNING, scoped_thread_com_initializer.error_or(std2::ok_code))
       << "Component Object Model initialization failed, continue without COM.";
 
   // Query CPU support for required features.  In case any required feature is
@@ -306,12 +308,13 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   }
 
   // Initialize command line flags.
-  auto args_parse_result =
+  const auto args_parse_result =
       wb::apps::win::Args::FromCommandLine(full_command_line_wide);
-  if (const auto* error = std2::get_error(args_parse_result)) [[unlikely]] {
+  if (const std::error_code& error = args_parse_result.error_or(std2::ok_code))
+      [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        *error,
+        error,
         intl::l18n(l18n,
                    "Please ensure you have enough free memory and use "
                    "command line correctly."),
@@ -320,12 +323,10 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
                    "Can't parse command line flags.  See log for details."));
   }
 
-  auto args = std2::get_result(args_parse_result);
-  G3DCHECK(!!args);
-
+  const wb::apps::win::Args& args = args_parse_result.value();
   // Setup command line flags as they are used early.
   std::vector<char*> positional_flags{wb::apps::ParseCommandLine(
-      args->count(), args->values(),
+      args.count(), args.values(),
       {.app_name = WB_PRODUCT_FILE_DESCRIPTION_STRING,
        .app_version = WB_PRODUCT_FILE_VERSION_INFO_STRING,
        .app_usage = wb::apps::half_life_2::kUsageMessage})};
@@ -340,14 +341,15 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
 #endif
           error_handling::ScopedThreadErrorModeFlags::kNoGpFaultErrorBox |
           error_handling::ScopedThreadErrorModeFlags::kNoOpenFileErrorBox);
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_error_mode))
+  G3PLOGE2_IF(WARNING, scoped_thread_error_mode.error_or(std2::ok_code))
       << "Can't set thread reaction to serious system errors, continue with "
          "default reaction.";
 
   // Disable default COM exception swallowing, report all COM exceptions to us.
   const auto scoped_com_fatal_exception_handler =
       com::ScopedComFatalExceptionHandler::New();
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_com_fatal_exception_handler))
+  G3PLOGE2_IF(WARNING,
+              scoped_com_fatal_exception_handler.error_or(std2::ok_code))
       << "Can't disable COM exceptions swallowing, some exceptions may not be "
          "passed to the app.";
 
@@ -355,7 +357,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   // per-process list.
   const auto scoped_com_strong_unmarshalling_policy =
       com::ScopedComStrongUnmarshallingPolicy::New();
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_com_strong_unmarshalling_policy))
+  G3PLOGE2_IF(WARNING,
+              scoped_com_strong_unmarshalling_policy.error_or(std2::ok_code))
       << "Can't enable strong COM unmarshalling policy, some non-trusted "
          "marshallers can be used.";
 

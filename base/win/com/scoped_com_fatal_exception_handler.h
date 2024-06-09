@@ -9,8 +9,8 @@
 
 #include <ObjIdl.h>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/win/system_error_ext.h"
 #include "com_ptr.h"
 
@@ -32,7 +32,7 @@ class ScopedComFatalExceptionHandler {
                ? std2::result<ScopedComFatalExceptionHandler>{std::move(
                      handler)}
                : std2::result<ScopedComFatalExceptionHandler>{
-                     handler.error_code()};
+                     std::unexpect, handler.error_code()};
   }
 
   ScopedComFatalExceptionHandler(ScopedComFatalExceptionHandler&& h) noexcept
@@ -59,8 +59,8 @@ class ScopedComFatalExceptionHandler {
     if (!error_code_ && old_global_exception_handling_option_value_ !=
                             COMGLB_EXCEPTION_DONOT_HANDLE_ANY) {
       // Restore "old" exception handling policy.
-      G3CHECK(!get_error(global_options_->Set(
-          COMGLB_EXCEPTION_HANDLING, COMGLB_EXCEPTION_DONOT_HANDLE)));
+      G3CHECK(!get_error(global_options_->Set(COMGLB_EXCEPTION_HANDLING,
+                                              COMGLB_EXCEPTION_DONOT_HANDLE)));
     }
   }
 

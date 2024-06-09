@@ -65,7 +65,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++23",
         "WB_CLANG_LINKER_TYPE": "ld",
         "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
       }
@@ -82,7 +82,7 @@
         "rhs": "Windows"
       },
       "cacheVariables": {
-        "WB_MSVC_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_MSVC_CXX_LANGUAGE_VERSION": "c++latest",
         "WB_MSVC_ENABLE_DEBUG_INLINING": "ON"
       },
       "vendor": {
@@ -118,7 +118,7 @@
         "CMAKE_CXX_COMPILER": "g++",
         "WB_GCC_ENABLE_UNSAFE_MATH": "ON",
         "WB_GCC_ENABLE_WARNING_WUNDEF": "OFF",
-        "WB_GCC_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_GCC_CXX_LANGUAGE_VERSION": "c++23",
         "WB_GCC_MINIMUM_CPU_ARCHITECTURE": "native"
       }
     },
@@ -132,7 +132,7 @@
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
         "WB_CLANG_ENABLE_UNSAFE_MATH": "ON",
-        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++20",
+        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++23",
         "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
       }
     },

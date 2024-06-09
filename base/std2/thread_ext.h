@@ -79,7 +79,7 @@ class ScopedThreadName {
     ScopedThreadName name{get_handle(), new_thread_name};
     return !name.error_code()
                ? std2::result<ScopedThreadName>{std::move(name)}
-               : std2::result<ScopedThreadName>{name.error_code()};
+               : std2::result<ScopedThreadName>{std::unexpect, name.error_code()};
   }
 
   ScopedThreadName(ScopedThreadName &&n) noexcept

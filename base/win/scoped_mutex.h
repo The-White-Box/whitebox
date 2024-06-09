@@ -88,7 +88,8 @@ class ScopedMutex {
       _In_ const security::ScopedMutexAccessRights &access_rights) noexcept {
     ScopedMutex mutex{security_attributes, name, flags, access_rights};
     return !mutex.error_code() ? std2::result<ScopedMutex>{std::move(mutex)}
-                               : std2::result<ScopedMutex>{mutex.error_code()};
+                               : std2::result<ScopedMutex>{std::unexpect,
+                                                           mutex.error_code()};
   }
 
   ScopedMutex(ScopedMutex &&s) noexcept

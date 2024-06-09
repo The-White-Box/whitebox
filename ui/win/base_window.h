@@ -76,7 +76,7 @@ class WB_WHITEBOX_UI_API BaseWindow {
           definition.menu, definition.instance, window.get()));
     }
     return !rc ? std2::result<un<TDerivedWindow>>{std::move(window)}
-               : std2::result<un<TDerivedWindow>>{rc};
+               : std2::result<un<TDerivedWindow>>{std::unexpect, rc};
   }
 
   /**

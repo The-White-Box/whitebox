@@ -6,8 +6,8 @@
 
 #include "scoped_window_paint.h"
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/std2/system_error_ext.h"
 #include "base/win/windows_light.h"
 
@@ -123,6 +123,7 @@ class ScopedWindowPaint::ScopedWindowPaintImpl final {
              ? base::std2::result<ScopedWindowPaint>{std::move(
                    scoped_window_paint)}
              : base::std2::result<ScopedWindowPaint>{
+                   std::unexpect,
                    base::std2::system_last_error_code(ERROR_DC_NOT_FOUND)};
 }
 

@@ -9,7 +9,7 @@
 
 #include <cerrno>
 #include <system_error>
-#include <variant>
+#include <expected>
 
 #include "build/build_config.h"
 #include "build/compiler_config.h"
@@ -80,42 +80,7 @@ const inline std::error_code ok_code;
  * @tparam TResult Result.
  */
 template <typename TResult>
-using result = std::variant<TResult, std::error_code>;
-
-/**
- * @brief Get error code from system result.
- * @tparam TResult System result success.
- * @param rc System result.
- * @return error code pointer or nullptr.
- */
-template <typename TResult>
-[[nodiscard]] constexpr const std::error_code* get_error(
-    const result<TResult>& rc) noexcept {
-  return std::get_if<std::error_code>(&rc);
-}
-
-/**
- * @brief Get success result from system result.
- * @tparam TResult System result success.
- * @param rc System result.
- * @return System result success pointer or nullptr.
- */
-template <typename TResult>
-[[nodiscard]] constexpr TResult* get_result(result<TResult>& rc) noexcept {
-  return std::get_if<TResult>(&rc);
-}
-
-/**
- * @brief Get success result from system result.
- * @tparam TResult System result success.
- * @param rc System result.
- * @return System result success pointer or nullptr.
- */
-template <typename TResult>
-[[nodiscard]] constexpr const TResult* get_result(
-    const result<TResult>& rc) noexcept {
-  return std::get_if<TResult>(&rc);
-}
+using result = std::expected<TResult, std::error_code>;
 
 }  // namespace wb::base::std2
 

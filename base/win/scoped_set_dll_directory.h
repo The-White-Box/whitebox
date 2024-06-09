@@ -44,7 +44,7 @@ class ScopedSetDllDirectory {
     return !dll_directory.errno_code()
                ? std2::result<ScopedSetDllDirectory>{std::move(dll_directory)}
                : std2::result<ScopedSetDllDirectory>{
-                     dll_directory.errno_code()};
+                     std::unexpect, dll_directory.errno_code()};
   }
 
   ScopedSetDllDirectory(ScopedSetDllDirectory&& d) noexcept

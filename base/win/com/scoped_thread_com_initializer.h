@@ -77,15 +77,15 @@ class ScopedThreadComInitializer {
     auto init = ScopedThreadComInitializer{flags};
     return !init.error_code()
                ? std2::result<ScopedThreadComInitializer>{std::move(init)}
-               : std2::result<ScopedThreadComInitializer>{init.error_code()};
+               : std2::result<ScopedThreadComInitializer>{std::unexpect,
+                                                          init.error_code()};
   }
 
   ScopedThreadComInitializer(ScopedThreadComInitializer&& i) noexcept
-      : error_code_ {
-    std::move(i.error_code_)
-  }
+      : error_code_{std::move(i.error_code_)}
 #ifndef NDEBUG
-  , thread_id_ { i.thread_id_ }
+        ,
+        thread_id_{i.thread_id_}
 #endif
   {
     // Ensure no deinitialization occurs.
@@ -133,13 +133,15 @@ class ScopedThreadComInitializer {
    */
   explicit ScopedThreadComInitializer(
       const ScopedThreadComInitializerFlags flags) noexcept
-      : error_code_ {
-    get_error(::CoInitializeEx(nullptr, underlying_cast(flags)))
-  }
+      : error_code_{get_error(
+            ::CoInitializeEx(nullptr, underlying_cast(flags)))}
 #ifndef NDEBUG
-  , thread_id_ { std::this_thread::get_id() }
+        ,
+        thread_id_{std::this_thread::get_id()}
 #endif
-  { G3DCHECK(!error_code()); }
+  {
+    G3DCHECK(!error_code());
+  }
 
   /**
    * @brief Get COM initialization result.

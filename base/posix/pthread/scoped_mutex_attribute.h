@@ -86,7 +86,7 @@ class ScopedMutexAttribute {
     if (std2::BitwiseCompare(attribute_, empty_attribute_) != 0) {
       const std::error_code rc{
           get_error(::pthread_mutexattr_destroy(native_handle()))};
-      G3PLOGE_IF(WARNING, rc ? &rc : nullptr)
+      G3PLOGE2_IF(WARNING, rc)
           << "Mutex attribute " << std::hex << native_handle()
           << " destruction failure.";
     }

@@ -94,29 +94,3 @@ GTEST_TEST(SystemErrorExtTest, system_last_error_code) {
   EXPECT_EQ(0, std2::native_last_errno());
 #endif
 }
-
-// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTest, get_error) {
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-  std2::result<int> r1{12};
-  EXPECT_EQ(nullptr, std2::get_error(r1));
-
-  const auto rc = std::error_code{EAGAIN, std::generic_category()};
-  const std2::result<int> r2{rc};
-  EXPECT_NE(nullptr, std2::get_error(r2));
-  EXPECT_EQ(rc, *std2::get_error(r2));
-}
-
-// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(SystemErrorExtTest, get_result) {
-  const auto rc = std::error_code{EAGAIN, std::generic_category()};
-  const std2::result<int> r1{rc};
-  EXPECT_EQ(nullptr, std2::get_result(r1));
-
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-  std2::result<int> r2{12};
-  EXPECT_EQ(12, *std2::get_result(r2));
-
-  const std2::result<int> r3{57};
-  EXPECT_EQ(57, *std2::get_result(r3));
-}

@@ -66,13 +66,14 @@ GTEST_TEST(FilesystemExtTest, get_executable_directory) {
 
   const ScopedChangeCurrentPath scoped_current_path{temp_path};
 
-  const std::filesystem::path *executable_directory_path{
-      wb::base::std2::get_result(filesystem::get_executable_directory())};
-  ASSERT_TRUE(executable_directory_path != nullptr);
+  const wb::base::std2::result<std::filesystem::path> executable_directory_path{
+      filesystem::get_executable_directory()};
+  ASSERT_TRUE(executable_directory_path.has_value());
 
-  // Well, on CI current_path can give smth like "x86_64-intel_pc-windows-msvc-debug\\base".
-  // But executable_directory_path will be "x86_64-intel_pc-windows-msvc-debug\\base\\Debug".
-  // It means test started with current directory set to base and exe located at base\Debug.
+  // Well, on CI current_path can give smth like
+  // "x86_64-intel_pc-windows-msvc-debug\\base". But executable_directory_path
+  // will be "x86_64-intel_pc-windows-msvc-debug\\base\\Debug". It means test
+  // started with current directory set to base and exe located at base\Debug.
   EXPECT_TRUE(
       executable_directory_path->native().starts_with(binary_path.native()))
       << "Should get executable directory, not current path.\n"

@@ -68,7 +68,7 @@ GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameScope) {
   {
     auto scoped_thread_name =
         std2::this_thread::ScopedThreadName::New(expected_thread_name);
-    EXPECT_EQ(nullptr, std2::get_error(scoped_thread_name));
+    EXPECT_TRUE(scoped_thread_name.has_value());
 
     std2::native_thread_name new_thread_name;
     EXPECT_EQ(std2::ok_code,
@@ -96,10 +96,10 @@ GTEST_TEST(ThreadExtTest, this_thread_ScopedThreadNameMoveConstructor) {
   {
     auto scoped_thread_name_result =
         std2::this_thread::ScopedThreadName::New(expected_thread_name);
-    auto *scoped_thread_name = std2::get_result(scoped_thread_name_result);
-    ASSERT_NE(nullptr, scoped_thread_name);
+    ASSERT_TRUE(scoped_thread_name_result.has_value());
 
-    auto moved_thread_name = std::move(*scoped_thread_name);
+    std2::this_thread::ScopedThreadName moved_thread_name =
+        std::move(*scoped_thread_name_result);
 
     std2::native_thread_name new_thread_name;
     EXPECT_EQ(std2::ok_code,

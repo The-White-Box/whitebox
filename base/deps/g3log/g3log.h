@@ -94,15 +94,6 @@ class ScopedEndError {
   } else                                                                  \
     INTERNAL_LOG_MESSAGE(level).stream()
 
-// 'Conditional' stream log + system error code pointer.
-#define G3PLOGE_IF(level, error_code_ptr_expression)                        \
-  if (!g3::logLevel(level) || false == (!!(error_code_ptr_expression)))     \
-      [[likely]] {                                                          \
-  } else                                                                    \
-    wb::base::deps::g3log::ScopedEndError{                                  \
-        *(error_code_ptr_expression), INTERNAL_LOG_MESSAGE(level).stream()} \
-        .stream()
-
 // 'Conditional' stream log + system error code.
 #define G3PLOGE2_IF(level, error_code)                                \
   if (!g3::logLevel(level) || false == (!!(error_code))) [[likely]] { \
@@ -232,10 +223,6 @@ And here is possible output
   } else                                     \
     G3LOG_IF(level, boolean_expression)
 // Does nothing.
-#define G3DPLOGE_IF                                         \
-  (level, error_code_ptr_expression) if constexpr (true) {} \
-  else G3PLOGE_IF(level, error_code_ptr_expression)
-// Does nothing.
 #define G3DLOGF(level, printf_like_message, ...) \
   if constexpr (true) {                          \
   } else                                         \
@@ -271,10 +258,6 @@ And here is possible output
 
 // 'Conditional' stream log.
 #define G3DLOG_IF(level, boolean_expression) G3LOG_IF(level, boolean_expression)
-
-// 'Conditional' stream log + system error code pointer.
-#define G3DPLOGE_IF(level, error_code_ptr_expression) \
-  G3PLOGE_IF(level, error_code_ptr_expression)
 
 // 'Conditional' stream log + system error code.
 #define G3DPLOGE2_IF(level, error_code) G3PLOGE2_IF(level, error_code)

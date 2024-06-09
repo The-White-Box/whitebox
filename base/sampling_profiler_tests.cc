@@ -56,8 +56,7 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
   const auto scoped_minimum_timer_resolution =
       wb::base::win::ScopedTimerResolution::New(
           sample_time_deviation);
-  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedTimerResolution>(
-      &scoped_minimum_timer_resolution));
+  EXPECT_TRUE(scoped_minimum_timer_resolution.has_value());
 #endif
 
   wb::base::HighResolutionSamplingProfiler profiler{
@@ -96,8 +95,7 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
   const auto scoped_minimum_timer_resolution =
       wb::base::win::ScopedTimerResolution::New(
           sample_time_deviation);
-  EXPECT_TRUE(!!std::get_if<wb::base::win::ScopedTimerResolution>(
-      &scoped_minimum_timer_resolution));
+  EXPECT_TRUE(scoped_minimum_timer_resolution.has_value());
 #endif
 
   wb::base::HighResolutionSamplingProfiler profiler{

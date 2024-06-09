@@ -11,6 +11,7 @@
 #include <filesystem>
 
 #include "base/std2/string_ext.h"
+#include "base/std2/system_error_ext.h"
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
@@ -27,10 +28,9 @@ GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
   const HINSTANCE mustBeInvalidInstance{reinterpret_cast<HINSTANCE>(
       reinterpret_cast<uintptr_t>(::GetModuleHandleA(nullptr)) + 1U)};
 
-  EXPECT_EQ(
-      std::error_code(ERROR_MOD_NOT_FOUND, std::system_category()),
-      std::get<std::error_code>(
-          wb::base::win::GetApplicationDirectory(mustBeInvalidInstance)))
+  EXPECT_EQ(std::error_code(ERROR_MOD_NOT_FOUND, std::system_category()),
+            wb::base::win::GetApplicationDirectory(mustBeInvalidInstance)
+                .error_or(wb::base::std2::ok_code))
       << "Should return ERROR_MOD_NOT_FOUND system error if module not found.";
 
   std::error_code rc;
@@ -43,7 +43,6 @@ GTEST_TEST(DllLoadUtilsTest, GetApplicationDirectory) {
       wb::base::std2::WideToUTF8(
           std::wstring{std::filesystem::path::preferred_separator})};
   EXPECT_EQ(expected_application_directory,
-            std::get<std::string>(
-                wb::base::win::GetApplicationDirectory(nullptr)))
+            wb::base::win::GetApplicationDirectory(nullptr).value_or(std::string{}))
       << "Should get application directory with path separator in the end.";
 }

@@ -10,8 +10,8 @@
 #include "base/intl/l18n.h"
 #include "base/win/windows_light.h"
 #include "kernel/input/input_queue.h"
-#include "kernel/main_window_win.h"
 #include "kernel/main_simulate_step.h"
+#include "kernel/main_window_win.h"
 #include "main.h"
 #include "ui/fatal_dialog.h"
 #include "ui/win/base_window.h"
@@ -95,8 +95,8 @@ namespace {
 
     loop_iteration_start_time = now_time;
 
-    wb::kernel::SimulateWorldStep(delta_time,
-        mouse_input_queue, keyboard_input_queue);
+    wb::kernel::SimulateWorldStep(delta_time, mouse_input_queue,
+                                  keyboard_input_queue);
   }
 
   G3LOG_IF(WARNING, exit_code != 0)
@@ -143,8 +143,11 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   auto window_result =
       BaseWindow::New<MainWindow>(window_definition, window_class_style, intl,
                                   mouse_input_queue, keyboard_input_queue);
-  if (auto* window_ptr = std2::get_result(window_result);
-      auto* window = window_ptr ? window_ptr->get() : nullptr) [[likely]] {
+  if (MainWindow* window =
+          window_result
+              .transform(
+                  [](const std::unique_ptr<MainWindow>& w) { return w.get(); })
+              .value_or(nullptr)) [[likely]] {
     // If the window was previously visible, the return value is nonzero.  If
     // the window was previously hidden, the return value is zero.
     window->Show(kernel_args.show_window_flags);
@@ -157,7 +160,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   return wb::ui::FatalDialog(
       intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
-      std::get<std::error_code>(window_result),
+      window_result.error(),
       intl::l18n_fmt(intl,
                      "Please, check app is installed correctly and you have "
                      "enough permissions to run it."),

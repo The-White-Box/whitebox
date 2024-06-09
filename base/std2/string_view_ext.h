@@ -16,28 +16,6 @@
 namespace wb::base::std2 {
 
 /**
- * Is string_view starts with character.
- * @param s string_view.
- * @param c Character.
- * @return true if starts, false otherwise.
- */
-[[nodiscard]] WB_ATTRIBUTE_CONST inline bool starts_with(std::string_view s,
-                                                         char c) noexcept {
-  return s.starts_with(c);
-}
-
-/**
- * Is string_view ends with character.
- * @param s string_view.
- * @param c Character.
- * @return true if ends, false otherwise.
- */
-[[nodiscard]] WB_ATTRIBUTE_CONST inline bool ends_with(std::string_view s,
-                                                       char c) noexcept {
-  return s.ends_with(c);
-}
-
-/**
  * Is string_view ends with another C string.
  * @param s string_view.
  * @param v C string.

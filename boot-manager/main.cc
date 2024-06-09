@@ -171,10 +171,11 @@ int KernelStartup(
   using namespace wb::base;
 
   const auto app_path_result = std2::filesystem::get_executable_directory();
-  if (const auto* rc = std2::get_error(app_path_result)) [[unlikely]] {
+  if (const std::error_code& rc = app_path_result.error_or(std2::ok_code))
+      [[unlikely]] {
     const auto& intl = boot_manager_args.intl;
     return wb::ui::FatalDialog(
-        intl::l18n(intl, "Boot Manager - Error"), *rc,
+        intl::l18n(intl, "Boot Manager - Error"), rc,
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -183,12 +184,11 @@ int KernelStartup(
                    "Can't get current directory.  Unable to load the kernel."));
   }
 
-  const auto* app_directory_path = std2::get_result(app_path_result);
-  G3DCHECK(!!app_directory_path);
+  const std::filesystem::path& app_directory_path = *app_path_result;
 
 #ifdef WB_OS_WIN
   const std::string kernel_path{
-      (*app_directory_path / "whitebox-kernel.dll").string()};
+      (app_directory_path / "whitebox-kernel.dll").string()};
 #else
   const std::string kernel_path{
       (*app_directory_path /
@@ -210,15 +210,15 @@ int KernelStartup(
   const auto& intl = boot_manager_args.intl;
   const auto kernel_library =
       ScopedSharedLibrary::FromLibraryOnPath(kernel_path, kernel_load_flags);
-  if (const auto* kernel_module = std2::get_result(kernel_library)) [[likely]] {
+  if (kernel_library.has_value()) [[likely]] {
     using WhiteBoxKernelMain = decltype(&KernelMain);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     constexpr char kKernelMainName[]{"KernelMain"};
 
     // Good, try to find and launch whitebox-kernel.
-    const auto kernel_main_entry =
-        kernel_module->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
-    if (const auto* kernel_main = std2::get_result(kernel_main_entry))
+    const auto kernel_main =
+        kernel_library->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
+    if (kernel_main.has_value())
         [[likely]] {
 #ifdef WB_OS_WIN
       return (*kernel_main)(
@@ -235,7 +235,7 @@ int KernelStartup(
 
     return wb::ui::FatalDialog(
         intl::l18n(intl, "Boot Manager - Error"),
-        std::get<std::error_code>(kernel_main_entry),
+        kernel_main.error(),
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -246,7 +246,7 @@ int KernelStartup(
 
   return wb::ui::FatalDialog(
       intl::l18n(intl, "Boot Manager - Error"),
-      std::get<std::error_code>(kernel_library),
+      kernel_library.error(),
       intl::l18n(intl,
                  "Please, check app is installed correctly and you have "
                  "enough permissions to run it."),
@@ -315,7 +315,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_process_mitigation_policies))
+  G3PLOGE2_IF(WARNING, scoped_process_mitigation_policies.error_or(std2::ok_code))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 
@@ -345,7 +345,7 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Mark main thread with name to simplify debugging.
   const auto scoped_thread_name =
       std2::this_thread::ScopedThreadName::New(new_thread_name);
-  G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_name))
+  G3PLOGE2_IF(WARNING, scoped_thread_name.error_or(std2::ok_code))
       << "Can't rename main thread, continue with default name.";
 #else
   // Well, we can't just use this one, as it is shown in top and monitors, so
@@ -396,11 +396,11 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   const auto scoped_minimum_timer_resolution =
       win::ScopedTimerResolution::New(std::chrono::milliseconds{
           boot_manager_args.command_line_flags.periodic_timer_resolution_ms});
-  G3LOG_IF(WARNING, !!std::get_if<unsigned>(&scoped_minimum_timer_resolution))
+  G3LOG_IF(WARNING, !scoped_minimum_timer_resolution.has_value())
       << "Failed to set minimum periodic timers resolution to "
       << boot_manager_args.command_line_flags.periodic_timer_resolution_ms
       << "ms, will run with default system one.  Error code: "
-      << std::get<unsigned>(scoped_minimum_timer_resolution)
+      << scoped_minimum_timer_resolution.error()
       << ".  See "
          "https://docs.microsoft.com/en-us/windows/win32/api/timeapi/"
          "nf-timeapi-timebeginperiod";
@@ -415,29 +415,28 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
         ScopedMmcssThreadController::New(
             ScopedMmcssThreadTask{KnownScopedMmcssThreadTaskName::kGames},
             ScopedMmcssThreadTask{KnownScopedMmcssThreadTaskName::kPlayback});
-    if (const auto* controller =
-            std2::get_result(scoped_mmcss_thread_controller)) [[likely]] {
+    if (scoped_mmcss_thread_controller.has_value()) [[likely]] {
       const auto responsiveness_percent =
-          controller->GetResponsivenessPercent();
+          scoped_mmcss_thread_controller->GetResponsivenessPercent();
 
-      if (const auto* percent = std2::get_result(responsiveness_percent))
-          [[likely]] {
+      if (responsiveness_percent.has_value()) [[likely]] {
         G3DLOG(INFO) << "Multimedia Class Scheduler Service uses "
-                     << implicit_cast<unsigned>(*percent)
+                     << implicit_cast<unsigned>(*responsiveness_percent)
                      << "% of CPU for system wide tasks.";
       } else {
-        G3PLOG_E(WARNING, *std2::get_error(responsiveness_percent))
+        G3PLOG_E(WARNING, responsiveness_percent.error())
             << "Can't get system responsiveness setting used by Multimedia "
                "Class Scheduler Service for the main app thread.";
       }
 
       const auto bump_thread_priority_rc =
-          controller->SetPriority(ScopedMmcssThreadPriority::kHigh);
+          scoped_mmcss_thread_controller->SetPriority(
+              ScopedMmcssThreadPriority::kHigh);
       G3PLOGE2_IF(WARNING, bump_thread_priority_rc)
           << "Can't set high priority for the thread in Multimedia Class "
              "Scheduler Service.";
     } else {
-      G3PLOG_E(WARNING, *std2::get_error(scoped_mmcss_thread_controller))
+      G3PLOG_E(WARNING, scoped_mmcss_thread_controller.error())
           << "Can't enable Multimedia Class Scheduler Service for the app, "
              "some CPU resources may be underutilized.  See "
              "https://docs.microsoft.com/en-us/windows/win32/procthread/"

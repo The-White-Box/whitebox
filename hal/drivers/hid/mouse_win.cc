@@ -49,8 +49,9 @@ using MouseNewResult = base::std2::result<base::un<Mouse>>;
  */
 [[nodiscard]] MouseNewResult Mouse::New(_In_ HWND window) noexcept {
   base::un<Mouse> mouse{std::make_unique<Mouse>(window)};
-  return !mouse->error_code() ? MouseNewResult{std::move(mouse)}
-                              : MouseNewResult{mouse->error_code()};
+  return !mouse->error_code()
+             ? MouseNewResult{std::move(mouse)}
+             : MouseNewResult{std::unexpect, mouse->error_code()};
 }
 
 /**

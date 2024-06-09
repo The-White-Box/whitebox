@@ -23,25 +23,25 @@
 
 // Toolchain Checks
 
-// We support MSVC++ Visual Studio 2022 version 17.3 and later.
+// We support MSVC++ Visual Studio 2022 version 17.8.3 and later.
 // This minimum will go up.
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 193331629 && !defined(__clang__)
-#error "This package requires Visual Studio 2022 version 17.3 or higher."
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 193833133 && !defined(__clang__)
+#error "This package requires Visual Studio 2022 version 17.8.3 or higher."
 #endif
 
-// We support gcc 10.0 and later.
+// We support gcc 12.0 and later.
 // This minimum will go up.
 #if defined(__GNUC__) && !defined(__clang__)
-#if __GNUC__ < 10
-#error "This package requires gcc 10.0 or higher."
+#if __GNUC__ < 12
+#error "This package requires gcc 12.0 or higher."
 #endif
 #endif
 
-// We support clang 14.0 and later.
+// We support clang 16.0 and later.
 // This minimum will go up.
 #if defined(__clang__)
-#if __clang_major__ < 14
-#error "This package requires clang 14.0 or higher."
+#if __clang_major__ < 16
+#error "This package requires clang 16.0 or higher."
 #endif
 #endif
 

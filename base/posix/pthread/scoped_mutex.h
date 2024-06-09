@@ -63,7 +63,7 @@ class ScopedMutex {
     if (std2::BitwiseCompare(mutex_, empty_mutex_) != 0) {
       const std::error_code rc{
           get_error(::pthread_mutex_destroy(native_handle()))};
-      G3PLOGE_IF(WARNING, rc ? &rc : nullptr)
+      G3PLOGE2_IF(WARNING, rc)
           << "Mutex " << std::hex << native_handle() << " destruction failure.";
     }
   }
@@ -99,7 +99,7 @@ class ScopedMutex {
   void unlock() {
     // XXX EINVAL, EAGAIN, EPERM
     const std::error_code rc{get_error(pthread_mutex_unlock(native_handle()))};
-    G3PLOGE_IF(WARNING, rc ? &rc : nullptr)
+    G3PLOGE2_IF(WARNING, rc)
         << "Unlock mutex " << std::hex << native_handle() << " failed.";
   }
 

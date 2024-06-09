@@ -58,12 +58,11 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Mouse is ready.
     auto mouse_result = hal::hid::Mouse::New(window);
-    if (auto *mouse = std2::get_result(mouse_result)) [[likely]] {
-      mouse_.swap(*mouse);
+    if (mouse_result.has_value()) [[likely]] {
+      mouse_.swap(*mouse_result);
     } else {
       return !ui::FatalDialog(
-          intl::l18n(intl_, "Whitebox Kernel - Error"),
-          std::get<std::error_code>(mouse_result),
+          intl::l18n(intl_, "Whitebox Kernel - Error"), mouse_result.error(),
           intl::l18n(intl_, "Please, check mouse is connected and working."),
           MakeFatalContext(),
           intl::l18n(
@@ -77,12 +76,11 @@ LRESULT MainWindow::HandleMessage(_In_ UINT message,
   {
     // Keyboard is ready.
     auto keyboard_result = hal::hid::Keyboard::New(window);
-    if (auto *keyboard = std2::get_result(keyboard_result)) [[likely]] {
-      keyboard_.swap(*keyboard);
+    if (keyboard_result.has_value()) [[likely]] {
+      keyboard_.swap(*keyboard_result);
     } else {
       return !ui::FatalDialog(
-          intl::l18n(intl_, "Whitebox Kernel - Error"),
-          std::get<std::error_code>(keyboard_result),
+          intl::l18n(intl_, "Whitebox Kernel - Error"), keyboard_result.error(),
           intl::l18n(intl_, "Please, check keyboard is connected and working."),
           MakeFatalContext(),
           intl::l18n(
@@ -214,20 +212,21 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     if (fps <= kFpsMaxCap) {
       auto scoped_window_paint = ui::win::ScopedWindowPaint::New(window);
 
-      if (const auto *painter = std2::get_result(scoped_window_paint); painter)
-          [[likely]] {
-        RECT paint_rc{painter->PaintInfo().rcPaint};
+      scoped_window_paint.transform(
+          [=](const ui::win::ScopedWindowPaint &painter) {
+            RECT paint_rc{painter.PaintInfo().rcPaint};
 
-        if (!::IsRectEmpty(&paint_rc)) {
-          std::string message;
-          absl::StrAppend(&message, "FPS: ", std::floor(fps * 10.0F) / 10.0F);
+            if (!::IsRectEmpty(&paint_rc)) {
+              std::string message;
+              absl::StrAppend(&message,
+                              "FPS: ", std::floor(fps * 10.0F) / 10.0F);
 
-          painter->BlitPattern(paint_rc, WHITENESS);
-          painter->TextDraw(
-              message.c_str(), -1, &paint_rc,
-              DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
-        }
-      }
+              painter.BlitPattern(paint_rc, WHITENESS);
+              painter.TextDraw(
+                  message.c_str(), -1, &paint_rc,
+                  DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+            }
+          });
     } else {
       std::this_thread::sleep_for(4ms);
     }
@@ -266,15 +265,12 @@ void MainWindow::ToggleDwmMmcss(_In_ bool enable) noexcept {
     // composition.
     auto scoped_toggle_dwm_mmcs_result =
         win::mmcss::ScopedMmcssToggleDwm::New(true);
-    if (auto *scheduler = std2::get_result(scoped_toggle_dwm_mmcs_result)) {
+    if (scoped_toggle_dwm_mmcs_result.has_value()) {
       auto new_scheduler = std::optional<win::mmcss::ScopedMmcssToggleDwm>{
-          std::move(*scheduler)};
+          std::move(*scoped_toggle_dwm_mmcs_result)};
       scoped_mmcss_toggle_dwm_.swap(new_scheduler);
     } else {
-      const auto *rc = std2::get_error(scoped_toggle_dwm_mmcs_result);
-      G3DCHECK(!!rc);
-
-      G3PLOG_E(WARNING, *rc)
+      G3PLOG_E(WARNING, scoped_toggle_dwm_mmcs_result.error())
           << "Unable to enable Desktop Window Manager (DWM) Multimedia Class "
              "Schedule Service (MMCSS) scheduling.  Rendering will not be "
              "optimized for multimedia applications.";

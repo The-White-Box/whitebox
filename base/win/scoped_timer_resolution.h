@@ -13,9 +13,10 @@
 
 #include <chrono>
 #include <cstddef>  // std::byte
+#include <expected>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
+#include "base/macroses.h"
 #include "base/std2/system_error_ext.h"
 
 extern "C" WB_ATTRIBUTE_DLL_IMPORT _Return_type_success_(
@@ -58,7 +59,7 @@ class ScopedTimerResolution {
   /**
    * @brief ScopedTimerResolution creation result.
    */
-  using NewResult = std::variant<ScopedTimerResolution, unsigned>;
+  using NewResult = std::expected<ScopedTimerResolution, unsigned>;
 
   /**
    * @brief Changes minimum resolution for periodic timers.
@@ -69,8 +70,9 @@ class ScopedTimerResolution {
   [[nodiscard]] static NewResult New(
       _In_ std::chrono::milliseconds resolution_ms) {
     ScopedTimerResolution resolution{resolution_ms};
-    return resolution.is_succeeded() ? NewResult{std::move(resolution)}
-                                     : NewResult{resolution.error_code_};
+    return resolution.is_succeeded()
+               ? NewResult{std::move(resolution)}
+               : NewResult{std::unexpect, resolution.error_code_};
   }
 
   ScopedTimerResolution(ScopedTimerResolution &&n) noexcept

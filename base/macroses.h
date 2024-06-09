@@ -8,7 +8,7 @@
 #define WB_BASE_MACROSES_H_
 
 #include <memory>
-#include <type_traits>
+#include <utility>
 
 #include "base/policy_checks.h"
 
@@ -49,10 +49,6 @@ template <typename To, typename From>
   return To{from};
 }
 
-/**
- * @brief Enum concept.
- * @tparam TEnum type to be an enum.
- */
 template <typename TEnum>
 concept is_enum = std::is_enum_v<TEnum>;
 
@@ -64,7 +60,7 @@ concept is_enum = std::is_enum_v<TEnum>;
  */
 template <is_enum TEnum>
 constexpr std::underlying_type_t<TEnum> underlying_cast(TEnum value) noexcept {
-  return static_cast<std::underlying_type_t<TEnum>>(value);
+  return std::to_underlying(value);
 }
 
 /**

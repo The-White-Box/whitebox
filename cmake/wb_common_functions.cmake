@@ -199,12 +199,12 @@ function(wb_check_platform_requirements TARGET_NAME)
 
   message(STATUS "[common]: ${TARGET_NAME} building on ${CMAKE_HOST_SYSTEM}/${CMAKE_HOST_SYSTEM_PROCESSOR}/64 bit.")
 
-  # At least Visual Studio 2019 version 16.8 as we use latest C++17 features.
-  if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND MSVC_VERSION LESS 1928)
+  # At least Visual Studio 2022 version 17.8.3 as we use latest C++23 features.
+  if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND MSVC_VERSION LESS 1938)
     message(
       FATAL_ERROR
       "[common]: This build script only supports building '${TARGET_NAME}' on 64-bit "
-      "Windows with at least Visual Studio 2019 version 16.8. "
+      "Windows with at least Visual Studio 2022 version 17.8.3. "
       "MSVC version '${MSVC_VERSION}' is not supported."
     )
   endif()

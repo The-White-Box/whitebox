@@ -12,54 +12,6 @@
 using namespace wb::base::std2;
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTest, StartsWithHasEmptyString) {
-  EXPECT_FALSE(starts_with("", '\0'));
-  EXPECT_FALSE(starts_with("", ' '));
-  EXPECT_FALSE(starts_with("", 'a'));
-
-  EXPECT_FALSE(starts_with(std::string{}, '\0'));
-  EXPECT_FALSE(starts_with(std::string{}, ' '));
-  EXPECT_FALSE(starts_with(std::string{}, 'a'));
-}
-
-// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTest, StartsWithValue) {
-  EXPECT_FALSE(starts_with("a", '\0'));
-  EXPECT_FALSE(starts_with("abc", 'b'));
-  EXPECT_FALSE(starts_with("abc", 'c'));
-  EXPECT_TRUE(starts_with("abc", 'a'));
-
-  EXPECT_FALSE(starts_with(std::string{"abc"}, '\0'));
-  EXPECT_FALSE(starts_with(std::string{"abc"}, 'b'));
-  EXPECT_FALSE(starts_with(std::string{"abc"}, 'c'));
-  EXPECT_TRUE(starts_with(std::string{"abc"}, 'a'));
-}
-
-// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTest, EndsWithHasEmptyString) {
-  EXPECT_FALSE(ends_with("", '\0'));
-  EXPECT_FALSE(ends_with("", ' '));
-  EXPECT_FALSE(ends_with("", 'a'));
-
-  EXPECT_FALSE(ends_with(std::string{}, '\0'));
-  EXPECT_FALSE(ends_with(std::string{}, ' '));
-  EXPECT_FALSE(ends_with(std::string{}, 'a'));
-}
-
-// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(StringViewExtTest, EndsWithHasValue) {
-  EXPECT_FALSE(ends_with("a", '\0'));
-  EXPECT_FALSE(ends_with("abc", 'b'));
-  EXPECT_FALSE(ends_with("abc", 'a'));
-  EXPECT_TRUE(ends_with("abc", 'c'));
-
-  EXPECT_FALSE(ends_with(std::string{"abc"}, '\0'));
-  EXPECT_FALSE(ends_with(std::string{"abc"}, 'b'));
-  EXPECT_FALSE(ends_with(std::string{"abc"}, 'a'));
-  EXPECT_TRUE(ends_with(std::string{"abc"}, 'c'));
-}
-
-// NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(StringViewExtTest, EndsWithStringHasEmptyString) {
   EXPECT_TRUE(ends_with("", ""));
   EXPECT_FALSE(ends_with("", " "));

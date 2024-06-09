@@ -20,12 +20,12 @@ GTEST_TEST(ScopedSharedLibraryTest, LoadUnloadUnexistingLibraryFails) {
 
   const auto unexisting_library_result =
       ScopedSharedLibrary::FromLibraryOnPath("some-unexisting-library", 0);
-  const auto* rc = std2::get_error(unexisting_library_result);
 
-  ASSERT_NE(nullptr, rc);
+  ASSERT_FALSE(unexisting_library_result.has_value());
 
 #ifdef WB_OS_WIN
-  EXPECT_EQ(std::error_code(ERROR_MOD_NOT_FOUND, std::system_category()), *rc);
+  EXPECT_EQ(std::error_code(ERROR_MOD_NOT_FOUND, std::system_category()),
+            unexisting_library_result.error());
 #elif defined(WB_OS_POSIX)
   EXPECT_EQ(std::error_code(EINVAL, std::system_category()), *rc);
 #else
@@ -43,15 +43,13 @@ GTEST_TEST(ScopedSharedLibraryTest, LoadUnloadLibraryInScope) {
   {
     const auto usp10_library_result = ScopedSharedLibrary::FromLibraryOnPath(
         "Usp10.dll", LOAD_LIBRARY_SEARCH_SYSTEM32);
-    const auto* rc = std2::get_error(usp10_library_result);
-    EXPECT_EQ(nullptr, rc);
-
-    const auto* usp10 = std2::get_result(usp10_library_result);
-    EXPECT_NE(nullptr, usp10);
+    EXPECT_TRUE(usp10_library_result.has_value());
 
     const auto usp10_script_text_out_function =
-        usp10->GetAddressAs<decltype(&ScriptTextOut)>("ScriptTextOut");
-    EXPECT_NE(nullptr, std2::get_result(usp10_script_text_out_function));
+        usp10_library_result->GetAddressAs<decltype(&ScriptTextOut)>(
+            "ScriptTextOut");
+    ASSERT_TRUE(usp10_script_text_out_function.has_value());
+    EXPECT_NE(nullptr, *usp10_script_text_out_function);
   }
 
   ASSERT_EQ(nullptr, ::GetModuleHandleA("Usp10.dll"));

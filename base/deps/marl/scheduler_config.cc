@@ -47,13 +47,13 @@ class WhiteboxThreadStartState::Impl final {
                 win::com::ScopedThreadComInitializerFlags::kSpeedOverMemory)}
 #endif
   {
-    G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_name_))
+    G3PLOGE2_IF(WARNING, scoped_thread_name_.error_or(std2::ok_code))
         << "Can't rename worker thread #" << workerId
         << ", continue with default name.";
-    G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_error_mode_))
+    G3PLOGE2_IF(WARNING, scoped_thread_error_mode_.error_or(std2::ok_code))
         << "Can't set reaction to serious system errors for worker thread #"
         << workerId << ", continue with default reaction.";
-    G3PLOGE_IF(WARNING, std2::get_error(scoped_thread_com_initializer_))
+    G3PLOGE2_IF(WARNING, scoped_thread_com_initializer_.error_or(std2::ok_code))
         << "Component Object Model initialization failed for worker thread #"
         << workerId << ", continue without COM.";
   }

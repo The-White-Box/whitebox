@@ -40,8 +40,9 @@ class ScopedMmcssToggleDwm {
     using result = std2::result<ScopedMmcssToggleDwm>;
 
     ScopedMmcssToggleDwm scheduler{enable};
-    return !scheduler.error_code() ? result{std::move(scheduler)}
-                                   : result{scheduler.error_code()};
+    return !scheduler.error_code()
+               ? result{std::move(scheduler)}
+               : result{std::unexpect, scheduler.error_code()};
   }
 
   ScopedMmcssToggleDwm(ScopedMmcssToggleDwm&& s) noexcept

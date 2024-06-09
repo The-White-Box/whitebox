@@ -42,12 +42,11 @@ namespace {
         mutex_result) noexcept {
   using namespace wb::base;
 
-  if (auto* mutex = std2::get_result(mutex_result)) [[likely]] {
+  if (mutex_result.has_value()) [[likely]] {
     return AppInstanceStatus::kNoOtherInstances;
   }
 
-  const auto* rc = std2::get_error(mutex_result);
-  G3DCHECK(!!rc);
+  const std::error_code &rc = mutex_result.error();
 
   constexpr int kAccessDenied{5};
   // If the mutex is a named mutex and the object existed before this
@@ -55,13 +54,13 @@ namespace {
   // the GetLastError function returns ERROR_ALREADY_EXISTS.
   constexpr int kAlreadyExists{183};
 
-  switch (rc->value()) {
+  switch (rc.value()) {
     case kAccessDenied:
     case kAlreadyExists:
       return AppInstanceStatus::kAlreadyRunning;
 
     default:
-      G3PLOG_E(WARNING, *rc)
+      G3PLOG_E(WARNING, rc)
           << "Unable to determine either app already running or "
              "not.  Mutex creation failed.";
       return AppInstanceStatus::kUnableToDetermine;
