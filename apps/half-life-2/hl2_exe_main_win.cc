@@ -27,6 +27,7 @@
 #include "base/win/dll_load_utils.h"
 #include "base/win/error_handling/scoped_thread_error_mode.h"
 #include "base/win/scoped_set_dll_directory.h"
+#include "base/win/system_error_ext.h"
 #include "boot-manager/main.h"
 #include "build/compiler_config.h"  // WB_ATTRIBUTE_DLL_EXPORT
 #include "build/static_settings_config.h"
@@ -344,6 +345,19 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   G3PLOGE2_IF(WARNING, scoped_thread_error_mode.error_or(std2::ok_code))
       << "Can't set thread reaction to serious system errors, continue with "
          "default reaction.";
+
+  // Windows wraps timer proc with its own SEH handler. But it is better to get
+  // SEH exceptions from timer proc, so call API to enable crashing.
+  // Not a RAII wrapper because GetUserObjectInformation unable to provide this
+  // flag info.
+  BOOL enable{TRUE};
+  std::error_code rc{get_error(::SetUserObjectInformation(
+      ::GetCurrentProcess(), UOI_TIMERPROC_EXCEPTION_SUPPRESSION, &enable,
+      sizeof(enable)))};
+  G3PLOGE2_IF(WARNING, rc)
+      << "Can't disable timer proc SEH exceptions suppression. App could "
+         "behave unpredictably, and could be more vulnerable to security "
+         "exploits.";
 
   // Disable default COM exception swallowing, report all COM exceptions to us.
   const auto scoped_com_fatal_exception_handler =
