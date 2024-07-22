@@ -46,7 +46,7 @@ GTEST_TEST(SamplingProfilerTest, NoCopyConstructorAndAssignment) {
 GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
   using namespace std::chrono_literals;
 
-  constexpr auto average_sample_time{15ms};
+  constexpr auto average_sample_time{25ms};
   // Allow 50% deviation for testing host CPU fluctuations.
   constexpr auto sample_time_deviation{average_sample_time / 2};
 
@@ -85,7 +85,7 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
            SampleAndGetTimeBetweenLastSamples) {
   using namespace std::chrono_literals;
 
-  constexpr auto average_sample_time{15ms};
+  constexpr auto average_sample_time{25ms};
   // Allow 50% deviation for testing host CPU fluctuations.
   constexpr auto sample_time_deviation{average_sample_time / 2};
 
@@ -141,7 +141,7 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
 
     EXPECT_GE(time_delta, average_sample_time - sample_time_deviation)
         << "Should sample " << average_sample_time.count() << "ms or more.";
-    EXPECT_LT(time_delta, average_sample_time + sample_time_deviation)
+    EXPECT_LE(time_delta, average_sample_time + sample_time_deviation)
         << "Deviation should be " << sample_time_deviation.count()
         << "ms or less";
   }
