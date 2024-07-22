@@ -22,3 +22,6 @@
 [submodule "deps/marl"]
 	path = deps/marl
 	url = git@github.com:The-White-Box/marl.git
+[submodule "deps/DirectXMath"]
+	path = deps/DirectXMath
+	url = git@github.com:microsoft/DirectXMath.git

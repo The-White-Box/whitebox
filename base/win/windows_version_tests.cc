@@ -76,4 +76,8 @@ GTEST_TEST(WindowsVersionTest, MajorMinorBuildToVersion) {
       << "WIN11_21H2";
   EXPECT_EQ(Version::WIN11_22H2, MajorMinorBuildToVersion(10, 0, 22621U))
       << "WIN11_22H2";
+  EXPECT_EQ(Version::WIN11_23H2, MajorMinorBuildToVersion(10, 0, 22631U))
+      << "WIN11_23H2";
+  EXPECT_EQ(Version::WIN11_24H2, MajorMinorBuildToVersion(10, 0, 26100U))
+      << "WIN11_24H2";
 }
