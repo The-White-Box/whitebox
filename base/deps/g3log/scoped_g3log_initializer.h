@@ -25,6 +25,8 @@
 #include <csignal>
 #elif defined(WB_OS_WIN)
 #include <intrin.h>  // __debugbreak
+
+extern "C" WB_ATTRIBUTE_DLL_IMPORT int __stdcall IsDebuggerPresent();
 #endif
 
 #include "console_sink.h"
@@ -83,7 +85,8 @@ class ScopedG3LogInitializer {
 #if defined(WB_OS_POSIX)
     g3::setFatalPreLoggingHook([] { raise(SIGTRAP); });
 #elif defined(WB_OS_WIN)
-    g3::setFatalPreLoggingHook([] { __debugbreak(); });
+    // Break only if debugging.
+    g3::setFatalPreLoggingHook([] { if (IsDebuggerPresent()) __debugbreak(); });
 #endif
 #endif
 
