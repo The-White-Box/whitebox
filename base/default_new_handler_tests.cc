@@ -10,6 +10,8 @@
 #include <limits>
 #include <random>
 
+#include "base/win/windows_light.h"
+
 #include "base/tests/g3log_death_utils.h"
 #endif
 
@@ -43,9 +45,13 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
     std::mt19937_64 generator{random_device()};
     std::uniform_int_distribution<> distribution{1, 255};
 
-    constexpr size_t doubled_total_ram_bytes{static_cast<size_t>(32) * 1028 *
-                                             1028 * 1028};
-    G3LOG(INFO) << "Total RAM size: " << doubled_total_ram_bytes / 1024 / 1024
+    MEMORYSTATUSEX status = {};
+    status.dwLength = sizeof(status);
+
+    G3CHECK(!!::GlobalMemoryStatusEx(&status));
+
+    const size_t total_ram_bytes{status.ullAvailPhys};
+    G3LOG(INFO) << "Total RAM size: " << total_ram_bytes / 1024 / 1024
                 << "MiBs.\n";
 
     constexpr size_t kBlockAllocSize{std::numeric_limits<unsigned>::max() >>
@@ -54,10 +60,10 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
                 << " MiBs\n";
 
     std::vector<int *> memory;
-    memory.reserve(doubled_total_ram_bytes / kBlockAllocSize);
+    memory.reserve(total_ram_bytes / kBlockAllocSize);
 
     size_t allocated_bytes{0};
-    while (allocated_bytes < doubled_total_ram_bytes) {
+    while (allocated_bytes < total_ram_bytes) {
       auto *block = new int[kBlockAllocSize];
 
       constexpr size_t kStepSize{static_cast<size_t>(65536) * 16384},
