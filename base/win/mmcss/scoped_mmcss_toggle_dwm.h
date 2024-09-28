@@ -50,7 +50,11 @@ class ScopedMmcssToggleDwm {
         is_dwm_mmcss_enabled_{std::move(s.is_dwm_mmcss_enabled_)} {
     s.error_code_ = std2::posix_last_error_code(EINVAL);
   }
-  ScopedMmcssToggleDwm& operator=(ScopedMmcssToggleDwm&&) = delete;
+  ScopedMmcssToggleDwm& operator=(ScopedMmcssToggleDwm&& s) noexcept {
+    std::swap(error_code_, s.error_code_);
+    std::swap(is_dwm_mmcss_enabled_, s.is_dwm_mmcss_enabled_);
+    return *this;
+  }
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedMmcssToggleDwm);
 
