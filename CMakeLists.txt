@@ -389,13 +389,9 @@ endif()
 # application CMake projects should ensure a consistent C++ standard for all
 # compiled sources by setting CMAKE_CXX_STANDARD.
 set(ABSL_PROPAGATE_CXX_STD  ON)
-set(WB_ABSL_BUILD_TESTS     OFF "Enable Abseil tests.")
-# Abseil depends on gtest.
-if (WB_ABSL_BUILD_TESTS)
-  # Abseil will use gtest / gmock targets from source tree.
-  set(ABSL_USE_EXTERNAL_GOOGLETEST  ON)
-  set(ABSL_FIND_GOOGLETEST          OFF)
-endif()
+# Abseil will use gtest / gmock targets from source tree.
+set(ABSL_USE_EXTERNAL_GOOGLETEST  ON)
+set(ABSL_FIND_GOOGLETEST          OFF)
 add_subdirectory("deps/abseil")
 # Get all abseil targets to add overrides.
 wb_get_all_targets(wb_all_abseil_targets "deps/abseil")
