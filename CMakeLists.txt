@@ -7,6 +7,13 @@ cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
 # Controls either WhiteBox tests be build or not.
 option(WB_BUILD_TESTS "Build WhiteBox tests or not." OFF)
 
+# According to CMake docs if any dependency sets BUILD_SHARED_LIBS root project
+# must do it before bringing in dependencies.  Failure to do so can lead to
+# different behavior between the first and subsequent CMake runs.
+#
+# See https://cmake.org/cmake/help/latest/variable/BUILD_SHARED_LIBS.html
+option(BUILD_SHARED_LIBS "Build the library as a shared library" OFF)
+
 if (WB_BUILD_TESTS)
   enable_testing()
 endif()
@@ -523,9 +530,6 @@ if (NOT WB_OS_WIN)
   set(PNG_TESTS  OFF CACHE BOOL "Build libpng tests" FORCE)
 
   add_subdirectory(deps/sdl_image)
-
-  # SDL image TIFF dependency forces other libraries to be build as shared.  Not that we want.
-  set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build the library as a shared library" FORCE)
 endif()
 
 ## Libraries.
