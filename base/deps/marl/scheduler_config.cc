@@ -47,6 +47,12 @@ class WhiteboxThreadStartState::Impl final {
                 win::com::ScopedThreadComInitializerFlags::kSpeedOverMemory)}
 #endif
   {
+#ifdef WB_OS_WIN
+    // SIGFPE, SIGILL, and SIGSEGV handling must be installed per thread on
+    // Windows.
+    g3::installSignalHandlerForThread();
+#endif
+
     G3PLOGE2_IF(WARNING, scoped_thread_name_.error_or(std2::ok_code))
         << "Can't rename worker thread #" << workerId
         << ", continue with default name.";
