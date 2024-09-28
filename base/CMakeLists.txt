@@ -64,6 +64,7 @@ if (WB_BUILD_TESTS)
     TARGET ${WB_BASE_TARGET_NAME}
     SOURCE_DIR ${WB_BASE_SOURCE_DIR}
     LINK_DEPS ${WB_BASE_TESTS_LINK_DEPS}
+    RUNTIME_DEPS mimalloc
   )
 
   # Common stuff.

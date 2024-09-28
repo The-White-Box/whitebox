@@ -125,7 +125,7 @@ function(wb_cxx_executable)
   set(link_options  ${args_LINK_OPTS})
   target_link_options(${target_name} PRIVATE ${link_options})
 
-  set(link_dependencies  mimalloc ${args_LINK_DEPS})
+  set(link_dependencies  ${args_LINK_DEPS})
   target_link_libraries(${target_name} PRIVATE ${link_dependencies})
 
   # Specify library version / soversion.
@@ -135,7 +135,7 @@ function(wb_cxx_executable)
       SOVERSION ${target_version}
   )
 
-  set(runtime_dependencies mimalloc ${args_RUNTIME_DEPS})
+  set(runtime_dependencies  ${args_RUNTIME_DEPS})
   wb_copy_all_target_dependencies_to_target_bin_dir(${target_name}
     "${runtime_dependencies}")
 endfunction(wb_cxx_executable)
@@ -236,7 +236,7 @@ function(wb_cxx_shared_library)
   set(link_options  ${args_LINK_OPTS})
   target_link_options(${target_name} PRIVATE ${link_options})
 
-  set(link_dependencies  mimalloc ${args_LINK_DEPS})
+  set(link_dependencies  ${args_LINK_DEPS})
   target_link_libraries(${target_name} PRIVATE ${link_dependencies})
 
   # Specify library version / soversion.
@@ -254,7 +254,7 @@ function(wb_cxx_shared_library)
     )
   endif()
 
-  set(runtime_dependencies mimalloc ${args_RUNTIME_DEPS})
+  set(runtime_dependencies  ${args_RUNTIME_DEPS})
   wb_copy_all_target_dependencies_to_target_bin_dir(${target_name}
     "${runtime_dependencies}")
 endfunction(wb_cxx_shared_library)
@@ -315,11 +315,11 @@ function(wb_cxx_test_exe_for_target)
   set(target_link_dependencies ${args_LINK_DEPS})
   set(target_runtime_dependencies ${args_RUNTIME_DEPS})
 
-  set(tests_link_dependencies GTest::gtest mimalloc)
+  set(tests_link_dependencies GTest::gtest)
   list(APPEND tests_link_dependencies ${target_link_dependencies} ${target_name})
   target_link_libraries(${tests_target_name} PRIVATE ${tests_link_dependencies})
 
-  set(tests_runtime_dependencies mimalloc)
+  set(tests_runtime_dependencies "")
   list(APPEND tests_runtime_dependencies ${target_runtime_dependencies})
   wb_copy_all_target_dependencies_to_target_bin_dir(${tests_target_name}
     "${tests_runtime_dependencies}")
