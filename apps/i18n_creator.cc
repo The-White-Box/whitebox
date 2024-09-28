@@ -34,8 +34,7 @@ namespace wb::apps {
       maybe_user_locale.value_or(locales::kFallbackLocale)};
   G3LOG(INFO) << app_name << " using " << user_locale << " locale for UI.";
 
-  auto intl_lookup_result{LookupWithFallback::New({user_locale})};
-  auto intl_lookup = std::get_if<LookupWithFallback>(&intl_lookup_result);
+  auto intl_lookup{LookupWithFallback::New({user_locale})};
 
   G3LOG_IF(FATAL, !intl_lookup)
       << "Unable to create localization strings lookup for locale "

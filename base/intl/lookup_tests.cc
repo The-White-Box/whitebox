@@ -28,81 +28,67 @@ hash(std::string_view &&string) noexcept {
 GTEST_TEST(LookupTest, NewUnknownLocale) {
   using namespace wb::base::intl;
 
-  const auto result = Lookup::New({"unknown-locale"});
-  const Status *status{std::get_if<Status>(&result)};
-
-  ASSERT_NE(nullptr, status);
-  EXPECT_EQ(Status::kArgumentError, *status);
+  EXPECT_EQ(Status::kArgumentError,
+            Lookup::New({"unknown-locale"}).error_or(Status::kOk));
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
 GTEST_TEST(LookupTest, NewEnUsUtf8Locale) {
   using namespace wb::base::intl;
 
-  const auto result = Lookup::New({"en_US.UTF-8"});
-  const Lookup *lookup{std::get_if<Lookup>(&result)};
+  const auto lookup = Lookup::New({"en_US.UTF-8"});
 
-  ASSERT_NE(nullptr, lookup);
+  ASSERT_TRUE(lookup);
   EXPECT_EQ(StringLayout::LeftToRight, lookup->Layout());
 
   {
     auto localized =
         lookup->String(hash("Unable to create main '{0}' window."));
-    const auto *string_ptr{
-        std::get_if<Lookup::Ref<const std::string>>(&localized)};
 
-    ASSERT_NE(nullptr, string_ptr);
-
-    const std::string &string{static_cast<const std::string &>(*string_ptr)};
-    EXPECT_EQ(std::string{"Unable to create main '{0}' window."}, string);
+    ASSERT_TRUE(localized);
+    EXPECT_EQ(std::string{"Unable to create main '{0}' window."}, localized->get());
   }
 
   {
     auto non_localized = lookup->String(hash("Unknown string."));
-    const Status *status{std::get_if<Status>(&non_localized)};
 
-    ASSERT_NE(nullptr, status);
-    EXPECT_EQ(Status::kUnavailable, *status);
+    ASSERT_FALSE(non_localized);
+    EXPECT_EQ(Status::kUnavailable, non_localized.error());
   }
 
   {
     auto formatted = lookup->Format(hash("Unable to create main '{0}' window."),
                                     fmt::make_format_args("WhiteBox"));
-    const auto *formatted_ptr{std::get_if<std::string>(&formatted)};
 
-    ASSERT_NE(nullptr, formatted_ptr);
+    ASSERT_TRUE(formatted);
     EXPECT_EQ(std::string{"Unable to create main 'WhiteBox' window."},
-              *formatted_ptr);
+              *formatted);
   }
 
   {
     auto formatted_too_many_args =
         lookup->Format(hash("Unable to create main '{0}' window."),
                        fmt::make_format_args("WhiteBox", "Additional arg"));
-    const auto *formatted_ptr{
-        std::get_if<std::string>(&formatted_too_many_args)};
 
-    ASSERT_NE(nullptr, formatted_ptr);
+    ASSERT_TRUE(formatted_too_many_args);
     EXPECT_EQ(std::string{"Unable to create main 'WhiteBox' window."},
-              *formatted_ptr);
+              *formatted_too_many_args);
   }
 
   {
     auto non_formatted = lookup->Format(hash("Unknown string '{0}'."),
                                         fmt::make_format_args("WhiteBox"));
-    const Status *status{std::get_if<Status>(&non_formatted)};
 
-    ASSERT_NE(nullptr, status);
-    EXPECT_EQ(Status::kUnavailable, *status);
+    ASSERT_FALSE(non_formatted);
+    EXPECT_EQ(Status::kUnavailable, non_formatted.error());
   }
 
   {
     auto non_formatted_too_many_args =
         lookup->Format(hash("Unknown string '{0}'."),
                        fmt::make_format_args("WhiteBox", "Additional arg"));
-    const Status *status{std::get_if<Status>(&non_formatted_too_many_args)};
 
-    ASSERT_NE(nullptr, status);
-    EXPECT_EQ(Status::kUnavailable, *status);
+    ASSERT_FALSE(non_formatted_too_many_args);
+    EXPECT_EQ(Status::kUnavailable, non_formatted_too_many_args.error());
   }
 }

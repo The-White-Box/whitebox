@@ -188,7 +188,8 @@ class Lookup::LookupImpl final {
             StringLayout::LeftToRight}};
       }
 
-      return Status::kArgumentError;
+      return LookupResult<un<Lookup::LookupImpl>>{std::unexpect,
+                                                  Status::kArgumentError};
     }
   WB_MSVC_END_WARNING_OVERRIDE_SCOPE()
 
@@ -201,7 +202,8 @@ class Lookup::LookupImpl final {
 
     G3LOG(WARNING) << "Missed localization string for " << message_id
                    << " message id.";
-    return Status::kUnavailable;
+    return LookupResult<Lookup::Ref<const std::string>>{std::unexpect,
+                                                        Status::kUnavailable};
   }
 
   [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Layout() const noexcept {
@@ -237,13 +239,11 @@ class Lookup::LookupImpl final {
 [[nodiscard]] LookupResult<Lookup> Lookup::New(
     const std::set<std::string_view>& locale_ids) noexcept {
   auto impl_result = LookupImpl::New(locale_ids);
-  if (auto* impl = std::get_if<un<LookupImpl>>(&impl_result)) [[likely]] {
-    return Lookup{std::move(*impl)};
+  if (impl_result) [[likely]] {
+    return Lookup{std::move(*impl_result)};
   }
 
-  const auto* status = std::get_if<Status>(&impl_result);
-  G3DCHECK(!!status);
-  return *status;
+  return LookupResult<Lookup>{std::unexpect, impl_result.error()};
 }
 
 [[nodiscard]] LookupResult<Lookup::Ref<const std::string>> Lookup::String(
@@ -255,14 +255,18 @@ class Lookup::LookupImpl final {
 [[nodiscard]] LookupResult<std::string> Lookup::Format(
     uint64_t message_id, fmt::format_args format_args) const noexcept {
   auto result = String(message_id);
-  if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-      [[likely]] {
-    return fmt::vformat(static_cast<const std::string&>(*string), format_args);
+  if (result) [[likely]] {
+    try {
+      return fmt::vformat(result->get(), format_args);
+    } catch (fmt::format_error& ex) {
+      G3LOG(FATAL) << "Format error for " << message_id
+                   << " message id: " << ex.what() << ". String is '"
+                   << result->get() << "'.";
+      // Never reached.
+    }
   }
 
-  const auto* status = std::get_if<Status>(&result);
-  G3DCHECK(!!status);
-  return *status;
+  return LookupResult<std::string>{std::unexpect, result.error()};
 }
 
 [[nodiscard]] WB_ATTRIBUTE_CONST StringLayout Lookup::Layout() const noexcept {

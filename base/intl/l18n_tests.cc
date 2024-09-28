@@ -35,10 +35,9 @@ GTEST_TEST(L18nTest, CallOperatorHashes) {
 GTEST_TEST(L18nTest, l18nLookups) {
   using namespace wb::base::intl;
 
-  const auto result = LookupWithFallback::New({"en_US.UTF-8"});
-  const LookupWithFallback *lookup{std::get_if<LookupWithFallback>(&result)};
+  const auto lookup = LookupWithFallback::New({"en_US.UTF-8"});
 
-  ASSERT_NE(nullptr, lookup);
+  ASSERT_TRUE(lookup);
 
   EXPECT_EQ(l18n(*lookup, "Unknown string."), kFallbackString)
       << "Missed l18n should result in fallback string.";
@@ -49,10 +48,9 @@ GTEST_TEST(L18nTest, l18nLookups) {
 GTEST_TEST(L18nTest, l18nFmtLookups) {
   using namespace wb::base::intl;
 
-  const auto result = LookupWithFallback::New({"en_US.UTF-8"});
-  const LookupWithFallback *lookup{std::get_if<LookupWithFallback>(&result)};
+  const auto lookup = LookupWithFallback::New({"en_US.UTF-8"});
 
-  ASSERT_NE(nullptr, lookup);
+  ASSERT_TRUE(lookup);
 
   EXPECT_EQ(l18n_fmt(*lookup, "Unknown string."), kFallbackString)
       << "Missed l18n_fmt should result in fallback string.";
@@ -75,13 +73,13 @@ GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
 
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 
-  const auto result = LookupWithFallback::New({"en_US.UTF-8"});
-  const LookupWithFallback *lookup{std::get_if<LookupWithFallback>(&result)};
+  const auto lookup = LookupWithFallback::New({"en_US.UTF-8"});
 
-  ASSERT_NE(nullptr, lookup);
+  ASSERT_TRUE(lookup);
 
   const auto triggerTerminate = [&]() {
-    (void)l18n_fmt(*lookup, "Can't load boot manager '{0}'.");  //-V530
+    [[maybe_unused]] std::string unused{
+        l18n_fmt(*lookup, "Can't load boot manager '{0}'.")};  //-V530
   };
 
   const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(

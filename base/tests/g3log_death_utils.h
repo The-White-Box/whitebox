@@ -61,14 +61,9 @@ struct DeathTestResult {
 
 #ifdef WB_OS_WIN
 
-#ifdef NDEBUG
 // Windows handle SIGABRT and exit with code 3.  See
 // https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/raise?view=msvc-160#remarks
 constexpr int kDefaultDeathExitCode{3};
-#else  // NDEBUG
-// TODO(dimhotepus): Why STATUS_ACCESS_VIOLATION?
-constexpr int kDefaultDeathExitCode{static_cast<int>(0xC0000005L)};
-#endif
 
 /**
  * @brief Creates death test result for g3log {D}CHECK failure.

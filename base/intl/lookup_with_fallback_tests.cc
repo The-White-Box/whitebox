@@ -29,10 +29,9 @@ GTEST_TEST(LookupWithFallbackTest, NewUnknownLocale) {
   using namespace wb::base::intl;
 
   const auto result = LookupWithFallback::New({"unknown-locale"});
-  const Status *status{std::get_if<Status>(&result)};
 
-  ASSERT_NE(nullptr, status);
-  EXPECT_EQ(Status::kArgumentError, *status);
+  ASSERT_FALSE(result);
+  EXPECT_EQ(Status::kArgumentError, result.error());
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
@@ -41,11 +40,10 @@ GTEST_TEST(LookupWithFallbackTest, NewEnUsUtf8Locale) {
 
   const std::string kTestFallbackString{"Fallback"};
 
-  const auto result =
+  const auto lookup =
       LookupWithFallback::New({"en_US.UTF-8"}, kTestFallbackString);
-  const LookupWithFallback *lookup{std::get_if<LookupWithFallback>(&result)};
 
-  ASSERT_NE(nullptr, lookup);
+  ASSERT_TRUE(lookup);
   EXPECT_EQ(StringLayout::LeftToRight, lookup->Layout());
 
   {

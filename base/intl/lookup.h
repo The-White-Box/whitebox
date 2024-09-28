@@ -23,7 +23,7 @@
 #include <set>
 #include <string>
 #include <string_view>
-#include <variant>
+#include <expected>
 
 #include "base/config.h"
 #include "base/macroses.h"
@@ -69,7 +69,7 @@ enum class Status {
  * @tparam T Result type.
  */
 template <typename T>
-using LookupResult = std::variant<T, Status>;
+using LookupResult = std::expected<T, Status>;
 
 /**
  * @brief The API used to look up localized messages by their unique message ID.

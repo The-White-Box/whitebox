@@ -30,20 +30,18 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
     const std::set<std::string_view>& locale_ids,
     std::string fallback_string) noexcept {
   auto lookup_result = Lookup::New(locale_ids);
-  if (auto* lookup = std::get_if<Lookup>(&lookup_result)) [[likely]] {
-    return LookupWithFallback(std::move(*lookup), std::move(fallback_string));
+  if (lookup_result) [[likely]] {
+    return LookupWithFallback(std::move(*lookup_result),
+                              std::move(fallback_string));
   }
 
-  const auto* status = std::get_if<Status>(&lookup_result);
-  G3DCHECK(!!status);
-  return *status;
+  return std::unexpected{lookup_result.error()};
 }
 
 [[nodiscard]] const std::string& LookupWithFallback::String(
     uint64_t message_id) const noexcept {
-  auto result = lookup_.String(message_id);
-  if (const auto* string = std::get_if<Lookup::Ref<const std::string>>(&result))
-      [[likely]] {
+  auto string = lookup_.String(message_id);
+  if (string) [[likely]] {
     return *string;
   }
 
@@ -54,9 +52,9 @@ LookupWithFallback::LookupWithFallback(LookupWithFallback&& l) noexcept
 
 [[nodiscard]] std::string LookupWithFallback::Format(
     uint64_t message_id, fmt::format_args format_args) const noexcept {
-  auto result = lookup_.Format(message_id, format_args);
-  if (const auto* string = std::get_if<std::string>(&result)) [[likely]] {
-    return fmt::vformat(*string, format_args);
+  auto string = lookup_.Format(message_id, format_args);
+  if (string) [[likely]] {
+    return *string;
   }
 
   G3LOG(WARNING) << "Missed localization string for " << message_id

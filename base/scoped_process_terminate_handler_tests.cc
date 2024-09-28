@@ -40,7 +40,7 @@ GTEST_TEST(ScopedProcessTerminateHandlerDeathTest,
       "Terminate called.  Stopping the app.");
   const auto triggerTerminate = []() { std::terminate(); };
 
-  EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
+  ASSERT_EXIT(triggerTerminate(), test_result.exit_predicate,
               test_result.message);
 }
 #endif
