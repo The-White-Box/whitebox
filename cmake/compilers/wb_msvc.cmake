@@ -27,7 +27,7 @@ option(WB_MSVC_ENABLE_LTCG                                      "If enabled, use
 option(WB_MSVC_ENABLE_PARALLEL_BUILD                            "If enabled, build multiple source files in parallel." ON)
 option(WB_MSVC_ENABLE_RTTI                                      "If enabled, adds code to check object types at run time (dynamic_cast, typeid)." ON)
 option(WB_MSVC_ENABLE_RELEASE_DEBUG_INFO                        "If enabled, generates .pdbs in Release mode." ON)
-option(WB_MSVC_SILENCE_CPP20_DEPRECATED_HEADERS_WARNING         "If enabled, silence deprecated in C++20 header warnings." ON)
+option(WB_MSVC_SILENCE_CPP20_DEPRECATED_HEADERS_WARNING         "If enabled, silence deprecated in C++20 header warnings." OFF)
 option(WB_MSVC_THREAT_STATIC_CODE_ANALYSIS_WARNINGS_AS_ERRORS   "If enabled, threat complex static analysis warnings as errors." ON)
 option(WB_MSVC_THREAT_COMPILER_WARNINGS_AS_ERRORS               "If enabled, pass /WX to the compiler. Compiler will threat warnings as errors." ON)
 option(WB_MSVC_USE_STATIC_RUNTIME                               "If enabled, build against the static, rather than the dynamic, runtime." OFF)
