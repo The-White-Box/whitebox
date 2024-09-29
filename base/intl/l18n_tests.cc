@@ -78,12 +78,19 @@ GTEST_TEST(L18nTestDeathTest, MissedArgumentTriggersTerminate) {
   ASSERT_TRUE(lookup);
 
   const auto triggerTerminate = [&]() {
-    [[maybe_unused]] std::string unused{
+    [[maybe_unused]] const std::string unused{
         l18n_fmt(*lookup, "Can't load boot manager '{0}'.")};  //-V530
   };
 
+#ifdef NDEBUG
+  // In release mode we have correct error message in logs and output.
+  const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(
+      "argument not found");
+#else
+  // In debug mode we have SIGABRT fatal signal due to G3LOG(FATAL) + handling.
   const auto test_result = tests_internal::MakeG3LogCheckFailureDeathTestResult(
       "Received fatal signal SIGABRT");
+#endif
 
   EXPECT_EXIT(triggerTerminate(), test_result.exit_predicate,
               test_result.message);

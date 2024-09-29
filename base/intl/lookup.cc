@@ -259,9 +259,9 @@ class Lookup::LookupImpl final {
     try {
       return fmt::vformat(result->get(), format_args);
     } catch (fmt::format_error& ex) {
-      G3LOG(FATAL) << "Format error for " << message_id
-                   << " message id: " << ex.what() << ". String is '"
-                   << result->get() << "'.";
+      G3LOG(FATAL) << "Format error for message id '" << message_id
+                   << "': " << ex.what() << ". String is '" << result->get()
+                   << "'.";
       // Never reached.
     }
   }

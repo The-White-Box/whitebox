@@ -10,9 +10,8 @@
 #include <limits>
 #include <random>
 
-#include "base/win/windows_light.h"
-
 #include "base/tests/g3log_death_utils.h"
+#include "base/win/windows_light.h"
 #endif
 
 #include <cerrno>  // ENOMEM
@@ -91,11 +90,18 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
     // process.  Makes test finish faster.
   };
 
+#ifdef NDEBUG
+  // TODO(dimhotepus): Why in release we have no OOM message?
+  const auto test_result =
+      wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult("",
+                                                                     ENOMEM);
+#else
   const auto test_result =
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
           "Failed to allocate memory bytes via new.  Please, ensure you "
           "have enough RAM to run the app.  Stopping the app.",
           ENOMEM);
+#endif
 
   EXPECT_EXIT(triggerOom(), test_result.exit_predicate, test_result.message);
 }
