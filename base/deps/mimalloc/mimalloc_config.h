@@ -9,4 +9,15 @@
 
 #include "build/compiler_config.h"
 
+#define WB_BEGIN_MIMALLOC_WARNING_OVERRIDE_SCOPE() \
+  WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()           \
+    WB_MSVC_DISABLE_WARNING(4820)                  \
+    WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+
+#define WB_END_MIMALLOC_WARNING_OVERRIDE_SCOPE() \
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE              \
+  ()                                             \
+  WB_MSVC_END_WARNING_OVERRIDE_SCOPE             \
+  ()
+
 #endif  // !WB_BASE_DEPS_MIMALLOC_MIMALLOC_CONFIG_H_

@@ -8,7 +8,9 @@
 #define WB_BASE_DEPS_MIMALLOC_MIMALLOC_H_
 
 #include "base/deps/mimalloc/mimalloc_config.h"
-//
+
+WB_BEGIN_MIMALLOC_WARNING_OVERRIDE_SCOPE()
 #include "deps/mimalloc/include/mimalloc.h"
+WB_END_MIMALLOC_WARNING_OVERRIDE_SCOPE()
 
 #endif  // !WB_BASE_DEPS_MIMALLOC_MIMALLOC_H_
