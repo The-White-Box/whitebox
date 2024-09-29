@@ -188,8 +188,8 @@ int BootManagerStartup(
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
   constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
+  G3CHECK(!!boot_manager_library);
   const wb::base::ScopedSharedLibrary& boot_manager = *boot_manager_library;
-  G3CHECK(!!boot_manager);
 
   // Good, try to find and launch boot manager.
   const auto boot_manager_entry =
