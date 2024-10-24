@@ -114,7 +114,7 @@ bool AbslParseFlag(std::string_view text, WindowHeight* h, std::string* error) {
       static_cast<std::uint16_t>(minimum_window_height_raw)};
 #else
   const std::uint16_t minimum_window_height{
-      wb::build::settings::ui::window::dimensions::kMinHeight};
+      wb::ui::settings::window::dimensions::kMinHeight};
 #endif
 
   constexpr std::uint16_t maximum_window_height{

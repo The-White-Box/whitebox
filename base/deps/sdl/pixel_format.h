@@ -9,13 +9,13 @@
 
 #include <ostream>
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/config.h"
+#include "base/macroses.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
-#include "deps/sdl/include/SDL_pixels.h"
+#include "deps/sdl/include/SDL3/SDL_pixels.h"
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
 namespace wb::sdl {
@@ -54,7 +54,7 @@ class PixelFormat {
 
   ~PixelFormat() noexcept {
     if (format_) {
-      ::SDL_FreeFormat(format_);
+      // Format is stored in hash table inside SDL, can't free it easily.
       format_ = nullptr;
     }
   }
@@ -63,7 +63,7 @@ class PixelFormat {
   /**
    * SDL pixel format.
    */
-  SDL_PixelFormat *format_;
+  const SDL_PixelFormatDetails *format_;
   /**
    * SDL init result.
    */
@@ -74,7 +74,8 @@ class PixelFormat {
    * @param value Pixel format value.
    */
   explicit PixelFormat(PixelFormatFlag value) noexcept
-      : format_{::SDL_AllocFormat(base::underlying_cast(value))},
+      : format_{::SDL_GetPixelFormatDetails(
+            static_cast<SDL_PixelFormat>(base::underlying_cast(value)))},
         init_rc_{format_ ? error::Success() : error::Failure()} {}
 
   /**

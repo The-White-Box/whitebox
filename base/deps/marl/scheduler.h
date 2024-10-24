@@ -59,8 +59,8 @@ schedule(Function&& f, Args&&... args) {
   std::packaged_task<Result(Args...)> task{std::forward<Function>(f)};
   std::future<Result> future = task.get_future();
 
-  auto lambda = [t = std::move(task)](Args&&... args) mutable {
-    t(std::forward<Args>(args)...);
+  auto lambda = [t = std::move(task)](Args&&... lambda_args) mutable {
+    t(std::forward<Args>(lambda_args)...);
   };
 
   using Lambda = std::decay_t<decltype(lambda)>;

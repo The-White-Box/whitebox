@@ -26,7 +26,7 @@ set(WB_HALF_LIFE2_LINK_DEPS
   wb::whitebox-ui)
 if (WB_OS_WIN)
   # _com_ptr_t support / winmm.
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS "comsuppw;Winmm")
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS mimalloc-redirect comsuppw Winmm)
 elseif (WB_OS_LINUX)
   # dlopen, filesystem.
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs")
@@ -38,6 +38,7 @@ endif()
 set(WB_HALF_LIFE2_RUNTIME_DEPS
   # Should be first as linker requires it.
   mimalloc
+  mimalloc-redirect
   marl
   g3log
   wb::whitebox-base
@@ -47,9 +48,12 @@ set(WB_HALF_LIFE2_RUNTIME_DEPS
   wb::whitebox-kernel
   wb::whitebox-ui)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS SDL3-shared)
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS
+    "SDL3::SDL3-shared"
+    "SDL3_image::SDL3_image")
   list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS
-    "SDL3-shared" "SDL3_image::SDL3_image")
+    "SDL3::SDL3-shared"
+    "SDL3_image::SDL3_image")
 endif()
 
 if (WB_OS_WIN)
@@ -61,7 +65,7 @@ if (WB_OS_WIN)
 endif()
 
 wb_cxx_executable(
-  PROJECT_NAME  "Half-Life 2" 
+  PROJECT_NAME  "Half-Life 2"
   TARGET        ${WB_HALF_LIFE2_TARGET_NAME}
   VERSION       ${CMAKE_PROJECT_VERSION}
   DESCRIPTION   "Half-Life 2"

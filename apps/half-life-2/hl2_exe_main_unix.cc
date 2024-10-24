@@ -79,10 +79,11 @@ int BootManagerStartup(int argc, char** argv) noexcept {
   // Get not current directory, but directory from which exe is launched.
   // Prevents DLL / SO planting attacks.
   auto app_path_result = std2::filesystem::get_executable_directory();
-  if (const auto* rc = std2::get_error(app_path_result)) [[unlikely]] {
+  if (const std::error_code& rc = app_path_result.error_or(std2::ok_code))
+      [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        *rc,
+        rc,
         intl::l18n(l18n,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -92,24 +93,25 @@ int BootManagerStartup(int argc, char** argv) noexcept {
                    "deep (> 1024)?"));
   }
 
-  auto app_path = *std2::get_result(app_path_result);
+  auto app_path = *app_path_result;
   app_path /= "libwhitebox-boot-manager.so." WB_PRODUCT_VERSION_INFO_STRING;
 
   const std::string boot_manager_path{app_path.string()};
   const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       boot_manager_path, RTLD_LAZY | RTLD_LOCAL);
-  if (const auto* boot_manager = std2::get_result(boot_manager_library))
-      [[likely]] {
+  if (boot_manager_library.has_value()) [[likely]] {
     using BootManagerMain = decltype(&BootManagerMain);
     // NOLINTNEXTLINE(modernize-avoid-c-arrays)
     constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
+    const wb::base::ScopedSharedLibrary& boot_manager = *boot_manager_library;
+
     // Good, try to find and launch boot manager.
     const auto boot_manager_entry =
-        boot_manager->GetAddressAs<BootManagerMain>(kBootManagerMainName);
-    if (const auto* boot_manager_main = std2::get_result(boot_manager_entry))
-        [[likely]] {
+        boot_manager.GetAddressAs<BootManagerMain>(kBootManagerMainName);
+    if (boot_manager_entry.has_value()) [[likely]] {
       wb::apps::flags::AssetsPath assets_path{absl::GetFlag(FLAGS_assets_path)};
+
       const std::uint32_t attempts_to_retry_allocate_memory{
           absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
       const wb::apps::flags::WindowWidth main_window_width{
@@ -143,13 +145,16 @@ int BootManagerStartup(int argc, char** argv) noexcept {
       // in handler.
       InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
+      const auto boot_manager_main = *boot_manager_entry;
+      G3CHECK(!!boot_manager_main);
+
       return (*boot_manager_main)(
           {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, l18n});
     }
 
     return FatalDialog(
         intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        std::get<std::error_code>(boot_manager_entry),
+        boot_manager_entry.error(),
         intl::l18n(l18n,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -160,7 +165,7 @@ int BootManagerStartup(int argc, char** argv) noexcept {
 
   return FatalDialog(
       intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-      std::get<std::error_code>(boot_manager_library),
+      boot_manager_library.error(),
       intl::l18n(l18n,
                  "Please, check app is installed correctly and you have "
                  "enough permissions to run it."),

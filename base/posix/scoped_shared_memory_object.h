@@ -8,6 +8,7 @@
 #include <fcntl.h>  // O_* constants.
 #include <sys/mman.h>
 #include <sys/stat.h>  // mode constants.
+#include <unistd.h>
 
 #include <array>
 #include <climits>
@@ -151,10 +152,12 @@ enum class MemoryMapProtectionFlags : int {
   /* Page can be executed.  */
   kExecute = PROT_EXEC,
 
+#ifdef WB_OS_LINUX
   /* Extend change to start of growsdown vma (mprotect only).  */
   kGrowsDown = PROT_GROWSDOWN,
   /* Extend change to start of growsup vma (mprotect only).  */
   kGrowsUp = PROT_GROWSUP
+#endif
 };
 
 /**
@@ -216,7 +219,8 @@ class ScopedSharedMemoryObject {
                ? std2::result<
                      ScopedSharedMemoryObject>{ScopedSharedMemoryObject{
                      std::move(name), descriptor}}
-               : std2::result<ScopedSharedMemoryObject>{get_error(descriptor)};
+               : std2::result<ScopedSharedMemoryObject>{std::unexpect,
+                                                        get_error(descriptor)};
   }
 
   ScopedSharedMemoryObject(ScopedSharedMemoryObject &&o) noexcept
@@ -272,7 +276,8 @@ class ScopedSharedMemoryObject {
                underlying_cast(share_flags), descriptor_, offset))};
     return memory != MAP_FAILED
                ? std2::result<T *>{memory}
-               : std2::result<T *>{wb::base::std2::system_last_error_code()};
+               : std2::result<T *>{std::unexpect,
+                                   std2::system_last_error_code()};
   }
 
   /**

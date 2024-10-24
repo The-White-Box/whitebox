@@ -42,8 +42,8 @@ struct error {
    * @param rc SDL API bool return code.
    * @return SDL error.
    */
-  [[nodiscard]] static error FromReturnBool(SDL_bool rc) noexcept {
-    std::string message{rc == SDL_TRUE ? "" : ::SDL_GetError()};
+  [[nodiscard]] static error FromReturnBool(bool rc) noexcept {
+    std::string message{rc ? "" : ::SDL_GetError()};
     std::error_code code{!message.empty()
                              ? base::std2::posix_last_error_code(EINVAL)
                              : base::std2::ok_code};
@@ -158,7 +158,7 @@ FMT_BEGIN_NAMESPACE
 template <>
 struct formatter<wb::sdl::error> : formatter<std::string> {
   template <typename FormatContext>
-  auto format(const wb::sdl::error& error, FormatContext& ctx) {
+  auto format(const wb::sdl::error& error, FormatContext& ctx) const {
     std::stringstream s{std::ios_base::out};
     s << error;
     return fmt::formatter<std::string>::format(s.str(), ctx);

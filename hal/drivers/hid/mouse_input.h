@@ -9,8 +9,8 @@
 
 #include <string>
 
-#include "base/macroses.h"
 #include "base/deps/abseil/strings/str_cat.h"
+#include "base/macroses.h"
 
 namespace wb::hal::hid {
 
@@ -165,9 +165,9 @@ enum class MouseButtonTransitionState : unsigned short {
   kVerticalWheel = 0x0400U,
   /**
    * @brief Raw input comes from a horizontal mouse wheel.  The wheel delta is
-   * stored in usButtonData.  A positive value indicates that the wheel was
-   * rotated to the right; a negative value indicates that the wheel was rotated
-   * to the left.
+   * stored in MouseInput.button_data.  A positive value indicates that the
+   * wheel was rotated to the right; a negative value indicates that the wheel
+   * was rotated to the left.
    */
   kHorizontalWheel = 0x0800U
 };

@@ -11,6 +11,7 @@
 #include "base/intl/l18n.h"
 #include "base/scoped_app_instance_manager.h"
 #include "build/static_settings_config.h"
+#include "ui/static_settings_config.h"
 
 namespace {
 
@@ -49,7 +50,7 @@ sdl::result<MainWindow> MainWindow::New(
                      << ", run with default one: " << *error << ".";
     }
 
-    using namespace wb::build::settings::ui::window;
+    using namespace wb::ui::settings::window;
 
     window->SetMinimumSizes(dimensions::kMinWidth, dimensions::kMinHeight);
 

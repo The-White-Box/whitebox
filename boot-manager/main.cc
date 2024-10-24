@@ -94,7 +94,7 @@ bool IsSuperUser() noexcept {
 
   // We might have elevated privileges beyond that of the user who invoked the
   // program, due to suid bit.
-  return uid < 0 || euid == 0 || uid != euid;
+  return euid == 0 || uid != euid;
 #else
 #error "Please define IsSuperUser for your platform."
 #endif  // WB_OS_WIN || WB_OS_POSIX
@@ -126,12 +126,14 @@ void DumpSystemInformation(const char* app_description,
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with " << kCompilerVersion << " on glibc " << __GLIBC__
               << "." << __GLIBC_MINOR__ << ", glibc++ " << _GLIBCXX_RELEASE
-              << ", ABI stamp " << __GLIBCXX__ << ".";
+              << ", ABI stamp " << __GLIBCXX__ << " running with assets from '"
+              << assets_path << "'.";
 #endif
 #ifdef _LIBCPP_VERSION
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with " << kCompilerVersion << " on libc++ "
-              << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION;
+              << _LIBCPP_VERSION << "/ ABI " << _LIBCPP_ABI_VERSION
+              << " running with assets from '" << assets_path << "'.";
 #endif
 #endif  // WB_OS_POSIX
 
@@ -191,7 +193,7 @@ int KernelStartup(
       (app_directory_path / "whitebox-kernel.dll").string()};
 #else
   const std::string kernel_path{
-      (*app_directory_path /
+      (app_directory_path /
        "libwhitebox-kernel.so." WB_PRODUCT_VERSION_INFO_STRING)
           .string()};
 #endif
@@ -218,8 +220,7 @@ int KernelStartup(
     // Good, try to find and launch whitebox-kernel.
     const auto kernel_main =
         kernel_library->GetAddressAs<WhiteBoxKernelMain>(kKernelMainName);
-    if (kernel_main.has_value())
-        [[likely]] {
+    if (kernel_main.has_value()) [[likely]] {
 #ifdef WB_OS_WIN
       return (*kernel_main)(
           {boot_manager_args.app_description, boot_manager_args.instance,
@@ -234,8 +235,7 @@ int KernelStartup(
     }
 
     return wb::ui::FatalDialog(
-        intl::l18n(intl, "Boot Manager - Error"),
-        kernel_main.error(),
+        intl::l18n(intl, "Boot Manager - Error"), kernel_main.error(),
         intl::l18n(intl,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -245,8 +245,7 @@ int KernelStartup(
   }
 
   return wb::ui::FatalDialog(
-      intl::l18n(intl, "Boot Manager - Error"),
-      kernel_library.error(),
+      intl::l18n(intl, "Boot Manager - Error"), kernel_library.error(),
       intl::l18n(intl,
                  "Please, check app is installed correctly and you have "
                  "enough permissions to run it."),
@@ -315,7 +314,8 @@ extern "C" [[nodiscard]] WB_BOOT_MANAGER_API int BootManagerMain(
   // Enable process attacks mitigation policies in scope.
   const auto scoped_process_mitigation_policies =
       security::ScopedProcessMitigationPolicies::New();
-  G3PLOGE2_IF(WARNING, scoped_process_mitigation_policies.error_or(std2::ok_code))
+  G3PLOGE2_IF(WARNING,
+              scoped_process_mitigation_policies.error_or(std2::ok_code))
       << "Can't enable process attacks mitigation policies, attacker can use "
          "system features to break in app.";
 

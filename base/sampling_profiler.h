@@ -9,6 +9,7 @@
 
 #include <array>
 
+#include "build/compiler_config.h"
 #include "base/high_resolution_clock.h"
 #include "base/macroses.h"
 
@@ -62,7 +63,8 @@ class SamplingProfiler {
    * @brief Gets time between last samples.
    * @return Time between last samples.  Note, time may be zero!
    */
-  [[nodiscard]] duration GetTimeBetweenLastSamples() const noexcept {
+  [[nodiscard]] WB_ATTRIBUTE_PURE duration
+  GetTimeBetweenLastSamples() const noexcept {
     return sample_times_[last_written_sample_idx_] -
            sample_times_[GetPreviousSampleIdx()];
   }
@@ -81,7 +83,8 @@ class SamplingProfiler {
    * @brief Get previous sample position index.
    * @return Previous sample position index.
    */
-  [[nodiscard]] std::size_t GetPreviousSampleIdx() const noexcept {
+  [[nodiscard]] WB_ATTRIBUTE_PURE std::size_t GetPreviousSampleIdx()
+      const noexcept {
     return (last_written_sample_idx_ - 1) % sample_times_.size();
   }
 };

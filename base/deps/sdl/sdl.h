@@ -10,7 +10,7 @@
 #include "base/deps/sdl/config.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
-#include "deps/sdl/include/SDL.h"
+#include "deps/sdl/include/SDL3/SDL.h"
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
 #endif  // !WB_BASE_DEPS_SDL_SDL_H_

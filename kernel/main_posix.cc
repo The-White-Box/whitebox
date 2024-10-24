@@ -34,7 +34,7 @@ namespace {
   while (!is_done) {
     while (::SDL_PollEvent(&event) == 1) {
       switch (event.type) {
-        case SDL_QUIT:
+        case SDL_EVENT_QUIT:
           is_done = true;
           break;
 
@@ -63,7 +63,7 @@ namespace {
   // only if not.
   return WindowFlags::kResizable | WindowFlags::kHidden |
          WindowFlags::kAllowHighDpi
-#if defined(WB_OS_LINUX)
+#if defined(WB_OS_LINUX) || defined(WB_OS_WIN)
          | WindowFlags::kUseVulkan
 #elif defined(WB_OS_MACOS)
          | WindowFlags::kUseMetal
@@ -105,7 +105,13 @@ namespace {
  */
 [[nodiscard]] wb::ui::FatalDialogContext MakeFatalContext(
     const wb::kernel::KernelArgs& kernel_args) noexcept {
+#ifdef WB_OS_WIN
+  return wb::ui::FatalDialogContext{kernel_args.intl, kernel_args.intl.Layout(),
+                                    kernel_args.main_icon_id,
+                                    kernel_args.small_icon_id};
+#else
   return wb::ui::FatalDialogContext{kernel_args.intl.Layout()};
+#endif
 }
 
 }  // namespace
@@ -121,7 +127,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   using namespace wb::sdl;
   using namespace wb::sdl_image;
 
-  const ::SDL_version compiled_sdl_version{GetCompileTimeVersion()},
+  const int compiled_sdl_version{GetCompileTimeVersion()},
       linked_sdl_version{GetLinkTimeVersion()};
   const auto sdl_initializer = SDLInitializer::New(SDLInitializerFlags::kAudio |
                                                    SDLInitializerFlags::kVideo);
@@ -131,11 +137,17 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
         intl::l18n(intl,
                    "Please, check your SDL library installed and working."),
         MakeFatalContext(kernel_args),
-        intl::l18n_fmt(intl,
-                       "SDL build/runtime v.{0}/v.{1}, revision '{2}' "
-                       "initialization failed.\n\n{3}.",
-                       compiled_sdl_version, linked_sdl_version,
-                       ::SDL_GetRevision(), *error));
+        intl::l18n_fmt(
+            intl,
+            "SDL build/runtime v.{0}.{1}.{2}/v.{3}.{4}.{5}, revision '{6}' "
+            "initialization failed.\n\n{7}.",
+            SDL_VERSIONNUM_MAJOR(compiled_sdl_version),
+            SDL_VERSIONNUM_MINOR(compiled_sdl_version),
+            SDL_VERSIONNUM_MICRO(compiled_sdl_version),
+            SDL_VERSIONNUM_MAJOR(linked_sdl_version),
+            SDL_VERSIONNUM_MINOR(linked_sdl_version),
+            SDL_VERSIONNUM_MICRO(linked_sdl_version), ::SDL_GetRevision(),
+            *error));
   }
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
@@ -167,18 +179,12 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto window_result = MainWindow::New(
       kernel_args.app_description, command_line_flags.main_window_width,
       command_line_flags.main_window_height, window_flags, intl);
-  if (const auto* window = get_result(window_result)) [[likely]] {
+  if ([[maybe_unused]] const auto* window = get_result(window_result)) [[likely]] {
     G3LOG(INFO) << "SDL graphics context: "
                 << GetWindowGraphicsContext(window_flags) << ".";
 
     {
-      SDL_SysWMinfo platform_window_info;
-      const auto rc = window->GetPlatformInfo(platform_window_info);
-
-      G3LOG(INFO) << "SDL window subsystem: "
-                  << (rc.is_succeeded() ? platform_window_info.subsystem
-                                        : ::SDL_SYSWM_UNKNOWN)
-                  << ".";
+      G3LOG(INFO) << "SDL window subsystem: Posix.";
     }
 
     // Startup sequence finished, window is already shown, restore default

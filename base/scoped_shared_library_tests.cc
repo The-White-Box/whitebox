@@ -27,7 +27,8 @@ GTEST_TEST(ScopedSharedLibraryTest, LoadUnloadUnexistingLibraryFails) {
   EXPECT_EQ(std::error_code(ERROR_MOD_NOT_FOUND, std::system_category()),
             unexisting_library_result.error());
 #elif defined(WB_OS_POSIX)
-  EXPECT_EQ(std::error_code(EINVAL, std::system_category()), *rc);
+  EXPECT_EQ(std::error_code(EINVAL, std::system_category()),
+            unexisting_library_result.error());
 #else
 #error "Please add shared library support for your platform."
 #endif  // !WB_OS_WIN && !WB_OS_POSIX
@@ -53,6 +54,24 @@ GTEST_TEST(ScopedSharedLibraryTest, LoadUnloadLibraryInScope) {
   }
 
   ASSERT_EQ(nullptr, ::GetModuleHandleA("Usp10.dll"));
+#elif defined(WB_OS_LINUX)
+  {
+    // Rely on dbus installed on almost every system.
+    const auto dbus_library_result =
+        ScopedSharedLibrary::FromLibraryOnPath("libdbus-1.so", 0);
+    EXPECT_TRUE(dbus_library_result.has_value());
+
+    struct DBusConnection;
+    struct DBusError;
+    using DbusBusGetIdFunction =
+        char* (*)(DBusConnection* connection, DBusError* error);
+
+    const auto dbus_bus_get_id_function =
+        dbus_library_result->GetAddressAs<DbusBusGetIdFunction>(
+            "dbus_bus_get_id");
+    ASSERT_TRUE(dbus_bus_get_id_function.has_value());
+    EXPECT_NE(nullptr, *dbus_bus_get_id_function);
+  }
 #else
 #error "Please add shared library support test for your platform."
 #endif

@@ -9,8 +9,8 @@
 
 #include <string>
 
-#include "base/macroses.h"
 #include "base/deps/abseil/strings/str_cat.h"
+#include "base/macroses.h"
 #include "build/build_config.h"
 
 namespace wb::hal::hid {
@@ -167,9 +167,13 @@ struct KeyboardInput {
                   (keyboard_input.make_code != KeyboardInput::kOverrunMakeCode
                        ? to_string(keyboard_input.make_code)
                        : "Overrun"),
-                  " | Key Flags: ", to_string(keyboard_input.key_flags),
+                  " | Key Flags: ", to_string(keyboard_input.key_flags)
+#ifdef WB_OS_WIN
+                                        ,
                   " | Virtual Key: ", keyboard_input.virtual_key,
-                  " | Message: ", keyboard_input.message);
+                  " | Message: ", keyboard_input.message
+#endif
+  );
 
   return result;
 }

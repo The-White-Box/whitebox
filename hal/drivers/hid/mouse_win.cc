@@ -35,7 +35,7 @@ namespace wb::hal::hid {
 /**
  * @brief Invalid mouse absolute coordinate.
  */
-constexpr long kInvalidMouseAbsoluteCoordinate{-1L};
+constexpr inline long kInvalidMouseAbsoluteCoordinate{-1L};
 
 /**
  * @brief Alias to simplify API.
@@ -61,10 +61,8 @@ using MouseNewResult = base::std2::result<base::un<Mouse>>;
  */
 Mouse::Mouse(_In_ HWND window) noexcept
     : window_{window},
-      // Disable legacy mouse messages to speedup the app.
-      // https://learn.microsoft.com/en-us/windows/win32/inputdev/mouse-input-notifications
       error_code_{
-          RegisterRawInputDevices(CreateMouseDeviceDefinition(window, RIDEV_NOLEGACY))},
+          RegisterRawInputDevices(CreateMouseDeviceDefinition(window, 0))},
       last_absolute_x_{kInvalidMouseAbsoluteCoordinate},
       last_absolute_y_{kInvalidMouseAbsoluteCoordinate} {
   G3DPCHECK_E(!error_code(), error_code())

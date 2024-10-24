@@ -21,20 +21,9 @@ set(WB_WHITEBOX_KERNEL_LINK_DEPS
   wb::whitebox-hid-driver
   wb::whitebox-ui)
 if (WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS Dwmapi)
+  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS mimalloc-redirect Dwmapi)
 else ()
-  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS "SDL3-shared" "SDL3_image::SDL3_image")
-endif ()
-
-set(WB_WHITEBOX_KERNEL_RUNTIME_DEPS
-  # Should be first as linker requires it.
-  mimalloc
-  g3log
-  wb::whitebox-base
-  wb::whitebox-hid-driver
-  wb::whitebox-ui)
-if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_KERNEL_RUNTIME_DEPS "SDL3-shared" "SDL3_image::SDL3_image")
+  list(APPEND WB_WHITEBOX_KERNEL_LINK_DEPS "SDL3::SDL3-shared" "SDL3_image::SDL3_image")
 endif ()
 
 wb_cxx_shared_library(
@@ -45,5 +34,4 @@ wb_cxx_shared_library(
   BINARY_DIR    ${WB_WHITEBOX_KERNEL_BINARY_DIR}
   CXX_DEFS      WB_WHITEBOX_KERNEL_DLL=1
   LINK_DEPS     ${WB_WHITEBOX_KERNEL_LINK_DEPS}
-  RUNTIME_DEPS  ${WB_WHITEBOX_KERNEL_RUNTIME_DEPS}
 )

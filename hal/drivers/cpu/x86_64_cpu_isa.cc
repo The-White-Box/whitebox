@@ -28,7 +28,7 @@ namespace {
  * @return An array of four integers that contains the information returned in
  * EAX, EBX, ECX, and EDX about supported features of the CPU.
  */
-[[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::array<std::int32_t, 4> cpuid(
+[[nodiscard]] inline std::array<std::int32_t, 4> cpuid(
     std::int32_t function_id) noexcept {
   std::array<std::int32_t, 4> info = {};  //-V112
 
@@ -60,7 +60,7 @@ namespace {
  * @return An array of four integers that contains the information returned in
  * EAX, EBX, ECX, and EDX about supported features of the CPU.
  */
-[[nodiscard]] WB_ATTRIBUTE_FORCEINLINE std::array<std::int32_t, 4> cpuidex(
+[[nodiscard]] inline std::array<std::int32_t, 4> cpuidex(
     std::int32_t function_id, std::int32_t subfunction_id) noexcept {
   std::array<std::int32_t, 4> info = {};
 

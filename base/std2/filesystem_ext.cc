@@ -53,11 +53,12 @@ GetExecutablePath() noexcept {
       return GetExecutablePath<new_size>();
     }
 
-    return system_last_error_code(ENOMEM);
+    return result<std::filesystem::path>{std::unexpect,
+                                         system_last_error_code(ENOMEM)};
   }
 
   // Error case.
-  return system_last_error_code();
+  return result<std::filesystem::path>{std::unexpect, system_last_error_code()};
 }
 #endif
 

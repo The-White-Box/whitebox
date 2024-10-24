@@ -83,7 +83,8 @@ class ScopedFloatFlushToZeroMode {
   explicit ScopedFloatFlushToZeroMode(
       ScopedFloatFlushToZeroFlags new_flags) noexcept
       : previous_mxcsr_register_value_{::_mm_getcsr()} {
-    ::_mm_setcsr((previous_mxcsr_register_value_ & ~_MM_FLUSH_ZERO_MASK) |
+    ::_mm_setcsr((previous_mxcsr_register_value_ &
+                  ~static_cast<unsigned>(_MM_FLUSH_ZERO_MASK)) |
                  underlying_cast(new_flags));
   }
 
@@ -163,7 +164,8 @@ class ScopedFloatDenormalsAreZeroMode {
   explicit ScopedFloatDenormalsAreZeroMode(
       ScopedFloatDenormalsAreZeroFlags new_flags) noexcept
       : previous_mxcsr_register_value_{::_mm_getcsr()} {
-    ::_mm_setcsr((previous_mxcsr_register_value_ & ~_MM_DENORMALS_ZERO_MASK) |
+    ::_mm_setcsr((previous_mxcsr_register_value_ &
+                  ~static_cast<unsigned>(_MM_DENORMALS_ZERO_MASK)) |
                  underlying_cast(new_flags));
   }
 

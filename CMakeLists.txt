@@ -2,7 +2,7 @@
 # Use of this source code is governed by a 3-Clause BSD license that can be
 # found in the LICENSE file.
 
-cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.21 FATAL_ERROR)
 
 # Controls either WhiteBox tests be build or not.
 option(WB_BUILD_TESTS "Build WhiteBox tests or not." OFF)
@@ -16,26 +16,6 @@ option(BUILD_SHARED_LIBS "Build the library as a shared library" OFF)
 
 if (WB_BUILD_TESTS)
   enable_testing()
-endif()
-
-# Compiler id for Apple Clang is now AppleClang.
-if (POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW)
-endif()
-
-# Include file check macros honor CMAKE_REQUIRED_LIBRARIES.
-if (POLICY CMP0075)
-  cmake_policy(SET CMP0075 NEW)
-endif()
-
-# option() honor variables.
-if (POLICY CMP0077)
-  cmake_policy(SET CMP0077 NEW)
-endif()
-
-# target_link_libraries() allows use with targets in other directories.
-if (POLICY CMP0079)
-  cmake_policy(SET CMP0079 NEW)
 endif()
 
 # Setup root directory of the WhiteBox project.
@@ -55,6 +35,10 @@ set(PACKAGE_NAME   "WhiteBox")
 # Git is required to build software version via Git.
 find_package(Git)
 
+set(PACKAGE_VER_MAJOR 1)
+set(PACKAGE_VER_MINOR 0)
+set(PACKAGE_VER_PATCH 0)
+
 if (NOT DEFINED PACKAGE_VERSION)
   if (NOT Git_FOUND)
     message(FATAL "[common]: Unable to extract Git software version - no Git.")
@@ -68,7 +52,6 @@ if (NOT DEFINED PACKAGE_VERSION)
     execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE WB_GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
 
-  set(PACKAGE_VER_PATCH 0)
   math(EXPR PACKAGE_VER_TWEAK ${WB_GIT_VERSION})
   message(STATUS
     "[common]: Build version from Git (patch.tweak): ${PACKAGE_VER_PATCH}.${PACKAGE_VER_TWEAK}.")
@@ -288,7 +271,7 @@ endif()
 
 # fmt.
 set(FMT_INSTALL OFF CACHE BOOL "Generate the install target." FORCE)
-add_subdirectory("deps/fmt")
+add_subdirectory("deps/fmt" EXCLUDE_FROM_ALL)
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
   # semantics are not enabled.
@@ -309,7 +292,7 @@ elseif (WB_COMPILER_CLANG OR WB_COMPILER_GCC)
 endif()
 
 # g3log.
-add_subdirectory("deps/g3log")
+add_subdirectory("deps/g3log" EXCLUDE_FROM_ALL)
 if (WB_COMPILER_MSVC)
   # Prevent MSVC warning C4530: C++ exception handler used, but unwind
   # semantics are not enabled.
@@ -332,7 +315,7 @@ if (WB_BUILD_TESTS)
   # Prevent overriding the parent project's compiler/linker settings.
   set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-  add_subdirectory("deps/googletest")
+  add_subdirectory("deps/googletest" EXCLUDE_FROM_ALL)
 
   # Do not define macroses which can clash with other libs.
   target_compile_definitions(gtest
@@ -392,7 +375,7 @@ set(ABSL_PROPAGATE_CXX_STD  ON)
 # Abseil will use gtest / gmock targets from source tree.
 set(ABSL_USE_EXTERNAL_GOOGLETEST  ON)
 set(ABSL_FIND_GOOGLETEST          OFF)
-add_subdirectory("deps/abseil")
+add_subdirectory("deps/abseil" EXCLUDE_FROM_ALL)
 # Get all abseil targets to add overrides.
 wb_get_all_targets(wb_all_abseil_targets "deps/abseil")
 # Ensure all abseil targets use expected options & macroses.
@@ -409,7 +392,8 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
         target_compile_options(
           ${wb_abseil_target_name}
           PRIVATE
-            /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+            # Uses std and hence exceptions are required.
+            /EHsc
             $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
         )
         # LNK2047: module contains C++ EH or complex EH metadata but was not
@@ -477,7 +461,7 @@ set(MARL_BUILD_TESTS ON CACHE BOOL "Build tests" FORCE)
 set(MARL_BUILD_SHARED ON CACHE BOOL "Build marl as a shared / dynamic library (default static)" FORCE)
 set(MARL_GOOGLETEST_DIR ON CACHE STRING "deps/googletest" FORCE)
 set(MARL_WARNINGS_AS_ERRORS ON CACHE BOOL "Treat warnings as errors" FORCE)
-add_subdirectory("deps/marl")
+add_subdirectory("deps/marl" EXCLUDE_FROM_ALL)
 if (WB_OS_WIN)
   # Adds VERSION resource.
   wb_add_version_resource_to_dll_target(
@@ -494,7 +478,7 @@ if (WB_MSVC_ENABLE_ADDRESS_SANITIZER)
   # Enable AddressSanitizer support.
   set(MI_TRACK_ASAN ON)
 endif()
-add_subdirectory("deps/mimalloc")
+add_subdirectory("deps/mimalloc" EXCLUDE_FROM_ALL)
 if (WB_OS_WIN)
   # Adds VERSION resource.
   wb_add_version_resource_to_dll_target(
@@ -507,6 +491,16 @@ if (MI_SECURE)
   add_definitions(-DWB_MI_SECURE)
 endif()
 
+if (WB_OS_WIN)
+  # Define dependent mimalloc-redirect target to make CMake know about.
+  add_library(mimalloc-redirect SHARED IMPORTED GLOBAL)
+  set_property(TARGET mimalloc-redirect PROPERTY IMPORTED_IMPLIB "${WB_ROOT_DIR}/deps/mimalloc/bin/mimalloc-redirect.lib")
+  set_property(TARGET mimalloc-redirect PROPERTY IMPORTED_LOCATION "${WB_ROOT_DIR}/deps/mimalloc/bin/mimalloc-redirect.dll")
+endif()
+
+# SDL expects mimalloc to be exported.
+export(TARGETS mimalloc NAMESPACE "mi::" FILE "miSharedTargets.cmake")
+
 # SDL3 / sdl_image.
 
 if (NOT WB_OS_WIN)
@@ -514,7 +508,7 @@ if (NOT WB_OS_WIN)
   set(SDL_SHARED ON CACHE BOOL "Build shared SDL library" FORCE)
   set(SDL_TEST_LIBRARY OFF CACHE BOOL "Build the SDL3_test library" FORCE)
 
-  add_subdirectory(deps/sdl)
+  add_subdirectory(deps/sdl EXCLUDE_FROM_ALL)
 
   if (WB_CXX_COMPILER_ID STREQUAL "AppleClang")
     # Fix for undefined memset_pattern4() on MacOS.
@@ -525,7 +519,12 @@ if (NOT WB_OS_WIN)
   set(PNG_STATIC OFF CACHE BOOL "Build static lib" FORCE)
   set(PNG_TESTS  OFF CACHE BOOL "Build libpng tests" FORCE)
 
-  add_subdirectory(deps/sdl_image)
+  # These causes errors during CMake configure.
+  set(SDLIMAGE_AVIF  OFF CACHE BOOL "Enable AVIF support" FORCE)
+  set(SDLIMAGE_TIF   OFF CACHE BOOL "Enable TIFF support" FORCE)
+  set(SDLIMAGE_WEBP  OFF CACHE BOOL "Enable WEBP support" FORCE)
+
+  add_subdirectory(deps/sdl_image EXCLUDE_FROM_ALL)
 endif()
 
 ## Libraries.
@@ -659,3 +658,68 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
     endif()
   endif()
 endforeach()
+
+## Install
+
+# Bundle Windows Universal CRT, too.
+set(CMAKE_INSTALL_UCRT_LIBRARIES TRUE)
+include(InstallRequiredSystemLibraries)
+
+include(GNUInstallDirs)
+
+set(WB_INSTALL_TARGETS
+  half-life-2
+  g3log
+  marl
+  mimalloc
+  whitebox-base
+  whitebox-boot-manager
+  whitebox-cpu-driver
+  whitebox-hid-driver
+  whitebox-kernel
+  whitebox-ui)
+
+install(
+  TARGETS
+    ${WB_INSTALL_TARGETS}
+  PERMISSIONS
+    OWNER_READ OWNER_EXECUTE
+  
+  ARCHIVE
+  LIBRARY
+  RUNTIME
+  BUNDLE
+    DESTINATION
+      ${CMAKE_INSTALL_BINDIR}
+)
+
+if (WB_OS_WIN AND MI_BUILD_SHARED)
+  # Install mimalloc-redirect as it is imported target.
+  install(
+    IMPORTED_RUNTIME_ARTIFACTS
+      mimalloc-redirect
+    PERMISSIONS
+      OWNER_READ OWNER_EXECUTE
+    RUNTIME
+  )
+endif()
+
+install(
+  FILES
+    "${WB_ROOT_DIR}/LICENSE"
+    "${WB_ROOT_DIR}/THIRD_PARTY"
+    "${WB_ROOT_DIR}/SECURITY.md"
+  DESTINATION
+    .
+  PERMISSIONS
+    OWNER_READ OWNER_EXECUTE
+)
+
+configure_file(
+  "${WB_ROOT_DIR}/build/app_cpack_options.cmake.in"
+  "${WB_BINARY_DIR}/app_cpack_options.cmake"
+  @ONLY
+)
+set(CPACK_PROJECT_CONFIG_FILE
+    "${WB_BINARY_DIR}/app_cpack_options.cmake")
+include(CPack)

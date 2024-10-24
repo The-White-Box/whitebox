@@ -326,21 +326,33 @@ endfunction()
 #
 # wb_copy_target_dependency_to_target_bin_dir("My target" "My dependency")
 function(wb_copy_target_dependency_to_target_bin_dir THE_TARGET THE_DEPENDENCY)
-  add_custom_command(
-    TARGET ${THE_TARGET} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_FILE:${THE_DEPENDENCY}> $<TARGET_FILE_DIR:${THE_TARGET}>
-    DEPENDS ${THE_DEPENDENCY}
-    WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
-    COMMENT "Copy $<TARGET_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
-  )
-  if (WB_OS_WIN)
+  get_target_property(wb_target_type ${THE_DEPENDENCY} TYPE)
+
+  # Only code gen targets artifacts / PDBs should be copied.
+  if (${wb_target_type} MATCHES "SHARED_LIBRARY" OR
+      ${wb_target_type} MATCHES "EXECUTABLE")
     add_custom_command(
       TARGET ${THE_TARGET} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_PDB_FILE:${THE_DEPENDENCY}> $<TARGET_FILE_DIR:${THE_TARGET}>
+      COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_FILE:${THE_DEPENDENCY}> $<TARGET_FILE_DIR:${THE_TARGET}>
       DEPENDS ${THE_DEPENDENCY}
       WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
-      COMMENT "Copy $<TARGET_PDB_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+      COMMENT "Copy $<TARGET_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
     )
+
+    if (WB_OS_WIN)
+      get_target_property(WB_DEPENDENCY_IS_IMPORTED ${THE_DEPENDENCY} IMPORTED)
+
+      # Imported targets can not have PDBs.
+      if (NOT WB_DEPENDENCY_IS_IMPORTED)
+        add_custom_command(
+          TARGET ${THE_TARGET} POST_BUILD
+          COMMAND "${CMAKE_COMMAND}" -E copy_if_different $<TARGET_PDB_FILE:${THE_DEPENDENCY}> $<TARGET_FILE_DIR:${THE_TARGET}>
+          DEPENDS ${THE_DEPENDENCY}
+          WORKING_DIRECTORY $<TARGET_FILE_DIR:${THE_TARGET}>
+          COMMENT "Copy $<TARGET_PDB_FILE:${THE_DEPENDENCY}> to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
+        )
+      endif()
+    endif()
   endif()
 endfunction()
 
@@ -348,26 +360,20 @@ endfunction()
 #
 # wb_copy_all_target_dependencies_to_target_bin_dir("My target" My_dependencies_list)
 function(wb_copy_all_target_dependencies_to_target_bin_dir THE_TARGET THE_DEPENDENCIES)
-  set(WB_SHOULD_COPY_MIMALLOC OFF)
+  set(WB_SHOULD_INJECT_MIMALLOC OFF)
 
   # Add runtime dependencies.
   foreach(THE_DEPENDENCY ${THE_DEPENDENCIES})
-    wb_copy_target_dependency_to_target_bin_dir(${THE_TARGET} ${THE_DEPENDENCY})
+    if (TARGET ${THE_DEPENDENCY})
+      wb_copy_target_dependency_to_target_bin_dir(${THE_TARGET} ${THE_DEPENDENCY})
+    endif()
 
     if ("${THE_DEPENDENCY}" STREQUAL "mimalloc")
-      set(WB_SHOULD_COPY_MIMALLOC ON)
+      set(WB_SHOULD_INJECT_MIMALLOC ON)
     endif()
   endforeach()
 
-  if (WB_SHOULD_COPY_MIMALLOC AND WB_OS_WIN AND MI_BUILD_SHARED)
-    # On windows copy the mimalloc redirection dll too.
-    add_custom_command(
-      TARGET ${THE_TARGET} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll" $<TARGET_FILE_DIR:${THE_TARGET}>
-      DEPENDS ${THE_DEPENDENCY}
-      COMMENT "Copy $<TARGET_FILE_DIR:mimalloc>/mimalloc-redirect.dll to $<TARGET_FILE_DIR:${THE_TARGET}> output directory"
-    )
-
+  if (WB_SHOULD_INJECT_MIMALLOC AND WB_OS_WIN AND MI_BUILD_SHARED)
     # Ensure mimalloc imported first for malloc/new redirection to work.
     add_custom_command(
       TARGET ${THE_TARGET} POST_BUILD

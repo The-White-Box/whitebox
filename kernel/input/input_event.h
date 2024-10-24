@@ -10,31 +10,37 @@
 #include <chrono>
 
 #include "base/high_resolution_clock.h"
+#include "build/compiler_config.h"
 
 namespace wb::kernel::input {
 
 /**
  * @brief Input time point.
  */
-using InputTimePoint =
-	std::chrono::time_point<wb::base::HighResolutionClock>;
+using InputTimePoint = std::chrono::time_point<wb::base::HighResolutionClock>;
 
-/**
- * @brief Input event.
- * @tparam TInput Input.
- */
-template <typename TInput>
-struct InputEvent {
-  /**
-   * @brief Input data.
-   */
-  TInput data;
+WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  // Padding may be added, it is ok.
+  WB_GCC_DISABLE_PADDED_WARNING()
 
   /**
-   * @brief Input data arrival time.
+   * @brief Input event.
+   * @tparam TInput Input.
    */
-  InputTimePoint create_time;
-};
+  template <typename TInput>
+  struct InputEvent {
+    /**
+     * @brief Input data.
+     */
+    TInput data;
+
+    /**
+     * @brief Input data arrival time.
+     */
+    InputTimePoint create_time;
+  };
+
+WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 
 }  // namespace wb::kernel::input
 

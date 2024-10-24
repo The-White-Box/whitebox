@@ -19,10 +19,6 @@ set(WB_BASE_LINK_DEPS
   absl::synchronization
   fmt
   g3log)
-set(WB_BASE_RUNTIME_DEPS
-  # Should be first as linker requires it.
-  mimalloc
-  g3log)
 set(WB_BASE_CXX_DEFINITIONS WB_BASE_DLL=1)
 
 if (WB_OS_WIN)
@@ -30,7 +26,7 @@ if (WB_OS_WIN)
   list(APPEND WB_BASE_LINK_OPTIONS "/DELAYLOAD:Avrt.dll")
   # Avrt for MMCSS support.
   # Delayimp for DLL delay load support.
-  list(APPEND WB_BASE_LINK_DEPS Avrt Delayimp)
+  list(APPEND WB_BASE_LINK_DEPS mimalloc-redirect Avrt Delayimp)
 endif()
 
 wb_cxx_shared_library(
@@ -42,7 +38,6 @@ wb_cxx_shared_library(
   CXX_DEFS      ${WB_BASE_CXX_DEFINITIONS}
   LINK_OPTS     ${WB_BASE_LINK_OPTIONS}
   LINK_DEPS     ${WB_BASE_LINK_DEPS}
-  RUNTIME_DEPS  ${WB_BASE_RUNTIME_DEPS}
 )
 
 if (WB_BUILD_TESTS)
@@ -57,14 +52,13 @@ if (WB_BUILD_TESTS)
 
   if (WB_OS_WIN)
     # _com_ptr_t support / winmm.
-    list(APPEND WB_BASE_TESTS_LINK_DEPS "comsuppw;Winmm")
+    list(APPEND WB_BASE_TESTS_LINK_DEPS mimalloc-redirect comsuppw Winmm)
   endif()
 
   wb_cxx_test_exe_for_target(
     TARGET ${WB_BASE_TARGET_NAME}
     SOURCE_DIR ${WB_BASE_SOURCE_DIR}
     LINK_DEPS ${WB_BASE_TESTS_LINK_DEPS}
-    RUNTIME_DEPS mimalloc
   )
 
   # Common stuff.

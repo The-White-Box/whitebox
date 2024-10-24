@@ -18,16 +18,7 @@ set(WB_WHITEBOX_UI_LINK_DEPS
   g3log
   wb::whitebox-base)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_UI_LINK_DEPS "SDL3-shared" "SDL3_image::SDL3_image")
-endif()
-
-set(WB_WHITEBOX_UI_RUNTIME_DEPS
-  # Should be first as linker requires it.
-  mimalloc
-  g3log
-  wb::whitebox-base)
-if (NOT WB_OS_WIN)
-  list(APPEND WB_WHITEBOX_UI_RUNTIME_DEPS "SDL3-shared" "SDL3_image::SDL3_image")
+  list(APPEND WB_WHITEBOX_UI_LINK_DEPS "SDL3::SDL3-shared" "SDL3_image::SDL3_image")
 else()
   # Delay load DLLs we use in rare call paths.
   list(APPEND WB_WHITEBOX_UI_LINK_OPTIONS
@@ -35,7 +26,7 @@ else()
   # Comctl32 for TaskDialogIndirect.
   # Delayimp for DLL delay load support.
   # Shell32 for ShellExecuteW.
-  list(APPEND WB_WHITEBOX_UI_LINK_DEPS Comctl32 Delayimp Shell32)
+  list(APPEND WB_WHITEBOX_UI_LINK_DEPS mimalloc-redirect Comctl32 Delayimp Shell32)
 endif()
 
 wb_cxx_shared_library(
@@ -47,5 +38,4 @@ wb_cxx_shared_library(
   CXX_DEFS      WB_WHITEBOX_UI_DLL=1
   LINK_OPTS     ${WB_WHITEBOX_UI_LINK_OPTIONS}
   LINK_DEPS     ${WB_WHITEBOX_UI_LINK_DEPS}
-  RUNTIME_DEPS  ${WB_WHITEBOX_UI_RUNTIME_DEPS}
 )

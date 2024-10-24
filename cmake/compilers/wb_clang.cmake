@@ -92,17 +92,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         -fno-rounding-math
         # Default, for clarity.  Compile code assuming that IEEE signaling NaNs
         # may NOT generate user-visible traps during floating-point operations.
-        # -fno-signaling-nans
+        -fno-signaling-nans
         # Allow optimizations for floating-point arithmetic that ignore the
         # signedness of zero.  IEEE arithmetic specifies the behavior of
         # distinct +0.0 and -0.0 values, which then prohibits simplification of
         # expressions such as x+0.0 or 0.0*x (even with -ffinite-math-only).
         -fno-signed-zeros
-        # Default, for clarity.  Disallow optimizations for floating-point
-        # arithmetic that
-        # (a) assume that arguments and results are valid and
-        # (b) may violate IEEE or ANSI standards.
-        -fno-unsafe-math-optimizations
         # Allow the reciprocal of a value to be used instead of dividing by the
         # value if this enables optimizations.  For example x / y can be
         # replaced with x * (1/y), which is useful if (1/y) is subject to common
@@ -110,6 +105,11 @@ function(wb_apply_compile_options_to_target THE_TARGET)
         # increases the number of flops operating on the value.
         -freciprocal-math
       >
+      # Default, for clarity.  Disallow optimizations for floating-point
+      # arithmetic that
+      # (a) assume that arguments and results are valid and
+      # (b) may violate IEEE or ANSI standards.
+      $<$<NOT:$<BOOL:${WB_CLANG_ENABLE_UNSAFE_MATH}>>:-fno-unsafe-math-optimizations>
       # Enable table-based thread cancellation.
       -fexceptions
       # String and character constants in UTF-8 during execution.
@@ -443,6 +443,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # All symbols are resolved at load time.  Combined with the previous flag,
       # this prevents more GOT overwrite attacks.
       $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,now>
+      # Allow target use shared libraries near the target runtime location.
+      $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-rpath,'$ORIGIN'>
 
       # Full ASLR for executables.
       $<$<AND:$<STREQUAL:$<TARGET_PROPERTY:${THE_TARGET},TYPE>,EXECUTABLE>,$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>>:

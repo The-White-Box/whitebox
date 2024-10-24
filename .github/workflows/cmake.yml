@@ -20,7 +20,7 @@ on:
       - 'assets/**'
 
 env:
-  GCC_VERSION: 11
+  GCC_VERSION: 13
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         build: [ debug, release ]
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
+        os: [ macos-15, ubuntu-24.04, windows-latest ]
 
     runs-on: ${{ matrix.os }}
 
@@ -42,42 +42,41 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies (Ubuntu)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y wayland-protocols \
-          pkg-config \
+          sudo apt-get install -y \
+          build-essential \
+          git \
+          make \
+          cmake \
           ninja-build \
+          pkg-config \
+          gnome-desktop-testing \
           libasound2-dev \
-          libdbus-1-dev \
-          libegl1-mesa-dev \
-          libgl1-mesa-dev \
-          libgles2-mesa-dev \
-          libglu1-mesa-dev \
-          libibus-1.0-dev \
           libpulse-dev \
-          libsdl2-2.0-0 \
+          libaudio-dev \
+          libjack-dev \
           libsndio-dev \
-          libudev-dev \
-          libwayland-dev \
-          libwayland-client++0 \
-          wayland-scanner++ \
-          libwayland-cursor++0 \
+          libusb-1.0-0-dev \
           libx11-dev \
-          libxcursor-dev \
           libxext-dev \
-          libxi-dev \
-          libxinerama-dev \
-          libxkbcommon-dev \
           libxrandr-dev \
+          libxcursor-dev \
+          libxfixes-dev \
+          libxi-dev \
           libxss-dev \
-          libxt-dev \
-          libxv-dev \
-          libxxf86vm-dev \
+          libwayland-dev \
+          libxkbcommon-dev \
           libdrm-dev \
           libgbm-dev \
-          libpulse-dev \
-          libpango1.0-dev
+          libgl1-mesa-dev \
+          libgles2-mesa-dev \
+          libegl1-mesa-dev \
+          libdbus-1-dev \
+          libibus-1.0-dev \
+          libudev-dev \
+          fcitx-libs-dev
           sudo apt-get install -y gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
           sudo update-alternatives \
           --install /usr/bin/gcc   gcc   /usr/bin/gcc-${{ env.GCC_VERSION }}     100 \
@@ -99,13 +98,13 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Build (MacOS)
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ matrix.os == 'macos-15' }}
         run: |
           cmake --preset x86_64-apple-darwin-${{ matrix.build }}
           cmake --build --preset x86_64-apple-darwin-${{ matrix.build }}
 
       - name: Build (Ubuntu)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           cmake --preset x86_64-unknown-linux-gcc-${{ matrix.build }}
           cmake --build --preset x86_64-unknown-linux-gcc-${{ matrix.build }}
@@ -117,12 +116,12 @@ jobs:
           cmake --build --preset x86_64-pc-windows-msvc-${{ matrix.build }}
 
       - name: Test (MacOS)
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ matrix.os == 'macos-15' }}
         run: |
           ctest --preset x86_64-apple-darwin-${{ matrix.build }}-test
 
       - name: Test (Ubuntu)
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
         run: |
           ctest --preset x86_64-unknown-linux-gcc-${{ matrix.build }}-test
 

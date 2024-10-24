@@ -29,11 +29,11 @@
 #error "This package requires Visual Studio 2022 version 17.8.3 or higher."
 #endif
 
-// We support gcc 12.0 and later.
+// We support gcc 13.0 and later.
 // This minimum will go up.
 #if defined(__GNUC__) && !defined(__clang__)
-#if __GNUC__ < 12
-#error "This package requires gcc 12.0 or higher."
+#if __GNUC__ < 13
+#error "This package requires gcc 13.0 or higher."
 #endif
 #endif
 

@@ -7,15 +7,15 @@
 #ifndef WHITEBOX_BASE_DEPS_SDL_SURFACE_H_
 #define WHITEBOX_BASE_DEPS_SDL_SURFACE_H_
 
-#include "base/macroses.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/config.h"
 #include "base/deps/sdl/pixel_format.h"
+#include "base/deps/sdl_image/init.h"
+#include "base/macroses.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
-#include "deps/sdl/include/SDL_surface.h"
-#include "deps/sdl_image/SDL_image.h"
+#include "deps/sdl/include/SDL3/SDL_surface.h"
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
 namespace wb::sdl {
@@ -103,7 +103,7 @@ class Surface {
 
   ~Surface() noexcept {
     if (surface_) {
-      ::SDL_FreeSurface(surface_);
+      ::SDL_DestroySurface(surface_);
       surface_ = nullptr;
     }
   }
@@ -129,8 +129,10 @@ class Surface {
    * @return nothing.
    */
   Surface(int width, int height, int depth, const SurfaceMask &mask) noexcept
-      : surface_{::SDL_CreateRGBSurface(0U, width, height, depth, mask.red,
-                                        mask.green, mask.blue, mask.alpha)},
+      : surface_{::SDL_CreateSurface(
+            width, height,
+            SDL_GetPixelFormatForMasks(depth, mask.red, mask.green, mask.blue,
+                                       mask.alpha))},
         init_rc_{surface_ ? error::Success() : error::Failure()} {
     G3DCHECK(!!surface_) << "SDL_CreateRGBSurface(" << width << ", " << height
                          << ", " << depth
@@ -157,7 +159,7 @@ class Surface {
    * @return nothing.
    */
   Surface(Surface &source, const PixelFormat &format) noexcept
-      : surface_{::SDL_ConvertSurface(source.surface_, format.format_, 0U)},
+      : surface_{::SDL_ConvertSurface(source.surface_, format.format_->format)},
         init_rc_{surface_ ? error::Success() : error::Failure()} {
     G3DCHECK(!!surface_) << "SDL_ConvertSurface(" << format.format_
                          << ") failed with error: " << error_code();

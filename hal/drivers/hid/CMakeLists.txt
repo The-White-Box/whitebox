@@ -17,11 +17,10 @@ set(WB_HAL_HID_DRIVER_LINK_DEPS
   absl::strings
   g3log
   wb::whitebox-base)
-set(WB_HAL_HID_DRIVER_RUNTIME_DEPS
-  # Should be first as linker requires it.
-  mimalloc
-  g3log
-  wb::whitebox-base)
+
+if (WB_OS_WIN)
+  list(APPEND WB_HAL_HID_DRIVER_LINK_DEPS mimalloc-redirect)
+endif()
 
 wb_cxx_shared_library(
   TARGET        ${WB_HAL_HID_DRIVER_TARGET_NAME}
@@ -32,5 +31,4 @@ wb_cxx_shared_library(
   CXX_DEFS      WB_HAL_HID_DRIVER_DLL=1
   LINK_OPTS     ${WB_HAL_HID_DRIVER_LINK_OPTIONS}
   LINK_DEPS     ${WB_HAL_HID_DRIVER_LINK_DEPS}
-  RUNTIME_DEPS  ${WB_HAL_HID_DRIVER_RUNTIME_DEPS}
 )

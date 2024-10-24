@@ -10,7 +10,7 @@
 #include "base/deps/sdl/config.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
-#include "deps/sdl/include/SDL_mouse.h"
+#include "deps/sdl/include/SDL3/SDL_mouse.h"
 WB_END_SDL_WARNING_OVERRIDE_SCOPE()
 
 #endif  // !WHB_BASE_DEPS_SDL_MOUSE_H_

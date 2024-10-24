@@ -297,7 +297,7 @@
  * read any non-volatile objects, and modify the value of objects in a way that
  * does not affect their return value or the observable state of the program.
  */
-#define WB_ATTRIBUTE_PURE __attribute__((pure))
+#define WB_ATTRIBUTE_PURE [[gnu::pure]]
 
 #else  // defined(WB_COMPILER_GCC) || defined(WB_COMPILER_CLANG)
 
@@ -713,6 +713,12 @@
   _Pragma("GCC diagnostic ignored \"-Wmissing-noreturn\"")
 
 /*
+ * @brief Disables GCC / Clang pessimizing move warning.
+ */
+#define WB_GCC_DISABLE_PESSIMIZING_MOVE() \
+  _Pragma("GCC diagnostic ignored \"-Wpessimizing-move\"")
+
+/*
  * @brief Disables GCC / Clang sign-conversion warning.
  */
 #define WB_GCC_DISABLE_SIGN_CONVERSION_WARNING() \
@@ -878,6 +884,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_MISSING_NORETURN_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_PESSIMIZING_MOVE()
 
 /*
  * @brief Do nothing.

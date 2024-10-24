@@ -138,7 +138,7 @@ class ScopedMutex {
     const std::error_code rc{
         get_error(::pthread_mutex_init(mutex, mutex_attribute))};
     return !rc ? std2::result<ScopedMutex>{ScopedMutex{*mutex}}
-               : std2::result<ScopedMutex>{rc};
+               : std2::result<ScopedMutex>{std::unexpect, rc};
   }
 };
 

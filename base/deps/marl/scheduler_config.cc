@@ -56,12 +56,15 @@ class WhiteboxThreadStartState::Impl final {
     G3PLOGE2_IF(WARNING, scoped_thread_name_.error_or(std2::ok_code))
         << "Can't rename worker thread #" << workerId
         << ", continue with default name.";
+
+#ifdef WB_OS_WIN
     G3PLOGE2_IF(WARNING, scoped_thread_error_mode_.error_or(std2::ok_code))
         << "Can't set reaction to serious system errors for worker thread #"
         << workerId << ", continue with default reaction.";
     G3PLOGE2_IF(WARNING, scoped_thread_com_initializer_.error_or(std2::ok_code))
         << "Component Object Model initialization failed for worker thread #"
         << workerId << ", continue without COM.";
+#endif
   }
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(Impl);
@@ -93,6 +96,8 @@ const std2::native_thread_name
 
 WhiteboxThreadStartState::WhiteboxThreadStartState(int workerId) noexcept
     : impl_{std::make_unique<Impl>(workerId)} {}
+
+WhiteboxThreadStartState::~WhiteboxThreadStartState() noexcept = default;
 
 WB_BASE_API std::unique_ptr<::marl::Thread::StartState> make_thread_start_state(
     int workerId) {

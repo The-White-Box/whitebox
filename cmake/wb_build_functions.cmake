@@ -255,8 +255,6 @@ function(wb_cxx_shared_library)
   endif()
 
   set(runtime_dependencies  ${args_RUNTIME_DEPS})
-  wb_copy_all_target_dependencies_to_target_bin_dir(${target_name}
-    "${runtime_dependencies}")
 endfunction(wb_cxx_shared_library)
 
 # Creates GTest test executable with tests from target.
@@ -322,7 +320,7 @@ function(wb_cxx_test_exe_for_target)
   set(tests_runtime_dependencies "")
   list(APPEND tests_runtime_dependencies ${target_runtime_dependencies})
   wb_copy_all_target_dependencies_to_target_bin_dir(${tests_target_name}
-    "${tests_runtime_dependencies}")
+    "${tests_link_dependencies}")
 
   include(GoogleTest)
   gtest_discover_tests(${tests_target_name})

@@ -25,7 +25,7 @@ WB_MSVC_BEGIN_WARNING_OVERRIDE_SCOPE()
       : public ::marl::Thread::StartState {
    public:
     WhiteboxThreadStartState(int workerId) noexcept;
-    virtual ~WhiteboxThreadStartState() noexcept = default;
+    virtual ~WhiteboxThreadStartState() noexcept;
 
     WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(WhiteboxThreadStartState);
 

@@ -57,11 +57,10 @@ using KeyboardNewResult = base::std2::result<base::un<Keyboard>>;
 Keyboard::Keyboard(_In_ HWND window) noexcept
     : window_{window},
       error_code_{RegisterRawInputDevices(
-          // Disable legacy messages for performance (https://learn.microsoft.com/en-us/windows/win32/inputdev/keyboard-input-notifications).
           // Disable app hotkeys results in Windows keys passed to the app as we
           // need (or Win keys will invoke standart Windows behavior and
           // interrupt gameplay).
-          CreateKeyboardDeviceDefinition(window, RIDEV_NOLEGACY | RIDEV_NOHOTKEYS))} {
+          CreateKeyboardDeviceDefinition(window, RIDEV_NOHOTKEYS))} {
   G3DPCHECK_E(!error_code(), error_code())
       << "Unable to register raw keyboard handler.";
 }

@@ -67,7 +67,7 @@ class ScopedMutexAttribute {
     const std::error_code rc{get_error(::pthread_mutexattr_init(&attribute))};
     return !rc ? std2::result<ScopedMutexAttribute>{ScopedMutexAttribute{
                      attribute}}
-               : std2::result<ScopedMutexAttribute>{rc};
+               : std2::result<ScopedMutexAttribute>{std::unexpect, rc};
   }
 
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(ScopedMutexAttribute);

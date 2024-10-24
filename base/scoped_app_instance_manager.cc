@@ -94,22 +94,20 @@ CreateProcessMutex(const char* app_description) noexcept {
         mutex_or_error) noexcept {
   using namespace wb::base;
 
-  if (std2::get_result(mutex_or_error)) [[likely]] {
+  if (mutex_or_error.has_value()) [[likely]] {
     // Shared process mutex is locked by current process, will be unlocked
     // on process end.
     // TODO(dimhotepus): Ensure ScopedSharedMemoryObject freed on crash.
     return AppInstanceStatus::kNoOtherInstances;
   }
 
-  const auto* error = std2::get_error(mutex_or_error);
-  G3DCHECK(!!error);
-
-  if (error->value() == EEXIST) {
+  const auto error = mutex_or_error.error();
+  if (error.value() == EEXIST) {
     // Mutex already exists means locked by other instance.
     return AppInstanceStatus::kAlreadyRunning;
   }
 
-  G3PLOG_E(WARNING, *error)
+  G3PLOG_E(WARNING, error)
       << "Unable to determine either app already running or "
          "not.  Mutex creation failed.";
   return AppInstanceStatus::kUnableToDetermine;

@@ -131,8 +131,9 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
 
   const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
       framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
-  if (const auto* rc = std2::get_error(boot_manager_load_result)) [[unlikely]] {
-    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
+  if (const std::error_code& error =
+          boot_manager_load_result.error_or(std2::ok_code)) [[unlikely]] {
+    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, error)
         << "Can't load boot manager '" << framework_path.get() << ".";
   }
 
@@ -156,6 +157,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
       std::get<BootManagerMainFunction>(bootmgr_entry_result);
 
   wb::apps::flags::AssetsPath assets_path{absl::GetFlag(FLAGS_assets_path)};
+
   const std::uint32_t attempts_to_retry_allocate_memory{
       absl::GetFlag(FLAGS_attempts_to_retry_allocate_memory)};
   const wb::apps::flags::WindowWidth main_window_width{

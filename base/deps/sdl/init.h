@@ -23,16 +23,14 @@ namespace wb::sdl {
  */
 enum class SDLInitializerFlags : Uint32 {
   kNone = 0U,
-  kTimer = SDL_INIT_TIMER,
   kAudio = SDL_INIT_AUDIO,
   kVideo = SDL_INIT_VIDEO,
   kJoystick = SDL_INIT_JOYSTICK,
   kHaptic = SDL_INIT_HAPTIC,
-  kGameController = SDL_INIT_GAMECONTROLLER,
+  kGamepad = SDL_INIT_GAMEPAD,
   kEvents = SDL_INIT_EVENTS,
   kSensor = SDL_INIT_SENSOR,
-  KNoParachute = SDL_INIT_NOPARACHUTE,
-  KEverything = SDL_INIT_EVERYTHING
+  kCamera = SDL_INIT_CAMERA
 };
 
 /**
