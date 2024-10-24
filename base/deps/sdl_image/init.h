@@ -13,15 +13,19 @@
 #include "base/deps/fmt/format.h"
 #include "base/deps/g3log/g3log.h"
 #include "base/deps/sdl/base.h"
+#include "base/deps/sdl_image/config.h"
 #include "base/macroses.h"
-#include "deps/sdl_image/SDL_image.h"
+
+WB_BEGIN_SDL_IMAGE_WARNING_OVERRIDE_SCOPE()
+#include "deps/sdl_image/include/SDL3_image/SDL_image.h"
+WB_END_SDL_IMAGE_WARNING_OVERRIDE_SCOPE()
 
 namespace wb::sdl_image {
 
 /**
  * SDL image initializer flags.
  */
-enum class SDLImageInitType : int;
+enum class SDLImageInitType : IMG_InitFlags;
 }  // namespace wb::sdl_image
 
 /**
@@ -39,7 +43,7 @@ namespace wb::sdl_image {
 /**
  * SDL image initializer flags.
  */
-enum class SDLImageInitType : int {
+enum class SDLImageInitType : IMG_InitFlags {
   kNone = 0x0,
   kJpg = IMG_INIT_JPG,
   kPng = IMG_INIT_PNG,
@@ -102,7 +106,7 @@ class SDLImageInit {
   /**
    * Actual returned by SDl flags.
    */
-  int actual_flags_;
+  IMG_InitFlags actual_flags_;
   WB_ATTRIBUTE_UNUSED_FIELD std::byte
       pad_[sizeof(char *) - sizeof(actual_flags_)];  //-V730_NOINIT
   /**
@@ -128,8 +132,8 @@ class SDLImageInit {
    * @return Error code.
    */
   [[nodiscard]] static sdl::error Initialize(SDLImageInitType expected_flags,
-                                             int actual_flags) noexcept {
-    const int ex_flags{base::underlying_cast(expected_flags)};
+                                             IMG_InitFlags actual_flags) noexcept {
+    const IMG_InitFlags ex_flags{base::underlying_cast(expected_flags)};
 
     if ((ex_flags & actual_flags) == ex_flags) {
       return sdl::error::Success();
@@ -200,7 +204,7 @@ FMT_BEGIN_NAMESPACE
 template <>
 struct formatter<wb::sdl_image::SDLImageInitType> : formatter<std::string> {
   template <typename FormatContext>
-  auto format(wb::sdl_image::SDLImageInitType type, FormatContext &ctx) {
+  auto format(wb::sdl_image::SDLImageInitType type, FormatContext &ctx) const {
     std::stringstream s{std::ios_base::out};
     s << type;
     return fmt::formatter<std::string>::format(s.str(), ctx);

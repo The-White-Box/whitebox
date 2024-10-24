@@ -47,9 +47,9 @@ set(WB_HALF_LIFE2_RUNTIME_DEPS
   wb::whitebox-kernel
   wb::whitebox-ui)
 if (NOT WB_OS_WIN)
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS SDL3-shared)
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS "SDL3::SDL3-shared" "SDL3_image::SDL3_image")
   list(APPEND WB_HALF_LIFE2_RUNTIME_DEPS
-    "SDL3-shared" "SDL3_image::SDL3_image")
+    "SDL3::SDL3-shared" "SDL3_image::SDL3_image")
 endif()
 
 if (WB_OS_WIN)

@@ -18,26 +18,6 @@ if (WB_BUILD_TESTS)
   enable_testing()
 endif()
 
-# Compiler id for Apple Clang is now AppleClang.
-if (POLICY CMP0025)
-  cmake_policy(SET CMP0025 NEW)
-endif()
-
-# Include file check macros honor CMAKE_REQUIRED_LIBRARIES.
-if (POLICY CMP0075)
-  cmake_policy(SET CMP0075 NEW)
-endif()
-
-# option() honor variables.
-if (POLICY CMP0077)
-  cmake_policy(SET CMP0077 NEW)
-endif()
-
-# target_link_libraries() allows use with targets in other directories.
-if (POLICY CMP0079)
-  cmake_policy(SET CMP0079 NEW)
-endif()
-
 # Setup root directory of the WhiteBox project.
 set(WB_ROOT_DIR "${CMAKE_SOURCE_DIR}" CACHE STRING
   "Directory root of the WhiteBox project.")
@@ -409,7 +389,8 @@ foreach(wb_abseil_target_name ${wb_all_abseil_targets})
         target_compile_options(
           ${wb_abseil_target_name}
           PRIVATE
-            /EH${WB_MSVC_EXCEPTION_HANDLING_MODEL}
+            # Uses std and hence exceptions are required.
+            /EHsc
             $<$<BOOL:${WB_MSVC_ENABLE_GUARD_FOR_EH_CONTINUATION}>:/guard:ehcont>
         )
         # LNK2047: module contains C++ EH or complex EH metadata but was not
@@ -506,6 +487,8 @@ if (MI_SECURE)
   # Inform we has mimalloc in secure mode.
   add_definitions(-DWB_MI_SECURE)
 endif()
+# SDL expects mimalloc to be exported.
+export(TARGETS mimalloc NAMESPACE "mi::" FILE "miSharedTargets.cmake")
 
 # SDL3 / sdl_image.
 
@@ -524,6 +507,11 @@ if (NOT WB_OS_WIN)
   set(PNG_SHARED ON CACHE BOOL "Build shared lib" FORCE)
   set(PNG_STATIC OFF CACHE BOOL "Build static lib" FORCE)
   set(PNG_TESTS  OFF CACHE BOOL "Build libpng tests" FORCE)
+
+  # These causes errors during CMake configure.
+  set(SDLIMAGE_AVIF  OFF CACHE BOOL "Enable AVIF support" FORCE)
+  set(SDLIMAGE_TIF   OFF CACHE BOOL "Enable TIFF support" FORCE)
+  set(SDLIMAGE_WEBP  OFF CACHE BOOL "Enable WEBP support" FORCE)
 
   add_subdirectory(deps/sdl_image)
 endif()

@@ -10,7 +10,6 @@
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
 #include "base/deps/sdl/surface.h"
-#include "base/deps/sdl/syswm.h"
 #include "base/deps/sdl/version.h"
 #include "base/macroses.h"
 #include "base/std2/cstring_ext.h"
@@ -20,11 +19,10 @@ namespace wb::sdl {
 /**
  * @brief SDL window flags.
  */
-enum class WindowFlags : Uint32 {
+enum class WindowFlags : SDL_WindowFlags {
   kNone = 0U,
 
   kFullscreen = SDL_WINDOW_FULLSCREEN, /**< fullscreen window */
-  kFullscreenDesktop = SDL_WINDOW_FULLSCREEN_DESKTOP,
 
   kBorderless = SDL_WINDOW_BORDERLESS, /**< no window decoration */
   kResizable = SDL_WINDOW_RESIZABLE,   /**< window can be resized */
@@ -35,13 +33,10 @@ enum class WindowFlags : Uint32 {
   kUseVulkan = SDL_WINDOW_VULKAN, /**< window usable for Vulkan surface */
   kUseMetal = SDL_WINDOW_METAL,   /**< window usable for Metal view */
 
-  kShown = SDL_WINDOW_SHOWN,   /**< window is visible */
   kHidden = SDL_WINDOW_HIDDEN, /**< window is not visible */
 
   kAlwaysOnTop =
       SDL_WINDOW_ALWAYS_ON_TOP, /**< window should always be above others */
-  kSkipTaskbar =
-      SDL_WINDOW_SKIP_TASKBAR, /**< window should not be added to the taskbar */
 
   kUtilityWindow =
       SDL_WINDOW_UTILITY, /**< window should be treated as a utility window */
@@ -49,9 +44,7 @@ enum class WindowFlags : Uint32 {
   kPopupMenu =
       SDL_WINDOW_POPUP_MENU, /**< window should be treated as a popup menu */
 
-  kInputGrabbed = SDL_WINDOW_INPUT_GRABBED, /**< equivalent to
-                        SDL_WINDOW_MOUSE_GRABBED for compatibility */
-  kInputHasFocus = SDL_WINDOW_INPUT_FOCUS,  /**< window has input focus */
+  kInputHasFocus = SDL_WINDOW_INPUT_FOCUS, /**< window has input focus */
 
   kMouseGrabbed =
       SDL_WINDOW_MOUSE_GRABBED, /**< window has grabbed mouse input */
@@ -62,9 +55,9 @@ enum class WindowFlags : Uint32 {
   kKeyboardGrabbed =
       SDL_WINDOW_KEYBOARD_GRABBED, /**< window has grabbed keyboard input */
 
-  kExternalWindow = SDL_WINDOW_FOREIGN, /**< window not created by SDL */
   kAllowHighDpi =
-      SDL_WINDOW_ALLOW_HIGHDPI, /**< window should be created in high-DPI mode
+      SDL_WINDOW_HIGH_PIXEL_DENSITY, /**< window should be created in high-DPI
+       mode
        if supported.  On macOS NSHighResolutionCapable must be set true in the
        application's Info.plist for this to have any effect. */
 };
@@ -110,13 +103,25 @@ class Window {
    */
   static result<Window> New(const char *title, int x, int y, int width,
                             int height, WindowFlags flags) noexcept {
-    Window window{::SDL_CreateWindow(title, x, y, width, height,
-                                     base::underlying_cast(flags)),
-                  flags};
+    SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, title);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, x);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, y);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_HEIGHT_NUMBER, height);
+    // For window flags you should use separate window creation properties,
+    // but for easier migration from SDL2 you can use the following:
+    SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_FLAGS_NUMBER,
+                          static_cast<Sint64>(base::underlying_cast(flags)));
+    Window window{::SDL_CreateWindowWithProperties(props), flags};
+    SDL_DestroyProperties(props);
+
+    const wb::sdl::error rc{error::Failure()};
+
     G3DCHECK(!!window.window_)
-        << "SDL_CreateWindow failed with error: " << error::Failure();
+        << "SDL_CreateWindow failed with error: " << rc;
     return window.window_ ? result<Window>{std::move(window)}
-                          : result<Window>{error::Failure()};
+                          : result<Window>{rc};
   }
   Window(Window &&w) noexcept : window_{w.window_}, flags_{w.flags_} {
     w.window_ = nullptr;
@@ -134,22 +139,6 @@ class Window {
       ::SDL_DestroyWindow(window_);
       window_ = nullptr;
     }
-  }
-
-  /**
-   * @brief Get platform-specific window manager information structure.
-   * @param platform_info Platform-specific window information.
-   * @return Error if any.
-   */
-  [[nodiscard]] error GetPlatformInfo(
-      ::SDL_SysWMinfo &platform_info) const noexcept {
-    G3DCHECK(!!window_);
-
-    base::std2::BitwiseMemset(platform_info, 0);
-    platform_info.version = GetLinkTimeVersion();
-
-    return error::FromReturnBool(
-        ::SDL_GetWindowWMInfo(window_, &platform_info));
   }
 
   /**
@@ -174,14 +163,14 @@ class Window {
 
     ::SDL_SetWindowMinimumSize(window_, min_width, min_height);
   }
-  
+
   /**
    * Toggles window visibility.
    * @param should_show Show window or not.
    */
   void Toggle(bool should_show) const noexcept {
     G3DCHECK(!!window_);
-    
+
     if (should_show) {
       ::SDL_ShowWindow(window_);
     } else {
@@ -198,9 +187,6 @@ class Window {
    * @brief SDL window flags.
    */
   WindowFlags flags_;
-
-  WB_ATTRIBUTE_UNUSED_FIELD
-  std::array<std::byte, sizeof(char *) - sizeof(flags_)> pad_;
 
   /**
    * Create SDL window.

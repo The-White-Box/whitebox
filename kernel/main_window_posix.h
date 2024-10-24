@@ -48,16 +48,6 @@ class MainWindow {
     return *this;
   }
 
-  /**
-   * Get underlying window UI platform info.
-   * @param platform_info Platform info.
-   * @return error if any.
-   */
-  [[nodiscard]] sdl::error GetPlatformInfo(
-      ::SDL_SysWMinfo& platform_info) const noexcept {
-    return window_.GetPlatformInfo(platform_info);
-  }
-
   WB_NO_COPY_CTOR_AND_ASSIGNMENT(MainWindow);
 
  private:

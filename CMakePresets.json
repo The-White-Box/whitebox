@@ -65,7 +65,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++23",
+        // Unfortunately AppleClang doesn't support c++23 (10/25/2024).
+        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++20",
         "WB_CLANG_LINKER_TYPE": "ld",
         "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
       }

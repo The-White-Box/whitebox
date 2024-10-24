@@ -20,7 +20,7 @@ on:
       - 'assets/**'
 
 env:
-  GCC_VERSION: 11
+  GCC_VERSION: 12
 
 jobs:
   build:
