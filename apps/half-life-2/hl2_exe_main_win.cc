@@ -231,25 +231,8 @@ int WINAPI WinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE,
   using namespace wb::base;
   using namespace wb::base::win;
 
-#ifdef _DEBUG
-  // Simplifies debugging experience, no need to sign targets.
-  // Should never use GetCommandLine{A, W} anywhere in the app, or abstraction
-  // leaks.
-  char* full_command_line_ansi{::GetCommandLineA()};
-  std::string debug_full_command_line_ansi{full_command_line_ansi};
-  debug_full_command_line_ansi.append(
-      " --insecure_allow_unsigned_module_target");
-  full_command_line_ansi = debug_full_command_line_ansi.data();
-
-  wchar_t* full_command_line_wide{::GetCommandLineW()};
-  std::wstring debug_full_command_line_wide{full_command_line_wide};
-  debug_full_command_line_wide.append(
-      L" --insecure_allow_unsigned_module_target");
-  full_command_line_wide = debug_full_command_line_wide.data();
-#else
   const char* full_command_line_ansi{::GetCommandLineA()};
   const wchar_t* full_command_line_wide{::GetCommandLineW()};
-#endif
 
   // Initialize g3log logging library first as logs are used extensively.
   const deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
