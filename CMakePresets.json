@@ -142,7 +142,10 @@
       "description": "Linux x86_64 GCC Debug",
       "inherits": "x86_64-unknown-linux-gcc-base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WB_GCC_ENABLE_ADDRESS_SANITIZER": "ON",
+        "WB_GCC_ENABLE_LEAK_SANITIZER": "ON",
+        "WB_GCC_ENABLE_UB_SANITIZER": "ON"
       }
     },
     {
@@ -160,7 +163,10 @@
       "description": "Linux x86_64 Clang Debug",
       "inherits": "x86_64-unknown-linux-clang-base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WB_CLANG_ENABLE_ADDRESS_SANITIZER": "ON",
+        "WB_CLANG_ENABLE_LEAK_SANITIZER": "ON",
+        "WB_CLANG_ENABLE_UB_SANITIZER": "ON"
       }
     },
     {
@@ -197,7 +203,8 @@
       "inherits": "x86_64-pc-windows-msvc-base",
       "cacheVariables": {
         "DEBUG_BREAK_AT_FATAL_SIGNAL": "ON",
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WB_MSVC_ENABLE_ADDRESS_SANITIZER": "ON"
       }
     },
     {

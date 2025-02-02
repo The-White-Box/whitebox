@@ -19,6 +19,10 @@ option(WB_GCC_ENABLE_UNSAFE_MATH                   "Enable unsafe fast-math mode
 option(WB_GCC_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
 option(WB_GCC_ENABLE_WARNING_WUNDEF                "If enabled, use -Wundef." ON)
 option(WB_GCC_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the GCC compiler." ON)
+option(WB_GCC_ENABLE_ADDRESS_SANITIZER             "If enabled, pass -fsanitize=address to the GCC compiler." OFF)
+option(WB_GCC_ENABLE_LEAK_SANITIZER                "If enabled, pass -fsanitize=leak to the GCC compiler. The option cannot be combined with -fsanitize=thread." OFF)
+option(WB_GCC_ENABLE_UB_SANITIZER                  "If enabled, pass -fsanitize=undefined to the GCC compiler." OFF)
+option(WB_GCC_ENABLE_THREAD_SANITIZER              "If enabled, pass -fsanitize=thread to the GCC compiler. The option cannot be combined with -fsanitize=address or -fsanitize=leak." OFF)
 
 wb_define_strings_option(WB_GCC_DEFINE__FORTIFY_SOURCE
   "Define _FORTIFY_SOURCE macro to a positive integer to control which source fortification is enabled."
@@ -69,6 +73,19 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   else()
     set(APPLY_CLANG_TIDY OFF)
   endif()
+
+  # Check and configure sanitizers.
+  wb_check_sanitizers_configuration_valid(${WB_ROOT_DIR} 
+    ${WB_GCC_ENABLE_ADDRESS_SANITIZER}
+    ${WB_GCC_ENABLE_LEAK_SANITIZER}
+    ${WB_GCC_DEFINE__FORTIFY_SOURCE}
+    # Do not force ASAN work for fortified sources.
+    OFF
+    # No memory sanitizer on GCC.
+    OFF
+    ${WB_GCC_ENABLE_THREAD_SANITIZER}
+    ${WB_GCC_ENABLE_UB_SANITIZER}
+  )
 
   target_compile_options(${THE_TARGET}
     PRIVATE
@@ -361,6 +378,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
       # Build in the requested version of C++.
       -std=${WB_GCC_CXX_LANGUAGE_VERSION}
+
+      ## Sanitizers.
+      $<$<BOOL:${WB_GCC_ENABLE_ADDRESS_SANITIZER}>:-fsanitize=address>
+      $<$<BOOL:${WB_GCC_ENABLE_LEAK_SANITIZER}>:-fsanitize=leak>
+      $<$<BOOL:${WB_GCC_ENABLE_UB_SANITIZER}>:-fsanitize=undefined>
+      $<$<BOOL:${WB_GCC_ENABLE_THREAD_SANITIZER}>:-fsanitize=thread>
 
       ## Debug configuration
       $<$<CONFIG:DEBUG>:

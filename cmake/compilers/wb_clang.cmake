@@ -18,6 +18,11 @@ option(WB_CLANG_ENABLE_EXCEPTIONS                    "Enable exceptions." ON)
 option(WB_CLANG_ENABLE_UNSAFE_MATH                   "Enable unsafe fast-math mode.  This option lets the compiler make aggressive, potentially-lossy assumptions about floating-point math.  See https://gcc.gnu.org/wiki/FloatingPointMath" OFF)
 option(WB_CLANG_ENABLE_LOOPS_UNROLLING               "If enabled, use -funroll-loops for Release builds." OFF)
 option(WB_CLANG_THREAT_COMPILER_WARNINGS_AS_ERRORS   "If enabled, pass -Werror to the Clang compiler." ON)
+option(WB_CLANG_ENABLE_ADDRESS_SANITIZER             "If enabled, pass -fsanitize=address to the Clang compiler." OFF)
+option(WB_CLANG_ENABLE_LEAK_SANITIZER                "If enabled, pass -fsanitize=leak to the Clang compiler. The option cannot be combined with -fsanitize=thread." OFF)
+option(WB_CLANG_ENABLE_UB_SANITIZER                  "If enabled, pass -fsanitize=undefined to the Clang compiler." OFF)
+option(WB_CLANG_ENABLE_MEMORY_SANITIZER              "If enabled, pass -fsanitize=memory to the Clang compiler. Requires ALL code including libc(pp) build with it to prevent false positives." OFF)
+option(WB_CLANG_ENABLE_THREAD_SANITIZER              "If enabled, pass -fsanitize=thread to the Clang compiler. The option cannot be combined with -fsanitize=address or -fsanitize=leak." OFF)
 
 wb_define_strings_option(WB_CLANG_DEFINE__FORTIFY_SOURCE
   "Define _FORTIFY_SOURCE macro to a positive integer to control which source fortification is enabled."
@@ -68,6 +73,18 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
   wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_CLANG_CXX_LANGUAGE_VERSION})
+
+  # Check and configure sanitizers.
+  wb_check_sanitizers_configuration_valid(${WB_ROOT_DIR} 
+    ${WB_CLANG_ENABLE_ADDRESS_SANITIZER}
+    ${WB_CLANG_ENABLE_LEAK_SANITIZER}
+    ${WB_CLANG_DEFINE__FORTIFY_SOURCE}
+    # Do not force ASAN work for fortified sources.
+    OFF
+    ${WB_CLANG_ENABLE_MEMORY_SANITIZER}
+    ${WB_CLANG_ENABLE_THREAD_SANITIZER}
+    ${WB_CLANG_ENABLE_UB_SANITIZER}
+  )
 
   target_compile_options(${THE_TARGET}
     PRIVATE
@@ -360,6 +377,13 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # Build in the requested version of C++.
       -std=${WB_CLANG_CXX_LANGUAGE_VERSION}
 
+      ## Sanitizers.
+      $<$<BOOL:${WB_CLANG_ENABLE_ADDRESS_SANITIZER}>:-fsanitize=address>
+      $<$<BOOL:${WB_CLANG_ENABLE_LEAK_SANITIZER}>:-fsanitize=leak>
+      $<$<BOOL:${WB_CLANG_ENABLE_UB_SANITIZER}>:-fsanitize=undefined>
+      $<$<BOOL:${WB_CLANG_ENABLE_MEMORY_SANITIZER}>:-fsanitize=memory>
+      $<$<BOOL:${WB_CLANG_ENABLE_THREAD_SANITIZER}>:-fsanitize=thread>
+
       ## Debug configuration
       $<$<CONFIG:DEBUG>:
         $<$<BOOL:${WB_CLANG_DEBUG_OPTIMIZATION_LEVEL}>:${WB_CLANG_DEBUG_OPTIMIZATION_LEVEL}>
@@ -415,7 +439,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       ## Security.
       # Compile + run-time buffer overflow detection.
       $<$<BOOL:${WB_CLANG_DEFINE__FORTIFY_SOURCE}>:
-        # TODO: ASAN doesn't like this! Disable if ASAN is present.
+        # ASAN doesn't like this! Disable if ASAN is present.
         _FORTIFY_SOURCE=${WB_CLANG_DEFINE__FORTIFY_SOURCE}
       >
 

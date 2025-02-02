@@ -474,9 +474,21 @@ endif()
 
 set(MI_BUILD_SHARED ON CACHE BOOL "Build shared library" FORCE)
 set(MI_BUILD_STATIC OFF CACHE BOOL "Build static library" FORCE)
-if (WB_MSVC_ENABLE_ADDRESS_SANITIZER)
+if (WB_MSVC_ENABLE_ADDRESS_SANITIZER OR
+    WB_GCC_ENABLE_ADDRESS_SANITIZER OR
+    WB_CLANG_ENABLE_ADDRESS_SANITIZER)
   # Enable AddressSanitizer support.
   set(MI_TRACK_ASAN ON)
+endif()
+if (WB_GCC_ENABLE_UB_SANITIZER OR
+    WB_CLANG_ENABLE_UB_SANITIZER)
+  # Enable Undefined Behavior Sanitizer support.
+  set(MI_DEBUG_UBSAN ON)
+endif()
+if (WB_GCC_ENABLE_THREAD_SANITIZER OR
+    WB_CLANG_ENABLE_THREAD_SANITIZER)
+  # Enable Thread Sanitizer support.
+  set(MI_DEBUG_TSAN ON)
 endif()
 add_subdirectory("deps/mimalloc" EXCLUDE_FROM_ALL)
 if (WB_OS_WIN)

@@ -3,16 +3,19 @@
 # found in the LICENSE file.
 
 function(wb_check_sanitizers_configuration_valid ROOT_DIRECTORY_PATH
-    ENABLE_ASAN_LSAN FORTIFY_SOURCE_DEFINED FORCE_ENABLE_ASAN_LSAN
+    ENABLE_ASAN
+    ENABLE_LSAN
+    FORTIFY_SOURCE_DEFINED
+    FORCE_ENABLE_ASAN
     ENABLE_MSAN
     ENABLE_TSAN
     ENABLE_UBSAN)
-  if (${${ENABLE_ASAN_LSAN}})
-    if ("${${FORTIFY_SOURCE_DEFINED}}" AND NOT ${${FORCE_ENABLE_ASAN_LSAN}})
+  if (${${ENABLE_ASAN}})
+    if ("${${FORTIFY_SOURCE_DEFINED}}" AND NOT ${${FORCE_ENABLE_ASAN}})
       # ASan and -D_FORTIFY_SOURCE don't work well.  Wait till fixed in https://github.com/google/sanitizers/issues/247
       message(FATAL_ERROR
-          "[sanitizers]: ${ENABLE_ASAN_LSAN} and ${FORTIFY_SOURCE_DEFINED} may be not compatible.  "
-          "Please, use either ${ENABLE_ASAN_LSAN} or ${FORTIFY_SOURCE_DEFINED}, or set ${FORCE_ENABLE_ASAN_LSAN} to force ASan "
+          "[sanitizers]: ${ENABLE_ASAN} and ${FORTIFY_SOURCE_DEFINED} may be not compatible.  "
+          "Please, use either ${ENABLE_ASAN} or ${FORTIFY_SOURCE_DEFINED}, or set ${FORCE_ENABLE_ASAN} to force ASan "
           "even with ${FORTIFY_SOURCE_DEFINED} enabled (may lead to missed by ASan errors).")
     endif()
 
@@ -26,8 +29,9 @@ function(wb_check_sanitizers_configuration_valid ROOT_DIRECTORY_PATH
 
       message(STATUS "[sanitizers]: ASAN uses new ASAN_OPTIONS: $ENV{ASAN_OPTIONS}")
     endif()
+  endif()
 
-    # ASan includes LSan.
+  if (${${ENABLE_LSAN}})
     if (DEFINED ENV{LSAN_OPTIONS})
       message(STATUS "[sanitizers]: LSAN uses predefined LSAN_OPTIONS env variable: $ENV{LSAN_OPTIONS}")
     else()
