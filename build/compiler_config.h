@@ -713,6 +713,12 @@
   _Pragma("GCC diagnostic ignored \"-Wmissing-noreturn\"")
 
 /*
+ * @brief Disables GCC / Clang missing field initializers warning.
+ */
+#define WB_GCC_DISABLE_MISSING_FIELD_INITIALIZERS_WARNING() \
+  _Pragma("GCC diagnostics ignored \"-Wmissing-field-initializers\"")
+
+/*
  * @brief Disables GCC / Clang pessimizing move warning.
  */
 #define WB_GCC_DISABLE_PESSIMIZING_MOVE() \
@@ -884,6 +890,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_MISSING_NORETURN_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_MISSING_FIELD_INITIALIZERS_WARNING()
 
 /*
  * @brief Do nothing.
