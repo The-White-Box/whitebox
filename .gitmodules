@@ -25,3 +25,6 @@
 [submodule "deps/DirectXMath"]
 	path = deps/DirectXMath
 	url = git@github.com:microsoft/DirectXMath.git
+[submodule "deps/gsl"]
+	path = deps/gsl
+	url = git@github.com:The-White-Box/GSL.git
