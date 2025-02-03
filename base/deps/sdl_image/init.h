@@ -25,7 +25,7 @@ namespace wb::sdl_image {
 /**
  * SDL image initializer flags.
  */
-enum class SDLImageInitType : IMG_InitFlags;
+enum SDLImageInitType : IMG_InitFlags;
 }  // namespace wb::sdl_image
 
 /**
