@@ -69,13 +69,19 @@ function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
   if (WB_GCC_ENABLE_CLANG_TIDY)
-    wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_GCC_CXX_LANGUAGE_VERSION})
+    wb_apply_clang_tidy_options_to_target(
+      APPLY_CLANG_TIDY
+      ${THE_TARGET}
+      ${WB_GCC_CXX_LANGUAGE_VERSION}
+    )
   else()
     set(APPLY_CLANG_TIDY OFF)
   endif()
 
   # Check and configure sanitizers.
-  wb_check_sanitizers_configuration_valid(${WB_ROOT_DIR} 
+  wb_check_sanitizers_configuration_valid(
+    ${THE_TARGET}
+    ${WB_ROOT_DIR} 
     ${WB_GCC_ENABLE_ADDRESS_SANITIZER}
     ${WB_GCC_ENABLE_LEAK_SANITIZER}
     ${WB_GCC_DEFINE__FORTIFY_SOURCE}

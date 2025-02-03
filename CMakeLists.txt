@@ -115,6 +115,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(wb_common_functions)
 include(wb_build_functions)
+include(wb_sanitizers_configuration)
 wb_check_platform_requirements(${PACKAGE_NAME})
 
 # Default build type is Release unless overridden.

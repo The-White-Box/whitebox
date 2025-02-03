@@ -205,7 +205,31 @@ endforeach()
 function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION})
+  wb_apply_clang_tidy_options_to_target(
+    APPLY_CLANG_TIDY
+    ${THE_TARGET}
+    ${WB_MSVC_CLANG_TIDY_CXX_LANGUAGE_VERSION}
+  )
+
+  # Check and configure sanitizers.
+  wb_check_sanitizers_configuration_valid(
+    ${THE_TARGET}
+    ${WB_ROOT_DIR}
+    ${WB_MSVC_ENABLE_ADDRESS_SANITIZER}
+    # No leak sanitizer on MSVC.
+    OFF
+    # No fortify source on MSVC.
+    OFF
+    # Do not force ASAN work for fortified sources.
+    OFF
+    # No memory sanitizer on MSVC.
+    OFF
+    # No thread sanitizer on MSVC.
+    OFF
+    # No undefined behavior sanitizer on MSVC.
+    OFF
+  )
+
 
   # The general options passed:
   target_compile_options(${THE_TARGET}

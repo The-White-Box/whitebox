@@ -72,10 +72,16 @@ wb_define_strings_option(WB_CLANG_STACK_PROTECTOR_LEVEL
 function(wb_apply_compile_options_to_target THE_TARGET)
   # First determine clang-tidy is present.  If present, we should use Clang-compatible flags only, or clang-tidy will
   # complain about unknown flags.
-  wb_apply_clang_tidy_options_to_target(APPLY_CLANG_TIDY ${THE_TARGET} ${WB_CLANG_CXX_LANGUAGE_VERSION})
+  wb_apply_clang_tidy_options_to_target(
+    APPLY_CLANG_TIDY
+    ${THE_TARGET}
+    ${WB_CLANG_CXX_LANGUAGE_VERSION}
+  )
 
   # Check and configure sanitizers.
-  wb_check_sanitizers_configuration_valid(${WB_ROOT_DIR} 
+  wb_check_sanitizers_configuration_valid(
+    ${THE_TARGET}
+    ${WB_ROOT_DIR}
     ${WB_CLANG_ENABLE_ADDRESS_SANITIZER}
     ${WB_CLANG_ENABLE_LEAK_SANITIZER}
     ${WB_CLANG_DEFINE__FORTIFY_SOURCE}
