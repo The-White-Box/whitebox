@@ -114,7 +114,7 @@ enum class ScopedFloatFlushToZeroFlags : floating_point_register_t {
    * same result as without FTZ (e.g. if those input denormals are loaded as
    * constants).
    */
-  kFlushToZeroOn = static_cast<floating_point_register_t>(1) << 24;  // FZ
+  kFlushToZeroOn = static_cast<floating_point_register_t>(1) << 24  // FZ
 #endif
 };
 

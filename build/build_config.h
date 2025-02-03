@@ -151,4 +151,17 @@
 #error "Please add support for wchar_t type on your platform."
 #endif
 
+// CPU specifics.
+#if !defined(WB_ARCH_CPU_ARM_NEON)
+#if defined(__arm__)
+#if !defined(__ARMEB__) && !defined(__ARM_EABI__) && !defined(__EABI__) && \
+    !defined(__VFP_FP__) && !defined(_WIN32_WCE) && !defined(ANDROID)
+#error "Sorry, WhiteBox does not support middle endian architecture."
+#endif
+#if defined(__ARM_NEON__)
+#define WB_ARCH_CPU_ARM_NEON 1
+#endif
+#endif
+#endif
+
 #endif  // !WB_BUILD_BUILD_CONFIG_H_
