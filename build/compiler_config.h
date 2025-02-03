@@ -716,7 +716,7 @@
  * @brief Disables GCC / Clang missing field initializers warning.
  */
 #define WB_GCC_DISABLE_MISSING_FIELD_INITIALIZERS_WARNING() \
-  _Pragma("GCC diagnostics ignored \"-Wmissing-field-initializers\"")
+  _Pragma("GCC diagnostic ignored \"-Wmissing-field-initializers\"")
 
 /*
  * @brief Disables GCC / Clang pessimizing move warning.
