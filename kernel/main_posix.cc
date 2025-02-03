@@ -4,7 +4,14 @@
 //
 // Whitebox kernel main entry point.
 
+#include "build/compiler_config.h"
+
+WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+  // chrono in GCC 13 libcpp have issues with -Wall, need to disable warning.
+  // TODO(dimhotepus): When GCC / libcpp versions bumped, check bug is absent.
+  WB_GCC_DISABLE_NULL_DEREFERENCE_WARNING()
 #include <chrono>
+WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 #include <thread>
 
 #include "main.h"

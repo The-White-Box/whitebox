@@ -719,6 +719,12 @@
   _Pragma("GCC diagnostic ignored \"-Wmissing-field-initializers\"")
 
 /*
+ * @brief Disables GCC / Clang potential null dereference warning.
+ */
+#define WB_GCC_DISABLE_NULL_DEREFERENCE_WARNING() \
+  _Pragma("GCC diagnostic ignored \"-Wnull-dereference\"")
+
+/*
  * @brief Disables GCC / Clang pessimizing move warning.
  */
 #define WB_GCC_DISABLE_PESSIMIZING_MOVE() \
@@ -895,6 +901,11 @@
  * @brief Do nothing.
  */
 #define WB_GCC_DISABLE_MISSING_FIELD_INITIALIZERS_WARNING()
+
+/*
+ * @brief Do nothing.
+ */
+#define WB_GCC_DISABLE_NULL_DEREFERENCE_WARNING()
 
 /*
  * @brief Do nothing.
