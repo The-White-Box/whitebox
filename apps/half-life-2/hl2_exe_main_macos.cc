@@ -219,8 +219,11 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // handler.
   InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
-  rv = boot_manager_entry(std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
-                          command_line_flags, l18n);
+  const auto boot_manager_main = *boot_manager_entry;
+  G3CHECK(!!boot_manager_main);
+
+  rv = boot_manager_main(std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
+                         command_line_flags, l18n);
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.
