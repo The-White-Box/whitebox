@@ -24,10 +24,19 @@ if (WB_OS_WIN)
   list(APPEND WB_BOOTMGR_LINK_DEPS mimalloc-redirect Winmm)
 elseif (WB_OS_LINUX)
   # dlopen, shm_open, filesystem.
-  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;rt;stdc++fs")
+  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;stdc++fs")
 elseif (WB_OS_MACOS)
-  # dlopen, shm_open, filesystem.
-  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;rt;c++fs")
+  # dlopen, filesystem.
+  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;c++fs")
+endif()
+
+if (WB_OS_LINUX OR WB_OS_MACOS)
+  # Not needed on modern systems, but still.
+  find_library(WB_LIB_RT rt)
+
+  if (WB_LIB_RT)
+    list(APPEND WB_BOOTMGR_LINK_DEPS "rt")
+  endif()
 endif()
 
 wb_cxx_shared_library(
