@@ -9,6 +9,9 @@
 
 #include <sal.h>
 
+#include <string>
+#include <string_view>
+
 using HBRUSH = struct HBRUSH__ *;
 using HINSTANCE = struct HINSTANCE__ *;
 using HICON = struct HICON__ *;
@@ -45,7 +48,7 @@ struct WindowDefinition {
    * @param parent_window_
    * @param menu_
    */
-  WindowDefinition(_In_opt_ HINSTANCE instance_, _In_opt_ const char *name_,
+  WindowDefinition(_In_opt_ HINSTANCE instance_, _In_ std::string_view name_,
                    _In_ int icon_id_, _In_ int icon_small_id_,
                    _In_opt_ HCURSOR cursor_, _In_opt_ HBRUSH class_brush_,
                    _In_ unsigned long style_, _In_ unsigned long ex_style_ = 0,
@@ -71,7 +74,7 @@ struct WindowDefinition {
         menu{menu_} {}
 
   HINSTANCE instance;
-  const char *name;
+  std::string name;
   int icon_id, icon_small_id;
   HCURSOR cursor;
   HBRUSH class_brush;

@@ -20,6 +20,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <string_view>
 #include <system_error>
 
 #include "app_version_config.h"
@@ -189,8 +190,8 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // state into void(void), so need global variable to access state in handler.
   InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
-  rv = boot_manager_main(WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags,
-                         l18n);
+  rv = boot_manager_main(std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
+                         command_line_flags, l18n);
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.

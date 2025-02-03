@@ -8,6 +8,7 @@
 #define WB_KERNEL_MAIN_H_
 
 #include <cstddef>  // std::byte
+#include <string_view>
 
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/lookup_with_fallback.h"
@@ -29,7 +30,7 @@ namespace wb::kernel {
  */
 struct KernelArgs {
 #ifdef WB_OS_WIN
-  KernelArgs(const char *app_description_, HINSTANCE instance_,
+  KernelArgs(std::string_view app_description_, HINSTANCE instance_,
              int show_window_flags_, int main_icon_id_, int small_icon_id_,
              const wb::boot_manager::CommandLineFlags &command_line_flags_,
              const base::intl::LookupWithFallback &intl_) noexcept
@@ -40,24 +41,21 @@ struct KernelArgs {
         small_icon_id{small_icon_id_},
         command_line_flags{command_line_flags_},
         intl{intl_} {
-    G3DCHECK(!!app_description_);
     G3DCHECK(!!instance_);
   }
 #else
-  KernelArgs(const char *app_description_,
+  KernelArgs(std::string_view app_description_,
              const wb::boot_manager::CommandLineFlags &command_line_flags_,
              const base::intl::LookupWithFallback &intl_) noexcept
       : app_description{app_description_},
         command_line_flags{command_line_flags_},
-        intl{intl_} {
-    G3DCHECK(!!app_description_);
-  }
+        intl{intl_} {}
 #endif
 
   /**
    * @brief App description.
    */
-  const char *app_description;
+  std::string_view app_description;
 
 #ifdef WB_OS_WIN
   /**

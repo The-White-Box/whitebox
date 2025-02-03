@@ -28,7 +28,7 @@ namespace {
  * @return Window definition.
  */
 [[nodiscard]] wb::ui::win::WindowDefinition CreateMainWindowDefinition(
-    const wb::kernel::KernelArgs& kernel_args, const char* window_title,
+    const wb::kernel::KernelArgs& kernel_args, std::string_view window_title,
     _In_ int width, _In_ int height) noexcept {
   G3DCHECK(!!kernel_args.instance);
 
@@ -56,7 +56,7 @@ namespace {
  * @return App exit code.
  */
 [[nodiscard]] int DispatchMessages(
-    _In_z_ const char* main_window_name,
+    _In_ std::string_view main_window_name,
     wb::kernel::input::InputQueue<wb::hal::hid::MouseInput>& mouse_input_queue,
     wb::kernel::input::InputQueue<wb::hal::hid::KeyboardInput>&
         keyboard_input_queue) noexcept {

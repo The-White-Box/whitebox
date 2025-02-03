@@ -7,6 +7,9 @@
 #ifndef WB_BASE_DEPS_SDL_WINDOW_H_
 #define WB_BASE_DEPS_SDL_WINDOW_H_
 
+#include <string>
+#include <string_view>
+
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/sdl.h"
 #include "base/deps/sdl/surface.h"
@@ -101,10 +104,12 @@ class Window {
    * @param flags WindowFlags.
    * @return SDL window.
    */
-  static result<Window> New(const char *title, int x, int y, int width,
+  static result<Window> New(std::string_view title, int x, int y, int width,
                             int height, WindowFlags flags) noexcept {
+    const std::string window_title{title};
+
     SDL_PropertiesID props = SDL_CreateProperties();
-    SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, title);
+    SDL_SetStringProperty(props, SDL_PROP_WINDOW_CREATE_TITLE_STRING, window_title.c_str());
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_X_NUMBER, x);
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_Y_NUMBER, y);
     SDL_SetNumberProperty(props, SDL_PROP_WINDOW_CREATE_WIDTH_NUMBER, width);

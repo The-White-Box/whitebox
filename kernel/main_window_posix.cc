@@ -30,7 +30,7 @@ namespace {
 namespace wb::kernel {
 
 sdl::result<MainWindow> MainWindow::New(
-    const char* title, int width, int height, sdl::WindowFlags window_flags,
+    std::string_view title, int width, int height, sdl::WindowFlags window_flags,
     const base::intl::LookupWithFallback& intl) noexcept {
   using namespace sdl;
 

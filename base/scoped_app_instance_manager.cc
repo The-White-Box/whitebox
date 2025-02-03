@@ -17,9 +17,8 @@ namespace {
  * @param app_description App description.
  * @return Mutex name.
  */
-[[nodiscard]] std::string MakeMutexName(const char* app_description) noexcept {
-  G3DCHECK(!!app_description);
-
+[[nodiscard]] std::string MakeMutexName(
+    std::string_view app_description) noexcept {
   return absl::StrCat(
 #ifdef WB_OS_WIN
       "WhiteBox "
@@ -46,7 +45,7 @@ namespace {
     return AppInstanceStatus::kNoOtherInstances;
   }
 
-  const std::error_code &rc = mutex_result.error();
+  const std::error_code& rc = mutex_result.error();
 
   constexpr int kAccessDenied{5};
   // If the mutex is a named mutex and the object existed before this
@@ -73,7 +72,7 @@ namespace {
  * @return Process shared mutex.
  */
 [[nodiscard]] wb::base::std2::result<wb::base::posix::ScopedSharedMemoryObject>
-CreateProcessMutex(const char* app_description) noexcept {
+CreateProcessMutex(std::string_view app_description) noexcept {
   using namespace wb::base::posix;
 
   return ScopedSharedMemoryObject::New(
@@ -119,7 +118,7 @@ CreateProcessMutex(const char* app_description) noexcept {
 namespace wb::base {
 
 ScopedAppInstanceManager::ScopedAppInstanceManager(
-    const char* app_description) noexcept
+    std::string_view app_description) noexcept
 #ifdef WB_OS_WIN
     : app_instance_mutex_{win::ScopedMutex::New(
           nullptr, MakeMutexName(app_description).c_str(),

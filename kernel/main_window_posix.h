@@ -7,6 +7,7 @@
 #ifndef WB_KERNEL_MAIN_WINDOW_POSIX_H_
 #define WB_KERNEL_MAIN_WINDOW_POSIX_H_
 
+#include <string_view>
 #include <utility>  // std::move
 
 #include "base/deps/sdl/window.h"
@@ -30,7 +31,8 @@ class MainWindow {
    * @return Main window.
    */
   [[nodiscard]] static sdl::result<MainWindow> New(
-      const char* title, int width, int height, sdl::WindowFlags window_flags,
+      std::string_view title, int width, int height,
+      sdl::WindowFlags window_flags,
       const base::intl::LookupWithFallback& intl) noexcept;
 
   /**

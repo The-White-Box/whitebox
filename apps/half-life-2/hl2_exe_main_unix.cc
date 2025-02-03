@@ -4,6 +4,8 @@
 //
 // The entry point for *nix Half-Life 2 process.
 
+#include <string_view>
+
 #include "app_version_config.h"
 #include "apps/boot_heap_allocator.h"
 #include "apps/cpu_feature_checks.h"
@@ -149,7 +151,8 @@ int BootManagerStartup(int argc, char** argv) noexcept {
       G3CHECK(!!boot_manager_main);
 
       return (*boot_manager_main)(
-          {WB_PRODUCT_FILE_DESCRIPTION_STRING, command_line_flags, l18n});
+          {std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
+           command_line_flags, l18n});
     }
 
     return FatalDialog(

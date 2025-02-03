@@ -105,10 +105,8 @@ bool IsSuperUser() noexcept {
  * @param app_description Application description.
  * @param assets_path Assets path.
  */
-void DumpSystemInformation(const char* app_description,
+void DumpSystemInformation(std::string_view app_description,
                            const std::string& assets_path) noexcept {
-  G3DCHECK(!!app_description);
-
 #if defined(WB_OS_POSIX)
 #if defined(WB_COMPILER_CLANG)
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)

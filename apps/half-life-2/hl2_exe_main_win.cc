@@ -210,10 +210,10 @@ int BootManagerStartup(
   const auto boot_manager_main = *boot_manager_entry;
   G3CHECK(!!boot_manager_main);
 
-  return (*boot_manager_main)({instance, WB_PRODUCT_FILE_DESCRIPTION_STRING,
-                               show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
-                               WB_HALF_LIFE_2_IDI_SMALL_ICON,
-                               command_line_flags, intl});
+  return (*boot_manager_main)(
+      {instance, std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
+       show_window_flags, WB_HALF_LIFE_2_IDI_MAIN_ICON,
+       WB_HALF_LIFE_2_IDI_SMALL_ICON, command_line_flags, intl});
 }
 
 }  // namespace

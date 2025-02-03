@@ -70,7 +70,7 @@ class WB_WHITEBOX_UI_API BaseWindow {
     if (!rc) {
       const std::string class_name{TDerivedWindow::ClassName(definition.name)};
       rc = get_error(::CreateWindowExA(
-          definition.ex_style, class_name.c_str(), definition.name,
+          definition.ex_style, class_name.c_str(), definition.name.c_str(),
           definition.style, definition.x_pos, definition.y_pos,
           definition.width, definition.height, definition.parent_window,
           definition.menu, definition.instance, window.get()));

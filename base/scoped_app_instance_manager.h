@@ -8,6 +8,7 @@
 #define WB_BASE_SCOPED_APP_INSTANCE_MANAGER_H_
 
 #include <array>
+#include <string_view>
 
 #include "base/config.h"
 #include "base/macroses.h"
@@ -50,7 +51,7 @@ class WB_BASE_API ScopedAppInstanceManager {
    * @param app_description Application description.
    * @return nothing.
    */
-  explicit ScopedAppInstanceManager(const char* app_description) noexcept;
+  explicit ScopedAppInstanceManager(std::string_view app_description) noexcept;
 
   ~ScopedAppInstanceManager() noexcept = default;
 

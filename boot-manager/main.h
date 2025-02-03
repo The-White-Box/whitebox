@@ -8,6 +8,7 @@
 #define WB_BOOT_MANAGER_BOOT_MANAGER_MAIN_H_
 
 #include <cstddef>  // std::byte
+#include <string_view>
 
 #include "base/deps/g3log/g3log.h"
 #include "base/intl/lookup_with_fallback.h"
@@ -29,7 +30,7 @@ namespace wb::boot_manager {
  */
 struct BootManagerArgs {
 #ifdef WB_OS_WIN
-  BootManagerArgs(HINSTANCE instance_, const char *app_description_,
+  BootManagerArgs(HINSTANCE instance_, std::string_view app_description_,
                   int show_window_flags_, int main_icon_id_, int small_icon_id_,
                   const CommandLineFlags &command_line_flags_,
                   const wb::base::intl::LookupWithFallback &intl_)
@@ -41,17 +42,14 @@ struct BootManagerArgs {
         command_line_flags{command_line_flags_},
         intl{intl_} {
     G3DCHECK(!!instance);
-    G3DCHECK(!!app_description);
   }
 #else
-  BootManagerArgs(const char *app_description_,
+  BootManagerArgs(std::string_view app_description_,
                   const CommandLineFlags &command_line_flags_,
                   const wb::base::intl::LookupWithFallback &intl_)
       : app_description{app_description_},
         command_line_flags{command_line_flags_},
-        intl{intl_} {
-    G3DCHECK(!!app_description_);
-  }
+        intl{intl_} {}
 #endif
 
 #ifdef WB_OS_WIN
@@ -64,7 +62,7 @@ struct BootManagerArgs {
   /**
    * @brief App description.
    */
-  const char *app_description;
+  std::string_view app_description;
 
 #ifdef WB_OS_WIN
   /**

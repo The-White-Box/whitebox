@@ -114,7 +114,7 @@ class MainWindow : public wb::ui::win::BaseWindow {
    * @brief Gets window class name.
    * @return Window class name.
    */
-  [[nodiscard]] static std::string ClassName(const char *window_name) noexcept {
+  [[nodiscard]] static std::string ClassName(std::string_view window_name) noexcept {
     return "WhiteBox " + std::string{window_name} + " Window Class";
   }
 
