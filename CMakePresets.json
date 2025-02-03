@@ -65,7 +65,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++23",
+        "WB_CLANG_CXX_LANGUAGE_VERSION": "c++2b",
         "WB_CLANG_LINKER_TYPE": "ld",
         "WB_CLANG_MINIMUM_CPU_ARCHITECTURE": "native"
       }
