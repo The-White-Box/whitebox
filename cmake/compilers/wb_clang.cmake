@@ -380,6 +380,9 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # architecture.  Mainly useful for the performance tuning.
       ### -Wvector-operation-performance
 
+      # Ignore C++98 compatibility warnings.
+      -Wno-c++98-compat
+
       # Build in the requested version of C++.
       -std=${WB_CLANG_CXX_LANGUAGE_VERSION}
 
