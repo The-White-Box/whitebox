@@ -464,7 +464,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
   target_link_options(${THE_TARGET}
     PRIVATE
-      # Detect and reject underlinking.
+      # Detect and reject underlinking.  Not compatible with sanitizers.
+      $<$<NOT:$<BOOL:${WB_GCC_ENABLE_ADDRESS_SANITIZER}>>:-Wl,-z,defs>
       -Wl,-z,defs
       # Marks some section read only, which prevents some GOT overwrite attacks.
       -Wl,-z,relro
@@ -485,6 +486,12 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # -Wl,-z,cet-report=error
       # Use faster than default linker.
       -fuse-ld=${WB_GCC_LINKER_TYPE}
+
+      ## Sanitizers.
+      $<$<BOOL:${WB_GCC_ENABLE_ADDRESS_SANITIZER}>:-fsanitize=address>
+      $<$<BOOL:${WB_GCC_ENABLE_LEAK_SANITIZER}>:-fsanitize=leak>
+      $<$<BOOL:${WB_GCC_ENABLE_UB_SANITIZER}>:-fsanitize=undefined>
+      $<$<BOOL:${WB_GCC_ENABLE_THREAD_SANITIZER}>:-fsanitize=thread>
   )
 
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")

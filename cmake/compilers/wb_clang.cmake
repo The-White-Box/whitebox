@@ -469,8 +469,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
   target_link_options(${THE_TARGET}
     PRIVATE
-      # Detect and reject underlinking.
-      $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,defs>
+      # Detect and reject underlinking.  Not compatible with sanitizers.
+      $<$<NOT:$<OR:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">, $<BOOL:${WB_CLANG_ENABLE_ADDRESS_SANITIZER}>>>:-Wl,-z,defs>
       # Marks some section read only, which prevents some GOT overwrite attacks.
       $<$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>:-Wl,-z,relro>
       # All symbols are resolved at load time.  Combined with the previous flag,
@@ -490,6 +490,13 @@ function(wb_apply_compile_options_to_target THE_TARGET)
       # -Wl,-z,cet-report=error
       # Use faster than default linker.
       -fuse-ld=${WB_CLANG_LINKER_TYPE}
+
+      ## Sanitizers.
+      $<$<BOOL:${WB_CLANG_ENABLE_ADDRESS_SANITIZER}>:-fsanitize=address>
+      $<$<BOOL:${WB_CLANG_ENABLE_LEAK_SANITIZER}>:-fsanitize=leak>
+      $<$<BOOL:${WB_CLANG_ENABLE_UB_SANITIZER}>:-fsanitize=undefined>
+      $<$<BOOL:${WB_CLANG_ENABLE_MEMORY_SANITIZER}>:-fsanitize=memory>
+      $<$<BOOL:${WB_CLANG_ENABLE_THREAD_SANITIZER}>:-fsanitize=thread>
   )
 
   wb_dump_target_property(${THE_TARGET} COMPILE_OPTIONS     "cxx compiler   flags")

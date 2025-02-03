@@ -41,7 +41,8 @@ using floating_point_register_t = std::ptrdiff_t;
  * @brief Gets floating point status register value.
  * @return Value.
  */
-inline floating_point_register_t GetFloatingPointStatusRegister() noexcept {
+[[nodiscard]] inline floating_point_register_t
+GetFloatingPointStatusRegister() noexcept {
 #if defined(WB_ARCH_CPU_X86_64)
   const floating_point_register_t fpsr{_mm_getcsr()};
 #elif defined(WB_ARCH_CPU_ARM_FAMILY) || defined(WB_ARCH_CPU_ARM_NEON)
