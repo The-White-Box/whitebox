@@ -63,7 +63,7 @@ class Surface {
     Surface surface{width, height, depth, mask};
     return surface.error_code().is_succeeded()
                ? result<Surface>{std::move(surface)}
-               : result<Surface>{surface.error_code()};
+               : result<Surface>{std::unexpect, surface.error_code()};
   }
 
   /**
@@ -77,7 +77,7 @@ class Surface {
     Surface surface{image_path};
     return surface.error_code().is_succeeded()
                ? result<Surface>{std::move(surface)}
-               : result<Surface>{surface.error_code()};
+               : result<Surface>{std::unexpect, surface.error_code()};
   }
 
   /**
@@ -91,7 +91,7 @@ class Surface {
     Surface surface{source, format};
     return surface.error_code().is_succeeded()
                ? result<Surface>{std::move(surface)}
-               : result<Surface>{surface.error_code()};
+               : result<Surface>{std::unexpect, surface.error_code()};
   }
 
   Surface(Surface &&s) noexcept : surface_{s.surface_}, init_rc_{s.init_rc_} {

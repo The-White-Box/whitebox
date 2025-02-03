@@ -137,7 +137,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
       linked_sdl_version{GetLinkTimeVersion()};
   const auto sdl_initializer = SDLInitializer::New(SDLInitializerFlags::kAudio |
                                                    SDLInitializerFlags::kVideo);
-  if (const auto* error = get_error(sdl_initializer)) [[unlikely]] {
+  if (!sdl_initializer.has_value()) [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
         intl::l18n(intl,
@@ -153,7 +153,7 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
             SDL_VERSIONNUM_MAJOR(linked_sdl_version),
             SDL_VERSIONNUM_MINOR(linked_sdl_version),
             SDL_VERSIONNUM_MICRO(linked_sdl_version), ::SDL_GetRevision(),
-            *error));
+            sdl_initializer.error()));
   }
 
   // Try to use wait cursor while window is created.  Should go after SDL init.
@@ -163,7 +163,6 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
 
   G3LOG(INFO) << "SDL versions: build " << compiled_sdl_version << ", runtime "
               << linked_sdl_version << '.';
-
   G3LOG(INFO) << "SDL image versions: build " << SDL_IMAGE_VERSION
               << ", runtime " << ::IMG_Version() << '.';
 
@@ -172,12 +171,10 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto window_result = MainWindow::New(
       kernel_args.app_description, command_line_flags.main_window_width,
       command_line_flags.main_window_height, window_flags, intl);
-  if ([[maybe_unused]] const auto* window = get_result(window_result))
-      [[likely]] {
+  if (window_result.has_value()) [[likely]] {
     G3LOG(INFO) << "SDL graphics context: "
                 << GetWindowGraphicsContext(window_flags) << ".";
-
-    { G3LOG(INFO) << "SDL window subsystem: Posix."; }
+    G3LOG(INFO) << "SDL window subsystem: Posix.";
 
     // Startup sequence finished, window is already shown, restore default
     // cursor.
@@ -186,17 +183,15 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
     return DispatchMessages();
   }
 
-  const auto* error = get_error(window_result);
-  G3DCHECK(!!error);
-
+  const auto error = window_result.error();
   return wb::ui::FatalDialog(
       intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description),
-      error->code,
+      error.code,
       intl::l18n_fmt(intl,
                      "Please, check you installed '{0}' libraries/drivers.",
                      GetWindowGraphicsContext(window_flags)),
       MakeFatalContext(kernel_args),
       intl::l18n_fmt(intl,
                      "SDL window create failed with '{0}' context.\n\n{1}",
-                     GetWindowGraphicsContext(window_flags), *error));
+                     GetWindowGraphicsContext(window_flags), error));
 }

@@ -8,10 +8,10 @@
 #define WB_BASE_DEPS_SDL_BASE_H_
 
 #include <cerrno>
+#include <expected>
 #include <ostream>
 #include <sstream>
 #include <string>
-#include <variant>
 
 #include "base/deps/fmt/format.h"
 #include "base/deps/sdl/sdl.h"
@@ -112,42 +112,7 @@ inline auto& operator<<(std::basic_ostream<char, std::char_traits<char>>& s,
  * @brief SDL result.
  */
 template <typename TResult>
-using result = std::variant<TResult, error>;
-
-/**
- * @brief Get error code from SDL result.
- * @tparam TResult SDL result success.
- * @param rc SDL result.
- * @return error code pointer or nullptr.
- */
-template <typename TResult>
-[[nodiscard]] constexpr const error* get_error(
-    const result<TResult>& rc) noexcept {
-  return std::get_if<error>(&rc);
-}
-
-/**
- * @brief Get success result from SDL result.
- * @tparam TResult TResult SDL result success.
- * @param rc SDL result.
- * @return SDL result success pointer or nullptr.
- */
-template <typename TResult>
-[[nodiscard]] constexpr TResult* get_result(result<TResult>& rc) noexcept {
-  return std::get_if<TResult>(&rc);
-}
-
-/**
- * @brief Get success result from SDL result.
- * @tparam TResult TResult SDL result success.
- * @param rc SDL result.
- * @return SDL result success pointer or nullptr.
- */
-template <typename TResult>
-[[nodiscard]] constexpr const TResult* get_result(
-    const result<TResult>& rc) noexcept {
-  return std::get_if<TResult>(&rc);
-}
+using result = std::expected<TResult, error>;
 
 }  // namespace wb::sdl
 

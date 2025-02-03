@@ -59,7 +59,7 @@ class SDLInitializer {
     SDLInitializer initializer{flags};
     return initializer.error_code().is_succeeded()
                ? result<SDLInitializer>{std::move(initializer)}
-               : result<SDLInitializer>{initializer.error_code()};
+               : result<SDLInitializer>{std::unexpect, initializer.error_code()};
   }
   /**
    * Move constructor.

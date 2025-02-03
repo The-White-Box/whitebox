@@ -126,7 +126,7 @@ class Window {
     G3DCHECK(!!window.window_)
         << "SDL_CreateWindow failed with error: " << rc;
     return window.window_ ? result<Window>{std::move(window)}
-                          : result<Window>{rc};
+                          : result<Window>{std::unexpect, rc};
   }
   Window(Window &&w) noexcept : window_{w.window_}, flags_{w.flags_} {
     w.window_ = nullptr;

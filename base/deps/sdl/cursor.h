@@ -55,7 +55,7 @@ class Cursor {
     Cursor cursor{system_cursor};
     return cursor.error_code().is_succeeded()
                ? result<Cursor>{std::move(cursor)}
-               : result<Cursor>{cursor.error_code()};
+               : result<Cursor>{std::unexpect, cursor.error_code()};
   }
 
   /**
@@ -67,7 +67,7 @@ class Cursor {
     Cursor cursor;
     return cursor.error_code().is_succeeded()
                ? result<Cursor>{std::move(cursor)}
-               : result<Cursor>{cursor.error_code()};
+               : result<Cursor>{std::unexpect, cursor.error_code()};
   }
 
   /**
@@ -156,14 +156,15 @@ class ScopedCursor {
   ScopedCursor(ScopedCursor &&c) noexcept
       : old_cursor_(std::move(c.old_cursor_)),
         new_cursor_{std::move(c.new_cursor_)} {
-    c.old_cursor_ = result<Cursor>{error::Failure(EXIT_FAILURE, "Empty")};
+    c.old_cursor_ =
+        result<Cursor>{std::unexpect, error::Failure(EXIT_FAILURE, "Empty")};
     c.new_cursor_ = Cursor::Empty();
   }
   ScopedCursor &operator=(ScopedCursor &&c) noexcept = delete;
 
   ~ScopedCursor() noexcept {
-    if (auto *old_cursor = get_result(old_cursor_)) [[likely]] {
-      old_cursor->MakeActive();
+    if (old_cursor_.has_value()) [[likely]] {
+      old_cursor_.value().MakeActive();
     }
   }
 
@@ -183,8 +184,8 @@ class ScopedCursor {
 
   auto new_cursor = Cursor::Empty();
   auto system_cursor = Cursor::FromSystem(new_cursor_in_scope);
-  if (auto *cursor = get_result(system_cursor)) [[likely]] {
-    new_cursor = std::move(*cursor);
+  if (system_cursor.has_value()) [[likely]] {
+    new_cursor = std::move(system_cursor.value());
   }
   return std::make_unique<ScopedCursor>(std::move(new_cursor));
 }

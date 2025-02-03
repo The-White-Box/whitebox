@@ -35,27 +35,27 @@ sdl::result<MainWindow> MainWindow::New(
     const base::intl::LookupWithFallback& intl) noexcept {
   using namespace sdl;
 
+  using namespace wb::base;
+  using namespace wb::ui::settings::window;
+
   auto sdl_window =
       sdl::Window::New(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                        width, height, window_flags);
-  if (auto* window = sdl::get_result(sdl_window)) [[likely]] {
+  if (sdl_window.has_value()) [[likely]] {
     const std::string window_icon_name{MakeWindowIconName(title)};
+    auto window = std::move(sdl_window.value());
 
     const auto window_icon_result =
         Surface::FromImage(window_icon_name.c_str());
-    if (const auto* window_icon = get_result(window_icon_result)) [[likely]] {
-      window->SetIcon(*window_icon);
+    if (window_icon_result.has_value()) [[likely]] {
+      window.SetIcon(window_icon_result.value());
     } else {
-      const auto* error = get_error(window_icon_result);
       G3LOG(WARNING) << "SDL unable to set window icon to " << window_icon_name
-                     << ", run with default one: " << *error << ".";
+                     << ", run with default one: " << window_icon_result.error()
+                     << ".";
     }
 
-    using namespace wb::ui::settings::window;
-
-    window->SetMinimumSizes(dimensions::kMinWidth, dimensions::kMinHeight);
-
-    using namespace wb::base;
+    window.SetMinimumSizes(dimensions::kMinWidth, dimensions::kMinHeight);
 
     // Check only single instance of the app is running.  Do it here because
     // on Linux / MacOS we want to show fatal dialog when app has icon, hense
@@ -64,21 +64,24 @@ sdl::result<MainWindow> MainWindow::New(
     const auto other_instance_status = scoped_app_instance_manager.GetStatus();
     if (other_instance_status == AppInstanceStatus::kAlreadyRunning)
         [[unlikely]] {
-      return sdl::error::Failure(
-          EEXIST,
-          intl::l18n_fmt(intl,
-                         "Can't run multiple copies of '{0}' at once.  Please, "
-                         "stop existing copy or return to the game.",
-                         title));
+      return sdl::result<MainWindow>(
+          std::unexpect,
+          sdl::error::Failure(
+              EEXIST,
+              intl::l18n_fmt(
+                  intl,
+                  "Can't run multiple copies of '{0}' at once.  Please, "
+                  "stop existing copy or return to the game.",
+                  title)));
     }
 
     // Ok, it is likely single instance, show window to the client.
-    window->Toggle(true);
+    window.Toggle(true);
 
-    return MainWindow{std::move(*window)};
+    return sdl::result<MainWindow>{MainWindow{std::move(window)}};
   }
 
-  return *sdl::get_error(sdl_window);
+  return sdl::result<MainWindow>(std::unexpect, sdl_window.error());
 }
 
 }  // namespace wb::kernel

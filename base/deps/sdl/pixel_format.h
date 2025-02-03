@@ -41,7 +41,7 @@ class PixelFormat {
     PixelFormat format{value};
     return format.error_code().is_succeeded()
                ? result<PixelFormat>{std::move(format)}
-               : result<PixelFormat>{format.error_code()};
+               : result<PixelFormat>{std::unexpect, format.error_code()};
   }
 
   PixelFormat(PixelFormat &&f) noexcept
