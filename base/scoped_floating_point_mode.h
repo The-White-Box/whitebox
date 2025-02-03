@@ -8,6 +8,9 @@
 #ifndef WB_BASE_SCOPED_FLOATING_POINT_MODE_H_
 #define WB_BASE_SCOPED_FLOATING_POINT_MODE_H_
 
+#include <cstddef>  // std::ptrdiff_t
+#include <cstdint>  // std::uint32_t
+
 #include "build/build_config.h"
 
 #if defined(WB_ARCH_CPU_X86_64)
@@ -17,19 +20,82 @@
 
 #include "base/deps/g3log/g3log.h"
 #include "base/macroses.h"
-#include "build/build_config.h"
 
 namespace wb::base {
 
 #if defined(WB_ARCH_CPU_X86_64)
 /**
+ * @brief Floating point register type on x86-64.
+ */
+using floating_point_register_t = std::uint32_t;
+#elif defined(WB_ARCH_CPU_ARM_FAMILY) || defined(WB_ARCH_CPU_ARM_NEON)
+/**
+ * @brief Floating point register type on ARM.
+ */
+using floating_point_register_t = std::ptrdiff_t;
+#else
+#error Please add support for type of the floating point status register.
+#endif
+
+/**
+ * @brief Gets floating point status register value.
+ * @return Value.
+ */
+inline floating_point_register_t GetFloatingPointStatusRegister() noexcept {
+#if defined(WB_ARCH_CPU_X86_64)
+  const floating_point_register_t fpsr{_mm_getcsr()};
+#elif defined(WB_ARCH_CPU_ARM_FAMILY) || defined(WB_ARCH_CPU_ARM_NEON)
+  floating_point_register_t fpsr{0};
+
+#if defined(WB_ARCH_CPU_ARM_FAMILY)
+  asm volatile("mrs %0, fpcr" : "=r"(fpsr));
+#else
+  asm volatile("vmrs %0, fpscr" : "=r"(fpsr));
+#endif
+#else
+#error Please add support for getting the floating point status register.
+#endif
+
+  return fpsr;
+}
+
+/**
+ * @brief Sets floating point status register value.
+ * @param fpsr New value.
+ */
+void SetFloatingPointStatusRegister(floating_point_register_t fpsr) noexcept {
+#if defined(WB_ARCH_CPU_X86_64)
+  _mm_setcsr(fpsr);
+#elif defined(WB_ARCH_CPU_ARM_FAMILY) || defined(WB_ARCH_CPU_ARM_NEON)
+#if defined(WB_ARCH_CPU_ARM_FAMILY)
+  asm volatile("msr fpcr, %0" : : "ri"(fpsr));
+#else
+  asm volatile("vmsr fpscr, %0" : : "ri"(fpsr));
+#endif
+#else
+#error Please add support for setting the floating point status register.
+#endif
+}
+
+#if defined(WB_ARCH_CPU_X86_64) || defined(WB_ARCH_CPU_ARM_FAMILY) || \
+    defined(WB_ARCH_CPU_ARM_NEON)
+
+/**
  * @brief Flush to zero flags.
  */
-enum class ScopedFloatFlushToZeroFlags : unsigned {
+enum class ScopedFloatFlushToZeroFlags : floating_point_register_t {
+#if defined(WB_ARCH_CPU_X86_64)
   /**
    * @brief Do not flush to zero when float underflows.
    */
   kFlushToZeroOff = _MM_FLUSH_ZERO_OFF,
+#else
+  /**
+   * @brief Do not flush to zero when float underflows.
+   */
+  kFlushToZeroOff = static_cast<floating_point_register_t>(0),
+#endif
+#if defined(WB_ARCH_CPU_X86_64)
   /**
    * @brief Flush to zero when float underflows.  FTZ is an output filter:
    * Denormal inputs work normally, with no effect on compare instructions.
@@ -39,6 +105,17 @@ enum class ScopedFloatFlushToZeroFlags : unsigned {
    * constants).
    */
   kFlushToZeroOn = _MM_FLUSH_ZERO_ON
+#else
+  /**
+   * @brief Flush to zero when float underflows.  FTZ is an output filter:
+   * Denormal inputs work normally, with no effect on compare instructions.
+   * However, ordinary math instructions can't generate denormals.  Denormal
+   * results are flushed to +/-0.0.  DBL_MIN/2 + DBL_MIN/1.5 should give the
+   * same result as without FTZ (e.g. if those input denormals are loaded as
+   * constants).
+   */
+  kFlushToZeroOn = static_cast<floating_point_register_t>(1) << 24;  // FZ
+#endif
 };
 
 /**
@@ -82,36 +159,45 @@ class ScopedFloatFlushToZeroMode {
    */
   explicit ScopedFloatFlushToZeroMode(
       ScopedFloatFlushToZeroFlags new_flags) noexcept
-      : previous_mxcsr_register_value_{::_mm_getcsr()} {
-    ::_mm_setcsr((previous_mxcsr_register_value_ &
-                  ~static_cast<unsigned>(_MM_FLUSH_ZERO_MASK)) |
-                 underlying_cast(new_flags));
+      : previous_mxcsr_register_value_{GetFloatingPointStatusRegister()} {
+    SetFloatingPointStatusRegister(
+        (previous_mxcsr_register_value_ &
+         ~std::to_underlying(ScopedFloatFlushToZeroFlags::kFlushToZeroOn)) |
+        underlying_cast(new_flags));
   }
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedFloatFlushToZeroMode);
 
   /**
-   * @brief Restore MXCSR CPU register value to the previous one.
+   * @brief Restore floating point status register value to the previous one.
    */
   ~ScopedFloatFlushToZeroMode() noexcept {
-    ::_mm_setcsr(previous_mxcsr_register_value_);
+    SetFloatingPointStatusRegister(previous_mxcsr_register_value_);
   }
 
  private:
   /**
-   * @brief Previous MXCSR CPU register value.
+   * @brief Previous floating point status register value.
    */
-  const unsigned previous_mxcsr_register_value_;
+  const floating_point_register_t previous_mxcsr_register_value_;
 };
 
 /**
  * @brief Denormals are zero flags.
  */
-enum class ScopedFloatDenormalsAreZeroFlags : unsigned {
+enum class ScopedFloatDenormalsAreZeroFlags : floating_point_register_t {
+#if defined(WB_ARCH_CPU_X86_64)
   /**
    * @brief Denormals are not zero.
    */
   kDenormalsAreZeroOff = _MM_FLUSH_ZERO_OFF,
+#else
+  /**
+   * @brief Denormals are not zero.
+   */
+  kDenormalsAreZeroOff = static_cast<floating_point_register_t>(0),
+#endif
+#if defined(WB_ARCH_CPU_X86_64)
   /**
    * @brief Denormals are zero.  DAZ is an input filter: When an FP math /
    * compare instruction reads its inputs, denormals are considered +/-0.0.  So
@@ -119,6 +205,15 @@ enum class ScopedFloatDenormalsAreZeroFlags : unsigned {
    * produce denormal results, though.  May be not supported by CPU.
    */
   kDenormalsAreZeroOn = _MM_DENORMALS_ZERO_ON
+#else
+  /**
+   * @brief Denormals are zero.  DAZ is an input filter: When an FP math /
+   * compare instruction reads its inputs, denormals are considered +/-0.0.  So
+   * a compare between two denormals finds they're equal.  Arithmetic can easily
+   * produce denormal results, though.  May be not supported by CPU.
+   */
+  kDenormalsAreZeroOn = static_cast<floating_point_register_t>(1) << 24  // FZ
+#endif
 };
 
 /**
@@ -163,26 +258,28 @@ class ScopedFloatDenormalsAreZeroMode {
    */
   explicit ScopedFloatDenormalsAreZeroMode(
       ScopedFloatDenormalsAreZeroFlags new_flags) noexcept
-      : previous_mxcsr_register_value_{::_mm_getcsr()} {
-    ::_mm_setcsr((previous_mxcsr_register_value_ &
-                  ~static_cast<unsigned>(_MM_DENORMALS_ZERO_MASK)) |
-                 underlying_cast(new_flags));
+      : previous_mxcsr_register_value_{GetFloatingPointStatusRegister()} {
+    SetFloatingPointStatusRegister(
+        (previous_mxcsr_register_value_ &
+         ~std::to_underlying(
+             ScopedFloatDenormalsAreZeroFlags::kDenormalsAreZeroOn)) |
+        underlying_cast(new_flags));
   }
 
   WB_NO_COPY_MOVE_CTOR_AND_ASSIGNMENT(ScopedFloatDenormalsAreZeroMode);
 
   /**
-   * @brief Restore MXCSR CPU register value to the previous one.
+   * @brief Restore floating point status register value to the previous one.
    */
   ~ScopedFloatDenormalsAreZeroMode() noexcept {
-    ::_mm_setcsr(previous_mxcsr_register_value_);
+    SetFloatingPointStatusRegister(previous_mxcsr_register_value_);
   }
 
  private:
   /**
-   * @brief Previous MXCSR CPU register value.
+   * @brief Previous floating point status register value.
    */
-  const unsigned previous_mxcsr_register_value_;
+  const floating_point_register_t previous_mxcsr_register_value_;
 };
 #else
 #error \
