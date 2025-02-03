@@ -21,8 +21,8 @@ namespace {
  * @return Window icon name.
  */
 [[nodiscard]] std::string MakeWindowIconName(
-    const std::string& window_name) noexcept {
-  return window_name + " icon.png";
+    std::string_view window_name) noexcept {
+  return std::string{window_name} + " icon.png";
 }
 
 }  // namespace
@@ -30,7 +30,8 @@ namespace {
 namespace wb::kernel {
 
 sdl::result<MainWindow> MainWindow::New(
-    std::string_view title, int width, int height, sdl::WindowFlags window_flags,
+    std::string_view title, int width, int height,
+    sdl::WindowFlags window_flags,
     const base::intl::LookupWithFallback& intl) noexcept {
   using namespace sdl;
 

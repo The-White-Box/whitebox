@@ -27,15 +27,21 @@ elseif (WB_OS_LINUX)
   list(APPEND WB_BOOTMGR_LINK_DEPS "dl;stdc++fs")
 elseif (WB_OS_MACOS)
   # dlopen, filesystem.
-  list(APPEND WB_BOOTMGR_LINK_DEPS "dl;c++fs")
+  list(APPEND WB_BOOTMGR_LINK_DEPS "dl")
 endif()
 
 if (WB_OS_LINUX OR WB_OS_MACOS)
   # Not needed on modern systems, but still.
   find_library(WB_LIB_RT rt)
+  find_library(WB_LIB_CPP_FS c++fs)
 
   if (WB_LIB_RT)
     list(APPEND WB_BOOTMGR_LINK_DEPS "rt")
+  endif()
+
+  # Latest libcpp doesn't have one.
+  if (WB_LIB_CPP_FS)
+    list(APPEND WB_BOOTMGR_LINK_DEPS "c++fs")
   endif()
 endif()
 
