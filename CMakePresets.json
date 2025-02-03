@@ -289,6 +289,12 @@
       "configurePreset": "x86_64-unknown-linux-clang-debug"
     },
     {
+      "name": "x86_64-unknown-linux-gcc-debug-test",
+      "description": "Dev Linux x86_64 GCC build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-unknown-linux-gcc-debug"
+    },
+    {
       "name": "x86_64-apple-darwin-debug-test",
       "description": "Dev MacOS x86_64 build tests",
       "inherits": "base-test",
@@ -305,6 +311,12 @@
       "description": "Production Linux x86_64 Clang build tests",
       "inherits": "base-test",
       "configurePreset": "x86_64-unknown-linux-clang-release"
+    },
+    {
+      "name": "x86_64-unknown-linux-gcc-release-test",
+      "description": "Production Linux x86_64 GCC build tests",
+      "inherits": "base-test",
+      "configurePreset": "x86_64-unknown-linux-gcc-release"
     },
     {
       "name": "x86_64-apple-darwin-release-test",
