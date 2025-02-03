@@ -15,7 +15,7 @@
 #include "base/deps/sdl/init.h"
 #include "base/deps/sdl/version.h"
 #include "base/deps/sdl/window.h"
-#include "base/deps/sdl_image/init.h"
+#include "base/deps/sdl_image/sdl_image.h"
 #include "base/intl/l18n.h"
 #include "build/static_settings_config.h"
 #include "kernel/main_window_posix.h"
@@ -158,34 +158,20 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   G3LOG(INFO) << "SDL versions: build " << compiled_sdl_version << ", runtime "
               << linked_sdl_version << '.';
 
-  constexpr SDLImageInitType sdl_image_init_types{SDLImageInitType::kJpg |
-                                                  SDLImageInitType::kPng};
-
-  const auto sdl_image_init = SDLImageInit::New(sdl_image_init_types);
-  if (const auto* error = get_error(sdl_image_init)) [[unlikely]] {
-    return wb::ui::FatalDialog(
-        intl::l18n_fmt(intl, "{0} - Error", kernel_args.app_description), {},
-        intl::l18n(intl,
-                   "Please, check your SDL library installed and working."),
-        MakeFatalContext(kernel_args),
-        intl::l18n_fmt(intl,
-                       "SDL image parser initialization failed for image "
-                       "types {0}.\n\n{1}.",
-                       sdl_image_init_types, *error));
-  }
+  G3LOG(INFO) << "SDL image versions: build " << SDL_IMAGE_VERSION
+              << ", runtime " << ::IMG_Version() << '.';
 
   const WindowFlags window_flags{MakeWindowFlags()};
 
   const auto window_result = MainWindow::New(
       kernel_args.app_description, command_line_flags.main_window_width,
       command_line_flags.main_window_height, window_flags, intl);
-  if ([[maybe_unused]] const auto* window = get_result(window_result)) [[likely]] {
+  if ([[maybe_unused]] const auto* window = get_result(window_result))
+      [[likely]] {
     G3LOG(INFO) << "SDL graphics context: "
                 << GetWindowGraphicsContext(window_flags) << ".";
 
-    {
-      G3LOG(INFO) << "SDL window subsystem: Posix.";
-    }
+    { G3LOG(INFO) << "SDL window subsystem: Posix."; }
 
     // Startup sequence finished, window is already shown, restore default
     // cursor.

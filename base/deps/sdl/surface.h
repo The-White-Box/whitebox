@@ -11,7 +11,7 @@
 #include "base/deps/sdl/base.h"
 #include "base/deps/sdl/config.h"
 #include "base/deps/sdl/pixel_format.h"
-#include "base/deps/sdl_image/init.h"
+#include "base/deps/sdl_image/sdl_image.h"
 #include "base/macroses.h"
 //
 WB_BEGIN_SDL_WARNING_OVERRIDE_SCOPE()
