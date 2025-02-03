@@ -181,8 +181,16 @@ class Lookup::LookupImpl final {
                       "run the game."),
                  "Sorry, your CPU has missed some required features to run the "
                  "game."},
+                {hash("Sorry, unable to load the app.  Please, contact "
+                      "support."),
+                 "Sorry, unable to load the app.  Please, contact support."},
+                {hash("Unable to get parent directory for '{0}'.  Please, "
+                      "contact support."),
+                 "Unable to get parent directory for '{0}'.  Please, contact "
+                 "support."},
                 {hash("CPU features support table for {0}:\n{1}"),
                  "CPU features support table for {0}:\n{1}"},
+                {hash("dirname '{0}' failed."), "dirname '{0}' failed."},
                 {hash("{0}     {1}"), "{0}     {1}"},
             },
             StringLayout::LeftToRight}};

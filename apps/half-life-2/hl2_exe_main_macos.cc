@@ -38,17 +38,22 @@
 #include "base/intl/scoped_process_locale.h"
 #include "base/scoped_new_handler.h"
 #include "base/scoped_shared_library.h"
+#include "base/std2/system_error_ext.h"
 #include "boot-manager/main.h"
 #include "build/static_settings_config.h"
 #include "hl2_exe_flags.h"
+#include "ui/fatal_dialog.h"
 
 #ifdef WB_MI_MALLOC
 #include "base/deps/mimalloc/scoped_dump_mimalloc_main_stats.h"
 #endif
 
 __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
+  using namespace wb::base;
+  using namespace wb::ui;
+
   // Initialize g3log logging library first as logs are used extensively.
-  const wb::base::deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
+  const deps::g3log::ScopedG3LogInitializer scoped_g3log_initializer{
       argv[0], wb::build::settings::kPathToMainLogFile};
 
   // Install heap allocator tracing / set options.
@@ -93,16 +98,25 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   uint32_t exec_path_size{0};
   int rv{_NSGetExecutablePath(nullptr, &exec_path_size)};
   if (rv != -1) [[unlikely]] {
-    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
-        << "_NSGetExecutablePath: get length failed.  Unable to load the "
-           "app.";
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std2::system_last_error_code(rv),
+        intl::l18n(l18n,
+                   "Sorry, unable to load the app.  Please, contact support."),
+        MakeFatalContext(l18n),
+        "_NSGetExecutablePath: get length failed.  Unable to load the app.");
   }
 
   std::unique_ptr<char[]> exec_path{std::make_unique<char[]>(exec_path_size)};
   rv = _NSGetExecutablePath(exec_path.get(), &exec_path_size);
   if (rv != 0) [[unlikely]] {
-    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{rv})
-        << "_NSGetExecutablePath: get path failed.  Unable to load the app.";
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std2::system_last_error_code(rv),
+        intl::l18n(l18n,
+                   "Sorry, unable to load the app.  Please, contact support."),
+        MakeFatalContext(l18n),
+        "_NSGetExecutablePath: get path failed.  Unable to load the app.");
   }
 
   constexpr char rel_path[]{
@@ -114,8 +128,15 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // version framework information.
   const char* parent_dir{dirname(exec_path.get())};
   if (!parent_dir) [[unlikely]] {
-    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, std::error_code{errno})
-        << "dirname '" << exec_path.get() << "'.";
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        std2::posix_last_error_code(errno),
+        intl::l18n(l18n,
+                   "Unable to get parent directory for '{0}'.  Please, contact "
+                   "support.",
+                   exec_path.get()),
+        MakeFatalContext(l18n),
+        intl::l18n_fmt(l18n, "dirname '{0}' failed.", exec_path.get()));
   }
 
   const size_t parent_dir_len{strlen(parent_dir)};
@@ -128,34 +149,40 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
            rel_path,
            "libwhitebox-boot-manager." WB_PRODUCT_VERSION_INFO_STRING ".dylib");
 
-  using namespace wb::base;
-
-  const auto boot_manager_load_result = ScopedSharedLibrary::FromLibraryOnPath(
+  const auto boot_manager_library = ScopedSharedLibrary::FromLibraryOnPath(
       framework_path.get(), RTLD_LAZY | RTLD_LOCAL | RTLD_FIRST);
-  if (const std::error_code& error =
-          boot_manager_load_result.error_or(std2::ok_code)) [[unlikely]] {
-    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, error)
-        << "Can't load boot manager '" << framework_path.get() << ".";
+  if (!boot_manager_library.has_value()) [[unlikely]] {
+    return wb::ui::FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        boot_manager_entry.error(),
+        intl::l18n(l18n,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        FatalDialogContext{l18n.Layout()},
+        intl::l18n_fmt(l18n, "Can't load boot manager '{0}'.",
+                       framework_path.get()));
   }
 
-  const auto boot_manager_module =
-      std::get<ScopedSharedLibrary>(boot_manager_load_result);
-  constexpr char kBootManagerMainFunctionName[]{"BootManagerMain"};
+  using BootManagerMain = decltype(&BootManagerMain);
+  // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+  constexpr char kBootManagerMainName[]{"BootManagerMain"};
 
-  using BootManagerMainFunction = decltype(&BootManagerMain);
+  const wb::base::ScopedSharedLibrary& boot_manager = *boot_manager_library;
 
   // Good, try to find and launch boot manager.
-  const auto boot_manager_entry_result =
-      boot_manager_module->GetAddressAs<BootManagerMainFunction>(
-          kBootmgrMainFunctionName);
-  if (const auto* rc = std2::get_error(bootmgr_entry_result)) [[unlikely]] {
-    wb::sdl::Fatal(WB_PRODUCT_FILE_DESCRIPTION_STRING, *rc)
-        << "Can't get '" << kBootmgrMainFunctionName << "' entry point from '"
-        << framework_path.get() << "'.";
+  const auto boot_manager_entry =
+      boot_manager.GetAddressAs<BootManagerMain>(kBootManagerMainName);
+  if (!boot_manager_entry.has_value()) [[unlikely]] {
+    return FatalDialog(
+        intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
+        boot_manager_entry.error(),
+        intl::l18n(l18n,
+                   "Please, check app is installed correctly and you have "
+                   "enough permissions to run it."),
+        FatalDialogContext{l18n.Layout()},
+        intl::l18n_fmt(l18n, "Can't get '{0}' entry point from '{1}'.",
+                       kBootManagerMainName, framework_path.get()));
   }
-
-  const auto boot_manager_main =
-      std::get<BootManagerMainFunction>(bootmgr_entry_result);
 
   wb::apps::flags::AssetsPath assets_path{absl::GetFlag(FLAGS_assets_path)};
 
@@ -187,7 +214,8 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   ScopedNewHandler scoped_new_handler{DefaultNewFailureHandler,
                                       attempts_to_retry_allocate_memory};
   // Set it as global handler.  C++ API is too strict here and we can't pass
-  // state into void(void), so need global variable to access state in handler.
+  // state into void(void), so need global variable to access state in
+  // handler.
   InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
   rv = boot_manager_main(std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
