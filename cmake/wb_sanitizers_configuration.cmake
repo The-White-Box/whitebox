@@ -13,7 +13,7 @@ function(wb_check_sanitizers_configuration_valid
     ENABLE_TSAN
     ENABLE_UBSAN)
   if (${ENABLE_ASAN})
-    if (${FORTIFY_SOURCE_DEFINED} AND NOT ${FORCE_ENABLE_ASAN})
+    if ("${FORTIFY_SOURCE_DEFINED}" AND NOT ${FORCE_ENABLE_ASAN})
       # ASan and -D_FORTIFY_SOURCE don't work well.  Wait till fixed in https://github.com/google/sanitizers/issues/247
       message(FATAL_ERROR
           "[sanitizers]: AddressSanitizer and source fortification are enabled.  It may cause false positives.  "

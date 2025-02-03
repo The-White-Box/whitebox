@@ -84,7 +84,7 @@ function(wb_apply_compile_options_to_target THE_TARGET)
     ${WB_ROOT_DIR} 
     ${WB_GCC_ENABLE_ADDRESS_SANITIZER}
     ${WB_GCC_ENABLE_LEAK_SANITIZER}
-    ${WB_GCC_DEFINE__FORTIFY_SOURCE}
+    "${WB_GCC_DEFINE__FORTIFY_SOURCE}"
     # Do not force ASAN work for fortified sources.
     OFF
     # No memory sanitizer on GCC.

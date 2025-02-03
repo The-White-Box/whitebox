@@ -37,11 +37,11 @@
 #endif
 #endif
 
-// We support clang 16.0 and later.
+// We support clang 15.0 and later.
 // This minimum will go up.
 #if defined(__clang__)
-#if __clang_major__ < 16
-#error "This package requires clang 16.0 or higher."
+#if __clang_major__ < 15
+#error "This package requires clang 15.0 or higher."
 #endif
 #endif
 
