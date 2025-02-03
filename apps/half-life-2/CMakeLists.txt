@@ -32,7 +32,16 @@ elseif (WB_OS_LINUX)
   list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;stdc++fs")
 elseif (WB_OS_MACOS)
   # dlopen, filesystem.
-  list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl;c++fs")
+  list(APPEND WB_HALF_LIFE2_LINK_DEPS "dl")
+endif()
+
+if (WB_OS_MACOS)
+  find_library(WB_LIB_CPP_FS c++fs)
+
+  # Latest libcpp doesn't have one.
+  if (WB_LIB_CPP_FS)
+    list(APPEND WB_BOOTMGR_LINK_DEPS "c++fs")
+  endif()
 endif()
 
 set(WB_HALF_LIFE2_RUNTIME_DEPS

@@ -7,10 +7,16 @@
 
 #include <algorithm>
 
+#include "base/deps/g3log/g3log.h"
+#include "base/std2/string_view_ext.h"
 #include "build/build_config.h"
 
 #ifdef WB_ARCH_CPU_X86_64
 #include "hal/drivers/cpu/x86_64_cpu_isa.h"
+#endif
+
+#ifdef WB_OS_MACOS
+#include <sys/sysctl.h>  // sysctlbyname
 #endif
 
 namespace wb::apps {
@@ -56,14 +62,36 @@ namespace wb::apps {
   }
 
   return {};
+#elif defined(WB_ARCH_CPU_ARM_FAMILY) || defined(WB_ARCH_CPU_ARM_NEON)
+  return {};
 #else
 #error "Please define CPU feature checks for your architecture."
 #endif
 }
 
-[[nodiscard]] std::string QueryCpuBrand() noexcept {
+[[nodiscard]] std::string_view QueryCpuBrand() noexcept {
 #ifdef WB_ARCH_CPU_X86_64
   return wb::hal::cpus::x86_64::CpuIsa::Brand();
+#elif defined(WB_ARCH_CPU_ARM_FAMILY) || defined(WB_ARCH_CPU_ARM_NEON)
+  static char cached_cpu_brand[128]{'\0'};
+  if (cached_cpu_brand[0]) return cached_cpu_brand;
+
+  // Works both on Intel Macs and M1+
+  char temp_cpu_brand[128];
+  size_t len{sizeof(temp_cpu_brand)};
+  const int rc = sysctlbyname("machdep.cpu.brand_string", temp_cpu_brand, &len,
+                              nullptr, 0);
+
+  if (rc == 0) {
+    wb::base::std2::TrimSpaces(temp_cpu_brand, cached_cpu_brand);
+    return cached_cpu_brand;
+  }
+
+  G3DPCHECK_E(rc == 0, wb::base::std2::system_last_error_code(rc))
+      << "Unable to get Mach CPU brand string.";
+
+  strcpy(cached_cpu_brand, "N/A");
+  return cached_cpu_brand;
 #else
 #error "Please define CPU brand for your architecture."
 #endif

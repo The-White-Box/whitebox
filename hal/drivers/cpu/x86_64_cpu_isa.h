@@ -15,6 +15,7 @@
 #include <bitset>
 #include <cstdint>
 #include <string>
+#include <string_view>
 
 #include "hal/drivers/cpu/cpu_api.h"
 
@@ -33,8 +34,8 @@ namespace wb::hal::cpus::x86_64 {
  */
 class CpuIsa final {
  public:
-  static std::string Vendor() noexcept { return Q().vendor_; }
-  static std::string Brand() noexcept { return Q().brand_; }
+  static std::string_view Vendor() noexcept { return Q().vendor_; }
+  static std::string_view Brand() noexcept { return Q().brand_; }
 
   static bool HasSse3() noexcept { return Q().f_1_ecx_[0]; }
   static bool HasPclmulqdq() noexcept { return Q().f_1_ecx_[1]; }
@@ -163,7 +164,7 @@ class CpuIsa final {
      */
     WB_HAL_CPU_DRIVER_API CpuQuery() noexcept;
 
-    char vendor_[0x10], brand_[0x40];
+    std::string vendor_, brand_;
     bool is_intel_, is_amd_;
 
 #ifdef WB_COMPILER_MSVC

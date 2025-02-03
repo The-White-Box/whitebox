@@ -9,6 +9,7 @@
 
 #include <array>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "build/compiler_config.h"
@@ -43,7 +44,7 @@ struct CpuFeature {
  * @brief Get CPU brand.
  * @return CPU brand.
  */
-[[nodiscard]] std::string QueryCpuBrand() noexcept;
+[[nodiscard]] std::string_view QueryCpuBrand() noexcept;
 
 }  // namespace wb::apps
 

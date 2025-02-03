@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "base/std2/cstring_ext.h"
+#include "base/std2/string_view_ext.h"
 #include "hal/drivers/cpu/cpu_api.h"
 
 #ifdef WB_ARCH_CPU_X86_64
@@ -89,10 +90,11 @@ namespace {
  * @brief Get CPU vendor.
  * @param in CPU registers to extract vendor.
  * @param vendor CPU vendor.
- * @return void.
+ * @return CPU vendor.
  */
-void GetVendor(const std::array<std::int32_t, 4> &in,
-               char (&vendor)[0x10]) noexcept {
+std::string GetVendor(const std::array<std::int32_t, 4> &in) noexcept {
+  char vendor[0x10];
+
   static_assert(sizeof(vendor) >= sizeof(std::int32_t) * 3,
                 "CPU vendor string has at least 12 bytes.");
 
@@ -100,62 +102,32 @@ void GetVendor(const std::array<std::int32_t, 4> &in,
   std::memcpy(vendor + sizeof(in[1]), &in[3], sizeof(in[3]));
   std::memcpy(vendor + sizeof(in[1]) + sizeof(in[3]), &in[2],  //-V119
               sizeof(in[2]));
-}
 
-/**
- * @brief Trim spaces around data.
- * @param in Input to trim spaces around.
- * @param out Output to write |in| with trimmed spaces to.
- * @return void.
- */
-void TrimSpaces(char (&in)[0x40], char (&out)[0x40]) noexcept {
-  size_t i{0};
-  // Trim leading space.
-  while (std::isspace(in[i])) ++i;
-
-  if (in[i] == '\0') {
-    out[0] = '\0';
-    return;
-  }
-
-  // Trim trailing space.
-  char *end{in + strlen(in) - 1};
-
-  while (end > in && std::isspace(*end)) end--;
-
-  // Write new null terminator character.
-  end[1] = '\0';
-
-#ifdef WB_OS_WIN
-  strncpy_s(out, &in[0] + i, end + 1 - in + i);
-#else
-  const size_t size{static_cast<size_t>(end + 1 - in) + i};
-  strncpy(out, &in[0] + i, size);
-  out[std::size(out) - 1] = '\0';
-#endif  // WB_OS_WIN
+  return vendor;
 }
 
 /**
  * @brief Get CPU brand.
  * @param in Input data.
  * @param brand CPU brand.
- * @return void.
+ * @return CPU brand.
  */
-void GetBrand(const std::vector<std::array<std::int32_t, 4>> &in,
-              char (&brand)[0x40]) noexcept {
-  char brand_raw[0x40]{'\0'};
+std::string GetBrand(
+    const std::vector<std::array<std::int32_t, 4>> &in) noexcept {
+  char brand_temp[0x40]{'\0'}, brand_out[0x40]{'\0'};
 
-  static_assert(sizeof(brand_raw) == sizeof(brand),
+  static_assert(sizeof(brand_temp) == sizeof(brand_out),
                 "CPU brand string has at least 48 bytes.");
-  static_assert(sizeof(brand_raw) >= sizeof(in[2]) * 3,
+  static_assert(sizeof(brand_temp) >= sizeof(in[2]) * 3,
                 "CPU brand string has at least 48 bytes.");
 
-  wb::base::std2::BitwiseCopy(brand_raw, in[2]);
-  std::memcpy(brand_raw + sizeof(in[2]), in[3].data(), sizeof(in[3]));
-  std::memcpy(brand_raw + sizeof(in[2]) + sizeof(in[3]), in[4].data(),  //-V119
+  wb::base::std2::BitwiseCopy(brand_temp, in[2]);
+  std::memcpy(brand_temp + sizeof(in[2]), in[3].data(), sizeof(in[3]));
+  std::memcpy(brand_temp + sizeof(in[2]) + sizeof(in[3]), in[4].data(),  //-V119
               sizeof(in[4]));
 
-  TrimSpaces(brand_raw, brand);
+  return wb::base::std2::TrimSpaces(brand_temp, brand_out) ? brand_out
+                                                           : brand_temp;
 }
 
 }  // namespace
@@ -189,11 +161,11 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
 
   if (func_ids_count >= 0) {
     // Capture vendor string.
-    GetVendor(data[0], vendor_);
+    vendor_ = GetVendor(data[0]);
 
-    if (std::strcmp(vendor_, "GenuineIntel") == 0) {
+    if (vendor_ == "GenuineIntel") {
       is_intel_ = true;
-    } else if (std::strcmp(vendor_, "AuthenticAMD") == 0) {
+    } else if (vendor_ == "AuthenticAMD") {
       is_amd_ = true;
     }
   }
@@ -236,7 +208,7 @@ WB_HAL_CPU_DRIVER_API CpuIsa::CpuQuery::CpuQuery() noexcept
 
   // Interpret cpu brand string if reported.
   if (static_cast<unsigned>(ext_func_ids_count) >= 0x80000004U) {
-    GetBrand(ext_data, brand_);
+    brand_ = std::move(GetBrand(ext_data));
   }
 }
 

@@ -14,7 +14,8 @@ set(WB_HAL_CPU_DRIVER_LINK_OPTIONS "")
 set(WB_HAL_CPU_DRIVER_LINK_DEPS
   # Should be first as linker requires it.
   mimalloc
-  g3log)
+  g3log
+  wb::whitebox-base)
 
 if (WB_OS_WIN)
   list(APPEND WB_HAL_CPU_DRIVER_LINK_DEPS mimalloc-redirect)

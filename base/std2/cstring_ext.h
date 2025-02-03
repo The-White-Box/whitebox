@@ -21,8 +21,8 @@ namespace wb::base::std2 {
  * @tparam TMemory Type to check as writeable memory.
  */
 template <typename TMemory, std::size_t count>
-concept writable_memory = std::is_trivially_copyable_v<TMemory> &&
-                          count <= sizeof(TMemory);
+concept writable_memory =
+    std::is_trivially_copyable_v<TMemory> && count <= sizeof(TMemory);
 
 /**
  * @brief std::memset with type-checking.
@@ -32,7 +32,7 @@ concept writable_memory = std::is_trivially_copyable_v<TMemory> &&
  * @return Destination object reference.
  */
 template <typename Dest, std::size_t count = sizeof(Dest)>
-requires writable_memory<Dest, count>
+  requires writable_memory<Dest, count>
 inline Dest& BitwiseMemset(Dest& destination, unsigned char value) noexcept {
   return *static_cast<Dest*>(std::memset(&destination, value, count));
 }
