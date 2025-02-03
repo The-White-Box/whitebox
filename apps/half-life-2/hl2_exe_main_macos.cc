@@ -90,7 +90,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
         intl::l18n(l18n,
                    "Sorry, your CPU has missed some required features to run "
                    "the game."),
-        MakeFatalContext(l18n),
+        FatalDialogContext{l18n.Layout()},
         intl::l18n_fmt(l18n, "CPU features support table for {0}:\n{1}",
                        wb::apps::QueryCpuBrand(), cpu_features_support_state));
   }
@@ -103,7 +103,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
         std2::system_last_error_code(rv),
         intl::l18n(l18n,
                    "Sorry, unable to load the app.  Please, contact support."),
-        MakeFatalContext(l18n),
+        FatalDialogContext{l18n.Layout()},
         "_NSGetExecutablePath: get length failed.  Unable to load the app.");
   }
 
@@ -115,7 +115,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
         std2::system_last_error_code(rv),
         intl::l18n(l18n,
                    "Sorry, unable to load the app.  Please, contact support."),
-        MakeFatalContext(l18n),
+        FatalDialogContext{l18n.Layout()},
         "_NSGetExecutablePath: get path failed.  Unable to load the app.");
   }
 
@@ -131,11 +131,12 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
         std2::posix_last_error_code(errno),
-        intl::l18n(l18n,
-                   "Unable to get parent directory for '{0}'.  Please, contact "
-                   "support.",
-                   exec_path.get()),
-        MakeFatalContext(l18n),
+        intl::l18n_fmt(
+            l18n,
+            "Unable to get parent directory for '{0}'.  Please, contact "
+            "support.",
+            exec_path.get()),
+        FatalDialogContext{l18n.Layout()},
         intl::l18n_fmt(l18n, "dirname '{0}' failed.", exec_path.get()));
   }
 
@@ -154,7 +155,7 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   if (!boot_manager_library.has_value()) [[unlikely]] {
     return wb::ui::FatalDialog(
         intl::l18n_fmt(l18n, "{0} - Error", WB_PRODUCT_FILE_DESCRIPTION_STRING),
-        boot_manager_entry.error(),
+        boot_manager_library.error(),
         intl::l18n(l18n,
                    "Please, check app is installed correctly and you have "
                    "enough permissions to run it."),
@@ -218,8 +219,8 @@ __attribute__((visibility("default"))) int main(int argc, char* argv[]) {
   // handler.
   InstallGlobalScopedNewHandler(std::move(scoped_new_handler));
 
-  rv = boot_manager_main(std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
-                         command_line_flags, l18n);
+  rv = boot_manager_entry(std::string_view{WB_PRODUCT_FILE_DESCRIPTION_STRING},
+                          command_line_flags, l18n);
 
   // exit, don't return from main, to avoid the apparent removal of main
   // from stack backtraces under tail call optimization.
