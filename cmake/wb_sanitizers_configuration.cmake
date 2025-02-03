@@ -16,9 +16,9 @@ function(wb_check_sanitizers_configuration_valid
     if (${FORTIFY_SOURCE_DEFINED} AND NOT ${FORCE_ENABLE_ASAN})
       # ASan and -D_FORTIFY_SOURCE don't work well.  Wait till fixed in https://github.com/google/sanitizers/issues/247
       message(FATAL_ERROR
-          "[sanitizers]: ${${ENABLE_ASAN}} and ${${FORTIFY_SOURCE_DEFINED}} may be not compatible.  "
-          "Please, use either ${${ENABLE_ASAN}} or ${${FORTIFY_SOURCE_DEFINED}}, or set ${${FORCE_ENABLE_ASAN}} to force ASan "
-          "even with ${${FORTIFY_SOURCE_DEFINED}} enabled (may lead to missed by ASan errors).")
+          "[sanitizers]: AddressSanitizer and source fortification are enabled.  It may cause false positives.  "
+          "Please, use either AddressSanitizer or source fortification, or set force enable AddressSantizer to force one "
+          "even with source fortification enabled (may lead to missed by ASan errors).")
     endif()
 
     if (DEFINED ENV{ASAN_OPTIONS})
