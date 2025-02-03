@@ -125,7 +125,6 @@ extern "C" [[nodiscard]] WB_WHITEBOX_KERNEL_API int KernelMain(
   const auto& command_line_flags = kernel_args.command_line_flags;
 
   using namespace wb::sdl;
-  using namespace wb::sdl_image;
 
   const int compiled_sdl_version{GetCompileTimeVersion()},
       linked_sdl_version{GetLinkTimeVersion()};
