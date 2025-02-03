@@ -58,7 +58,7 @@ GTEST_TEST(ScopedSharedLibraryTest, LoadUnloadLibraryInScope) {
   {
     // Rely on dbus installed on almost every system.
     const auto dbus_library_result =
-        ScopedSharedLibrary::FromLibraryOnPath("libdbus-1.so", 0);
+        ScopedSharedLibrary::FromLibraryOnPath("libdbus-1.so", RTLD_NOW);
     EXPECT_TRUE(dbus_library_result.has_value());
 
     struct DBusConnection;
@@ -71,6 +71,21 @@ GTEST_TEST(ScopedSharedLibraryTest, LoadUnloadLibraryInScope) {
             "dbus_bus_get_id");
     ASSERT_TRUE(dbus_bus_get_id_function.has_value());
     EXPECT_NE(nullptr, *dbus_bus_get_id_function);
+  }
+#elif defined(WB_OS_MACOS)
+  {
+    // Rely on libssl installed on every system.
+    const auto libssl_library_result = ScopedSharedLibrary::FromLibraryOnPath(
+        "/usr/lib/libssl.35.dylib", RTLD_NOW);
+    EXPECT_TRUE(libssl_library_result.has_value());
+
+    using SslLibraryInitFunction = void (*)();
+
+    const auto ssl_library_init_function =
+        libssl_library_result->GetAddressAs<SslLibraryInitFunction>(
+            "SSL_library_init");
+    ASSERT_TRUE(ssl_library_init_function.has_value());
+    EXPECT_NE(nullptr, *ssl_library_init_function);
   }
 #else
 #error "Please add shared library support test for your platform."
