@@ -76,7 +76,7 @@ GTEST_TEST(StringViewExtTest, TrimSpaces) {
   EXPECT_TRUE(TrimSpaces("m1 n2 T3 dd  ", out));
   EXPECT_STREQ("m1 n2 T3 dd", out);
 
-  EXPECT_TRUE(TrimSpaces("m1 n2 T3 dd  ", out));
+  EXPECT_TRUE(TrimSpaces("  m1 n2 T3 dd  ", out));
   EXPECT_STREQ("m1 n2 T3 dd", out);
 }
 

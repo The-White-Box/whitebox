@@ -46,7 +46,7 @@ WB_BASE_API bool TrimSpaces(std::string_view in, char *out,
 
   while (end > in.data() && std::isspace(*end)) end--;
 
-  const size_t size{static_cast<size_t>(end + 1 - in.data()) + i};
+  const size_t size{static_cast<size_t>(end + 1 - in.data()) - i};
   // Overflow.
   if (size >= out_size) return false;
 
