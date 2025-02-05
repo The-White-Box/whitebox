@@ -186,7 +186,10 @@
       "description": "MacOS x86_64 Clang Debug",
       "inherits": "unknown-apple-darwin-base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WB_CLANG_ENABLE_ADDRESS_SANITIZER": "ON",
+        "WB_CLANG_ENABLE_LEAK_SANITIZER": "ON",
+        "WB_CLANG_ENABLE_UB_SANITIZER": "ON"
       }
     },
     {
