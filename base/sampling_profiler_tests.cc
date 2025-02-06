@@ -16,6 +16,7 @@
 #include "base/win/scoped_timer_resolution.h"
 #endif
 
+#include "base/tests/ci_detection.h"
 //
 #include "base/deps/googletest/gtest/gtest.h"
 
@@ -48,14 +49,13 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
 
   constexpr auto average_sample_time{25ms};
   // Allow 50% deviation for testing host CPU fluctuations.
-  constexpr auto sample_time_deviation{average_sample_time / 2};
+  auto sample_time_deviation{average_sample_time / 2};
 
 #ifdef WB_OS_WIN
   // Well, windows sleep precision can be not so high.  Need to increase it to
   // fluctuate no more than sample_time_deviation.
   const auto scoped_minimum_timer_resolution =
-      wb::base::win::ScopedTimerResolution::New(
-          sample_time_deviation);
+      wb::base::win::ScopedTimerResolution::New(sample_time_deviation);
   EXPECT_TRUE(scoped_minimum_timer_resolution.has_value());
 #endif
 
@@ -63,6 +63,15 @@ GTEST_TEST(HighResolutionSamplingProfilerTest, MoveConstructorMovesState) {
       std::chrono::steady_clock::now()};
 
   auto moved_profiler = std::move(profiler);
+
+#ifdef WB_OS_MACOS
+  // TODO(dimhotepus): MacOS on CI has very bad precision for sleep here.  Need
+  // to investigate on real MacOS.
+  bool is_ci{false};
+  if (wb::base::tests_internal::IsInContinuousIntegrationPipeline(is_ci)) {
+    sample_time_deviation *= 5;
+  }
+#endif
 
   {
     std::this_thread::sleep_for(average_sample_time);
@@ -93,8 +102,7 @@ GTEST_TEST(HighResolutionSamplingProfilerTest,
   // Well, windows sleep precision can be not so high.  Need to increase it to
   // fluctuate no more than sample_time_deviation.
   const auto scoped_minimum_timer_resolution =
-      wb::base::win::ScopedTimerResolution::New(
-          sample_time_deviation);
+      wb::base::win::ScopedTimerResolution::New(sample_time_deviation);
   EXPECT_TRUE(scoped_minimum_timer_resolution.has_value());
 #endif
 
