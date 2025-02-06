@@ -13,7 +13,7 @@
 namespace wb::base::tests_internal {
 
 /**
- * @brief Set mimalloc output handelrs in scope.
+ * @brief Set mimalloc output handlers in scope.
  */
 class ScopedMimallocOutputHandlers {
  public:
