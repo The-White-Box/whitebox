@@ -388,7 +388,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
       ## Sanitizers.
       $<$<BOOL:${WB_CLANG_ENABLE_ADDRESS_SANITIZER}>:-fsanitize=address>
-      $<$<BOOL:${WB_CLANG_ENABLE_LEAK_SANITIZER}>:-fsanitize=leak>
+      # AppleClang doesn't support leak sanitizer.'
+      $<$<AND:$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>, $<BOOL:${WB_CLANG_ENABLE_LEAK_SANITIZER}>>:-fsanitize=leak>
       $<$<BOOL:${WB_CLANG_ENABLE_UB_SANITIZER}>:-fsanitize=undefined>
       $<$<BOOL:${WB_CLANG_ENABLE_MEMORY_SANITIZER}>:-fsanitize=memory>
       $<$<BOOL:${WB_CLANG_ENABLE_THREAD_SANITIZER}>:-fsanitize=thread>
@@ -493,7 +494,8 @@ function(wb_apply_compile_options_to_target THE_TARGET)
 
       ## Sanitizers.
       $<$<BOOL:${WB_CLANG_ENABLE_ADDRESS_SANITIZER}>:-fsanitize=address>
-      $<$<BOOL:${WB_CLANG_ENABLE_LEAK_SANITIZER}>:-fsanitize=leak>
+      # AppleClang doesn't support leak sanitizer.'
+      $<$<AND:$<NOT:$<STREQUAL:"${WB_CXX_COMPILER_ID}","AppleClang">>, $<BOOL:${WB_CLANG_ENABLE_LEAK_SANITIZER}>>:-fsanitize=leak>
       $<$<BOOL:${WB_CLANG_ENABLE_UB_SANITIZER}>:-fsanitize=undefined>
       $<$<BOOL:${WB_CLANG_ENABLE_MEMORY_SANITIZER}>:-fsanitize=memory>
       $<$<BOOL:${WB_CLANG_ENABLE_THREAD_SANITIZER}>:-fsanitize=thread>
