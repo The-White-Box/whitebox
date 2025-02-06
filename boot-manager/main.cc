@@ -24,7 +24,6 @@
 #include "ui/fatal_dialog.h"
 
 #ifdef WB_OS_WIN
-#include "base/deps/abseil/cleanup/cleanup.h"
 #include "base/scoped_app_instance_manager.h"
 #include "base/std2/thread_ext.h"
 #include "base/win/dll_load_utils.h"
@@ -39,6 +38,10 @@
 #include "build/static_settings_config.h"
 #include "kernel/main_window_win.h"
 #include "ui/win/window_utilities.h"
+#endif
+
+#ifdef __GLIBC__
+#include <gnu/libc-version.h>
 #endif
 
 #ifdef WB_OS_POSIX
@@ -123,9 +126,10 @@ void DumpSystemInformation(std::string_view app_description,
 #if defined(WB_LIBC_GLIBC) && defined(_GLIBCXX_RELEASE)
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with " << kCompilerVersion << " on glibc " << __GLIBC__
-              << "." << __GLIBC_MINOR__ << ", glibc++ " << _GLIBCXX_RELEASE
-              << ", ABI stamp " << __GLIBCXX__ << " running with assets from '"
-              << assets_path << "'.";
+              << "." << __GLIBC_MINOR__ << " [compiled], "
+              << gnu_get_libc_version() " [runtime], glibc++ "
+              << _GLIBCXX_RELEASE << ", ABI stamp " << __GLIBCXX__
+              << " running with assets from '" << assets_path << "'.";
 #endif
 #ifdef _LIBCPP_VERSION
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
