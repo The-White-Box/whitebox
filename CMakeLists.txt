@@ -187,6 +187,13 @@ if (Git_FOUND)
     "commit ${WB_GIT_COMMIT_HASH} | ${WB_GIT_COMMIT_SUBJECT}.")
 endif()
 
+# Use ccache to speedup compilation when available.
+find_program(CCACHE_PROGRAM ccache)
+if (CCACHE_PROGRAM)
+  message(STATUS "[common]: Found ccache in ${CCACHE_PROGRAM}")
+  set_property(GLOBAL_PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_PROGRAM}")
+endif()
+
 message(STATUS
   "[common]: ${PACKAGE_NAME} using CMake generator: ${WB_CMAKE_GENERATOR}.")
 
