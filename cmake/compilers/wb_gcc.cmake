@@ -42,7 +42,7 @@ wb_define_strings_option(WB_GCC_ENABLE_LTO
 
 wb_define_strings_option(WB_GCC_LINKER_TYPE
     "Replaces default ld linker with one from predefined set. Note lld can cause LTO doesn't work."
-    "gold" "ld" "lld")
+    "lld" "gold" "ld")
 
 wb_define_strings_option(WB_GCC_CXX_LANGUAGE_VERSION
   "This determines which version of C++ to compile as via GCC."
