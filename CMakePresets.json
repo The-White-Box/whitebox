@@ -102,7 +102,6 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "WB_MSVC_ENABLE_DEBUG_FAST_LINK": "ON",
         "WB_MSVC_FLOATING_POINT_BEHAVIOR": "fast",
         "WB_MSVC_MINIMUM_CPU_ARCHITECTURE": "AVX"
       }

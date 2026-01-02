@@ -46,22 +46,21 @@ jobs:
       - name: Install dependencies (Ubuntu)
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
-          sudo rm /var/lib/man-db/auto-update
           sudo apt-get update
           sudo apt-get install -y \
           build-essential \
           git \
           make \
+          pkg-config \
           cmake \
           ninja-build \
-          pkg-config \
           gnome-desktop-testing \
           libasound2-dev \
           libpulse-dev \
           libaudio-dev \
+          libfribidi-dev \
           libjack-dev \
           libsndio-dev \
-          libusb-1.0-0-dev \
           libx11-dev \
           libxext-dev \
           libxrandr-dev \
@@ -69,7 +68,7 @@ jobs:
           libxfixes-dev \
           libxi-dev \
           libxss-dev \
-          libwayland-dev \
+          libxtst-dev \
           libxkbcommon-dev \
           libdrm-dev \
           libgbm-dev \
@@ -79,8 +78,12 @@ jobs:
           libdbus-1-dev \
           libibus-1.0-dev \
           libudev-dev \
-          fcitx-libs-dev
-          sudo apt-get install -y gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
+          libthai-dev \
+          libpipewire-0.3-dev \
+          libwayland-dev \
+          libdecor-0-dev \
+          liburing-dev
+          sudo apt-get install -y lld gcc-${{ env.GCC_VERSION }} g++-${{ env.GCC_VERSION }}
           sudo update-alternatives \
           --install /usr/bin/gcc   gcc   /usr/bin/gcc-${{ env.GCC_VERSION }}     100 \
           --slave   /usr/bin/g++ g++ /usr/bin/g++-${{ env.GCC_VERSION }}  \

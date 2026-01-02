@@ -139,8 +139,11 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
           "message is not checked");
 
-  EXPECT_EXIT(triggerComConcurrencyModelChange(), test_result.exit_predicate,
-              test_result.message);
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+    EXPECT_EXIT(triggerComConcurrencyModelChange(), test_result.exit_predicate,
+                test_result.message);
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 }
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
@@ -176,8 +179,11 @@ GTEST_TEST(ScopedThreadComInitializerDeathTest,
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
           "COM should be freed on the same thread as it was initialized.");
 
-  EXPECT_EXIT(triggerComUninitializeInAnotherThread(),
-              test_result.exit_predicate, test_result.message);
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+    EXPECT_EXIT(triggerComUninitializeInAnotherThread(),
+                test_result.exit_predicate, test_result.message);
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 }
 #endif  // NDEBUG
 #endif  // GTEST_HAS_DEATH_TEST

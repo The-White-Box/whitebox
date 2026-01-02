@@ -108,8 +108,9 @@ bool IsSuperUser() noexcept {
  * @param app_description Application description.
  * @param assets_path Assets path.
  */
-void DumpSystemInformation(std::string_view app_description,
-                           const std::string& assets_path) noexcept {
+void DumpSystemInformation(
+    std::string_view app_description,
+    [[maybe_unused]] const std::string& assets_path) noexcept {
 #if defined(WB_OS_POSIX)
 #if defined(WB_COMPILER_CLANG)
   // NOLINTNEXTLINE(modernize-avoid-c-arrays)
@@ -127,7 +128,7 @@ void DumpSystemInformation(std::string_view app_description,
   G3LOG(INFO) << app_description << " v." << WB_PRODUCT_FILEVERSION_INFO_STRING
               << " build with " << kCompilerVersion << " on glibc " << __GLIBC__
               << "." << __GLIBC_MINOR__ << " [compiled], "
-              << gnu_get_libc_version() " [runtime], glibc++ "
+              << gnu_get_libc_version() << " [runtime], glibc++ "
               << _GLIBCXX_RELEASE << ", ABI stamp " << __GLIBCXX__
               << " running with assets from '" << assets_path << "'.";
 #endif

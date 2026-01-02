@@ -212,21 +212,19 @@ void MainWindow::OnPaint(_In_ HWND window) noexcept {
     if (fps <= kFpsMaxCap) {
       auto scoped_window_paint = ui::win::ScopedWindowPaint::New(window);
 
-      scoped_window_paint.transform(
-          [=](const ui::win::ScopedWindowPaint &painter) {
-            RECT paint_rc{painter.PaintInfo().rcPaint};
+      if (scoped_window_paint) {
+        RECT paint_rc{scoped_window_paint->PaintInfo().rcPaint};
 
-            if (!::IsRectEmpty(&paint_rc)) {
-              std::string message;
-              absl::StrAppend(&message,
-                              "FPS: ", std::floor(fps * 10.0F) / 10.0F);
+        if (!::IsRectEmpty(&paint_rc)) {
+          std::string message;
+          absl::StrAppend(&message, "FPS: ", std::floor(fps * 10.0F) / 10.0F);
 
-              painter.BlitPattern(paint_rc, WHITENESS);
-              painter.TextDraw(
-                  message.c_str(), -1, &paint_rc,
-                  DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
-            }
-          });
+          scoped_window_paint->BlitPattern(paint_rc, WHITENESS);
+          scoped_window_paint->TextDraw(
+              message.c_str(), -1, &paint_rc,
+              DT_NOPREFIX | DT_VCENTER | DT_CENTER | DT_SINGLELINE);
+        }
+      }
     } else {
       std::this_thread::sleep_for(4ms);
     }

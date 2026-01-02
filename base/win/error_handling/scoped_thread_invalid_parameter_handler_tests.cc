@@ -15,7 +15,8 @@
 using namespace wb::base::win::error_handling;
 
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(ScopedThreadInvalidParameterHandlerTests, ShouldSetPureCallHandlerInScopeTest) {
+GTEST_TEST(ScopedThreadInvalidParameterHandlerTests,
+           ShouldSetPureCallHandlerInScopeTest) {
   ASSERT_NE(::_get_thread_local_invalid_parameter_handler(),
             DefaultThreadInvalidParameterHandler);
 
@@ -33,7 +34,8 @@ GTEST_TEST(ScopedThreadInvalidParameterHandlerTests, ShouldSetPureCallHandlerInS
 
 #ifdef GTEST_HAS_DEATH_TEST
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)
-GTEST_TEST(ScopedThreadInvalidParameterHandlerDeathTest, ShouldTerminateOnPureCallTest) {
+GTEST_TEST(ScopedThreadInvalidParameterHandlerDeathTest,
+           ShouldTerminateOnPureCallTest) {
   GTEST_FLAG_SET(death_test_style, "threadsafe");
 
   const auto triggerInvalidParameterCall = []() {
@@ -47,7 +49,10 @@ GTEST_TEST(ScopedThreadInvalidParameterHandlerDeathTest, ShouldTerminateOnPureCa
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
           "Invalid parameter detected in function \\(null\\)\\.");
 
-  EXPECT_EXIT(triggerInvalidParameterCall(), test_result.exit_predicate,
-              test_result.message);
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+    EXPECT_EXIT(triggerInvalidParameterCall(), test_result.exit_predicate,
+                test_result.message);
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 }
 #endif  // GTEST_HAS_DEATH_TEST

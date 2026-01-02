@@ -23,16 +23,8 @@ MakeG3LogCheckFailureDeathTestResult([[maybe_unused]] std::string message
 #endif
                                      ) noexcept {
 #ifdef NDEBUG
-#ifndef WB_OS_WIN
-  constexpr int death_signal_num{SIGABRT};
-#endif
-
   std::string death_message{std::move(message)};
-#else  // NDEBUG
-#ifndef WB_OS_WIN
-  constexpr int death_signal_num{SIGTRAP};
-#endif
-
+#else   // NDEBUG
   // In DEBUG mode message is not printed.
   std::string death_message;
 #endif  // !NDEBUG
@@ -42,7 +34,9 @@ MakeG3LogCheckFailureDeathTestResult([[maybe_unused]] std::string message
   return DeathTestResult<testing::ExitedWithCode>(exited_with_code,
                                                   std::move(death_message));
 #else
+  constexpr int death_signal_num{SIGABRT};
   const auto killed_by_signal = testing::KilledBySignal{death_signal_num};
+
   return DeathTestResult<testing::KilledBySignal>(killed_by_signal,
                                                   std::move(death_message));
 #endif

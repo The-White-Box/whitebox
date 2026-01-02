@@ -647,7 +647,7 @@ foreach(wb_target_name ${WB_ALL_TARGETS})
           $<$<CONFIG:DEBUG>:
             # Generate a partial PDB file that simply references the original object
             # and library files.
-            $<IF:$<BOOL:${WB_MSVC_ENABLE_DEBUG_FAST_LINK}>,/DEBUG:FASTLINK,/DEBUG:FULL>
+            /DEBUG:FULL
           >
 
           $<$<NOT:$<CONFIG:DEBUG>>:

@@ -89,13 +89,18 @@ GTEST_TEST(StringViewExtDeathTest, EndsWithStringWhenNullptr) {
   const auto test_result =
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult("");
 
-  EXPECT_EXIT([[maybe_unused]] const auto volatile v1 = ends_with("", nullptr),
-              test_result.exit_predicate, test_result.message);
-  EXPECT_EXIT([[maybe_unused]] const auto volatile v2 = ends_with("a", nullptr),
-              test_result.exit_predicate, test_result.message);
-  EXPECT_EXIT(
-      [[maybe_unused]] const auto volatile v3 = ends_with("abc", nullptr),
-      test_result.exit_predicate, test_result.message);
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+    EXPECT_EXIT(
+        [[maybe_unused]] const auto volatile v1 = ends_with("", nullptr),
+        test_result.exit_predicate, test_result.message);
+    EXPECT_EXIT(
+        [[maybe_unused]] const auto volatile v2 = ends_with("a", nullptr),
+        test_result.exit_predicate, test_result.message);
+    EXPECT_EXIT(
+        [[maybe_unused]] const auto volatile v3 = ends_with("abc", nullptr),
+        test_result.exit_predicate, test_result.message);
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 }
 #else   // WB_COMPILER_HAS_DEBUG
 // NOLINTNEXTLINE(cert-err58-cpp,cppcoreguidelines-avoid-non-const-global-variables,cppcoreguidelines-owning-memory)

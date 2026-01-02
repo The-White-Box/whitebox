@@ -83,7 +83,10 @@ GTEST_TEST(ScopedProcessPureCallHandlerDeathTest,
       wb::base::tests_internal::MakeG3LogCheckFailureDeathTestResult(
           "Pure virtual function call occured.  Stopping the app.");
 
-  EXPECT_EXIT(triggerPureCall(), test_result.exit_predicate,
-              test_result.message);
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+    EXPECT_EXIT(triggerPureCall(), test_result.exit_predicate,
+                test_result.message);
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 }
 #endif  // GTEST_HAS_DEATH_TEST

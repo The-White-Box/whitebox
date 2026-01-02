@@ -103,6 +103,9 @@ GTEST_TEST(DefaultNewHandlerDeathTest, OutOfMemoryTriggersNewFailureHandler) {
           ENOMEM);
 #endif
 
-  EXPECT_EXIT(triggerOom(), test_result.exit_predicate, test_result.message);
+  WB_GCC_BEGIN_WARNING_OVERRIDE_SCOPE()
+    WB_GCC_DISABLE_SWITCH_DEFAULT_WARNING()
+    EXPECT_EXIT(triggerOom(), test_result.exit_predicate, test_result.message);
+  WB_GCC_END_WARNING_OVERRIDE_SCOPE()
 }
 #endif
